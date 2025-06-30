@@ -393,111 +393,6 @@ minetest.register_node(
 
 --------------------------------------------------------------------
 --LAVA
-local lava_light = 12
-local lava_temp_effect = 60
-local lava_heater = 1200
-
-local lava_source = {
-    description = S("Lava Source"),
-    drawtype = "liquid",
-    tiles = {
-        {
-            name = "nodes_nature_lava_source_animated.png",
-            backface_culling = false,
-            animation = {
-                type = "vertical_frames",
-                aspect_w = 16,
-                aspect_h = 16,
-                length = 2.2,
-            },
-        },
-        {
-            name = "nodes_nature_lava_source_animated.png",
-            backface_culling = true,
-            animation = {
-                type = "vertical_frames",
-                aspect_w = 16,
-                aspect_h = 16,
-                length = 2.2,
-            },
-        },
-    },
-    paramtype = "light",
-    light_source = lava_light,
-    temp_effect = lava_temp_effect,
-    temp_effect_max = lava_heater,
-    walkable = false,
-    pointable = false,
-    diggable = false,
-    buildable_to = true,
-    is_ground_content = false,
-    drop = "",
-    drowning = 1,
-    liquidtype = "source",
-    liquid_alternative_flowing = "nodes_nature:lava_flowing",
-    liquid_alternative_source = "nodes_nature:lava_source",
-    liquid_viscosity = 3,
-    liquid_renewable = false,
-    liquid_range = 5,
-    damage_per_second = 4 * 2,
-    post_effect_color = {a = 191, r = 255, g = 64, b = 0},
-    groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
-}
-
-local lava_flowing = {
-    description = S("Flowing Lava"),
-    drawtype = "flowingliquid",
-    tiles = {"nodes_nature_lava.png"},
-    special_tiles = {
-        {
-            name = "nodes_nature_lava_flowing_animated.png",
-            backface_culling = false,
-            animation = {
-                type = "vertical_frames",
-                aspect_w = 16,
-                aspect_h = 16,
-                length = 2.4,
-            },
-        },
-        {
-            name = "nodes_nature_lava_flowing_animated.png",
-            backface_culling = true,
-            animation = {
-                type = "vertical_frames",
-                aspect_w = 16,
-                aspect_h = 16,
-                length = 2.4,
-            },
-        },
-    },
-    paramtype = "light",
-    paramtype2 = "flowingliquid",
-    light_source = lava_light,
-    temp_effect = lava_temp_effect,
-    temp_effect_max = lava_heater,
-    walkable = false,
-    pointable = false,
-    diggable = false,
-    buildable_to = true,
-    is_ground_content = false,
-    drop = "",
-    drowning = 1,
-    liquidtype = "flowing",
-    liquid_alternative_flowing = "nodes_nature:lava_flowing",
-    liquid_alternative_source = "nodes_nature:lava_source",
-    liquid_viscosity = 3,
-    liquid_renewable = false,
-    liquid_range = 5,
-    damage_per_second = 4 * 2,
-    post_effect_color = {a = 191, r = 255, g = 64, b = 0},
-    groups = {igniter = 1, not_in_creative_inventory = 1,
-              temp_effect = 1, temp_pass = 1},
-}
-
-minetest.register_node("nodes_nature:lava_flowing", lava_flowing)
-
-minetest.register_node("nodes_nature:lava_source", lava_source)
-
 
 
 -----
@@ -622,7 +517,7 @@ local function lava_cool_sound(pos)
 end
 
 -- function for spawning steam with cooled lava
-local function spawn_steam(pos)
+local function spawn_steam(pos, small)
     -- 15 frames, 0.1s/ea (1 extra empty frame at end)
     -- can be randomized by 85 to 115%
     local length = 1.5 * (ran(85,115)/100)
@@ -636,10 +531,10 @@ local function spawn_steam(pos)
             length = length
         },
         -- other particle def
-        amount = ran(22, 72),
-        time = ran(0.5, 1.5),
+        amount = small and ran(10, 20) or ran(22, 72),
+        time = small and ran(2, 5)/10 or ran(5, 15)/10,
         glow = 4,
-        minsize = ran(2, 6),
+        minsize = small and ran(1,2) or ran(2, 6),
         collisiondetection = true,
         collision_removal = true,
         vertical = true,
@@ -652,14 +547,124 @@ local function spawn_steam(pos)
         minacc = {x=0,y=0.2,z=0},
         maxacc = {x=0,y=0.5,z=0},
     }
-    pdef.maxsize = pdef.minsize + ran(8, 20)
+    pdef.maxsize = pdef.minsize + (small and ran(2,4) or ran(8, 20))
     -- should be a bit less than total animation due to potential lag
-    length = length+(length*ran(0,10))-0.1 -- permit 0 to 5 more iterations
+    length = length+(length*ran(0, (small and 2 or 10) ))-0.1 -- permit 0 to 10 more iterations (small is 2 iterations max)
     pdef.minexptime = length
     pdef.maxexptime = length
     -- spawn particle emitter
     core.add_particlespawner(pdef)
 end
+
+local function water_drop_on_lava(pos, node, ndef, entity)
+    lava_cool_sound(pos)
+    spawn_steam(pos, true)
+end
+
+------------------------------------
+-- actual lava nodes
+local lava_light = 12
+local lava_temp_effect = 60
+local lava_heater = 1200
+
+core.register_node("nodes_nature:lava_source", {
+    description = S("Lava Source"),
+    drawtype = "liquid",
+    tiles = {
+        {
+            name = "nodes_nature_lava_source_animated.png",
+            backface_culling = false,
+            animation = {
+                type = "vertical_frames",
+                aspect_w = 16,
+                aspect_h = 16,
+                length = 2.2,
+            },
+        },
+        {
+            name = "nodes_nature_lava_source_animated.png",
+            backface_culling = true,
+            animation = {
+                type = "vertical_frames",
+                aspect_w = 16,
+                aspect_h = 16,
+                length = 2.2,
+            },
+        },
+    },
+    paramtype = "light",
+    light_source = lava_light,
+    temp_effect = lava_temp_effect,
+    temp_effect_max = lava_heater,
+    walkable = false,
+    pointable = false,
+    diggable = false,
+    buildable_to = true,
+    is_ground_content = false,
+    drop = "",
+    drowning = 1,
+    liquidtype = "source",
+    liquid_alternative_flowing = "nodes_nature:lava_flowing",
+    liquid_alternative_source = "nodes_nature:lava_source",
+    liquid_viscosity = 3,
+    liquid_renewable = false,
+    liquid_range = 5,
+    damage_per_second = 4 * 2,
+    post_effect_color = {a = 191, r = 255, g = 64, b = 0},
+    groups = {igniter = 1, temp_effect = 1, temp_pass = 1},
+    on_water_drop_splash = water_drop_on_lava
+})
+
+core.register_node("nodes_nature:lava_flowing", {
+    description = S("Flowing Lava"),
+    drawtype = "flowingliquid",
+    tiles = {"nodes_nature_lava.png"},
+    special_tiles = {
+        {
+            name = "nodes_nature_lava_flowing_animated.png",
+            backface_culling = false,
+            animation = {
+                type = "vertical_frames",
+                aspect_w = 16,
+                aspect_h = 16,
+                length = 2.4,
+            },
+        },
+        {
+            name = "nodes_nature_lava_flowing_animated.png",
+            backface_culling = true,
+            animation = {
+                type = "vertical_frames",
+                aspect_w = 16,
+                aspect_h = 16,
+                length = 2.4,
+            },
+        },
+    },
+    paramtype = "light",
+    paramtype2 = "flowingliquid",
+    light_source = lava_light,
+    temp_effect = lava_temp_effect,
+    temp_effect_max = lava_heater,
+    walkable = false,
+    pointable = false,
+    diggable = false,
+    buildable_to = true,
+    is_ground_content = false,
+    drop = "",
+    drowning = 1,
+    liquidtype = "flowing",
+    liquid_alternative_flowing = "nodes_nature:lava_flowing",
+    liquid_alternative_source = "nodes_nature:lava_source",
+    liquid_viscosity = 3,
+    liquid_renewable = false,
+    liquid_range = 5,
+    damage_per_second = 4 * 2,
+    post_effect_color = {a = 191, r = 255, g = 64, b = 0},
+    groups = {igniter = 1, not_in_creative_inventory = 1,
+              temp_effect = 1, temp_pass = 1},
+    on_water_drop_splash = water_drop_on_lava
+})
 
 
 --cools when exposed to air, melts solids, adds plumes
