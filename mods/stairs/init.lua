@@ -40,37 +40,6 @@ local function rotate_and_place(itemstack, placer, pointed_thing)
     return minetest.item_place(itemstack, placer, pointed_thing, param2)
 end
 
--- Set backface culling and world-aligned textures
--- backface_culling should be true for stairs
--- nil for slabs
-local function set_faces(images, worldaligntex, backface_culling)
-    local stair_images = {}
-    for i, image in ipairs(images) do
-        if type(image) == "string" then
-            stair_images[i] = {
-                name = image,
-                -- set to true if param is present
-                backface_culling = backface_culling or nil,
-            }
-            if worldaligntex then
-                stair_images[i].align_style = "world"
-            end
-        else
-            stair_images[i] = table.copy(image)
-            if backface_culling then
-                if stair_images[i].backface_culling == nil then
-                    stair_images[i].backface_culling = true
-                end
-            end
-            if worldaligntex and stair_images[i].align_style == nil then
-                stair_images[i].align_style = "world"
-            end
-        end
-    end
-    return stair_images
-end
-
-
 function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, prefix)
     if recipeitem then
         local level = 1
@@ -109,6 +78,36 @@ function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_sta
         end
 
     end
+end
+
+-- Set backface culling and world-aligned textures
+-- backface_culling should be true for stairs
+-- nil for slabs
+local function set_faces(images, worldaligntex, backface_culling)
+    local stair_images = {}
+    for i, image in ipairs(images) do
+        if type(image) == "string" then
+            stair_images[i] = {
+                name = image,
+                -- set to true if param is present
+                backface_culling = backface_culling or nil,
+            }
+            if worldaligntex then
+                stair_images[i].align_style = "world"
+            end
+        else
+            stair_images[i] = table.copy(image)
+            if backface_culling then
+                if stair_images[i].backface_culling == nil then
+                    stair_images[i].backface_culling = true
+                end
+            end
+            if worldaligntex and stair_images[i].align_style == nil then
+                stair_images[i].align_style = "world"
+            end
+        end
+    end
+    return stair_images
 end
 
 -- see `stairs.register_stair_and_slab` for params (table) fields
@@ -161,6 +160,7 @@ local function register_stairs_or_slabs(params, prefix, def, use_replace)
     end
 end
 
+
 -- Register stair
 -- Nodes will be called stairs:stair_<subname> or stairs:slab_<subname>
 -- see `stairs.register_stair_and_slab` for params (table) fields
@@ -177,6 +177,7 @@ function stairs.register_stair(params, droptype)
     -- use_replace = true: for replace ABM
     register_stairs_or_slabs(params, "stairs:stair", def, true)
 end
+
 
 -- Register slab
 -- Node will be called stairs:slab_<subname>
@@ -226,8 +227,10 @@ function stairs.register_slab(params, droptype)
     register_stairs_or_slabs(params, "stairs:slab", slab_def, true)
 end
 
+
 -- Optionally replace old "upside_down" nodes with new param2 versions.
 -- Disabled by default.
+-- currently activated for normal stair and slab, registered above
 if replace then
     minetest.register_abm({
             label = "Slab replace",
