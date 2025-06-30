@@ -111,37 +111,37 @@ function stairs.register_stair(subname, recipeitem, craft_station, recycle, recy
     local new_groups = table.copy(groups)
     new_groups.stair = 1
     minetest.register_node(":stairs:stair_" .. subname, {
-                               description = description,
-                               drawtype = "nodebox",
-                               tiles = stair_images,
-                               stack_max = stack_size,
-                               paramtype = "light",
-                               paramtype2 = "facedir",
-                               drop = droptype,
-                               is_ground_content = false,
-                               groups = new_groups,
-                               sounds = sounds,
-                               node_box = {
-                                   type = "fixed",
-                                   fixed = {
-                                       {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                                       {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
-                                   },
-                               },
-                               on_place = function(itemstack, placer, pointed_thing)
-                                   if pointed_thing.type ~= "node" then
-                                       return itemstack
-                                   end
+               description = description,
+               drawtype = "nodebox",
+               tiles = stair_images,
+               stack_max = stack_size,
+               paramtype = "light",
+               paramtype2 = "facedir",
+               drop = droptype,
+               is_ground_content = false,
+               groups = new_groups,
+               sounds = sounds,
+               node_box = {
+                   type = "fixed",
+                   fixed = {
+                       {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+                       {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
+                   },
+               },
+               on_place = function(itemstack, placer, pointed_thing)
+                   if pointed_thing.type ~= "node" then
+                       return itemstack
+                   end
 
-                                   return rotate_and_place(itemstack, placer, pointed_thing)
-                               end,
+                   return rotate_and_place(itemstack, placer, pointed_thing)
+               end,
     })
 
     -- for replace ABM
     if replace then
         minetest.register_node(":stairs:stair_" .. subname .. "upside_down", {
-                                   replace_name = "stairs:stair_" .. subname,
-                                   groups = {slabs_replace = 1},
+                replace_name = "stairs:stair_" .. subname,
+                groups = {slabs_replace = 1},
         })
     end
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_")
@@ -173,63 +173,64 @@ function stairs.register_slab(subname, recipeitem, craft_station, recycle, recyc
     local new_groups = table.copy(groups)
     new_groups.slab = 1
     minetest.register_node(":stairs:slab_" .. subname, {
-                               description = description,
-                               drawtype = "nodebox",
-                               tiles = slab_images,
-                               stack_max = stack_size,
-                               paramtype = "light",
-                               paramtype2 = "facedir",
-                               drop = droptype,
-                               is_ground_content = false,
-                               groups = new_groups,
-                               sounds = sounds,
-                               node_box = {
-                                   type = "fixed",
-                                   fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-                               },
-                               on_place = function(itemstack, placer, pointed_thing)
-                                   local under = minetest.get_node(pointed_thing.under)
-                                   local wield_item = itemstack:get_name()
-                                   local player_name = placer and placer:get_player_name() or ""
-                                   local creative_enabled = minimal.player_in_creative(placer)
+           description = description,
+           drawtype = "nodebox",
+           tiles = slab_images,
+           stack_max = stack_size,
+           paramtype = "light",
+           paramtype2 = "facedir",
+           drop = droptype,
+           is_ground_content = false,
+           groups = new_groups,
+           sounds = sounds,
+           node_box = {
+               type = "fixed",
+               fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+           },
+           on_place = function(itemstack, placer, pointed_thing)
+               local under = minetest.get_node(pointed_thing.under)
+               local wield_item = itemstack:get_name()
+               local player_name = placer and placer:get_player_name() or ""
+               local creative_enabled = minimal.player_in_creative(placer)
 
-                                   local def = minetest.registered_nodes[under.name]
-                                   if def.on_rightclick then
-                                       return def.on_rightclick(pointed_thing.under, under,
-                                                                placer, itemstack, pointed_thing)
-                                   end
-                                   if under and under.name:find("^stairs:slab_") then
-                                       -- place slab using under node orientation
-                                       local dir = minetest.dir_to_facedir(vector.subtract(
-                                                                               pointed_thing.above, pointed_thing.under), true)
+               local def = minetest.registered_nodes[under.name]
+               if def.on_rightclick then
+                   return def.on_rightclick(pointed_thing.under, under,
+                                            placer, itemstack, pointed_thing)
+               end
+               if under and under.name:find("^stairs:slab_") then
+                   -- place slab using under node orientation
+                   local dir = minetest.dir_to_facedir(vector.subtract(
+                                                          pointed_thing.above, pointed_thing.under),
+                                                       true)
 
-                                       local p2 = under.param2
+                   local p2 = under.param2
 
-                                       -- Placing a slab on an upside down slab should make it right-side up.
-                                       if p2 >= 20 and dir == 8 then
-                                           p2 = p2 - 20
-                                           -- same for the opposite case: slab below normal slab
-                                       elseif p2 <= 3 and dir == 4 then
-                                           p2 = p2 + 20
-                                       end
+                   -- Placing a slab on an upside down slab should make it right-side up.
+                   if p2 >= 20 and dir == 8 then
+                       p2 = p2 - 20
+                       -- same for the opposite case: slab below normal slab
+                   elseif p2 <= 3 and dir == 4 then
+                       p2 = p2 + 20
+                   end
 
-                                       -- else attempt to place node with proper param2
-                                       if minimal.player_in_creative(placer) then
-                                          minetest.item_place_node(itemstack, placer, pointed_thing, p2)
-                                          return itemstack
-                                       end
-                                       return minetest.item_place_node(itemstack, placer, pointed_thing, p2)
-                                   else
-                                       return rotate_and_place(itemstack, placer, pointed_thing)
-                                   end
-                               end,
+                   -- else attempt to place node with proper param2
+                   if minimal.player_in_creative(placer) then
+                       minetest.item_place_node(itemstack, placer, pointed_thing, p2)
+                       return itemstack
+                   end
+                   return minetest.item_place_node(itemstack, placer, pointed_thing, p2)
+               else
+                   return rotate_and_place(itemstack, placer, pointed_thing)
+               end
+           end,
     })
 
     -- for replace ABM
     if replace then
         minetest.register_node(":stairs:slab_" .. subname .. "upside_down", {
-                                   replace_name = "stairs:slab_".. subname,
-                                   groups = {slabs_replace = 1},
+                   replace_name = "stairs:slab_".. subname,
+                   groups = {slabs_replace = 1},
         })
     end
 
@@ -289,31 +290,31 @@ function stairs.register_stair_inner(subname, recipeitem, craft_station, recycle
     local new_groups = table.copy(groups)
     new_groups.stair = 1
     minetest.register_node(":stairs:stair_inner_" .. subname, {
-                               description = S("Inner @1", description),
-                               drawtype = "nodebox",
-                               tiles = stair_images,
-                               stack_max = stack_size,
-                               paramtype = "light",
-                               paramtype2 = "facedir",
-                               drop = droptype,
-                               is_ground_content = false,
-                               groups = new_groups,
-                               sounds = sounds,
-                               node_box = {
-                                   type = "fixed",
-                                   fixed = {
-                                       {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                                       {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
-                                       {-0.5, 0.0, -0.5, 0.0, 0.5, 0.0},
-                                   },
-                               },
-                               on_place = function(itemstack, placer, pointed_thing)
-                                   if pointed_thing.type ~= "node" then
-                                       return itemstack
-                                   end
+                description = S("Inner @1", description),
+                drawtype = "nodebox",
+                tiles = stair_images,
+                stack_max = stack_size,
+                paramtype = "light",
+                paramtype2 = "facedir",
+                drop = droptype,
+                is_ground_content = false,
+                groups = new_groups,
+                sounds = sounds,
+                node_box = {
+                    type = "fixed",
+                    fixed = {
+                        {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+                        {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
+                        {-0.5, 0.0, -0.5, 0.0, 0.5, 0.0},
+                    },
+                },
+                on_place = function(itemstack, placer, pointed_thing)
+                    if pointed_thing.type ~= "node" then
+                        return itemstack
+                    end
 
-                                   return rotate_and_place(itemstack, placer, pointed_thing)
-                               end,
+                    return rotate_and_place(itemstack, placer, pointed_thing)
+                end,
     })
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_inner_")
 end
@@ -350,30 +351,30 @@ function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle
     --#TODO being able to split description for translation would be great
     -- Outer clay stairs could be "stairs + outer + clay" in French
     minetest.register_node(":stairs:stair_outer_" .. subname, {
-                               description = S("Outer @1", description),
-                               drawtype = "nodebox",
-                               tiles = stair_images,
-                               stack_max = stack_size,
-                               paramtype = "light",
-                               paramtype2 = "facedir",
-                               drop = droptype,
-                               is_ground_content = false,
-                               groups = new_groups,
-                               sounds = sounds,
-                               node_box = {
-                                   type = "fixed",
-                                   fixed = {
-                                       {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                                       {-0.5, 0.0, 0.0, 0.0, 0.5, 0.5},
-                                   },
-                               },
-                               on_place = function(itemstack, placer, pointed_thing)
-                                   if pointed_thing.type ~= "node" then
-                                       return itemstack
-                                   end
+                description = S("Outer @1", description),
+                drawtype = "nodebox",
+                tiles = stair_images,
+                stack_max = stack_size,
+                paramtype = "light",
+                paramtype2 = "facedir",
+                drop = droptype,
+                is_ground_content = false,
+                groups = new_groups,
+                sounds = sounds,
+                node_box = {
+                    type = "fixed",
+                    fixed = {
+                        {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+                        {-0.5, 0.0, 0.0, 0.0, 0.5, 0.5},
+                    },
+                },
+                on_place = function(itemstack, placer, pointed_thing)
+                    if pointed_thing.type ~= "node" then
+                        return itemstack
+                    end
 
-                                   return rotate_and_place(itemstack, placer, pointed_thing)
-                               end,
+                    return rotate_and_place(itemstack, placer, pointed_thing)
+                end,
     })
 
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_outer_")
