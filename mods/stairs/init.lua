@@ -137,8 +137,11 @@ local function get_stairs_base_def(images, worldaligntex, stack_size, droptype, 
     }
 end
 
-function stairs.register_stair(subname, recipeitem, craft_station, recycle, recycle_station,
-                               groups, images, description, stack_size, sounds, worldaligntex, droptype)
+function stairs.register_stair(subname, recipeitem, craft_station,
+                               recycle, recycle_station, groups,
+                               images, description,
+                               stack_size, sounds, worldaligntex,
+                               droptype)
     local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
     def.description = description
     def.node_box = {
@@ -163,8 +166,11 @@ end
 -- Register slab
 -- Node will be called stairs:slab_<subname>
 
-function stairs.register_slab(subname, recipeitem, craft_station, recycle, recycle_station,
-                              groups, images, description, stack_size, sounds, worldaligntex, droptype)
+function stairs.register_slab(subname, recipeitem, craft_station,
+                              recycle, recycle_station, groups,
+                              images, description,
+                              stack_size, sounds, worldaligntex,
+                              droptype)
     -- Set world-aligned textures
     local slab_images = set_faces(images, worldaligntex)
     local new_groups = table.copy(groups)
@@ -261,8 +267,11 @@ end
 -- Register inner stair
 -- Node will be called stairs:stair_inner_<subname>
 
-function stairs.register_stair_inner(subname, recipeitem, craft_station, recycle, recycle_station,
-                                     groups, images, description, stack_size, sounds, worldaligntex, droptype)
+function stairs.register_stair_inner(subname, recipeitem, craft_station,
+                                     recycle, recycle_station, groups,
+                                     images, description,
+                                     stack_size, sounds, worldaligntex,
+                                     droptype)
 
     local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
     def.description = S("Inner @1", description)
@@ -282,8 +291,11 @@ end
 -- Register outer stair
 -- Node will be called stairs:stair_outer_<subname>
 
-function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle, recycle_station,
-                                     groups, images, description, stack_size, sounds, worldaligntex, droptype)
+function stairs.register_stair_outer(subname, recipeitem, craft_station,
+                                     recycle, recycle_station, groups,
+                                     images, description,
+                                     stack_size, sounds, worldaligntex,
+                                     droptype)
     -- Set backface culling and world-aligned textures
     local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
     --#TODO being able to split description for translation would be great
@@ -305,8 +317,11 @@ end
 -- Stair/slab registration function.
 -- Nodes will be called stairs:{stair,slab}_<subname>
 
-function stairs.register_stair_and_slab(subname, recipeitem, craft_station, recycle, recycle_station,
-                                        groups, images, desc_stair, desc_slab, stack_size, sounds, worldaligntex, droptypemain)
+function stairs.register_stair_and_slab(subname, recipeitem, craft_station,
+                                        recycle, recycle_station, groups,
+                                        images, desc_stair, desc_slab,
+                                        stack_size, sounds, worldaligntex,
+                                        droptypemain)
     local droptype = nil
     local droptypesub = ""
     if droptypemain ~= nil then
@@ -319,15 +334,20 @@ function stairs.register_stair_and_slab(subname, recipeitem, craft_station, recy
     end
     local stexist = minetest.registered_nodes["stairs:stair_"..droptypesub]
     if stexist then droptype = "stairs:stair_"..droptypesub end
-    stairs.register_stair(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
+    stairs.register_stair(subname, recipeitem, craft_station,
+                          recycle, recycle_station, groups, images,
                           desc_stair, stack_size, sounds, worldaligntex, droptype)
     if stexist then droptype = "stairs:stair_inner_"..droptypesub end
-    stairs.register_stair_inner(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
+    stairs.register_stair_inner(subname, recipeitem, craft_station,
+                                recycle, recycle_station, groups, images,
                                 desc_stair, stack_size, sounds, worldaligntex, droptype)
     if stexist then droptype = "stairs:stair_outer_"..droptypesub end
-    stairs.register_stair_outer(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
+    stairs.register_stair_outer(subname, recipeitem, craft_station,
+                                recycle, recycle_station, groups, images,
                                 desc_stair, stack_size, sounds, worldaligntex, droptype)
     if stexist then droptype = "stairs:slab_"..droptypesub end
-    stairs.register_slab(subname, recipeitem, craft_station, recycle, recycle_station, groups, images,
-                         desc_slab, stack_size, sounds, worldaligntex, droptype)
+    stairs.register_slab(subname, recipeitem, craft_station,
+                                recycle, recycle_station, groups, images,
+                                desc_slab, stack_size, sounds, worldaligntex,
+                                droptype)
 end
