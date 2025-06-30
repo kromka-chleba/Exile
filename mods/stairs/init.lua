@@ -40,6 +40,35 @@ local function rotate_and_place(itemstack, placer, pointed_thing)
     return minetest.item_place(itemstack, placer, pointed_thing, param2)
 end
 
+-- Set backface culling and world-aligned textures
+-- backface_culling should be true for stairs
+-- nil for slabs
+local function set_faces(images, worldaligntex, backface_culling)
+    local stair_images = {}
+    for i, image in ipairs(images) do
+        if type(image) == "string" then
+            stair_images[i] = {
+                name = image,
+                -- set to true if param is present
+                backface_culling = backface_culling or nil,
+            }
+            if worldaligntex then
+                stair_images[i].align_style = "world"
+            end
+        else
+            stair_images[i] = table.copy(image)
+            if backface_culling then
+                if stair_images[i].backface_culling == nil then
+                    stair_images[i].backface_culling = true
+                end
+            end
+            if worldaligntex and stair_images[i].align_style == nil then
+                stair_images[i].align_style = "world"
+            end
+        end
+    end
+    return stair_images
+end
 
 
 function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, prefix)
@@ -85,57 +114,41 @@ end
 -- Register stair
 -- Node will be called stairs:stair_<subname>
 
-function stairs.register_stair(subname, recipeitem, craft_station, recycle, recycle_station,
-                               groups, images, description, stack_size, sounds, worldaligntex, droptype)
-    -- Set backface culling and world-aligned textures
-    local stair_images = {}
-    for i, image in ipairs(images) do
-        if type(image) == "string" then
-            stair_images[i] = {
-                name = image,
-                backface_culling = true,
-            }
-            if worldaligntex then
-                stair_images[i].align_style = "world"
-            end
-        else
-            stair_images[i] = table.copy(image)
-            if stair_images[i].backface_culling == nil then
-                stair_images[i].backface_culling = true
-            end
-            if worldaligntex and stair_images[i].align_style == nil then
-                stair_images[i].align_style = "world"
-            end
-        end
-    end
+local function get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
     local new_groups = table.copy(groups)
     new_groups.stair = 1
-    minetest.register_node(":stairs:stair_" .. subname, {
-               description = description,
-               drawtype = "nodebox",
-               tiles = stair_images,
-               stack_max = stack_size,
-               paramtype = "light",
-               paramtype2 = "facedir",
-               drop = droptype,
-               is_ground_content = false,
-               groups = new_groups,
-               sounds = sounds,
-               node_box = {
-                   type = "fixed",
-                   fixed = {
-                       {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                       {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
-                   },
-               },
-               on_place = function(itemstack, placer, pointed_thing)
-                   if pointed_thing.type ~= "node" then
-                       return itemstack
-                   end
+    return {
+        drawtype = "nodebox",
+        tiles = set_faces(images, worldaligntex),
+        stack_max = stack_size,
+        paramtype = "light",
+        paramtype2 = "facedir",
+        drop = droptype,
+        is_ground_content = false,
+        groups = new_groups,
+        sounds = sounds,
+        on_place = function(itemstack, placer, pointed_thing)
+            if pointed_thing.type ~= "node" then
+                return itemstack
+            end
 
-                   return rotate_and_place(itemstack, placer, pointed_thing)
-               end,
-    })
+            return rotate_and_place(itemstack, placer, pointed_thing)
+        end,
+    }
+end
+
+function stairs.register_stair(subname, recipeitem, craft_station, recycle, recycle_station,
+                               groups, images, description, stack_size, sounds, worldaligntex, droptype)
+    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
+    def.description = description
+    def.node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+            {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
+        },
+    }
+    minetest.register_node(":stairs:stair_" .. subname, def)
 
     -- for replace ABM
     if replace then
@@ -147,29 +160,13 @@ function stairs.register_stair(subname, recipeitem, craft_station, recycle, recy
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_")
 end
 
-
 -- Register slab
 -- Node will be called stairs:slab_<subname>
 
 function stairs.register_slab(subname, recipeitem, craft_station, recycle, recycle_station,
                               groups, images, description, stack_size, sounds, worldaligntex, droptype)
     -- Set world-aligned textures
-    local slab_images = {}
-    for i, image in ipairs(images) do
-        if type(image) == "string" then
-            slab_images[i] = {
-                name = image,
-            }
-            if worldaligntex then
-                slab_images[i].align_style = "world"
-            end
-        else
-            slab_images[i] = table.copy(image)
-            if worldaligntex and image.align_style == nil then
-                slab_images[i].align_style = "world"
-            end
-        end
-    end
+    local slab_images = set_faces(images, worldaligntex)
     local new_groups = table.copy(groups)
     new_groups.slab = 1
     minetest.register_node(":stairs:slab_" .. subname, {
@@ -266,56 +263,18 @@ end
 
 function stairs.register_stair_inner(subname, recipeitem, craft_station, recycle, recycle_station,
                                      groups, images, description, stack_size, sounds, worldaligntex, droptype)
-    -- Set backface culling and world-aligned textures
-    local stair_images = {}
-    for i, image in ipairs(images) do
-        if type(image) == "string" then
-            stair_images[i] = {
-                name = image,
-                backface_culling = true,
-            }
-            if worldaligntex then
-                stair_images[i].align_style = "world"
-            end
-        else
-            stair_images[i] = table.copy(image)
-            if stair_images[i].backface_culling == nil then
-                stair_images[i].backface_culling = true
-            end
-            if worldaligntex and stair_images[i].align_style == nil then
-                stair_images[i].align_style = "world"
-            end
-        end
-    end
-    local new_groups = table.copy(groups)
-    new_groups.stair = 1
-    minetest.register_node(":stairs:stair_inner_" .. subname, {
-                description = S("Inner @1", description),
-                drawtype = "nodebox",
-                tiles = stair_images,
-                stack_max = stack_size,
-                paramtype = "light",
-                paramtype2 = "facedir",
-                drop = droptype,
-                is_ground_content = false,
-                groups = new_groups,
-                sounds = sounds,
-                node_box = {
-                    type = "fixed",
-                    fixed = {
-                        {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                        {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
-                        {-0.5, 0.0, -0.5, 0.0, 0.5, 0.0},
-                    },
-                },
-                on_place = function(itemstack, placer, pointed_thing)
-                    if pointed_thing.type ~= "node" then
-                        return itemstack
-                    end
 
-                    return rotate_and_place(itemstack, placer, pointed_thing)
-                end,
-    })
+    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
+    def.description = S("Inner @1", description)
+    def.node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+            {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
+            {-0.5, 0.0, -0.5, 0.0, 0.5, 0.0},
+        },
+    }
+    minetest.register_node(":stairs:stair_inner_" .. subname, def)
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_inner_")
 end
 
@@ -326,57 +285,19 @@ end
 function stairs.register_stair_outer(subname, recipeitem, craft_station, recycle, recycle_station,
                                      groups, images, description, stack_size, sounds, worldaligntex, droptype)
     -- Set backface culling and world-aligned textures
-    local stair_images = {}
-    for i, image in ipairs(images) do
-        if type(image) == "string" then
-            stair_images[i] = {
-                name = image,
-                backface_culling = true,
-            }
-            if worldaligntex then
-                stair_images[i].align_style = "world"
-            end
-        else
-            stair_images[i] = table.copy(image)
-            if stair_images[i].backface_culling == nil then
-                stair_images[i].backface_culling = true
-            end
-            if worldaligntex and stair_images[i].align_style == nil then
-                stair_images[i].align_style = "world"
-            end
-        end
-    end
-    local new_groups = table.copy(groups)
-    new_groups.stair = 1
+    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
     --#TODO being able to split description for translation would be great
     -- Outer clay stairs could be "stairs + outer + clay" in French
-    minetest.register_node(":stairs:stair_outer_" .. subname, {
-                description = S("Outer @1", description),
-                drawtype = "nodebox",
-                tiles = stair_images,
-                stack_max = stack_size,
-                paramtype = "light",
-                paramtype2 = "facedir",
-                drop = droptype,
-                is_ground_content = false,
-                groups = new_groups,
-                sounds = sounds,
-                node_box = {
-                    type = "fixed",
-                    fixed = {
-                        {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
-                        {-0.5, 0.0, 0.0, 0.0, 0.5, 0.5},
-                    },
-                },
-                on_place = function(itemstack, placer, pointed_thing)
-                    if pointed_thing.type ~= "node" then
-                        return itemstack
-                    end
+    def.description = S("Outer @1", description)
+    def.node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.5, -0.5, -0.5, 0.5, 0.0, 0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.5, 0.5},
+        },
+    }
 
-                    return rotate_and_place(itemstack, placer, pointed_thing)
-                end,
-    })
-
+    minetest.register_node(":stairs:stair_outer_" .. subname, def)
     stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_outer_")
 end
 
