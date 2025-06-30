@@ -111,22 +111,23 @@ function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_sta
     end
 end
 
--- Register stair
--- Node will be called stairs:stair_<subname>
-
-local function get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
-    local new_groups = table.copy(groups)
-    new_groups.stair = 1
+-- see `stairs.register_stair_and_slab` for params (table) fields
+-- group_type is "stair" or "slab"
+local function get_base_def(params, droptype, group_type)
+    local new_groups = table.copy(params[8]) -- groups
+    -- new_groups.stair or new_groups.slab
+    new_groups[group_type] = 1
     return {
         drawtype = "nodebox",
-        tiles = set_faces(images, worldaligntex),
-        stack_max = stack_size,
+        -- 7: images, 12: worldaligntex
+        tiles = set_faces(params[7], params[12]),
+        stack_max = params[10],
         paramtype = "light",
         paramtype2 = "facedir",
         drop = droptype,
         is_ground_content = false,
         groups = new_groups,
-        sounds = sounds,
+        sounds = params[11],
         on_place = function(itemstack, placer, pointed_thing)
             if pointed_thing.type ~= "node" then
                 return itemstack
@@ -137,13 +138,35 @@ local function get_stairs_base_def(images, worldaligntex, stack_size, droptype, 
     }
 end
 
-function stairs.register_stair(subname, recipeitem, craft_station,
-                               recycle, recycle_station, groups,
-                               images, description,
-                               stack_size, sounds, worldaligntex,
-                               droptype)
-    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
-    def.description = description
+-- prefix is for ex: "stairs:stair_outer"
+-- use_replace is true if we want to use "replace" parameter
+local function register_stairs_or_slabs(params, prefix, def, use_replace)
+    -- subname, ex: "sandstone_brick"
+    local subname = params[1]
+    -- exemple of name: "stairs:stair_outer_sandstone_brick"
+    local name = prefix .. "_".. subname
+    -- #TODO why the ":" n the front ?
+    core.register_node(":" .. name, def)
+    -- 2: recipeitem, 3: craft_station, 4: recyle, 5: recycle_station
+    stairs.register_recipies(params[2],params[3], params[4], params[5], subname, prefix)
+
+    if use_replace then
+        -- for replace ABM
+        if replace then
+            core.register_node(":" .. name .. "upside_down", {
+                    replace_name = name,
+                    groups = {slabs_replace = 1},
+            })
+        end
+    end
+end
+
+-- Register stair
+-- Nodes will be called stairs:stair_<subname> or stairs:slab_<subname>
+-- see `stairs.register_stair_and_slab` for params (table) fields
+function stairs.register_stair(params, droptype)
+    local def = get_base_def(params, droptype, "stair")
+    def.description = params[8] -- desc_stair
     def.node_box = {
         type = "fixed",
         fixed = {
@@ -151,96 +174,60 @@ function stairs.register_stair(subname, recipeitem, craft_station,
             {-0.5, 0.0, 0.0, 0.5, 0.5, 0.5},
         },
     }
-    minetest.register_node(":stairs:stair_" .. subname, def)
-
-    -- for replace ABM
-    if replace then
-        minetest.register_node(":stairs:stair_" .. subname .. "upside_down", {
-                replace_name = "stairs:stair_" .. subname,
-                groups = {slabs_replace = 1},
-        })
-    end
-    stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_")
+    -- use_replace = true: for replace ABM
+    register_stairs_or_slabs(params, "stairs:stair", def, true)
 end
 
 -- Register slab
 -- Node will be called stairs:slab_<subname>
+function stairs.register_slab(params, droptype)
+    local slab_def = get_base_def(params, droptype, "slab")
+    slab_def.description = params[9] -- desc_slab
+    slab_def.node_box = {
+        type = "fixed",
+        fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+    }
+    slab_def.on_place = function(itemstack, placer, pointed_thing)
+        local under = minetest.get_node(pointed_thing.under)
 
-function stairs.register_slab(subname, recipeitem, craft_station,
-                              recycle, recycle_station, groups,
-                              images, description,
-                              stack_size, sounds, worldaligntex,
-                              droptype)
-    -- Set world-aligned textures
-    local slab_images = set_faces(images, worldaligntex)
-    local new_groups = table.copy(groups)
-    new_groups.slab = 1
-    minetest.register_node(":stairs:slab_" .. subname, {
-           description = description,
-           drawtype = "nodebox",
-           tiles = slab_images,
-           stack_max = stack_size,
-           paramtype = "light",
-           paramtype2 = "facedir",
-           drop = droptype,
-           is_ground_content = false,
-           groups = new_groups,
-           sounds = sounds,
-           node_box = {
-               type = "fixed",
-               fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
-           },
-           on_place = function(itemstack, placer, pointed_thing)
-               local under = minetest.get_node(pointed_thing.under)
+        local def = minetest.registered_nodes[under.name]
+        if def.on_rightclick then
+            return def.on_rightclick(pointed_thing.under, under,
+                                     placer, itemstack, pointed_thing)
+        end
+        if under and under.name:find("^stairs:slab_") then
+            -- place slab using under node orientation
+            local dir = minetest.dir_to_facedir(vector.subtract(
+                                                   pointed_thing.above, pointed_thing.under),
+                                                true)
 
-               local def = minetest.registered_nodes[under.name]
-               if def.on_rightclick then
-                   return def.on_rightclick(pointed_thing.under, under,
-                                            placer, itemstack, pointed_thing)
-               end
-               if under and under.name:find("^stairs:slab_") then
-                   -- place slab using under node orientation
-                   local dir = minetest.dir_to_facedir(vector.subtract(
-                                                          pointed_thing.above, pointed_thing.under),
-                                                       true)
+            local p2 = under.param2
 
-                   local p2 = under.param2
+            -- Placing a slab on an upside down slab should make it right-side up.
+            if p2 >= 20 and dir == 8 then
+                p2 = p2 - 20
+                -- same for the opposite case: slab below normal slab
+            elseif p2 <= 3 and dir == 4 then
+                p2 = p2 + 20
+            end
 
-                   -- Placing a slab on an upside down slab should make it right-side up.
-                   if p2 >= 20 and dir == 8 then
-                       p2 = p2 - 20
-                       -- same for the opposite case: slab below normal slab
-                   elseif p2 <= 3 and dir == 4 then
-                       p2 = p2 + 20
-                   end
-
-                   -- else attempt to place node with proper param2
-                   if minimal.player_in_creative(placer) then
-                       minetest.item_place_node(itemstack, placer, pointed_thing, p2)
-                       return itemstack
-                   end
-                   return minetest.item_place_node(itemstack, placer, pointed_thing, p2)
-               else
-                   return rotate_and_place(itemstack, placer, pointed_thing)
-               end
-           end,
-    })
-
-    -- for replace ABM
-    if replace then
-        minetest.register_node(":stairs:slab_" .. subname .. "upside_down", {
-                   replace_name = "stairs:slab_".. subname,
-                   groups = {slabs_replace = 1},
-        })
+            -- else attempt to place node with proper param2
+            if minimal.player_in_creative(placer) then
+                minetest.item_place_node(itemstack, placer, pointed_thing, p2)
+                return itemstack
+            end
+            return minetest.item_place_node(itemstack, placer, pointed_thing, p2)
+        else
+            return rotate_and_place(itemstack, placer, pointed_thing)
+        end
     end
 
-    stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:slab_")
+    -- use_replace = true: for replace ABM
+    register_stairs_or_slabs(params, "stairs:slab", slab_def, true)
 end
-
 
 -- Optionally replace old "upside_down" nodes with new param2 versions.
 -- Disabled by default.
-
 if replace then
     minetest.register_abm({
             label = "Slab replace",
@@ -263,15 +250,10 @@ end
 
 -- Register inner stair
 -- Node will be called stairs:stair_inner_<subname>
-
-function stairs.register_stair_inner(subname, recipeitem, craft_station,
-                                     recycle, recycle_station, groups,
-                                     images, description,
-                                     stack_size, sounds, worldaligntex,
-                                     droptype)
-
-    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
-    def.description = S("Inner @1", description)
+-- see `stairs.register_stair_and_slab` for params (table) fields
+function stairs.register_stair_inner(params, droptype)
+    local def = get_base_def(params, droptype, "stair")
+    def.description = S("Inner @1",  params[8]) -- desc_stair
     def.node_box = {
         type = "fixed",
         fixed = {
@@ -280,24 +262,18 @@ function stairs.register_stair_inner(subname, recipeitem, craft_station,
             {-0.5, 0.0, -0.5, 0.0, 0.5, 0.0},
         },
     }
-    minetest.register_node(":stairs:stair_inner_" .. subname, def)
-    stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_inner_")
+    register_stairs_or_slabs(params, "stairs:stair_inner", def)
 end
 
 
 -- Register outer stair
 -- Node will be called stairs:stair_outer_<subname>
-
-function stairs.register_stair_outer(subname, recipeitem, craft_station,
-                                     recycle, recycle_station, groups,
-                                     images, description,
-                                     stack_size, sounds, worldaligntex,
-                                     droptype)
-    -- Set backface culling and world-aligned textures
-    local def = get_stairs_base_def(images, worldaligntex, stack_size, droptype, groups, sounds)
+-- see `stairs.register_stair_and_slab` for params (table) fields
+function stairs.register_stair_outer(params, droptype)
+    local def = get_base_def(params, droptype, "stair")
     --#TODO being able to split description for translation would be great
     -- Outer clay stairs could be "stairs + outer + clay" in French
-    def.description = S("Outer @1", description)
+    def.description = S("Outer @1",  params[8]) -- desc_stair
     def.node_box = {
         type = "fixed",
         fixed = {
@@ -305,37 +281,34 @@ function stairs.register_stair_outer(subname, recipeitem, craft_station,
             {-0.5, 0.0, 0.0, 0.0, 0.5, 0.5},
         },
     }
-
-    minetest.register_node(":stairs:stair_outer_" .. subname, def)
-    stairs.register_recipies(recipeitem,craft_station, recycle, recycle_station, subname, "stairs:stair_outer_")
+    register_stairs_or_slabs(params, "stairs:stair_outer", def)
 end
 
 
 -- Stair/slab registration function.
 -- Nodes will be called stairs:{stair,slab}_<subname>
---[[params:
-        subname, -- ex: "sandstone_brick"
-        recipeitem, -- full name for the recpipe
-                    -- ex: "nodes_nature:sandstone_brick"
-        craft_station, -- where to craft it, ex: "masonry_bench_bricks"
-        recyle, -- can be recycle ? (boolean)
-        recyle_station, -- where to recycle it, ex: "masonry_bench_bricks"
-        groups, -- ex: {cracky = hardness, falling_node = 1}
-        images, -- for tiles, ex: {brick[2]}
-        desc_stair, -- desc for stairs, ex: S("@1 Brick Stair",desc)
-        desc_slab, -- desc for stairs, ex: S("@1 Brick Slab",desc)
-        stack_size, -- ex: minimal.stack_max_bulky * 6
-        sounds, - ex: nodes_nature.node_sound_stone_defaults()
-        worldaligntex,
-        droptypemain
+--[[params being a table with following fields:
+    {
+        [1] = subname, -- ex: "sandstone_brick"
+        [2] = recipeitem, -- full name for the recpipe
+                          -- ex: "nodes_nature:sandstone_brick"
+        [3] = craft_station, -- where to craft it, ex: "masonry_bench_bricks"
+        [4] = recyle, -- can be recycle ? (boolean)
+        [5] = recyle_station, -- where to recycle it, ex: "masonry_bench_bricks"
+        [6] = groups, -- ex: {cracky = hardness, falling_node = 1}
+        [7] = images, -- for tiles, ex: {brick[2]}
+        [8] = desc_stair, -- desc for stairs, ex: S("@1 Brick Stair",desc)
+        [9] = desc_slab, -- desc for stairs, ex: S("@1 Brick Slab",desc)
+        [10] = stack_size, -- ex: minimal.stack_max_bulky * 6
+        [11] = sounds, - ex: nodes_nature.node_sound_stone_defaults()
+        [12] = worldaligntex,
+        [13] = droptypemain
+    }
 --]]
-function stairs.register_stair_and_slab(subname, recipeitem, craft_station,
-                                        recycle, recycle_station, groups,
-                                        images, desc_stair, desc_slab,
-                                        stack_size, sounds, worldaligntex,
-                                        droptypemain)
+function stairs.register_stair_and_slab(params)
     local droptype = nil
     local droptypesub = ""
+    local droptypemain = params[13]
     if droptypemain ~= nil then
         -- 50% chance to drop the whole node if no stair/slabs exist
         droptype = { max_items = 1,items = {
@@ -344,22 +317,24 @@ function stairs.register_stair_and_slab(subname, recipeitem, craft_station,
         --Else remove the modname so we can build the stairs names if they do
         droptypesub = string.split(droptypemain,":")[2]
     end
+    -- do stairs exist ?
     local stexist = minetest.registered_nodes["stairs:stair_"..droptypesub]
-    if stexist then droptype = "stairs:stair_"..droptypesub end
-    stairs.register_stair(subname, recipeitem, craft_station,
-                          recycle, recycle_station, groups, images,
-                          desc_stair, stack_size, sounds, worldaligntex, droptype)
-    if stexist then droptype = "stairs:stair_inner_"..droptypesub end
-    stairs.register_stair_inner(subname, recipeitem, craft_station,
-                                recycle, recycle_station, groups, images,
-                                desc_stair, stack_size, sounds, worldaligntex, droptype)
-    if stexist then droptype = "stairs:stair_outer_"..droptypesub end
-    stairs.register_stair_outer(subname, recipeitem, craft_station,
-                                recycle, recycle_station, groups, images,
-                                desc_stair, stack_size, sounds, worldaligntex, droptype)
+
+    -- register stairs
+    local func
+    for _, subtype in ipairs({"", "_inner", "_outer"}) do
+        if stexist then -- else, defautl droptype above
+            -- get matching name
+            droptype = "stairs:stair" .. subtype .."_" ..droptypesub
+        end
+        -- get matching registration function
+        -- ex: stairs.register_stair_inner
+        func = stairs["register_stair" .. subtype]
+        -- register this type of stair
+        func(params, droptype)
+    end
+
+    -- registr slabs
     if stexist then droptype = "stairs:slab_"..droptypesub end
-    stairs.register_slab(subname, recipeitem, craft_station,
-                                recycle, recycle_station, groups, images,
-                                desc_slab, stack_size, sounds, worldaligntex,
-                                droptype)
+    stairs.register_slab(params, droptype)
 end

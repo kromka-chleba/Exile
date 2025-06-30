@@ -97,7 +97,7 @@ for i in ipairs(stone_list) do
     })
 
     --brick
-    stairs.register_stair_and_slab(
+    stairs.register_stair_and_slab({
         name.."_brick",
         brick[1],
         "masonry_bench_bricks",
@@ -109,7 +109,7 @@ for i in ipairs(stone_list) do
         S("@1 Brick Slab",desc),
         minimal.stack_max_bulky * 6,
         nodes_nature.node_sound_stone_defaults()
-    )
+    })
 
     crafting.register_recipe({
             type = "masonry_bench_bricks",
@@ -273,7 +273,7 @@ for i in ipairs(rock_list) do
     --stairs and slabs
 
     --brick
-    stairs.register_stair_and_slab(
+    stairs.register_stair_and_slab({
         name.."_brick",
         brick[1],
         "masonry_bench_bricks",
@@ -285,10 +285,10 @@ for i in ipairs(rock_list) do
         S("@1 Brick Slab", desc),
         minimal.stack_max_bulky * 6,
         nodes_nature.node_sound_stone_defaults()
-    )
+    })
 
     --block
-    stairs.register_stair_and_slab(
+    stairs.register_stair_and_slab({
         name.."_block",
         block[1],
         "masonry_bench_blocks",
@@ -300,7 +300,7 @@ for i in ipairs(rock_list) do
         S("@1 Block Slab", desc),
         minimal.stack_max_bulky * 4,
         nodes_nature.node_sound_stone_defaults()
-    )
+    })
 
     local cobble_groups = {cracky = hardness,
                            falling_node = 1,
