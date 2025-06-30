@@ -313,7 +313,22 @@ end
 
 -- Stair/slab registration function.
 -- Nodes will be called stairs:{stair,slab}_<subname>
-
+--[[params:
+        subname, -- ex: "sandstone_brick"
+        recipeitem, -- full name for the recpipe
+                    -- ex: "nodes_nature:sandstone_brick"
+        craft_station, -- where to craft it, ex: "masonry_bench_bricks"
+        recyle, -- can be recycle ? (boolean)
+        recyle_station, -- where to recycle it, ex: "masonry_bench_bricks"
+        groups, -- ex: {cracky = hardness, falling_node = 1}
+        images, -- for tiles, ex: {brick[2]}
+        desc_stair, -- desc for stairs, ex: S("@1 Brick Stair",desc)
+        desc_slab, -- desc for stairs, ex: S("@1 Brick Slab",desc)
+        stack_size, -- ex: minimal.stack_max_bulky * 6
+        sounds, - ex: nodes_nature.node_sound_stone_defaults()
+        worldaligntex,
+        droptypemain
+--]]
 function stairs.register_stair_and_slab(subname, recipeitem, craft_station,
                                         recycle, recycle_station, groups,
                                         images, desc_stair, desc_slab,
