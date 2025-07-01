@@ -750,3 +750,29 @@ function minetest.check_single_for_falling(p)
 
     return false
 end
+
+-- add custom callbacks with engine registrations
+core.register_on_liquid_transformed(function(pos_list, node_list)
+    for index, pos in ipairs(pos_list) do
+        local ndef, node = minimal.get_nodedef(pos)
+        local onode = node_list[index] -- old node
+        -- becoming or updating liquid (got liquid, meaning liquid flowed here or current liquid is flowing more or less)
+        if ndef.drawtype == "liquid" or ndef.drawtype == "flowingliquid" then
+            if ndef.on_liquid_transform then
+                -- pos, oldnode, new node, new node's definition
+                ndef.on_liquid_transform(pos, onode, node, ndef)
+            end
+        -- liquid pouring out or evaporating (got non-liquid)
+        else
+            local ndef = core.registered_nodes[onode.name]
+            if ndef.drawtype == "liquid" or ndef.drawtype == "flowingliquid" then
+                -- liquids can only become air (does not run for liquid getting replaced)
+                if ndef.on_liquid_evaporate then
+                    -- pos, oldnode, oldnode's def
+                    ndef.on_liquid_evaporate(pos, onode, ndef)
+                end
+            end
+        end
+        -- ndef if statement ^
+    end
+end)
