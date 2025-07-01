@@ -108,7 +108,7 @@ local function roast(pos, selfname, name, length, heat, smelt)
                                          gain = 0.1})
                     if tn ~= 'tech:iron_and_slag' then
                         minetest.set_node(target,
-                                          {name = 'tech:molten_slag_flowing'})
+                                          {name = 'tech:molten_slag_flowing', param2=14})
                         --only drain to one place (i.e. so they all drain the same amount)
                         cn = cn + 1
                         break
@@ -396,6 +396,14 @@ local lava_light = 6
 local lava_temp_effect = 6
 local lava_heater = 1350
 
+local function cool_slag(pos)
+    core.sound_play("nodes_nature_cool_lava",
+                    {pos = pos, max_hear_distance = 16,
+                     gain = 0.2, pitch = math.random(65,90)/100})
+    core.set_node(pos, {name = 'tech:slag'})
+    core.check_for_falling(pos)
+end
+
 minetest.register_node(
     "tech:molten_slag_source", {
         description = S("Molten Slag"),
@@ -447,11 +455,7 @@ minetest.register_node(
         end,
         on_timer = function(pos, elapsed)
             if math.random()>0.87 then
-                minetest.sound_play("nodes_nature_cool_lava",
-                                    {pos = pos, max_hear_distance = 8,
-                                     gain = 0.1})
-                minetest.set_node(pos, {name = 'tech:slag'})
-                minetest.check_for_falling(pos)
+                cool_slag(pos)
                 return false
             else
                 return true
@@ -508,6 +512,7 @@ minetest.register_node(
         groups = {igniter = 1,  not_in_creative_inventory = 1,
                   temp_effect = 1, temp_pass = 1},
         --cooling
+        --[[
         on_construct = function(pos)
             -- node timer for solidification (choose timeout as short as
             -- possible as the molten slag will move out of the timer's
@@ -515,6 +520,38 @@ minetest.register_node(
             -- with evaluation of node timers)
             minetest.get_node_timer(pos):start(0.1)
         end,
+        --]]
+        -- cooling
+        on_liquid_transform = function(pos, oldnode, node, nodedef)
+            -- liquid is pouring onto something - not of our interest
+            if oldnode.name ~= node.name then return end
+            if oldnode.param2 > 5 then return end -- too high of a param2
+            if node.param2 < 2 then return end -- too low of a param2
+            -- losing liquid, chance to cool down
+            if node.param2 < oldnode.param2 and math.random()<( (5/node.param2)/22) then
+                --core.log("lost liquid at "..node.param2.." ;; "..oldnode.param2)
+                cool_slag(pos)
+            end
+        end,
+        -- when liquid moves out of node or "evaporates"
+        on_liquid_evaporate = function(pos, node, nodedef)
+            -- last of our kind (will never be 0 or 1 if pouring down unless placed by player)
+            if node.param2 == 0 and math.random()<0.01 or node.param2 == 1 and math.random()<0.001 then
+                return cool_slag(pos)
+            end
+            -- other checks
+            if node.param2 < 4 or node.param2 > 14 then return end -- not checking
+            if math.random()>(node.param2/22) then return end -- not solidifying chance
+            local bndef = minimal.get_nodedef(minimal.pos_shift(pos, {y=-1}))
+            -- air underneath or it's us underneath
+            if bndef and (bndef.drawtype == "airlike" or (bndef.groups and bndef.groups.air) or
+              bndef.name == nodedef.name) then return end
+            -- something solid underneath, end of the line
+            -- penalize slag designs that are simple tubes instead of permitting pouring
+            --core.log("solid underneath us, cooling at "..node.param2)
+            cool_slag(pos)
+        end
+        --[[
         on_timer = function(pos, elapsed)
             local chance = math.random()
             -- Chances for solidification into slag:
@@ -534,6 +571,7 @@ minetest.register_node(
             -- function allows for exploits to get much more slag)
             return false
         end,
+        --]]
 })
 
 
