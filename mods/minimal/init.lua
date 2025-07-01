@@ -25,7 +25,14 @@ dofile(modpath..'/debug.lua')
 dofile(modpath..'/compat.lua')
 dofile(modpath..'/settingswarn.lua')
 dofile(modpath..'/aliases.lua')
-dofile(modpath..'/overrides.lua')
+-- get each file in overrides
+local ovfolder = core.get_dir_list(modpath.."/overrides") -- overrides folder
+for _,file in pairs(ovfolder) do
+    -- run any lua file inside of "minimal/overrides"
+    if file:sub(#file-3,#file) == ".lua" then
+        dofile(modpath.."/overrides/"..file)
+    end
+end
 dofile(modpath..'/protection.lua')
 dofile(modpath..'/metadata.lua')
 dofile(modpath..'/triggers.lua')
