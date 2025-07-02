@@ -479,6 +479,12 @@ function crafting.make_crafting_formspec(player, open)
     )
     end
     output[#output + 1] = cache.FS_search
+    -- #TODO hacky placement to test filter with other options
+    if cache.craft_input ~= 2 then
+        output[#output + 1] = 'checkbox[4.6,0.3;i_filter;'
+                                .. S(" Automatic\n Filter") .. ';'
+                                .. tostring(cache.input_filter) .. ']'
+    end
     output[#output + 1] = 'container_end[]'
 
     -- Quantity buttons part ---------------------------------------------------
@@ -630,6 +636,7 @@ function crafting.close_crafting_formspec(player, cache)
 
     --various updates
     cache.possible_hint = false -- disable "hint"
+    cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
     cache:reset_recipes() -- needed after getting back the inputs
 

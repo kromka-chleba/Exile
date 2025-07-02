@@ -18,7 +18,7 @@ local function item_does_match (search, lang_code, name, desc)
 
     search = minimal.make_search_string(search) -- already done in cache.sSearch
 
-    -- used for the case of check with items name in inv
+    -- in case "search" is exactly the output/item's name
     if name == search then
         return true
     end

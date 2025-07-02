@@ -110,16 +110,23 @@ local function update_state (pr, item_hash, criteria)
         return
     end
     local max, pr_states = pr.recipe:find_max_craftable (item_hash)
-
+    local partial = false -- do I have some of the items/tool
     -- update tool `have`
     if pr.pr_tool then
-        pr.pr_tool[criteria .. "_have"] = pr_states.tool.have
+        local have = pr_states.tool.have
+        if have > 0 then
+            partial = true
+        end
+        pr.pr_tool[criteria .. "_have"] = have
     end
 
     -- update pr items state
     for i, row in pairs(pr_states.items) do
         for j, it_state in pairs(row) do
             local pr_it = pr.pr_items[i][j]
+            if it_state.have > 0 then
+                partial = true
+            end
             pr_it[criteria .. "_have"] = it_state.have
             pr_it[criteria .. "_max"] = it_state.max
         end
@@ -127,6 +134,8 @@ local function update_state (pr, item_hash, criteria)
     -- register max to player_recipe matching field
     pr[criteria .. "_max"] = max
     pr[criteria] = (max > 0)
+    -- do I have some of the items/tool
+    pr[criteria .. "_partial"] = partial
     -- returns true if max >0
     return (max >0)
 end
