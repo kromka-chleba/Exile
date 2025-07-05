@@ -21,6 +21,8 @@
 --minimal = minimal
 
 local S = minetest.get_translator("crafting")
+-- for @1's @2 translation
+local mS = minetest.get_translator("minimal")
 
 --[[#TODO comment better
  table where functions to launch at craft are stored, like unlocking recipes, level, awards..
@@ -135,7 +137,7 @@ local function set_output_meta(output, player_name)
                 local sdesc = output:get_short_description()
                 imeta:set_string('creator', player_name)
                 -- add creator's name to the desc
-                sdesc = S("@1's @2", player_name, sdesc)
+                sdesc = mS("@1's @2", player_name, sdesc)
                 -- #TODO I am not sure I have to add both short_desc and desc meta
                 -- in case we want to override short_desc later, it could probably be rebuilt
                 -- I commented it because, right now, backpack code updated description meta but not shot_desc meta

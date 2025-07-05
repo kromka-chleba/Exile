@@ -1,5 +1,6 @@
 # textdomain: minimal
 #utility/general.lua
+@1's @2=
 #currentrevision.lua
 Display the current git revision=Отображение текущей ревизии git
 This server is currently running git revision=На этом сервере в данный момент выполняется ревизия git

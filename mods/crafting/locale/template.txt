@@ -22,7 +22,6 @@ granite cobble=
 ironstone cobble=
 jade cobble=
 #api.lua
-@1's @2=
 Any @1=
 Tool used=
 or=

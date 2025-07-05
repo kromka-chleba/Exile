@@ -1,6 +1,8 @@
 minimal = minimal
 wielded_light = wielded_light
 
+local S = minetest.get_translator("minimal")
+
 -- check if a valid meta was given
 function minimal.is_meta(meta)
     -- meta is userdata and nothin else
@@ -31,9 +33,39 @@ function minimal.switch_node(pos, node, after_place)
         error("exile_game.switch_node: attempted to switch to an invalid node "..node.name)
     end
     minetest.swap_node(pos, node)
+    -- change meta desc if needed
+    -- issue is that, else, we may have
+    -- "creator's oldnode" remaining in desc
+    -- while we really want "creator's newnode" in meta "description" field
+    --[[ #TODO we should have a clearn system,
+    -- maybe store in meta what base string is to replace/how to rebuild on change.
+    -- because our @1's @2 system may change
+    -- or store in initial node a function "how to transform desc" ?
+    --]]
+    local meta = minetest.get_meta(pos)
+    local creator = meta:get_string("creator")
+    if creator ~= "" then
+        -- get nod'es description, without the tooltip
+        local desc = ndef._orig_desc or ndef.description
+        desc = S("@1's @2", creator, desc)
+        -- rebuild description meta if needed
+        if meta:get("description") then
+            -- readd the tooltip if needed
+            if ndef._tool_tips and ndef._tool_tips ~= '' then
+                desc = desc .. ndef._tool_tips
+            end
+            meta:set_string("description", desc)
+        end
+        -- rebuild short_description meta if needed
+        if meta:get("short_description") then
+            meta:set_string("short_description", desc)
+        end
+    end
+
     if ndef.on_construct then
         ndef.on_construct(pos)
     end
+
     -- after place option provided
     if type(after_place) == "table" and type(ndef.after_place_node) == "function" then
         local player, itemstack = after_place[1], after_place[2]

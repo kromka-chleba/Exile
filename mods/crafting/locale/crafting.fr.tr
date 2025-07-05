@@ -19,7 +19,6 @@ gravel=gravier
 
 bundleable fiber=fibre empaquetable
 #api.lua
-@1's @2=
 #unit of item like "Pot of Freshwater"
 @1 (@2)=@1 (@2)
 Any @1=Tout type de @1

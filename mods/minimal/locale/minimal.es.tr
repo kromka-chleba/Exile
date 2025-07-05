@@ -1,5 +1,6 @@
 # textdomain: minimal
 #utility/general.lua
+@1's @2=
 #currentrevision.lua
 Display the current git revision=Mostrar la revision actual de git
 This server is currently running git revision=Este servidor esta ejecutando actualmente la revision de git
@@ -10,7 +11,7 @@ Label:=
 #playersettings.lua
 Enable wide HUDbar=Enciende la barra ancha del HUD
 Show numeric stats=Utilice estadisticas numericas
-Enable Break-taker popup=Activar el aviso de descanso 
+Enable Break-taker popup=Activar el aviso de descanso
 Allow digging with a full inventory=
 Temperature scale=Escala de temperatura
 GUI theme=GUI tema
