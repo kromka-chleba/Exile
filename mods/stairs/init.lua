@@ -192,9 +192,6 @@ function stairs.register_slab(subname, recipeitem, craft_station,
            },
            on_place = function(itemstack, placer, pointed_thing)
                local under = minetest.get_node(pointed_thing.under)
-               local wield_item = itemstack:get_name()
-               local player_name = placer and placer:get_player_name() or ""
-               local creative_enabled = minimal.player_in_creative(placer)
 
                local def = minetest.registered_nodes[under.name]
                if def.on_rightclick then
