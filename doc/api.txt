@@ -82,6 +82,7 @@ minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
 minimal.switch_node(pos, node, after_place_table)
 		- Swap a node, preserves meta but runs on_construct.
 		- node argument can be string (node's name)
+        - re-build description/short_description meta if we had some
 		- optional "after_place_table", expects in order;
 			* player, itemstack, pointed_thing
 			itemstack will be derived from player if incorrectly provided
