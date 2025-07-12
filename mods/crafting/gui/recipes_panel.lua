@@ -664,7 +664,7 @@ local function push_recipe(cache, btn_id, player, player_name)
             transfer = crafting.transfer_items(player, inv, list, transfer)
         end
         -- if not everythign could be transferd, leftover list is not empty
-        if #transfer ~= 0 then
+        if transfer and #transfer ~= 0 then
             minimal.warn_message(player, player_name, "Not enough room in to transfer everything")
         end
         -- input item_hash changed, update recipe states
