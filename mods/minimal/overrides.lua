@@ -61,7 +61,7 @@ local hand_on_rightclick = function(clicker, pointed_thing)
     -- ground not appropriate?
     local node = core.get_node(under)
     if not node or not node.name
-        or not (core.get_item_group(node.name, "craft_ground") > 0)
+        or (core.get_item_group(node.name, "craft_ground") == 0)
         or (core.get_item_group(node.name, "stair") > 0)
         or (core.get_item_group(node.name, "natural_slope") > 0) then
         return false
@@ -78,7 +78,7 @@ local hand_on_rightclick = function(clicker, pointed_thing)
     if not minimal.pos_group(above, "air") then return false end
 
     -- not pointed onto top of a node?
-    if not (vector.direction(above, under).y == -1) then return false end
+    if (vector.direction(above, under).y ~= -1) then return false end
 
     -- to far? (allow from within beds but not on other side of a canyon)
     if vector.distance(clicker:get_pos(), under) > 2.8 then
