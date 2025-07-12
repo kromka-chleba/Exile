@@ -60,16 +60,18 @@ local hand_on_rightclick = function(clicker, pointed_thing)
 
     -- ground not appropriate?
     local node = core.get_node(under)
-    if not node or not node.name
-        or (core.get_item_group(node.name, "craft_ground") == 0)
-        or (core.get_item_group(node.name, "stair") > 0)
-        or (core.get_item_group(node.name, "natural_slope") > 0) then
-        return false
+    local node_def = node.name and minetest.registered_nodes[node.name]
+    local node_groups = node_def and node_def.groups
+    -- no groups -> not a station
+    if not node_groups  -- no groups -> not a station
+        or not node_groups.craft_ground -- not a station
+        or node_groups.stair -- station but not flat
+        or node_groups.natural_slope then
+            return false
     end
     -- not slabs with inappropriate orientation?
-    if (core.get_item_group(node.name, "slab") > 0)
-        and (node.param2 > 3) and (node.param2 < 20) then
-        return false
+    if node_groups.slab then
+        if (node.param2 > 3) and (node.param2 < 20) then return false end
     end
 
     -- no space to sit on top/in front of pointed node?
