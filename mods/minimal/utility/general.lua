@@ -212,11 +212,11 @@ function minimal.sound_play(target, spec)
     end
     -- figure out if playing at pos or object
     local posobj = type(target) == "table" and (target.x and target.y and target.z) and "pos" or
-      type(target) == "table" and target.object and "obj"
+      (type(target) == "table" and target.object or type(target) == "userdata") and "obj"
     -- no playing sounds if nil (not pos or valid entity table)
     if not posobj then return end
     -- check for sound in entity
-    spec = posobj == "obj" and (type(spec) == "string" and not posobj and target.sounds) and
+    spec = posobj == "obj" and (type(spec) == "string" and target.sounds) and
       target.sounds[spec] or spec
     if type(spec) ~= "table" then return end -- can't play (no data)
     -- multiple sounds
@@ -236,8 +236,8 @@ function minimal.sound_play(target, spec)
     if not spec.name then return end -- no name, can't play
     spec = table.copy(spec)
     -- now add pos or entity's object
-    spec.pos = posobj and target or nil
-    spec.object = posobj == "obj" and target.object or nil
+    spec.pos = posobj == "pos" and target or nil
+    spec.object = posobj == "obj" and (type(target) == "table" and target.object or target) or nil
     -- now to randomize each number table value (or stay the same)
     for i,v in pairs(spec) do
         if i ~= "pos" then -- not pos!
