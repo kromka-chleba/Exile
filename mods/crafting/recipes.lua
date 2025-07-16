@@ -251,8 +251,10 @@ local function pick_input_items(pr, inv, lists, count, criteria)
 
     if criteria == "possible" then -- to move
         -- move tool if needed
-        if pr.pr_tool then
-            local missing = pr.pr_tool.get_needed() - pr.pr_tool.craftable_have
+        local tool = pr.pr_tool
+        if tool then
+            local it = tool.def
+            local missing = tool.get_needed() - tool.craftable_have
             if missing > 0 then
                 found_table =  pick_item(it, inv, lists, missing)
                 -- if this part is found, add it to found_table
