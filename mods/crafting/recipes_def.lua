@@ -100,10 +100,11 @@ end
 
 -- Recipes ---------------------------------------------------------
 
---array of all registered recipes, by `id`
+-- array of all registered recipes, by `id`
 local recipes_by_id = {}
 
---#TODO still used ?
+-- returns an array of all registered recipes where the indices match the
+-- ids of the recipes
 function crafting.get_recipes()
     return recipes_by_id
 end
