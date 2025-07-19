@@ -71,8 +71,8 @@ crafting.generate_p_recipe = generate_p_recipe
 local p_recipes_per_id = {}
 local p_recipes_per_type = {}
 
--- initiate p_recipes_per_id and p_recipes_per_type for player_name
--- #TODO not sure I should store them, I could generate it on every call in recipes panel.
+-- initiate p_recipes_per_id and p_recipes_per_type for player_name,
+-- this costs several ms, so we avoid to do it on every change in recipes panel
 local function register_player_recipes(player_name)
     p_recipes_per_id[player_name] = {}
     p_recipes_per_type[player_name] = {}
