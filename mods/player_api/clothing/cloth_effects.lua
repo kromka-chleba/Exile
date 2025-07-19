@@ -76,5 +76,5 @@ player_api.update_equipment_effects = function(player, naked)
 end
 
 player_api.reset_equipment_effects = function(player)
-    return player_api.update_equipment_effects (player, naked)
+    return player_api.update_equipment_effects (player)
 end
