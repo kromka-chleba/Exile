@@ -274,16 +274,15 @@ crafting.give_replacement = give_replacement
 crafting.get_replacement = get_replacement
 
 
--- TODO make one with simple recipe, generating player_recipe
 local function perform_craft(r, name, inv, listname, outlistname, craft_count, sound)
-    -- if player recipe
+    -- if player recipe is new, it needs to be updated
     -- update player_recipe state
     if r.craftable == nil then -- TODO do it anyway in case of ??
         r:update_craftable_state(crafting.get_item_hash(inv, listname))
     end
 
     local player = minetest.get_player_by_name(name)
-    -- if ot craftable, stop
+    -- if not craftable, stop
     if not r.craftable then
         minimal.warn_message(player, name, S("Missing required items!"))
         return false
@@ -374,6 +373,8 @@ local function perform_craft(r, name, inv, listname, outlistname, craft_count, s
     return true
 end
 
+-- WARNING: `recipe` here is from registration, not a player_recipe
+-- #TODO that could be solved/cleaned with better heritage ?
 local function get_sound (recipe, ctype)
     local sound = recipe.sound
     -- if recipe as no sound and not "false", get crafting type's one
@@ -385,17 +386,17 @@ end
 
 --[[ In external mod
 * Will try to take itemsfrom `listname` and put output in the `outlistname` list in `inv`.
-*`r` is a player recipe, as in get_all function
+*`recipe` is a player recipe, as in get_all function, or a registered recipe
 * Returns true on success.
 ]]
 -- ctype needs for sound TODO improve
--- TODO test if recipe is player_recipe or not
 function crafting.perform_craft (player_name, inv, listname, outlistname, recipe, ctype, count)
+    -- if recipe is a registered recipe and not a player_recipe, create one
     local r = recipe
-    if not r.recipe then
+    if not r.recipe then -- not a player recipe, but basic recipe
         r = crafting.generate_p_recipe(recipe)
     end
-    return perform_craft(r, player_name, inv, listname, outlistname, count, get_sound (recipe, ctype))
+    return perform_craft(r, player_name, inv, listname, outlistname, count, get_sound (r.recipe, ctype))
 end
 
 --[[transfer all items from `item_list` arraw to 'to_list' in player inventory's, if possible
