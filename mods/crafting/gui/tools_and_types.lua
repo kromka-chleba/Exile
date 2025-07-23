@@ -234,11 +234,15 @@ end)
 crafting.register_cache_function("set_tool", function(self, tool)
     -- if no parameter tool is given, put default tool
     tool = tool or crafting.default_tool
-    -- initialize cache
-    self.sToolID =  val_to_ID(tool, self.tool_list)
-    self.sTool = tool
-    self.sLevel = crafting.get_tool_level(tool)
-    --self.FS_tool_panel = self:get_tool_panel()
-    self.FS_tool_panel = nil -- #TODO generate it or not ?
-    self:set_craft_tabs(1, get_craft_types(tool))
+    -- don't reset if tool didn't change
+    if self.sTool ~= tool then
+        -- initialize cache
+        self.sTool = tool
+        self.sToolID =  val_to_ID(tool, self.tool_list)
+        self.sLevel = crafting.get_tool_level(tool)
+        --self.FS_tool_panel = self:get_tool_panel()
+        self.FS_tool_panel = nil
+        -- reset craft type tabs
+        self:set_craft_tabs(1, get_craft_types(tool))
+    end
 end)
