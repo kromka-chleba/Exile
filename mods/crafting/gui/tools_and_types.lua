@@ -81,6 +81,8 @@ end
 but we could imagine using tool in inventory like knifes too
 In that case, this could be modified to have "craft_item" being a list]]
 function crafting.generate_tools_list(station)
+    -- #TODO this could be improved to check if station is a valid tool/
+    -- to make custom possbile tools per station
     if not station or station == crafting.default_tool then
         return {crafting.default_tool}
     else
@@ -224,7 +226,7 @@ crafting.register_cache_function("set_craft_tabs",
     -- erases craft tabs formspec
     self.FS_ctabs = nil
     -- reset qty to 1
-    self.qty = 1
+    self.qty = 1 -- single by default on opening
     -- reset recipes but keep current cache's item_hashes if already updated
     self:reset_recipes(self.updated)
 end)
