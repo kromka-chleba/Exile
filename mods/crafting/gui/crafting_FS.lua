@@ -124,7 +124,7 @@ local default_option = 1
         `c_recipes` = nil : list of craftable recipes to display
         `p_recipes` = nil : list of possible recipe if everything is used
         `u_recipes` = nil : list of uncraftable recipes to display
-        `recipes` = nil : unsorter list of recipes
+        `recipes` = nil : unsorted list of recipes
         `updated` = false if inventoryFS was closed and recipes crafting state is not uptodate.
             This is because there is currently no callback for "I opened the inventory"
 
@@ -165,7 +165,7 @@ local default_option = 1
         WARNING: Will be "nil" at cache creation,
         probably ok since currently cache is created only on first arrival on the page (clothing page as default)
     }
-    If updated,a section should be set to nil to force a redraw.
+    If updated, a section should be set to nil to force a redraw.
     only sections cleared are recreated via crafting.make_crafting_formspec
 ]]
 local FS_cache = {}
@@ -630,7 +630,7 @@ function crafting.close_crafting_formspec(player, cache)
         -- cache already deleted sometimes when called by "on_leave"
         if not cache then  --- no player's cache ?
             -- no change to make
-            return nil -- TODO check if I can imrpove/clarify
+            return nil -- TODO check if I can improve/clarify the return
         end
     end
 
@@ -638,6 +638,7 @@ function crafting.close_crafting_formspec(player, cache)
     cache.possible_hint = false -- disable "hint"
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
+    -- reset recipes panel and item_hashes for next opening
     cache:reset_recipes() -- needed after getting back the inputs
 
     -- set updated status and next opening page
@@ -665,7 +666,7 @@ function crafting.close_crafting_formspec(player, cache)
 end
 
 
--- return true if something changed, false else
+-- return the cache to update formspec if something changed, false else
 function crafting.process_receive_fields(player, formname, fields)
     --   if formname ~= '' or formname ~= 'exile:crafting' then return false; end -- Not our form.
     local player_name = player:get_player_name()
@@ -761,7 +762,7 @@ function crafting.process_receive_fields(player, formname, fields)
         ]]--
 
         -- reset recipes panel, but keep existing cache's item_hashes
-        cache:reset_recipes(false)
+        cache:reset_recipes(true)
         return cache
     end
 

@@ -147,7 +147,7 @@ local clothing_page = {
             "button[1.2,0.8;3,0.8;craft_clothes;" .. S("Craft clothes") .. "]"
             --.. "button[0.8,1.6;4,0.8;craft;" .. S("Craft other things") .. "]"
         end
-            -- call a function making a size[10.5,10.9] formspec with that content and adding tabs if needed
+        -- call a function making a size[11.4,10.0] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
     end,
