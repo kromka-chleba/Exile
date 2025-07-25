@@ -16,14 +16,16 @@ local function make_tool_formspec(player, cache)
 
     -- displaying creator above formspec
     -- #TODO dirty, do better once we decide on definitive behavior
-    if cache.sTool ~= crafting.default_tool then
+    if cache.station and (cache.sTool ~= crafting.default_tool) then
         local desc = cache.station.desc
-        local creator = cache.station.creator
-        local title = S("You are using: @1", desc)
-        if creator then
-            title =  title .. "  |  " .. S("Crafted by: @1", creator)
+        if desc then
+            local title = S("You are using: @1", desc)
+            local creator = cache.station.creator
+            if creator then
+                title =  title .. "  |  " .. S("Crafted by: @1", creator)
+            end
+            fs[#fs + 1] = "tabheader[0,0;station_tab;" .. title .. ";1;;]"
         end
-        fs[#fs + 1] = "tabheader[0,0;station_tab;" .. title .. ";1;;]"
     end
 
     fs[#fs + 1] = crafting.make_crafting_formspec(player)
@@ -43,7 +45,8 @@ end
 local function get_station_info(station, pos)
     -- if no station, no tag
     if station == nil then
-        return nil
+        -- in crafting.refresh_recipes_FS() cache.station must not be nil
+        return {}
     end
     -- #TODO (for lili) go check on that
     -- see tech/stations for why we check _station or remove letters from name
@@ -77,24 +80,16 @@ end
 local function cache_on_station(player, placed_tool, pos)
     -- get or generate cache if non existent
     local cache = crafting.get_FS_cache(player, true)
-    -- don't have refresh recip button but display directly craftable state
+    -- don't have refresh recipe button but display directly craftable state
     cache.updated = true
     cache.closed = false -- formspec opened
 
-    -- add a tool to the formspec?
-    if placed_tool then
-        -- adds station info
-        cache.station = get_station_info(placed_tool, pos)
-        -- generates corresponding tools list
-        cache.tool_list = crafting.generate_tools_list(placed_tool)
-        -- updates cache with new selected `placed_tool` as tool
-        cache:set_tool(placed_tool)
-    else
-        -- in crafting.refresh_recipes_FS() cache.station must not be nil,
-        -- otherwise inventory formspec will be updated instead of the displayed
-        -- #TODO Remove this, when we remove crafting from inventory formspec
-        cache.station = {}
-    end
+    -- adds station info
+    cache.station = get_station_info(placed_tool, pos)
+    -- generates corresponding tools list
+    cache.tool_list = crafting.generate_tools_list(placed_tool)
+    -- updates cache with new selected `placed_tool` as tool (could be empty)
+    cache:set_tool(placed_tool)
 end
 
 local function cache_off_station(player)
