@@ -139,7 +139,7 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
     end
 
     -- tool_name must be nil or refer to a node with crafting properties set
-    if not tool_name == nil then
+    if tool_name ~= nil then
         local def = minetest.registered_nodes[tool_name]
         if not def or not def.exile_crafting then
             error("invalid crafting tool: " .. tool_name)

@@ -51,6 +51,7 @@ end
 local hand_on_rightclick = function(clicker, pointed_thing)
     if not minetest.is_player(clicker) or not pointed_thing
         or pointed_thing.type ~= "node" then
+
         return false
     end
 
@@ -60,29 +61,33 @@ local hand_on_rightclick = function(clicker, pointed_thing)
 
     -- ground not appropriate?
     local node = core.get_node(under)
-    if not node or not node.name
-        or not (core.get_item_group(node.name, "craft_ground") > 0)
+    if not node.name
+        or (core.get_item_group(node.name, "craft_ground") == 0)
         or (core.get_item_group(node.name, "stair") > 0)
         or (core.get_item_group(node.name, "natural_slope") > 0) then
+
         return false
     end
     -- not slabs with inappropriate orientation?
     if (core.get_item_group(node.name, "slab") > 0)
         and (node.param2 > 3) and (node.param2 < 20) then
+
         return false
     end
 
-    -- no space to sit on top/in front of pointed node?
+    -- no space to sit on top/in front of pointed face?
     local above = pointed_thing.above
-    if not vector.check(above) then return false end
-    if not minimal.pos_group(above, "air") then return false end
+    if not vector.check(above) or not minimal.pos_group(above, "air") then
+        return false
+    end
 
     -- not pointed onto top of a node?
-    if not (vector.direction(above, under).y == -1) then return false end
+    if vector.direction(above, under).y ~= -1 then return false end
 
     -- to far? (allow from within beds but not on other side of a canyon)
     if vector.distance(clicker:get_pos(), under) > 2.8 then
-        minimal.send_message(clicker, clicker:get_player_name(), S("Too far away!"), 1)
+        minimal.send_message(clicker, clicker:get_player_name(),
+                             S("Too far away!"), 1)
         return false
     end
 
