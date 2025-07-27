@@ -47,6 +47,21 @@ sfinv.register_page(
         end
 })
 
+-- Register help formspec as inv tab
+sfinv.register_page(
+    "crafting:help", {
+        title = S("Crafting?"),
+        get = function(self, player, context)
+            local fs = {}
+            fs[#fs + 1] = 'label[0.9,1.0;'.. S("Use a free hand at a suitable place (v).") .. ']'
+            fs[#fs + 1] = 'image[0.8,2;9.8,7;crafting_help_basic_crafting.png]'
+            local content = table.concat(fs,"")
+
+            return sfinv.make_formspec_for_exile(player, context,
+                                                 content, false)
+        end
+})
+
 -- disable sfinv:crafting without removing it, it's kept for compatibility with 3rd-party mods
 -- and so we don't have to change the home page here
 -- (we explicitly set the default page to clothing:clothing
