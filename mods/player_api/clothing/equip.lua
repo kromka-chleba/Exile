@@ -47,23 +47,6 @@ local function generate_shiftclick_ring()
     return table.concat(ring)
 end
 
--- return true if something changed, false else
-local function process_receive_fields(player, fields)
-    -- open the crafting forsmspec in sfinv (changing tab)
-    -- can be used only in sfinv, if already opened
-    if fields.craft_clothes then
-        -- get the crafting formspec and switch to that tab
-        -- #TODO a function to link number and name. 5 is for cloths here
-        -- #TODO dependency on crafting, put an "if" on the button display
-        crafting.set_page(player, 5)
-        -- mark cache open with "" as formspec name
-        crafting.open_formspec(player, "")
-        -- update sfinv to go to crafting tab
-        sfinv.set_page(player, "crafting:crafting")
-        return true -- stop parsing events
-    end
-end
-
 -- Generate the page container
 local clothing_page = {
     title = S("Clothing"),
@@ -113,22 +96,9 @@ local clothing_page = {
             -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
 
-        -- buttons to crafting formspec
-        -- (commented out for PR #1299 (-> no 'Crafting' in inventory) but not
-        -- removed until some final decision)
-        -- if core.global_exists("crafting") then
-        --    formspec[#formspec + 1] =
-        --    "button[1.2,0.8;3,0.8;craft_clothes;" .. S("Craft clothes") .. "]"
-            --.. "button[0.8,1.6;4,0.8;craft;" .. S("Craft other things") .. "]"
-        -- end
         -- call a function making a size[11.4,10.0] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
                                    table.concat(formspec), true)
-    end,
-    on_player_receive_fields = function(self, player,
-                                        context, fields)
-        -- currently only one button, could be more later
-        process_receive_fields(player, fields)
     end,
     -- selecting the tab from an other tab or using sfinv.set_page
     on_enter = function(self, player, context)
