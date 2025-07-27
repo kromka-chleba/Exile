@@ -77,3 +77,7 @@ sfinv.register_page(
 -- (we explicitly set the default page to clothing:clothing
 -- in mods/player_api/init.lua after that page's per-player stuff is initialized).
 sfinv.override_page("sfinv:crafting", {is_in_nav=function(...) return false end})
+
+-- for PR 1299 (-> no more crafting in inventory), but clean-up, i.e. removal
+-- of the page's registration to sfinv postponed until a later commit
+sfinv.override_page("crafting:crafting", {is_in_nav=function(...) return false end})
