@@ -50,9 +50,11 @@ core.register_on_mods_loaded( function ()
         end
     end
     -- register Exile's pages
-    if core.global_exists("crafting") then
-         tab_list[#tab_list +1] = "crafting:crafting"
-    end
+    -- Commented for PR 1299 (-> no more crafting in inventory), but clean-up
+    -- postponed in accordance with consultation:
+--     if core.global_exists("crafting") then
+--          tab_list[#tab_list +1] = "crafting:crafting"
+--     end
     if core.global_exists("player_api") then
         tab_list[#tab_list +1] = "clothing:clothing"
     end
