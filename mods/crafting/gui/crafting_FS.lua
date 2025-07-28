@@ -295,8 +295,6 @@ local function new_cache(player)
     cache:set_tool() -- in tools_and_types.lua
 
     -- recipes panel ---
-    -- reset scrollbar to top
-    cache.sScroll = 0 -- reset scrollbar to top
     -- tell if we sort list or not
     cache.sorted = true --TODO for future setting, currently always true
     -- tells if the recipes needs to be sorted again (order change)
