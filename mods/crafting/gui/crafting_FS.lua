@@ -297,11 +297,6 @@ local function new_cache(player)
     -- recipes panel ---
     -- tell if we sort list or not
     cache.sorted = true --TODO for future setting, currently always true
-    -- tells if the recipes needs to be sorted again (order change)
-    cache.to_sort = true
-
-    -- quantity selector
-    cache.qty = 1 -- single by default on opening
 
     FS_cache[player_name] = cache
     return cache
