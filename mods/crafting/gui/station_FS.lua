@@ -14,18 +14,10 @@ local function make_tool_formspec(player, cache)
                 "size[11.4,10]",
                 "position[0.5,0.5]"}
 
-    -- displaying creator above formspec
-    -- #TODO dirty, do better once we decide on definitive behavior
-    if cache.station and (cache.sTool ~= crafting.default_tool) then
-        local desc = cache.station.desc
-        if desc then
-            local title = S("You are using: @1", desc)
-            local creator = cache.station.creator
-            if creator then
-                title =  title .. "  |  " .. S("Crafted by: @1", creator)
-            end
-            fs[#fs + 1] = "tabheader[0,0;station_tab;" .. title .. ";1;;]"
-        end
+    -- displaying station's description and creator above formspec
+    local station = cache.station
+    if station and station.title then
+        fs[#fs + 1] = "tabheader[0,0;station_tab;" .. station.title .. ";1;;]"
     end
 
     fs[#fs + 1] = crafting.make_crafting_formspec(player)
@@ -40,27 +32,31 @@ function crafting.show_station_formspec(player, player_name)
                     crafting.make_tool_formspec(player))
 end
 
--- return craftedby info for the given station, nil if not found
--- #TODO not sure it should stay on gui.lua
+-- generates a table to be stored in cache, with following fields:
+-- `name`: the name of the station (has to be a valid station)
+-- `title`: string to be displayed above the formspec
+-- pos is needed to get the meta for the creator (craftedby meta)
 local function get_station_info(station, pos)
     -- if no station, no tag
     if station == nil then
         -- in crafting.refresh_recipes_FS() cache.station must not be nil
         return {}
     end
-    -- #TODO (for lili) go check on that
-    -- see tech/stations for why we check _station or remove letters from name
+    -- get placed_tool's description and creator
+    -- we get item's description because we want "lili's hammer"
+    -- not "lili's placed hammer"
     local idef = core.registered_items[station._tool]
         or core.registered_items[station:sub(1,-8)]
         or core.registered_items[station]
 
+    -- generate a tab title with placed_tool's info
     local creator = nil
     local desc = nil
     -- if station is registered and has a groups field
     if idef then
-        -- #TODO how do I get the short description ??
         desc = ItemStack(idef.name):get_short_description()
-        if idef.groups then
+        -- if no pos, no craftedby meta
+        if pos and idef.groups then
             -- if there is a craftby field or savemeta in groups
             if idef.groups.craftedby or idef.groups.savemeta then
                 local meta = core.get_meta(pos)
@@ -71,8 +67,21 @@ local function get_station_info(station, pos)
             end
         end
     end
-    -- return nil if not found
-    return {desc = desc, creator = creator}
+    -- generate a title with desc and creator
+    local title = nil
+    if desc then
+        title = S("You are using: @1", desc)
+    end
+    if creator then
+        if title then
+            title = title .. "  |  "
+        else
+            title = ""
+        end
+        title =  title .. S("Crafted by: @1", creator)
+    end
+    -- return nil in desc and creator fields if not found
+    return {name = station, title = title}
 end
 
 -- generates cache and set it for crafting formspec for crafting by hand and
