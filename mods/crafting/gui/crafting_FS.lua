@@ -105,7 +105,7 @@ local default_option = 1
 
         -- station (on right click)
         -----------------------------
-        `station` = {desc = "description" ; creator = "crafted by tag"}
+        `station` = {name = .., title= ...}
 
         -- tools (in tools_ant_types.lua)
         ------------------------------
