@@ -95,12 +95,8 @@ end
 local function cache_off_station(player)
     -- get cache if existent
     local cache = crafting.get_FS_cache(player)
-    -- adds station info
-    cache.station = nil
-    -- generates corresponding tools list
-    cache.tool_list = crafting.generate_tools_list()
-    -- updates cache with new selected `placed_tool` as tool
-    cache:set_tool()
+    -- set station, tools, tabs and recipes
+    cache:set_station(nil)
 end
 
 -- used when inventory tab was opened with right click on a tool or on
