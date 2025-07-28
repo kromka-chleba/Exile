@@ -697,17 +697,21 @@ function crafting.process_receive_fields(player, formname, fields)
     -- else mark formspec as open
     cache.closed = false
 
-    -- process scrollbar
+    -- updates scrollbar value if it changed
     if fields.recipes_scroll then
         local value = fields.recipes_scroll
         -- if there is any change
         local scroll = tonumber(string.match(value, "CHG:([0-9]+)"))
         if scroll and scroll ~= cache.sScroll then
             cache.sScroll = scroll
-            cache.FS_recipes = nil
-            --stop processing fields and go to saving changes
-            return cache
+            -- no refresh needed, it is included in the engine formspec dealing
+            return false
         end
+        --[[ NOTE: if the scollbar value didn't change
+        -- we still do to check the other fields, since we will have a
+        -- fields.recipes_scroll value as long as we have a scrollbar
+        -- even if it didn't change value
+        -- so keep the "return false" inside the if block.]]
     end
 
     --process input setting
