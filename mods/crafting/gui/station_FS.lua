@@ -36,18 +36,18 @@ end
 -- `name`: the name of the station (has to be a valid station)
 -- `title`: string to be displayed above the formspec
 -- pos is needed to get the meta for the creator (craftedby meta)
-local function get_station_info(station, pos)
+local function get_station_info(station_name, pos)
     -- if no station, no tag
-    if station == nil then
+    if station_name == nil then
         -- in crafting.refresh_recipes_FS() cache.station must not be nil
         return {}
     end
     -- get placed_tool's description and creator
     -- we get item's description because we want "lili's hammer"
     -- not "lili's placed hammer"
-    local idef = core.registered_items[station._tool]
-        or core.registered_items[station:sub(1,-8)]
-        or core.registered_items[station]
+    local idef = core.registered_items[station_name._tool]
+        or core.registered_items[station_name:sub(1,-8)]
+        or core.registered_items[station_name]
 
     -- generate a tab title with placed_tool's info
     local creator = nil
@@ -81,7 +81,7 @@ local function get_station_info(station, pos)
         title =  title .. S("Crafted by: @1", creator)
     end
     -- return nil in desc and creator fields if not found
-    return {name = station, title = title}
+    return {name = station_name, title = title}
 end
 
 -- generates cache and set it for crafting formspec for crafting by hand and
