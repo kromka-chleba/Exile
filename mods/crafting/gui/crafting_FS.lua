@@ -248,6 +248,20 @@ local function set_cache_input_options(cache, option, player_meta)
     cache.possible_hint = get_hint_state(option, player_meta)
 end
 
+-- save station's info in cache and update tool list/reset tabs if needed
+local function cache_set_station(cache, station)
+    -- add station's info to cache
+    cache.station = station
+    -- set tools and craft tabs (in tools_and_types.lua)
+    local station_name = station and station.name
+    -- generates corresponding tools list
+    cache.tool_list = crafting.generate_tools_list(station_name)
+    -- set tool panel and crafting tabs
+    cache:set_tool(station_name) -- recipes panel will be reset here
+end
+
+cache_func.set_station = cache_set_station
+
 -- generate a new cache and put is in FS_cache[player_name]
 local function new_cache(player)
     if not player then
@@ -287,12 +301,8 @@ local function new_cache(player)
     -- adds modification and initiate functions metatable
     setmetatable(cache, cache_func)
 
-    -- no station by default
-    cache.station = nil
-    cache.tool_list = crafting.generate_tools_list()
-
-    -- tool panel and crafting tabs
-    cache:set_tool() -- in tools_and_types.lua
+    -- set station, tools, tabs and recipes
+    cache_set_station(cache, nil)
 
     -- recipes panel ---
     -- tell if we sort list or not
