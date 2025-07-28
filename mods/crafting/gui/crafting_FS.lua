@@ -699,12 +699,14 @@ function crafting.process_receive_fields(player, formname, fields)
 
     -- updates scrollbar value if it changed
     if fields.recipes_scroll then
-        local value = fields.recipes_scroll
-        -- if there is any change
-        local scroll = tonumber(string.match(value, "CHG:([0-9]+)"))
-        if scroll and scroll ~= cache.sScroll then
-            cache.sScroll = scroll
+        local event = core.explode_scrollbar_event(fields.recipes_scroll)
+        -- above function returns a table, like {type="CHG", value=500}
+        if event.type == "CHG" then
+            if event.value ~= cache.sScroll then
+                cache.sScroll = scroll
+            end
             -- no refresh needed, it is included in the engine formspec dealing
+            -- no need to parse other field if the action was "scrolling"
             return false
         end
         --[[ NOTE: if the scollbar value didn't change
