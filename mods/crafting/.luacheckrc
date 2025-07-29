@@ -17,7 +17,6 @@ read_globals = { -- Read only, writing to them generates a warning
 
 	-- Testing
 	"describe",
-	"it",
 	"assert",
 }
 
