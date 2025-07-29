@@ -33,6 +33,7 @@ dofile(modpath..'/zones.lua')
 dofile(modpath..'/utility/init.lua')
 dofile(modpath..'/interface/init.lua')
 dofile(modpath..'/witt_exile/init.lua')
+dofile(modpath..'/buildclip.lua')
 
 dofile(modpath..'/currentrevision.lua')
 dofile(modpath..'/storage_watcher_api.lua')
