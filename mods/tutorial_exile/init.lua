@@ -156,6 +156,7 @@ local function after_tutorial(player)
     pstore[name] = nil
 end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
+        if not core.is_player(player) then return end -- logged out?
         if formname == "tutorial_exile:confirm" then
             if not fields.take_tut then -- pressed refuse, or closed the form
                 after_tutorial(player)
