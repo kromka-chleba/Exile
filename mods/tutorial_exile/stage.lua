@@ -196,7 +196,7 @@ local function clear(player)
 end
 
 -- Initialize a tutorial instance for this player, or find his existing one
-local function stage_init(pname, selected_stage)
+local function stage_init(pname, start_at_stage)
     if not pname or not minetest.get_player_by_name(pname) then
         minetest.log("error",
                      "Tried to init a tutorial instance for non-existant "..
@@ -208,11 +208,11 @@ local function stage_init(pname, selected_stage)
     end
     -- Find a spot that isn't taken, spawn an instance there
     local selected = 0
-    if not selected_stage then selected_stage = 0 end -- start at the start
+    if not start_at_stage then start_at_stage = 0 end
     local active
     for i = 1, #instance do
         if instance[i].in_use == false
-            and instance[i].ready >= selected_stage then
+            and instance[i].ready >= start_at_stage then
 
             selected = i
             instance[i].in_use = true
@@ -221,6 +221,7 @@ local function stage_init(pname, selected_stage)
         end
     end
     if selected == 0 then -- didn't find an unused; start anew
+        selected = #instance + 1
         instance[selected] = {
             in_use = true, active = 0, ready = 0, number = selected,
             offset = calc_offset(selected)
