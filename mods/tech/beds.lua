@@ -42,7 +42,7 @@ bed_rest.register_bed(
         sounds =  nodes_nature.node_sound_wood_defaults(),
         groups = {snappy = 3, dig_immediate = 3, falling_node = 1, bed = 1,
                   temp_pass = 1, nobones = 1},
-        bed_level = 1.0,
+        bed_level = 1,
 
 
         walkable = false,
@@ -92,7 +92,7 @@ bed_rest.register_bed(
         sounds =  nodes_nature.node_sound_leaves_defaults(),
         groups = {snappy = 3, dig_immediate = 3, flammable = 3, bed = 1,
                   temp_pass = 1, fall_damage_add_percent = -5},
-        bed_level = 2.0,
+        bed_level = 2,
 })
 
 
@@ -129,7 +129,7 @@ bed_rest.register_bed(
         groups = {choppy = 3, oddly_breakable_by_hand = 3, flammable = 3,
                   bed = 1, temp_pass = 1, fall_damage_add_percent = -20},
         sounds =  nodes_nature.node_sound_wood_defaults(),
-        bed_level = 3.0,
+        bed_level = 3,
 })
 
 
@@ -172,7 +172,7 @@ bed_rest.register_bed(
         sounds =  nodes_nature.node_sound_leaves_defaults(),
         groups = {snappy = 3, dig_immediate = 3, flammable = 3,
                   bed = 1, temp_pass = 1, fall_damage_add_percent = -35},
-        bed_level = 3.0,
+        bed_level = 3,
 })
 
 
@@ -210,7 +210,7 @@ bed_rest.register_bed(
         groups = {choppy = 3, oddly_breakable_by_hand = 3, flammable = 3,
                   bed = 1, temp_pass = 1, fall_damage_add_percent = -35},
         sounds =  nodes_nature.node_sound_wood_defaults(),
-        bed_level = 4.0,
+        bed_level = 4,
 })
 
 
