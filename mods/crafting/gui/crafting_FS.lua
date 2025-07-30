@@ -62,8 +62,6 @@ local input_options = {
             end
         end,
         hint_btn = true, -- is the hint button available ?
-        -- true if we are not sure that the recipes remain updated
-        to_update = function(cache) return cache.possible_hint end
     },
     [1] = {
         label = " Do not use",
@@ -90,9 +88,6 @@ local input_options = {
             end
         end,
         hint_btn = false,
-        -- true if we are not sure that the recipes remain updated
-        -- this is because the sorting is based on main inventory content
-        to_update = function(cache) return true end
     },
     -- [3] = {
     --     label = " Use first",
@@ -136,9 +131,6 @@ local default_option = 1
         `u_recipes` = nil : list of uncraftable recipes to display
         `recipes` = nil : unsorted list of recipes
         `selected_id` = nil : id of selected recipe
-        `to_update` = true if forsmpec was closed
-            and recipes crafting state may not remain updated for next sfinv opening
-            This is because there is currently no callback for "I opened the inventory"
 
         -- recipe panel
         ---------------------------
@@ -304,11 +296,6 @@ local function new_cache(player, station)
     -- Automatic filter checkbox --
     cache.input_filter = false -- never active on opening.
 
-    -- are we not sure recipes are updated when we arrive ?
-    -- depends on activated options
-    -- used to trigger refresh recipe button/system
-    cache.to_update = input_options[option].to_update(cache)
-
     -- adds modification and initiate functions metatable
     setmetatable(cache, cache_func)
 
@@ -402,13 +389,6 @@ function crafting.make_crafting_formspec(player, cache)
     -- in that case station will be "nil"
     cache = cache or get_FS_cache(player, true)
 
-    -- if we are sure the formspec is open, then update if needed
-    if cache.open and cache.to_update then
-        -- updates item_hash and recipes
-        cache:reset_recipes()
-        cache.to_update = false -- no need for refresh button
-    end
-
     -- output will be the formspec string
     local output = {
         'container[0,0]'
@@ -468,23 +448,6 @@ function crafting.make_crafting_formspec(player, cache)
         cache.FS_ctabs = cache:get_craft_tabs()
     end
     output[#output + 1] = cache.FS_ctabs
-
-    --[[ uncomment to bring back the recipe button + part in button event
-    -- Recipes panel drawing, button if recipes are not uptodate
-    if cache.to_update then
-        -- recipe refrehs button
-        -- TODO put a textarea : "Click on any tabs or button, including this one to get the matching recipes"
-        output[#output + 1]=  "style[refresh_r; border=true]"
-        output[#output + 1]= 'button[0,1;7,3.5;refresh_r;'
-                            .. S("Open recipes") ..']'
-    else
-        if not cache.FS_recipes then
-            -- in gui/recipes_panel.lua
-            cache.FS_recipes = cache:get_recipes_panel()
-        end
-        output[#output + 1] = cache.FS_recipes
-    end
-    -- ]]
 
     if not cache.FS_recipes then
         -- in gui/recipes_panel.lua
@@ -654,26 +617,6 @@ function crafting.open_formspec(player, fs_name, cache)
     return cache
 end
 
--- to decide what will be the opening page on next sinfv opening
-local function set_next_sfinv_page(player, to_update)
-    -- if current craft input option trigger the need of recipe refresh system
-    if to_update then
-        -- if clothing page is here
-        if core.global_exists("player_api") then
-            -- set page to clothing formspec
-            sfinv.set_page(player, "clothing:clothing")
-        end
-    else
-        -- else leave sfinv page on crafting
-        -- or set it to crafting if it wasn't (from external station close)
-        if sfinv.get_page(player) ~= "crafting:crafting" then
-            sfinv.set_page(player, "crafting:crafting")
-        else
-            sfinv.set_player_inventory_formspec(player)
-        end
-    end
-end
-
 --[[ Called when the inventory formspec is closed to clear cache
     * get input items back in main
     * returns name of next sfinv opening page
@@ -695,16 +638,10 @@ function crafting.close_crafting_formspec(player, cache)
     cache.qty = 1 -- back to "Single" craft
     -- reset recipes panel and item_hashes for next opening
     cache:reset_recipes() -- needed after getting back the inputs
-
+    -- no updates to the cache while formspec is closed
+    cache.open = nil
     -- reset station if leaving a non nil station
     cache_set_station(cache, nil)
-
-    -- set to_update status
-    cache.to_update = input_options[cache.craft_input].to_update(cache)
-
-    cache.open = nil -- formspec closed
-
-    return cache
 end
 
 -- return the cache to update formspec if something changed, false else
@@ -725,21 +662,12 @@ function crafting.process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        -- get input items back in main and update player's cache
-        cache = crafting.close_crafting_formspec(player, cache)
-        -- change next opening page in sfinv if needed
-        -- NOTE: only needed if open crafting forsmspec in sfinv is possible
-        if cache then
-            -- commented for PR 1299 (-> no more crafting in inventory),
-            -- clean-up postponed until a later commit
-            -- set_next_sfinv_page(player, cache.to_update)
-        end
+        -- get input items back in main
+        -- resets player's cache
+        crafting.close_crafting_formspec(player, cache)
 
         return false -- no need to refresh the formspec
     end
-
-    -- else mark formspec as open, if not already done (for sfinv needs)
-    cache.open = formname
 
     -- updates scrollbar value if it changed
     if fields.recipes_scroll then
@@ -812,16 +740,6 @@ function crafting.process_receive_fields(player, formname, fields)
         return cache
     end
 
-    --[[ uncomment to bring back the recipe button + part in crafting.make_crafting_formspec
-    -- process get recipes button
-    if fields.refresh_r then
-        cache.to_update = false
-        -- reset item_hashes and recipe panel
-        cache:reset_recipes()
-        return cache
-    end
-    --]]
-
     -- process new craft tabs
     for i = 1, #(cache.cTabs), 1 do
         if fields['sCraftTab_'..i] then
@@ -893,39 +811,31 @@ end
 --------------------------------------------------------------------------------
 -- following part is for update when inventory actions
 --------------------------------------------------------------------------------
--- update recipe list on inventory action outside the formspec
---[[ #TODO do better when we can
-    This is all because we don't have a callback for inventory opening
-    to come, we hope, a core.register_on_inventory_open(function(inventory)
-]]
-
--- Delete recipes list cache and update inventory formspec
+-- Update recipe list on inventory action inside a station formspec
 local function refresh_recipes_FS(player)
+    -- refresh only required if formspec is open for player
     local player_name = player:get_player_name()
     local cache = FS_cache[player_name]
     if cache then
+        -- do nothing if cache is not open
         local fs_name = cache.open
-        -- do nothing if cache is closed
         if not fs_name then
             return
         end
-        -- reset item_hashes and recipe panel, and reorder
+        -- reset item_hashes and recipe panel and sorting
         cache:reset_recipes()
-        -- refresh formspec ( "" is for inventory formspec, should use sfinv)
-        -- #TODO remove check and second case when crafting in inventory gets removed
+        -- update formspec (case `~= ""`: just safety)
         if type(fs_name) == "string" and fs_name ~= "" then
             crafting.show_station_formspec(player, cache)
-        else -- else sfinv
-            sfinv.set_player_inventory_formspec(player)
         end
-    --[[ happens if other moves to inventory,
-        triggered by inventory moves in clothing formspec too]]
-    -- else
-    --     core.log("no cache in refresh_recipes_FS")
     end
 end
 
--- Refresh recipe list when items are moved/dragged in and out of main and input panel inventories
+-- Refresh recipe list when items are moved/dragged in and out of main and input
+-- panel inventories by the player while a station formspec is open. This includes
+-- putting items into the trash bin or dropping them, but not crafting.
+-- (also called with inventory moves in clothing formspec, into bags, ..., but
+-- not when equipping clothes with right click)
 minetest.register_on_player_inventory_action(function(player, action,
                                                     inventory, inventory_info)
     local from_list = inventory_info.from_list -- for move
@@ -938,32 +848,17 @@ minetest.register_on_player_inventory_action(function(player, action,
     end
 
     if from_list == "main"
-            or to_list == "main"
-            or listname == "main"
-            or from_list == "input_items"
-            or to_list == "input_items"
-            or listname == "input_items" then
+        or to_list == "main"
+        or listname == "main"
+        or from_list == "input_items"
+        or to_list == "input_items"
+        or listname == "input_items" then
 
-        -- if input_items is concerned, it means formspec is open
-        if from_list == "input_items"
-                or to_list == "input_items"
-                or listname == "input_items" then
-            local cache = FS_cache[player:get_player_name()]
-            -- cache shouldn't be nil anyway, if we have access to input_list
-            if cache then
-                -- mark the formspec as open
-                if not cache.open then
-                    -- that should happen only if we open the inv formspec
-                    cache.open = "" -- sfinv version of open
-                end
-            else
-                core.log("cache shouldn't be nil "
-                .. "since we moved things in input_items list (in on_player_inventory_action)")
-                return
-            end
+        -- crafting formspec is open? -> trigger refresh
+        local cache = FS_cache[player:get_player_name()]
+        if cache and cache.open then
+            core.after(0.1, refresh_recipes_FS , player)
         end
-
-        core.after(0.1, refresh_recipes_FS , player)
     end
 end
 )
