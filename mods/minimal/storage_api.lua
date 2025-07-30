@@ -212,7 +212,7 @@ function storage.register_storage(name,def)
     def.formspec_width = math.ceil(def.formspec_width)
     def.formspec_height = math.ceil(def.formspec_height)
     -- automatic protection
-    def.protected = def.protected == true and true or false
+    def.protected = (def.protected == true)
     -- can be dug if there's itemstacks inside (default false)
     def.can_dig_when_inventory = (def.can_dig_when_inventory == true)
     -- legacy usage for flammable setting
