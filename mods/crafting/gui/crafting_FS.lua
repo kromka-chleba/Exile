@@ -263,7 +263,8 @@ end
 cache_func.set_station = cache_set_station
 
 -- generate a new cache and put is in FS_cache[player_name]
-local function new_cache(player)
+-- `station` is optional, same format as in cache.station
+local function new_cache(player, station)
     if not player then
         core.log ("no player to initiate crafting cache for")
         return nil
@@ -302,8 +303,7 @@ local function new_cache(player)
     setmetatable(cache, cache_func)
 
     -- set station, tools, tabs and recipes
-    -- no station by default
-    cache_set_station(cache, nil)
+    cache_set_station(cache, station)
 
     -- recipes panel ---
     -- tell if we want to sort recipes list or not (colors)
@@ -321,7 +321,8 @@ core.register_on_leaveplayer(function(player)
 
 -- get player's cache
 -- if `generate` is true, generate it if non existant
-function crafting.get_FS_cache(player, generate)
+-- `station` is optional, same format as in cache.station
+function crafting.get_FS_cache(player, generate, station)
     if not player then return nil end
     -- get the FS cache if already existant
     local cache = FS_cache[player:get_player_name()]
@@ -329,7 +330,7 @@ function crafting.get_FS_cache(player, generate)
     if not cache then
         if generate then
             -- that function modified player's cache and return that cache
-            cache = new_cache(player)
+            cache = new_cache(player, station)
         end
     end
     return cache
@@ -371,6 +372,7 @@ function crafting.make_crafting_formspec(player, cache)
         return nil -- no player name
     end
     -- initiates FS_cache[player_name] if non existant
+    -- in that case station will be "nil"
     cache = cache or get_FS_cache(player, true)
 
     -- if we are sure the formspec is open, then update if needed

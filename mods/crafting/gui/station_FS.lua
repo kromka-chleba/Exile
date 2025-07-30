@@ -80,7 +80,7 @@ local function make_tool_formspec(player, station, cache)
     end
 
     -- initiates FS_cache[player_name] if non existant
-    cache = cache or crafting.get_FS_cache(player, true)
+    cache = cache or crafting.get_FS_cache(player, true, station)
 
     -- updates station info if we changed station
     if cache.station ~= station then
@@ -101,7 +101,7 @@ local function show_station_formspec(player, station, fs_name)
     -- open it with "exile:crafting" name by default
     fs_name = fs_name or "exile:crafting"
     -- initiates FS_cache[player_name] if non existant
-    local cache = crafting.get_FS_cache(player, true)
+    local cache = crafting.get_FS_cache(player, true, station)
 
     -- flag formspec as open (or not if fs_name = nil)
     cache.open = fs_name
