@@ -27,8 +27,8 @@
 * crafting.**get_tool_level**(`tool`)
     >Returns level for that tool
 
-* crafting.**generate_tools_list**(`station`)
-    > Generates tool list available in `station`
+* crafting.**generate_tools_list**(`station_name`)
+    > Generates tool list available in `station_name`
 
 * crafting.**make_tool_formspec**(`player`, `cache`)
     > Generates current station's formspec for `player`
