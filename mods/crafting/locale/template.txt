@@ -36,7 +36,6 @@ Use first:=
 @1 (@2)=
 
 Missing required items!=
-Crafting=
 Crafting?=
 @nUse an empty hand on a flat, clear surface,@nor use a placed tool or crafting station.=
 
