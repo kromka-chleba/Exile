@@ -585,16 +585,6 @@ end
 
 -- Formspec actions ------------------------------------------------------------
 --------------------------------------------------------------------------------
--- allow exteranl mod to call this page with specific craft tab
--- (used in player_api to let clothing tab send us to clothing craft tab)
--- TODO maybe make/get a function to get the number from the name ?
-function crafting.set_page(player, selected_tab_number)
-    -- will register cache for player if cache is newly generated
-    local cache = get_FS_cache(player, true)
-    -- set tab to the selected tab number
-    cache:set_craft_tabs(selected_tab_number)
-    sfinv.set_page(player, "crafting:crafting")
-end
 
 -- give back items in input panel to main inventory
 local function get_inputs_back_in_inv(player)
