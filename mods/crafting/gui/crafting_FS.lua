@@ -167,7 +167,7 @@ local default_option_idx = option_to_idx[default_option_name]
         `sToolID` = selected tool index in list -- set to 1 by default
         `sTool`  = selected tool name
 
-        -- craft types (subtabs) (in tools_ant_types.lua)
+        -- craft types (subtabs) (in tools_and_types.lua)
         ------------------------------
         `sTab`   = 1 : index of selected_craft_tab
         `cTabs` = nil : "hand", "hand_tool", etc; all output tool type sections

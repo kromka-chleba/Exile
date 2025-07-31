@@ -168,7 +168,7 @@ end
     * doesn't update the item
     * returns 0 if none present]]
 --[[WARNING, tool should not be also used as ingredient, because else it could give false posive.
-For that, TODO maybe copy item_ash to modify it]]
+For that, TODO maybe copy item_hash to modify it]]
 
 -- returns have --, available (boolean)]]
 -- TODO (not sure yet if I keep sending the second info or not)
@@ -416,7 +416,7 @@ end
 -- Check of recipe validity and generationg of item and tool table
  ----------------------------------------------------------------------
 
---[[ check if no duplicates inputs, which currentldy would make craft do unwanted things
+--[[ check if no duplicates inputs, which currently would make craft do unwanted things
 run after mods loaded
 ]]
 -- TODO improve/check with units/complex grouptag
