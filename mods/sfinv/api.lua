@@ -276,9 +276,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			local page = sfinv.pages[id]
 			if id and page then
                 -- little hack to pass as parameter the info that inv is open
-                context.open_inv = true
+                context.open_inv = ""
 				sfinv.set_page(player, id)
-                context.open_inv = false -- remove once set
+                context.open_inv = nil -- remove once set
 			end
 		end
 	else
