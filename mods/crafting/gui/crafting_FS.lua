@@ -305,7 +305,7 @@ local function new_cache(player)
     cache_set_station(cache, nil)
 
     -- recipes panel ---
-    -- tell if we sort list or not
+    -- tell if we want to sort recipes list or not (colors)
     cache.sorted = true --TODO for future setting, currently always true
 
     FS_cache[player_name] = cache
