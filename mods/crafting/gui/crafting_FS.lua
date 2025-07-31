@@ -170,7 +170,7 @@ local default_option_idx = option_to_idx[default_option_name]
         -- craft types (subtabs) (in tools_and_types.lua)
         ------------------------------
         `sTab`   = 1 : index of selected_craft_tab
-        `cTabs` = nil : "hand", "hand_tool", etc; all output tool type sections
+        `cTabs` = nil : "hand", "hand_tool", etc; all output 'c'raft type sections
         `sLevel` = selected craft_types'level
 
         -- recipes lists (in recipe_panel.lua)
@@ -179,7 +179,7 @@ local default_option_idx = option_to_idx[default_option_name]
         `p_recipes` = nil : list of possible recipe if everything is used
         `ipa_recipes` = nil : list of recipes with inputs partially available
         `u_recipes` = nil : list of uncraftable recipes to display
-        `recipes` = nil : unsorted list of recipes
+        `recipes` = nil : an unsorted list of 'player recipes', see recipes.lua
         `selected_id` = nil : id of selected recipe
 
         -- recipe panel
