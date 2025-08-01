@@ -96,6 +96,14 @@ Plant groups
 `woodslab`: a log that's been cut in half, e.g. stairs/slabs
 `cana`: refers solely to cana (utilized for crafting)
 
+Food crafts groups
+-------------------
+`flour`
+`bread_flour`
+`cake_flour`
+`dough`
+`bread_dough`
+`cake_dough`
 
 Animals groups
 --------------

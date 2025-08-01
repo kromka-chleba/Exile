@@ -238,6 +238,17 @@ minetest.register_node(
         _use_tip = S("Eat"),
 })
 
+-- FLOURS and DOUGHS ----------------------------------------------------------
+
+-- flour groups
+-- descriptions to have proper translations
+crafting.register_group_desc("flour", S("flour"))
+crafting.register_group_desc("bread_flour", S("bread flour"))
+crafting.register_group_desc("cake_flour", S("cake flour"))
+crafting.register_group_desc("dough", S("dough"))
+crafting.register_group_desc("bread_dough", S("bread dough"))
+crafting.register_group_desc("cake_dough", S("cake dough"))
+
 -- rhuya flour (RAW)
 -- needs to be cooked to purify toxins
 minetest.register_node(

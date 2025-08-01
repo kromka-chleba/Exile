@@ -206,7 +206,9 @@ Small Wood Fire (extinguished)=
 Large Wood Fire (extinguished)=
 Small Charcoal Fire (extinguished)=
 Large Charcoal Fire (extinguished)=
+
 # food_crafts.lua
+#---------------
 Sea Salt=
 Bitter Maraka Flour=
 Maraka Flour=
@@ -219,6 +221,17 @@ Cooked Anperla Tuber=
 Mashed Anperla (uncooked)=
 Mashed Anperla=
 Burned Anperla=
+
+#flours and doughs
+
+#groups of flours
+flour=
+bread flour=
+cake flour=
+dough=
+bread fough=
+cake fough=
+
 Raw Rhuya Flour=
 Rhuya Flour=
 Raw Hardy Rhuya Flour=
@@ -242,6 +255,7 @@ Fluffy Unleavened Bread=
 Basic Crackerbread=
 Soft Bread=
 Burned Bread=
+
 # animal food_crafts
 Cracked Egg=
 Fried Egg=
