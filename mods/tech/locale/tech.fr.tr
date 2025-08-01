@@ -124,7 +124,7 @@ Tools=Outils
 Stations=Stations
 Agriculture=Agriculture
 Pickaxe=Pioche
-Breadmaking=
+Breadmaking=Fabrication du pain
 Cannot place here! Needs a whole block of: =Impossible de placer ici! Besoin d'un bloc entier de:
 Mixing Spot=Emplacement pour le mélange
 Threshing Spot=Emplacement pour le battage
@@ -286,35 +286,48 @@ Cooked Anperla Tuber=Tubercule d'Anperla cuit
 Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
 Mashed Anperla=Purée d'Anperla
 Burned Anperla=Anperla brûlé
-Raw Rhuya Flour=
-Raw Hardy Rhuya Flour=
-Rhuya Flour=
-Hardy Rhuya Flour=
-Burnt Rhuya Flour=
-Uncured Barshocha Flour=
-Cured Barshocha Flour=
-All-Purpose Flour=
-Maraka Dough=
-Rhuya Dough=
-Hardy Rhuya Dough=
-Barshocha Dough=
-All-Purpose Dough=
-@1 Fermenting=
-@1 Fermented=
-Black Bread=
-Crumbly Bread=
-Unleavened Bread=
-Fluffy Unleavened Bread=
+
+# ; flours and doughs ;
+
+Raw Rhuya Flour=Farine de Rhuya crue
+Raw Hardy Rhuya Flour=Farine de Rhuya rustique crue
+Rhuya Flour=Farine de Rhuya
+Hardy Rhuya Flour=Farine de Rhuya rustique
+Burnt Rhuya Flour=Farine de Rhuya brûlée
+Uncured Barshocha Flour=Farine de Barshocha non traitée
+Cured Barshocha Flour=Farine de Barshocha traitée
+All-Purpose Flour=Farine tout usage
+Maraka Dough=Pâte de Maraka
+Rhuya Dough=Pâte de Rhuya
+Hardy Rhuya Dough=Pâte de Rhuya rustique
+Barshocha Dough=Pâte de Barshocha
+All-Purpose Dough=Pâte tout usage
+@1 Fermenting=@1 en cours de fermentation
+@1 Fermented=@1 fermentée
+
+# regular breads ;
+Crumbly Bread=Pain friable
+Tiger Bread Dough=
+Tiger Bread=
+Baguette Dough=Pâte de baguette
+
+Black Bread=Pain noir
+Crumbly Bread=Pain friable
+Unleavened Bread=Pain azyme (sans levure)
+Fluffy Unleavened Bread=Pain azyme moelleux
 Basic Crackerbread=
 Soft Bread=
-Burned Bread=
-Ikippe Yeast=
-# animal food_crafts
-Cracked Egg=oeuf fêlé
-Fried Egg=Œuf au Plat
+Burned Bread=Pain brûlé
+Ikippe Yeast=Levain Ikippe
+
 # food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
+Infect Dough=Ensemencer la pâte
+Yeast added to the @1=Levain ajouté à la @1
+
+# animal food_crafts
+Cracked Egg=Oeuf cassé
+Fried Egg=Œuf au Plat
+
 # Pottery
 Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua
