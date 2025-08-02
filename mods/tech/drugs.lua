@@ -378,8 +378,8 @@ crafting.register_recipe({
                                             "tech:unfermented_tang_liquid")
             end
         end,
-        -- custom output generation function
-        -- has to return output stack as string
+        -- custom output generation functions may be added as "output_func"
+        -- they should return either an output-stack string or nil
         output_func = function() return nil end,
         level = 1,
         always_known = true,
