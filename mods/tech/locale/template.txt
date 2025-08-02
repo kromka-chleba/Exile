@@ -70,8 +70,10 @@ Light Fabric Tunic=
 Thick Fabric Tunic=
 # cooking_pot.lua
 Cooking Pot (unfired)=
+Bowl=
 Bowl (unfired)=
 Cooking Pot=
+Bowl=
 Empty Bowl=
 Bowl of @1 Stew=
 Bowl of @1 Soup=
@@ -152,6 +154,7 @@ Clear Glass Trapdoor=
 Herbal Medicine=
 Tiku (stimulant)=
 Tang Vinegar=
+Vinegar=
 Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
@@ -203,7 +206,9 @@ Small Wood Fire (extinguished)=
 Large Wood Fire (extinguished)=
 Small Charcoal Fire (extinguished)=
 Large Charcoal Fire (extinguished)=
+
 # food_crafts.lua
+#---------------
 Sea Salt=
 Bitter Maraka Flour=
 Maraka Flour=
@@ -216,6 +221,17 @@ Cooked Anperla Tuber=
 Mashed Anperla (uncooked)=
 Mashed Anperla=
 Burned Anperla=
+
+#flours and doughs
+
+#groups of flours
+flour=
+bread flour=
+cake flour=
+dough=
+bread fough=
+cake fough=
+
 Raw Rhuya Flour=
 Rhuya Flour=
 Raw Hardy Rhuya Flour=
@@ -239,6 +255,7 @@ Fluffy Unleavened Bread=
 Basic Crackerbread=
 Soft Bread=
 Burned Bread=
+
 # animal food_crafts
 Cracked Egg=
 Fried Egg=
@@ -369,6 +386,9 @@ Till soil quickly=
 Placed Iron Hoe=
 # torch.lua
 Torch=
+
+# waterworking.lua
+Water Pot=
 Clay Water Pot=
 Clay Water Pot with Salt Water=
 Clay Water Pot with Freshwater=
@@ -388,6 +408,7 @@ Green Glass Bottle With Salt Water=
 Clear Glass Bottle With Salt Water=
 Green Glass Bottle With Fresh Water=
 Clear Glass Bottle With Fresh Water=
+
 # woodworking.lua
 Wooden Ladder=
 Wooden Floor Boards=

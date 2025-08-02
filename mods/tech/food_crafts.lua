@@ -238,6 +238,17 @@ minetest.register_node(
         _use_tip = S("Eat"),
 })
 
+-- FLOURS and DOUGHS ----------------------------------------------------------
+
+-- flour groups
+-- descriptions to have proper translations
+crafting.register_group_desc("flour", S("flour"))
+crafting.register_group_desc("bread_flour", S("bread flour"))
+crafting.register_group_desc("cake_flour", S("cake flour"))
+crafting.register_group_desc("dough", S("dough"))
+crafting.register_group_desc("bread_dough", S("bread dough"))
+crafting.register_group_desc("cake_dough", S("cake dough"))
+
 -- rhuya flour (RAW)
 -- needs to be cooked to purify toxins
 minetest.register_node(
@@ -906,18 +917,23 @@ for dough,flour in pairs(
         count = 8
         flour = flour.." "..count
     end
-    -- iterate through every empty water pot
-    for _,water_pot in pairs({"tech:clay_water_pot", "tech:wooden_water_pot"}) do
-        crafting.register_recipe({
-            type = "breadmaking",
-            output = dough.." "..count,
-            -- only the freshwater variant
-            items = {flour, water_pot.."_freshwater"},
-            replace = water_pot,
-            level = 1,
-            always_known = true
-        })
-    end
+
+    local recipe_def = {
+        type = "breadmaking",
+        output = dough.." "..count,
+        -- only the freshwater variant
+        items = {flour, "group:freshwater/pot"},
+        -- replace with empty pot
+        replace = function(item_name)
+            -- replace freshwater container by correct empty version
+            if core.get_item_group(item_name, "freshwater") > 0 then
+                return liquid_store.replace(item_name, nil)
+            end
+        end,
+        level = 1,
+        always_known = true
+    }
+    crafting.register_recipe(recipe_def)
 end
 
 -- ANIMAL PRODUCTS

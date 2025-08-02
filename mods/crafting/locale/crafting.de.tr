@@ -20,6 +20,7 @@ coquina cobble=Coquinafeldstein
 fruit=Frucht
 seed=Samen
 #api.lua
+@1 (@2)=@1 (@2)
 Any @1=@1, beliebig
 Missing required items!=
 

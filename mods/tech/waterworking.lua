@@ -188,10 +188,16 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             end
             -- adds pot group for recipes
             def.groups.pot = 1
+            -- adds group "pot" in container
+            liquid_store.register_container(name, {"pot"})
+            -- #TODO maybe cleaner function to reunite th 2 lines above ?
         end
         minetest.register_node(name, def)
     end
 end
+
+-- adding custom group description to be used in crafting recipes
+crafting.register_group_desc("pot", S("Water Pot"))
 
 -- Wodden pot recipe
 --[[Clay pot/watering_can is cooked, so not registered as recipe

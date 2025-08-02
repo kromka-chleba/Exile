@@ -3,6 +3,7 @@
 Woven Bag=Sac tissé
 Wicker Bag=Sac en osier
 Fabric Bag=Sac en tissu
+
 # beds.lua
 Sleeping Spot=Coin pour dormir
 Sleeping Mat=Tapis de sol
@@ -42,6 +43,7 @@ Claystone=Argilite
 Siltstone=Lutite
 Sandstone=Grès
 Conglomerate=Conglomérat
+
 # bricks_and_mortar.lua
 Limestone=Calcaire
 Ironstone=Fer
@@ -50,6 +52,7 @@ Basalt=basalte
 Gneiss=gneiss
 Jade=jade
 Combine with another slab=Combiner avec une autre dalle
+
 # clothing.lua
 Woven Hat=Chapeau tissé
 Sun Hat=Chapeau de soleil
@@ -66,13 +69,15 @@ Light Fabric Trousers=Pantalon en tissu léger
 Thick Fabric Trousers=Pantalon en tissu épais
 Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
+
 # cooking_pot.lua
 Cooking Pot (unfired)=Marmite (non cuite)
-Bowl (unfired)=
+Bowl (unfired)=Bol (non cuit)
 Cooking Pot=Marmite
-Empty Bowl=
+Bowl=Bol
+Empty Bowl=Bol vide
 Bowl of @1 Stew=
-Bowl of @1 Soup=
+Bowl of @1 Soup=Bol de soupe de @1
 #; contents
 Water=
 Contents: @1=Contenu: @1
@@ -119,7 +124,7 @@ Tools=Outils
 Stations=Stations
 Agriculture=Agriculture
 Pickaxe=Pioche
-Breadmaking=
+Breadmaking=Fabrication du pain
 Cannot place here! Needs a whole block of: =Impossible de placer ici! Besoin d'un bloc entier de:
 Mixing Spot=Emplacement pour le mélange
 Threshing Spot=Emplacement pour le battage
@@ -150,6 +155,7 @@ Clear Glass Trapdoor=Tappe en verre transparent
 # drugs.lua
 Herbal Medicine=Médecine à base de plantes
 Tiku (stimulant)=Tiku (stimulant)
+Vinegar=Vinaigre
 Tang Vinegar=Vinaigre de Tang
 Tang Vinegar with Mother=Vinaigre de Tang avec mère
 Mother of Tang=Mère de Tang
@@ -268,6 +274,9 @@ Status: =Statut:
 Stick=Bâton
 Grass Fibre=Fibres végétales
 Vegetable Oil=Huile végétale
+
+# food_crafts.lua
+#---------------
 Sea Salt=Sel de Mer
 Bitter Maraka Flour=Farine de Maraka amère
 Maraka Flour=Farine de Maraka
@@ -280,35 +289,56 @@ Cooked Anperla Tuber=Tubercule d'Anperla cuit
 Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
 Mashed Anperla=Purée d'Anperla
 Burned Anperla=Anperla brûlé
-Raw Rhuya Flour=
-Raw Hardy Rhuya Flour=
-Rhuya Flour=
-Hardy Rhuya Flour=
-Burnt Rhuya Flour=
-Uncured Barshocha Flour=
-Cured Barshocha Flour=
-All-Purpose Flour=
-Maraka Dough=
-Rhuya Dough=
-Hardy Rhuya Dough=
-Barshocha Dough=
-All-Purpose Dough=
-@1 Fermenting=
-@1 Fermented=
-Black Bread=
-Crumbly Bread=
-Unleavened Bread=
-Fluffy Unleavened Bread=
+
+#flours and doughs
+
+#groups
+flour=farine
+bread flour=farine à pain
+cake flour=farine à gâteau
+dough=pâte
+bread dough=pâte à pain
+cake dough=pâte à gâteau
+
+Raw Rhuya Flour=Farine de Rhuya crue
+Raw Hardy Rhuya Flour=Farine de Rhuya rustique crue
+Rhuya Flour=Farine de Rhuya
+Hardy Rhuya Flour=Farine de Rhuya rustique
+Burnt Rhuya Flour=Farine de Rhuya brûlée
+Uncured Barshocha Flour=Farine de Barshocha non traitée
+Cured Barshocha Flour=Farine de Barshocha traitée
+All-Purpose Flour=Farine tout usage
+Maraka Dough=Pâte de Maraka
+Rhuya Dough=Pâte de Rhuya
+Hardy Rhuya Dough=Pâte de Rhuya rustique
+Barshocha Dough=Pâte de Barshocha
+All-Purpose Dough=Pâte tout usage
+@1 Fermenting=@1 en cours de fermentation
+@1 Fermented=@1 fermentée
+
+# regular breads ;
+Crumbly Bread=Pain friable
+Tiger Bread Dough=
+Tiger Bread=
+Baguette Dough=Pâte de baguette
+
+Black Bread=Pain noir
+Crumbly Bread=Pain friable
+Unleavened Bread=Pain azyme (sans levure)
+Fluffy Unleavened Bread=Pain azyme moelleux
 Basic Crackerbread=
 Soft Bread=
-Burned Bread=
-Ikippe Yeast=
-# animal food_crafts
-Cracked Egg=oeuf fêlé
-Fried Egg=Œuf au Plat
+Burned Bread=Pain brûlé
+Ikippe Yeast=Levain Ikippe
+
 # food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
+Infect Dough=Ensemencer la pâte
+Yeast added to the @1=Levain ajouté à la @1
+
+# animal food_crafts
+Cracked Egg=Oeuf cassé
+Fried Egg=Œuf au Plat
+
 # Pottery
 Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua
@@ -377,6 +407,9 @@ Basalt Hammer=Marteau en basalte
 Granite Hammer=Marteau en granite
 # torch.lua
 Torch=Torche
+
+# waterworking.lua
+Water Pot=Cruche
 Clay Water Pot=Cruche en argile
 Clay Water Pot with Salt Water=Cruche en argile avec eau salée
 Clay Water Pot with Freshwater=Cruche en argile avec eau douce
@@ -396,6 +429,7 @@ Green Glass Bottle With Salt Water=Bouteille en verre vert avec eau salée
 Clear Glass Bottle With Salt Water=Bouteille en verre transparent avec eau salée
 Green Glass Bottle With Fresh Water=Bouteille en verre vert avec eau douce
 Clear Glass Bottle With Fresh Water=Bouteille en verre transparent avec eau douce
+
 # woodworking.lua
 Wooden Ladder=Échelle en bois
 Wooden Floor Boards=Planches de plancher en bois

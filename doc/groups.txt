@@ -41,8 +41,13 @@ Liquids:
 --------
 `water`: 1 = fresh, 2 = salt
 `liquid_storage`: indicates whether or not a node (bucket) stores liquid
+`empty`: indicates an empty container
+`potash`
 
-
+Containers:
+--------
+`pot`
+`bowl`
 
 stone
 ------
@@ -91,6 +96,14 @@ Plant groups
 `woodslab`: a log that's been cut in half, e.g. stairs/slabs
 `cana`: refers solely to cana (utilized for crafting)
 
+Food crafts groups
+-------------------
+`flour`
+`bread_flour`
+`cake_flour`
+`dough`
+`bread_dough`
+`cake_dough`
 
 Animals groups
 --------------

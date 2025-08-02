@@ -206,7 +206,7 @@ function crafting.get_group_stats(grouptag)
         if stats.name_desc == "" then
             stats.desc = S("Any Empty @1", stats.unit_desc)
         else
-            stats.desc = S("@1 (Any @2)", stats.name_desc, stats.unit_desc)
+            stats.desc = S("@1 (@2)", stats.name_desc, stats.unit_desc)
         end
     else
         stats.desc = S("Any @1", stats.name_desc)
