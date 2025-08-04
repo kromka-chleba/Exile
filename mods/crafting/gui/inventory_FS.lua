@@ -54,8 +54,8 @@ sfinv.register_page(
         get = function(self, player, context)
             local fs = {}
             fs[#fs + 1] = 'label[0.8,1.0;'.. S("More crafting options:") .. ']'
-            local text = S("Use a free hand at a suitable place"
-                          .. "@nor use placed tools or devices.")
+            local text = S("@nUse an empty hand on a flat, clear surface,"
+                      .. "@nor use a placed tool or crafting station.")
             fs[#fs + 1] = 'label[0.8,1.5;'.. text .. ']'
             fs[#fs + 1] = 'image[0.8,2.8;3.1,2.4;crafting_help_surface_good_01.png]'
             fs[#fs + 1] = 'image[4.15,2.8;3.1,2.4;crafting_help_surface_good_03.png]'
