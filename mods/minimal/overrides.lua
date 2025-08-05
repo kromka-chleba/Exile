@@ -86,8 +86,9 @@ local hand_on_rightclick = function(clicker, pointed_thing)
 
     -- to far? (allow from within beds but not on other side of a canyon)
     if vector.distance(clicker:get_pos(), under) > 2.8 then
-        minimal.send_message(clicker, clicker:get_player_name(),
-                             S("Too far away!"), 1)
+        local player_name = clicker:get_player_name()
+        minimal.send_message(clicker, player_name, S("Too far away!"), 1)
+        core.sound_play("failure", {to_player = player_name}, true)
         return false
     end
 
