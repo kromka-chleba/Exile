@@ -197,6 +197,9 @@ local function split_and_add (stack, pInv, outlistname, pos)
 end
 
 -- for replacement as string or array (old format)
+-- this is called after we picked the items, as general replacement
+-- (meaning: doesn't depend of the items picked)
+-- format can be an ItemString or a table of ItemStrings.
 local function give_replacement(replace, count, give_back)
     give_back = give_back or {}
     -- if no replacement to make, end
@@ -211,21 +214,25 @@ local function give_replacement(replace, count, give_back)
     -- if replace field is a table, parse he table
     elseif type(replace)== "table" and #replace > 0 then
         for _ ,r in ipairs(replace) do
-            give_replacement(replace, count, give_back)
+            give_replacement(r, count, give_back)
         end
     end -- else bad format or new format
     return give_back
 end
 
 --[[ apply replacement according to item used
+    This is called with all picked items.
     * `recipe` is the recipe
-    * `took` is the ItemStack took as input to test
-    * `count` is the crafting count
+    * `took` is the ItemStack took in picked items
 
-    accepts 3 formats of `replace` field:
-    - string: then it gives it as additionnal outpur
+    accepts 2 formats of `replace` field:
     - table: {[item_to_replace] = replacement_item}
     - function: apply the function
+
+    Both of them have a 1 size ItemStack string as param/index
+    and an ItemStack as result/value
+    if `took` has a count > 1,
+    the replacement count will me multiplied accordinglyy
 ]]
 local function get_replacement(replace, took)
     -- if no replacement to make, end
