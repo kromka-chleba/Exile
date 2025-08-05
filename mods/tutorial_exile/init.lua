@@ -40,7 +40,8 @@ local ask = S(
 
 local confirmspec = "formspec_version[6]"..
     "size[8,7]"..
-    "hypertext[0.375,0.5;8,5;tut_dialog;"..
+    "textarea[0.4,0.5;8,5;;;"..
+    --"hypertext[0.375,0.5;8,5;tut_dialog;"..
     welcome.."\n\n"..intro.."\n\n"..ask.."]"..
     "button_exit[2,5.5;1,0.5;take_tut;Yes]"..
     "button_exit[5,5.5;1,0.5;refuse_tut;No]"
