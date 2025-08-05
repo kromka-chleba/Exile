@@ -54,6 +54,8 @@ sfinv.register_page(
         get = function(self, player, context)
             local fs = {}
             fs[#fs + 1] = 'label[0.8,1.0;'.. S("More crafting options:") .. ']'
+            -- NOTE: The extra 'new line' is to indicate to translators and
+            --       coders: There is/needs to be space for 3 lines of text.
             local text = S("@nUse an empty hand on a flat, clear surface,"
                       .. "@nor use a placed tool or crafting station.")
             fs[#fs + 1] = 'label[0.8,1.5;'.. text .. ']'
