@@ -33,7 +33,7 @@ Daoja Tree=Arbre Daoja
 Daoja Berry=Baie de Daoja
 # data_rock.lua
 Sandstone=Grès
-Siltstone=Limons
+Siltstone=Siltite
 Claystone=Argilite
 Conglomerate=Conglomérat
 Limestone=Calcaire
@@ -46,13 +46,13 @@ Clay Agricultural Soil=Sol agricole argileux
 Silty Agricultural Soil=Sol agricole limoneux
 Sandy Agricultural Soil=Sol agricole sablonneux
 Stony Agricultural Soil=Sol agricole pierreux
-Loamy Agricultural Soil=Sol agricole limoneux
+Loamy Agricultural Soil=Sol agricole glaiseux
 # sediments (sediment_data.lua)
 Sand=Sable
 Silt=Limon
 Clay=Argile
 Gravel=Gravier
-Loam=Limon
+Loam=Glaise
 Red Ochre=Ocre rouge
 # biome sediments (sediment_data.lua)
 Rich Forest Soil=Sol forestier riche
