@@ -1,6 +1,9 @@
 # textdomain: minimal
 #utility/general.lua
 @1's @2=@2 de @1
+Exile v4 now has a client-side mod for smoother controls:@nSearch for exile-csm on=Exile v4 a désormais un mod côté client pour de meilleurs contrôles:@nCherchez "exile_csm" sur
+the Luanti Forum=le forum Luanti
+You can also get it here on=Vous pouvez aussi le trouver sur
 #currentrevision.lua
 Display the current git revision=Afficher la révision git en cours
 This server is currently running git revision=Ce serveur fait actuellement tourner la révision git

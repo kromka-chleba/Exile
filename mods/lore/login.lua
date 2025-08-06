@@ -52,9 +52,8 @@ local function show_motd(player, force)
     -- Message of the day for servers
     local playername = player:get_player_name()
     if minetest.is_singleplayer() then return end
-    local motd = minetest.settings:get("exile_motd")
-    if ( not motd ) or motd == "" or motd == "\"\"" then return end
-    motd = motd:gsub("\\n","\n")
+    local motd = minimal.motd or ""
+
     local meta = player:get_meta()
     if not meta then
         queue_clear(playername)
@@ -73,7 +72,7 @@ local function show_motd(player, force)
         "styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
         "hypertext[0.5,0.75;6,5;introtext; "..
         S("Message of the Day:\n\n")
-        ..motd.."]"
+        .. motd.."]"
     if newplayer[playername] then
         spec = spec.."bgcolor[;both;#bbb]"..
             "background9[0,0;7,7.5;9slice-deep.png;false;10]"

@@ -16,10 +16,28 @@ minimal = {
 
 }
 exile = minimal -- Adding to begin transition to renamed minimal as exile.
+
 minimal.S = minetest.get_translator("minimal")
 minimal.FS = function(...)
     return minetest.formspec_escape(minimal.S(...))
 end
+
+-- message of the day
+-- was previously on game setting exile_motd
+-- issue is to get it translated, then...
+-- hypertext (markdown language)
+exile.motd = minimal.S("Exile v4 now has a client-side mod "
+                        .."for smoother controls:"
+                        .."@nSearch for exile-csm on") .. " "
+            .. "<action name=forum_link "
+            .. "url=https://forum.luanti.org/viewtopic.php?t=30407>"
+            .. minimal.S("the Luanti Forum")
+            .."</action> \n"
+            .. minimal.S("You can also get it here on") .." "
+            .. "<action name=forum_link "
+            .. "url=https://codeberg.org/Mantar/exile-csm>"
+            .."Codeberg</action>"
+
 local modpath=minetest.get_modpath('minimal')
 dofile(modpath..'/debug.lua')
 dofile(modpath..'/compat.lua')

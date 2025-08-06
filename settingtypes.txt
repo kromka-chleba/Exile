@@ -21,9 +21,6 @@ ncrafting_worldseed (Use world seed for dye generation) bool true
 # or set to default to use the standard default setting.
 exile_default_gui_theme (Change the default gui theme) string default
 
-# A message of the day, for server operators
-exile_motd (Display a message on login) string
-
 # Select the temperature scale to display in the HUD.
 exile_temp_scale (Temperature scale) enum Celsius Celsius,Fahrenheit,Kelvin
 
@@ -171,4 +168,3 @@ naturalslopeslib_enable_shape_on_dig_place (Shape update on dig and place) bool 
 # It will show some disconnections at some points 
 # that won't be fixed and may be visually misleading with heights.
 naturalslopeslib_smooth_rendering (Smooth but glitched rendering) bool false
-
