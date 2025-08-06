@@ -677,7 +677,7 @@ Lost=
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=Par décret @1 de @2: @n @3 de @4 @n est par la présente condamné(e) à l'exil pour @n@n @5 @n et @n @6 @n@n @7 est banni(e) du pays de @9 et envoyé(e) sur les terres de @8. @n@n @n@n
 Sentence of Exile=Sentence d'exil
 #login.lua
-login_text=
+login_text=  Vous pouvez à peine entendre le son de leur voix lisant la liste de vos crimes, noyé sous les huées plus fortes de vos pairs, mais il est déjà trop tard pour protester de votre innocence.@n  Vous êtes dépouillé de tous vos biens et recevez un mandat décrivant vos divers crimes et la punition qui doit être infligée, puis vous êtes poussé à travers une porte pour être abandonné sur la terre maudite des Anciens.@n Ici commence votre
 Message of the Day:@n@n=Message du jour :@n@n
 This command shows the current message of the day.=Cette commande montre le message du jour actuel.
 #restart.lua

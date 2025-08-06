@@ -23,9 +23,16 @@ local queue_clear -- forward definition
 ------------------------------------------------------------------------------
 -- Login formspecs
 ------------------------------------------------------------------------------
-local logintext = S("login_text")
-if string.match(logintext, "login_text") then -- Untranslated? Use default
-    logintext =       ( "  You can scarcely hear the sound of them "..
+
+local function loginspec(player)
+    local name = player:get_player_name()
+    local logintext = S("login_text")
+    local lang_code = core.get_player_information(name).lang_code
+    -- Untranslated? Use default
+    if string.match(core.get_translated_string(lang_code, logintext),
+                                                            "login_text") then
+
+        logintext =   ( "  You can scarcely hear the sound of them "..
                         "reading the list of your crimes over the " ..
                         "louder jeering of your kinsmen, but it's already "..
                         "too late to protest your innocence. "..
@@ -34,9 +41,8 @@ if string.match(logintext, "login_text") then -- Untranslated? Use default
                         "punishment that is to be given, and then you "..
                         "are pushed through a gateway to die in the "..
                         "cursed land of the Ancients, as an.." )
-end
+    end
 
-local function loginspec(player)
     local spec = ("formspec_version[3]"..
                   "size[7,7.5]"..
                   "bgcolor[;both;#bbb]"..
@@ -44,7 +50,7 @@ local function loginspec(player)
                   "styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
                   "hypertext[0.5,0.75;6,5;introtext;"..logintext.."]"..
                   "image[1.5,6;6,2;logo.png]" )
-    local name = player:get_player_name()
+
     minetest.show_formspec(name, "lore:login", spec)
 end
 
