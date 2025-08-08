@@ -3,8 +3,9 @@
 #### General functions
 ######
 
-* crafting.**make_crafting_formspec**(`player`)
+* crafting.**make_crafting_formspec**(`player`, (optional)`cache`)
     > Generates the crafting formspec (common to stations and inventory formspec)
+    >* `cache` is player's crafting cache and is optional.It will be get from player if not given.
 
 *  crafting.**set_page**(`player`, `selected_tab_number`)
     > Allow external mod to call this page with specific craft tab
@@ -30,13 +31,17 @@
 * crafting.**generate_tools_list**(`station_name`)
     > Generates tool list available in `station_name`
 
-* crafting.**make_tool_formspec**(`player`, `cache`)
-    > Generates current station's formspec for `player`
-    >* `cache` is optional, would be regenerated from player if `nil`
-    >* Returns that formspec
+* crafting.**make_tool_formspec**(`player`, `station`, (optional)`cache`)
+    > Generates current station's formspec on `station`
+    > where `fs_name` will be the name given to the formspec
+    >* `station` = nil will give default station
+    >* `cache` is player's crafting cache and will be get from player if not given.
+    > Returns that formspec
 
-* crafting.**show_station_formspec**(`player`, `player_name`)
-    > Shows current station's formspec for `player`
+* crafting.**show_station_formspec**(`player`, `station`, `fs_name`)
+    > Shows crafting formspec for `player` on `station`
+    >* `station` = nil will give default station
+    > where `fs_name` will be the name given to the formspec
 
 * crafting.**crafting_item_on_rightclick**(`pos`,`node`,`clicker`, `itemstack`,`pointed_thing`)
     > Opens crafting for spec matching the node's name

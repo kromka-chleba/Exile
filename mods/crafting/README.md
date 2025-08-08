@@ -359,8 +359,9 @@ This is meant to have a custom recipe object per player, so we can change crafta
 
 ### GUI (inventory formspec and station formspec)
 
-* crafting.**make_crafting_formspec**(`player`)
+* crafting.**make_crafting_formspec**(`player`, (optional)`cache`)
     > Generates the crafting formspec (common to stations and inventory formspec)
+    >* `cache` is player's crafting cache and is optional.It will be get from player if not given.
 
 *  crafting.**set_page**(`player`, `selected_tab_number`)
     > Allow external mod to call this page with specific craft tab
@@ -384,8 +385,10 @@ This is meant to have a custom recipe object per player, so we can change crafta
 * crafting.**generate_tools_list**(`station`)
     > Generates tool list available in `station`
 
-* crafting.**show_station_formspec**(`player`, `player_name`)
-    > Shows current station's formspec for `player`
+* crafting.**show_station_formspec**(`player`, `station`, `fs_name`)
+    > Shows crafting formspec for `player` on `station`
+    >* `station` = nil will give default station
+    > where `fs_name` will be the name given to the formspec
 
 * crafting.**crafting_item_on_rightclick**(`pos`,`node`,`clicker`, `itemstack`,`pointed_thing`)
     > Opens crafting for spec matching the node's name

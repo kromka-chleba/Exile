@@ -159,7 +159,7 @@ local default_option = 1
         `to_sort` = true -- do I need to resort order of the recipes ?
         `order` -- do we want recipes to be ordered by crafting state ?
 
-        `closed` -- is the cache closed.
+        `open` -- formspec's name IF it is open. nil else.
         Will be reopen by any action on the formspec
         (since no open inventory callback, it seems to be the best we can do)
         WARNING: Will be "nil" at cache creation,
@@ -263,7 +263,8 @@ end
 cache_func.set_station = cache_set_station
 
 -- generate a new cache and put is in FS_cache[player_name]
-local function new_cache(player)
+-- `station` is optional, same format as in cache.station
+local function new_cache(player, station)
     if not player then
         core.log ("no player to initiate crafting cache for")
         return nil
@@ -302,10 +303,10 @@ local function new_cache(player)
     setmetatable(cache, cache_func)
 
     -- set station, tools, tabs and recipes
-    cache_set_station(cache, nil)
+    cache_set_station(cache, station)
 
     -- recipes panel ---
-    -- tell if we sort list or not
+    -- tell if we want to sort recipes list or not (colors)
     cache.sorted = true --TODO for future setting, currently always true
 
     FS_cache[player_name] = cache
@@ -320,7 +321,8 @@ core.register_on_leaveplayer(function(player)
 
 -- get player's cache
 -- if `generate` is true, generate it if non existant
-function crafting.get_FS_cache(player, generate)
+-- `station` is optional, same format as in cache.station
+function crafting.get_FS_cache(player, generate, station)
     if not player then return nil end
     -- get the FS cache if already existant
     local cache = FS_cache[player:get_player_name()]
@@ -328,7 +330,7 @@ function crafting.get_FS_cache(player, generate)
     if not cache then
         if generate then
             -- that function modified player's cache and return that cache
-            cache = new_cache(player)
+            cache = new_cache(player, station)
         end
     end
     return cache
@@ -363,21 +365,21 @@ local esc = minetest.formspec_escape
     updates are triggered by the section to redraw set to nil :
     eg cache.FS_recipes = nil to redraw recipes list.
     ]]
--- `open` = true (boolean) means we are sure the inv fs is open
-function crafting.make_crafting_formspec(player, open)
+-- `cache` is optional and will be get from player if not given
+function crafting.make_crafting_formspec(player, cache)
     local player_name = player:get_player_name()
     if not (player_name and player_name ~= "") then
         return nil -- no player name
     end
     -- initiates FS_cache[player_name] if non existant
-    local cache = get_FS_cache(player, true)
+    -- in that case station will be "nil"
+    cache = cache or get_FS_cache(player, true)
 
     -- if we are sure the formspec is open, then update if needed
-    if open and not cache.updated then
+    if cache.open and not cache.updated then
         -- updates item_hash and recipes
         cache:reset_recipes()
         cache.updated = true -- no need for refresh button
-        cache.closed = false -- formspec open
     end
 
     -- output will be the formspec string
@@ -647,7 +649,7 @@ function crafting.close_crafting_formspec(player, cache)
     -- set updated status and next opening page
     cache.updated = input_options[cache.craft_input].updated(cache)
 
-    cache.closed = true -- formspec closed
+    cache.open = nil -- formspec closed
 
     -- put below things to do in that case
     ------------------------------------
@@ -698,8 +700,8 @@ function crafting.process_receive_fields(player, formname, fields)
         crafting.close_crafting_formspec(player, cache)
         return cache
     end
-    -- else mark formspec as open
-    cache.closed = false
+    -- else mark formspec as open, if not already done (for sfinv needs)
+    cache.open = formname
 
     -- updates scrollbar value if it changed
     if fields.recipes_scroll then
@@ -865,17 +867,17 @@ function crafting.refresh_recipes_FS(player)
     local player_name = player:get_player_name()
     local cache = FS_cache[player_name]
     if cache then
+        local fs_name = cache.open
         -- do nothing if cache is closed and doesn't need an update
-        if cache.closed and cache.updated then
+        if not fs_name and cache.updated then
             return
         end
         -- reset item_hashes and recipe panel, and reorder
         cache:reset_recipes()
-        -- refresh formspec
+        -- refresh formspec ( "" is for inventory formspec, should use sfinv)
         -- #TODO remove check and second case when crafting in inventory gets removed
-        if cache.station then --TODO may not be the proper way
-            core.show_formspec(player_name,'exile:crafting',
-                            crafting.make_tool_formspec(player, cache))
+        if type(fs_name) == "string" and fs_name ~= "" then
+            crafting.show_station_formspec(player, cache.station, fs_name)
         else -- else sfinv
             sfinv.set_player_inventory_formspec(player)
         end
@@ -911,8 +913,9 @@ minetest.register_on_player_inventory_action(function(player, action,
                 or listname == "input_items" then
             local cache = FS_cache[player:get_player_name()]
             -- cache shouldn't be nil anyway, if we have access to input_list
-            if cache then
-                cache.closed = false
+            if cache and not cache.open then
+                -- that should happen only if we open the inv formspec
+                cache.open = "" -- sfinv version of open
             else
                 core.log("cache shouldn't be nil "
                 .. "since we moved things in input_items list (in on_player_inventory_action)")

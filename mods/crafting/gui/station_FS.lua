@@ -4,34 +4,6 @@ local tofstring = function(t) return table.concat(t,"") end
 -- Crafting formspec on tool station -------------------------------------------
 --------------------------------------------------------------------------------
 
--- Generate the formspec outside sfinv
-local function make_tool_formspec(player, cache)
-    -- get or generates player's cache
-    cache = cache or crafting.get_FS_cache(player, true)
-
-    local fs = {"formspec_version[5]",
-                --"size[11.2,10.5]" ..
-                "size[11.4,10]",
-                "position[0.5,0.5]"}
-
-    -- displaying station's description and creator above formspec
-    local station = cache.station
-    if station and station.title then
-        fs[#fs + 1] = "tabheader[0,0;station_tab;" .. station.title .. ";1;;]"
-    end
-
-    fs[#fs + 1] = crafting.make_crafting_formspec(player)
-
-    return tofstring(fs)
-end
-
-crafting.make_tool_formspec = make_tool_formspec
-
-function crafting.show_station_formspec(player, player_name)
-    core.show_formspec(player_name,'exile:crafting',
-                    crafting.make_tool_formspec(player))
-end
-
 -- generates a table to be stored in cache, with following fields:
 -- `name`: the name of the station (has to be a valid station)
 -- `title`: string to be displayed above the formspec
@@ -39,7 +11,6 @@ end
 local function get_station_info(station_name, pos)
     -- if no station, no tag
     if station_name == nil then
-        -- in crafting.refresh_recipes_FS() cache.station must not be nil
         return {}
     end
     -- get placed_tool's description and creator
@@ -84,49 +55,101 @@ local function get_station_info(station_name, pos)
     return {name = station_name, title = title}
 end
 
--- generates cache and set it for crafting formspec for crafting by hand and
--- with an optional tool 'placed_tool'
-local function cache_on_station(player, placed_tool, pos)
-    -- get or generate cache if non existent
-    local cache = crafting.get_FS_cache(player, true)
-    -- don't have refresh recipe button but display directly craftable state
-    cache.updated = true
-    cache.closed = false -- formspec opened
+-- Generate the formspec outside sfinv
+--[[
+    * `fs_name` is the name of the formspec. nil if not open
+    * `station` is a table with following fields:
+    {
+    `name`: the name of the station (has to be a valid station)
+    `title`: string to be displayed above the formspec
+    }
+    it is optional, if not provided, we will use the default bare hands
+    * `cache` is optional and will be get from player if not given
+-- ]]
+local function make_tool_formspec(player, station, cache)
 
-    -- adds station info
-    cache.station = get_station_info(placed_tool, pos)
-    -- generates corresponding tools list
-    cache.tool_list = crafting.generate_tools_list(placed_tool)
-    -- updates cache with new selected `placed_tool` as tool (could be empty)
-    cache:set_tool(placed_tool)
+    -- set formspec size
+    local fs = {"formspec_version[5]",
+                --"size[11.2,10.5]" ..
+                "size[11.4,10]",
+                "position[0.5,0.5]"}
+
+    -- displaying station's descritpion and creator above formspec
+    if station and station.title then
+        fs[#fs + 1] = "tabheader[0,0;station_tab;" .. station.title .. ";1;;]"
+    end
+
+    -- initiates FS_cache[player_name] if non existant
+    cache = cache or crafting.get_FS_cache(player, true, station)
+
+    -- updates station info if we changed station
+    if cache.station ~= station then
+        cache:set_station(station)
+    end
+
+    -- generates the inside of the formspec
+    fs[#fs + 1] = crafting.make_crafting_formspec(player, cache)
+    -- returns the full formspec string
+    return tofstring(fs)
 end
 
-local function cache_off_station(player)
-    -- get cache if existent
-    local cache = crafting.get_FS_cache(player)
-    -- set station, tools, tabs and recipes
+crafting.make_tool_formspec = make_tool_formspec
+
+-- generates/refreshes and shows the station crafting formspec
+-- `fs_name` is the name of the formspec ("exile:crafting" by default)
+local function show_station_formspec(player, station, fs_name)
+    -- open it with "exile:crafting" name by default
+    fs_name = fs_name or "exile:crafting"
+    -- initiates FS_cache[player_name] if non existant
+    local cache = crafting.get_FS_cache(player, true, station)
+
+    -- flag formspec as open (or not if fs_name = nil)
+    cache.open = fs_name
+
+    -- updates formspec content
+    local fs = make_tool_formspec(player, station, cache)
+    -- display it
+    core.show_formspec(player:get_player_name(), fs_name, fs)
+end
+
+crafting.show_station_formspec = show_station_formspec
+
+-- used to reset cache to "no station" when we leave a station
+-- in order to update sfinv part properly for next inv opening
+-- (could be improved, this is in case we left with default tool open)
+local function cache_off_station(player, cache)
     cache:set_station(nil)
+    -- update sfinv, so we keep current tab if we changed it in {}
+    sfinv.set_player_inventory_formspec(player)
 end
+
+-- callback for any station crafting formspec
+local function process_station_fields(player, formname, fields)
+    local cache = crafting.process_receive_fields(player, formname, fields)
+    if cache then
+        if fields.quit then
+            -- additionnal reset of station if needed
+            -- Following line could go if no sfinv opening is allowed anymore
+            cache_off_station(player, cache)
+        else
+            -- updates formspec content
+            local fs = make_tool_formspec(player, cache.station, cache)
+            -- display it
+            core.show_formspec(player:get_player_name(), formname, fs)
+        end
+    end
+end
+
+crafting.process_station_fields = process_station_fields
 
 -- used when inventory tab was opened with right click on a tool or on
 -- crafting ground
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-        if formname ~= 'exile:crafting' then return false; end -- Not our form.
-
-        local player_name = player:get_player_name()
-        -- additional stuffs to run before main fields.quit action
-        if fields.quit then
-            cache_off_station(player)
-            crafting.close_crafting_formspec(player)
-            sfinv.set_player_inventory_formspec(player)
-            return true -- stop running functions
-        end
-        -- if other action than close was made, reshow the formspec
-        if crafting.process_receive_fields(player, formname, fields) then
-            local formspec = make_tool_formspec(player)
-            if formspec then
-                minetest.show_formspec(player_name,'exile:crafting',formspec)
-            end
+        if formname ~= 'exile:crafting' then
+            return false -- Not our form.
+        else
+            process_station_fields(player, formname, fields)
+            return true
         end
 end)
 
@@ -134,29 +157,29 @@ end)
 -- crafting types supported by tech:hand - with node == {}
 function crafting.crafting_item_on_rightclick(pos,node,clicker,
                                               itemstack,pointed_thing)
-    -- #TODO this function requires only a name not a node or pointed_thing
-    assert(node, "crafting.crafting_item_on_rightclick: invalid node provided")
-    local tool_name = node.name
+
+    if type(node) ~= "table" then
+        core.log("crafting.crafting_item_on_rightclick: invalid node provided")
+        return
+    end
 
     -- did a player click?
     if not minetest.is_player(clicker) then
         return
     end
 
-    -- tool_name must be nil or refer to a node with crafting properties set
-    if tool_name ~= nil then
-        local def = minetest.registered_nodes[tool_name]
+    local station_name = node.name
+    -- station must be nil or refer to a node with crafting properties set
+    if station_name ~= nil then
+        local def = minetest.registered_nodes[station_name]
         if not def or not def.exile_crafting then
-            error("invalid crafting tool: " .. tool_name)
+            error("invalid crafting tool: " .. station_name)
         end
     end
-    -- update cache before showing formspec
-    cache_on_station(clicker, tool_name, pos)
-
+    -- updates station's name and title (table)
+    local station = get_station_info(station_name, pos)
     -- generates and shows station's formspec
-    local formspec = make_tool_formspec(clicker)
-    local player_name = clicker:get_player_name()
-    minetest.show_formspec(player_name,'exile:crafting',formspec)
+    show_station_formspec(clicker, station, 'exile:crafting')
 
     return itemstack
 end
