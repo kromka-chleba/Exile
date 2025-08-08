@@ -53,12 +53,6 @@ local function process_receive_fields(player, fields)
     if fields.craft then
         sfinv.set_page(player, "crafting:crafting")
         return true
-    elseif fields.craft_clothes then
-        -- TODO a function to link number and name. 5 ois for cloths here
-        -- TODO dependency on crafting, put an "if" on the button display
-        crafting.set_page(player, 5)
-        sfinv.set_page(player, "crafting:crafting")
-        return true
     end
 end
 
@@ -114,8 +108,7 @@ local clothing_page = {
         -- buttons to crafting formspec
         if core.global_exists("crafting") then
             formspec[#formspec + 1] =
-            "button[1.2,0.8;3,0.8;craft_clothes;" .. S("Craft clothes") .. "]"
-            --.. "button[0.8,1.6;4,0.8;craft;" .. S("Craft other things") .. "]"
+            "button[1.2,0.8;3,0.8;craft;" .. S("Craft") .. "]"
         end
         -- call a function making a size[11.4,10.0] formspec with that content and adding tabs if needed
         return sfinv.make_formspec_for_exile(player, context,
