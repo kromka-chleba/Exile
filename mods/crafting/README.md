@@ -384,11 +384,19 @@ This is meant to have a custom recipe object per player, so we can change crafta
 
 * crafting.**generate_tools_list**(`station`)
     > Generates tool list available in `station`
+    
+* crafting.set_station(`player`, `station`, `cache`)
+    > Set crafting station to given station
+    >* `cache` is optional, will be get from player if missing
+    >* `station` is a table with following fields:
+    >
+    >     * `name`: the name(string) of the station (has to be a valid station)
+    >     * `title`: string to be displayed above the formspec    
 
-* crafting.**show_station_formspec**(`player`, `station`, `fs_name`)
-    > Shows crafting formspec for `player` on `station`
-    >* `station` = nil will give default station
-    > where `fs_name` will be the name given to the formspec
+* crafting.**show_station_formspec**(`player`,  (optional)`cache`)
+    > Shows current station's formspec for `player`
+    > If no station was set, using "nil" as station
+    >* `cache` is player's crafting cache and will be get from player if not given.
 
 * crafting.**crafting_item_on_rightclick**(`pos`,`node`,`clicker`, `itemstack`,`pointed_thing`)
     > Opens crafting for spec matching the node's name

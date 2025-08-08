@@ -260,8 +260,6 @@ local function cache_set_station(cache, station)
     cache:set_tool(station_name) -- recipes panel will be reset here
 end
 
-cache_func.set_station = cache_set_station
-
 -- generate a new cache and put is in FS_cache[player_name]
 -- `station` is optional, same format as in cache.station
 local function new_cache(player, station)
@@ -342,6 +340,23 @@ end
 
 -- localize
 local get_FS_cache = crafting.get_FS_cache
+
+-- set crafting station to given station
+--[[
+    * `station` is a table with following fields:
+    {
+    `name`: the name of the station (has to be a valid station)
+    `title`: string to be displayed above the formspec
+    }
+    * `cache` is optional, will be get from player if missing
+--]]
+function crafting.set_station(player, station, cache)
+    -- get cache if not given
+    cache = cache or get_FS_cache(player, true, station)
+    -- updates station info if we changed station
+    cache_set_station(cache, station)
+    return cache
+end
 
 -- register action in case order field is changed in player_setting
 minimal.register_on_player_setting_change(
@@ -880,7 +895,7 @@ function crafting.refresh_recipes_FS(player)
         -- refresh formspec ( "" is for inventory formspec, should use sfinv)
         -- #TODO remove check and second case when crafting in inventory gets removed
         if type(fs_name) == "string" and fs_name ~= "" then
-            crafting.show_station_formspec(player, cache.station, fs_name)
+            crafting.show_station_formspec(player, cache)
         else -- else sfinv
             sfinv.set_player_inventory_formspec(player)
         end
