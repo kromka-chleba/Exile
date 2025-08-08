@@ -37,6 +37,9 @@ Use first:=
 
 Missing required items!=
 Crafting=
+
+You are using a flat clear surface=
+
 Crafted by: @1=
 You are using: @1=
 Filter=

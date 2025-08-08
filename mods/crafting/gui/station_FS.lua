@@ -9,9 +9,10 @@ local tofstring = function(t) return table.concat(t,"") end
 -- `title`: string to be displayed above the formspec
 -- pos is needed to get the meta for the creator (craftedby meta)
 local function get_station_info(station_name, pos)
-    -- if no station, no tag
+    -- if no station's name, use default flat block title
+    -- #TODO could be improve later
     if station_name == nil then
-        return {}
+        return {title = S("You are using a flat clear surface")}
     end
     -- get placed_tool's description and creator
     -- we get item's description because we want "lili's hammer"
