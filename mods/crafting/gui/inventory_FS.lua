@@ -5,8 +5,6 @@ local S = minetest.get_translator("crafting")
 -- Register crafting formspec as inv tab
 if not minetest.global_exists("sfinv") then error("Sfinv is missing?") end
 
--- I don't use overrider to have crafting page AFTER creative tbas
--- TODO better way to deal with tab order to implement
 sfinv.register_page(
     "crafting:crafting", {
         title = S("Crafting"),
