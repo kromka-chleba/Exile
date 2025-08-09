@@ -33,7 +33,7 @@ local function get_station_info(station_name, pos)
                 local meta = core.get_meta(pos)
                 -- get creator string for craftedby mechanics
                 if meta then
-                    creator = meta:get_string("creator")
+                    creator = meta:get("creator")
                 end
             end
         end
