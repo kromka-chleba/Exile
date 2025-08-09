@@ -118,9 +118,117 @@ function crafting.get_recipe(id)
     end
 end
 
--- r_items (recipe's items) class --
+-- Recipe's items Class --------------------------------------------------------
 
-local item_funcs = {}
+-- methods --
+
+--[[ Returns a list of all item names matching this input
+    * find every variant (item name) of a recipe item, including groups
+    * `existing_list is optional, if provided, item names will be added to it`
+]]--
+local function get_items_names(r_item, existing_list)
+    existing_list = existing_list or {}
+    local group_stats = r_item.gstats
+    if group_stats then
+        -- get items matching group name, or item matching unit if nothing in name
+        -- (case of group:/pot for example)
+        local t = crafting.get_group_items(group_stats.name)
+                or crafting.get_group_items(group_stats.unit)
+        if not t then
+            core.log("no items defined for group: " .. group_stats.tag )
+        else
+            for _,it in ipairs(t) do
+                if group_stats:does_match(it) then
+                    table.insert(existing_list, it)
+                end
+            end
+        end
+    else
+        table.insert(existing_list, r_item.name)
+    end
+    return existing_list
+end
+
+--[[ Returns how many ItemStacks matches with `it` in `item_hash`
+    * doesn't update the item
+    * returns 0 if none present]]
+--[[WARNING: tool should not be also used as ingredient, because else it could give false posive.
+For that, TODO maybe copy item_ash to modify it when we validated an item]]
+-- returns have --, available (boolean)]]
+-- TODO (not sure yet if I keep sending the second info or not)
+local function get_have (it, item_hash)
+    if not item_hash then
+        core.log("in recipes.lua 'get_have' : item_hash is missing") -- #TODO better check
+        return
+    end
+    local have = 0
+    local gstats = it.gstats
+    -- if it is not a group, just count the number of it I have in item_hash
+    if not gstats then
+        have = item_hash[it.name] and item_hash[it.name].count or 0
+    -- else parse item_hash to find matching items with it group
+    else
+        for name, t in pairs(item_hash) do
+            if t.groups and gstats:does_match(nil, t.groups) then
+                have = have + t.count
+            end
+        end
+    end
+    return have --, (have >= it.need)
+end
+
+-- Returns a boolean indicating if given `stack_name` matches with `it`
+local function match (it, stack_name)
+    local gstats = it.gstats
+    -- if it is not a group, just count the number of it I have in item_hash
+    if not gstats then
+        return (it.name == stack_name)
+    -- else parse item_hash to find matching items with it group
+    else
+        return gstats:does_match(stack_name)
+    end
+end
+
+-- get max of this item we can craft
+-- returns state table {have= ..., max = ...}
+local function get_state(it, item_hash)
+    if not item_hash then
+        core.log("in recipes.lua 'get_state' : item_hash is missing") -- #TODO better return ?
+        return
+    end
+    local it_state = {}
+    it_state.have = it:get_have(item_hash)
+    if it_state.have >= it.need then
+        it_state.max = math.floor(it_state.have/it.need)
+    else
+        it_state.max  = 0
+    end
+    return it_state
+end
+
+-- storage of methodes as metatable
+local item_funcs = {
+    get_items_names = get_items_names,
+    get_have = get_have,
+    match = match,
+    get_state = get_state,
+    -- Called to take items in item_hash
+    -- return
+    -- 1) number took of input_stack
+    -- 2) how much are still needed to validate the recipe
+    take = function(it, input_stack, still_needed)
+        -- if stack matches the item's conditions
+        if it:match(input_stack:get_name()) then
+            local found = ItemStack(input_stack)
+            if found:get_count() > still_needed then
+                found:set_count(still_needed)
+            end
+            -- return found ItemStack and still_needed
+            return found, still_needed - found:get_count()
+        end
+    end
+}
+
 item_funcs.__index = item_funcs
 
 --[[ generate a list per input item of a recipe
@@ -163,116 +271,6 @@ local function generate_item_details(input_item)
     setmetatable(item_details, item_funcs)
     return item_details
 end
-
---[[ Returns how many ItemStacks matches with `it` in `item_hash`
-    * doesn't update the item
-    * returns 0 if none present]]
---[[WARNING, tool should not be also used as ingredient, because else it could give false posive.
-For that, TODO maybe copy item_ash to modify it]]
-
--- returns have --, available (boolean)]]
--- TODO (not sure yet if I keep sending the second info or not)
-local function get_have (it, item_hash)
-    if not item_hash then
-        core.log("in recipes.lua 'get_have' : item_hash is missing") -- #TODO better check
-        return
-    end
-    local have = 0
-    local gstats = it.gstats
-    -- if it is not a group, just count the number of it I have in item_hash
-    if not gstats then
-        have = item_hash[it.name] and item_hash[it.name].count or 0
-    -- else parse item_hash to find matching items with it group
-    else
-        for name, t in pairs(item_hash) do
-            if t.groups and gstats:does_match(nil, t.groups) then
-                have = have + t.count
-            end
-        end
-    end
-    return have --, (have >= it.need)
-end
-
--- TODO returns to_pick (can be weight in custom recipe) for it in this stack
-local function match (it, stack_name)
-    local gstats = it.gstats
-    -- if it is not a group, just count the number of it I have in item_hash
-    if not gstats then
-        return (it.name == stack_name)
-    -- else parse item_hash to find matching items with it group
-    else
-        return gstats:does_match(stack_name)
-    end
-end
-
-item_funcs.match = match
-
---unused
-item_funcs.take = function(it, input_stack, still_needed)
-    -- if stack matches the item's conditions
-    if it:match(input_stack:get_name()) then
-        local found = ItemStack(input_stack)
-        if found:get_count() > still_needed then
-            found:set_count(still_needed)
-        end
-        -- return found ItemStack and still_needed
-        return found, still_needed - found:get_count()
-    end
-end
-
--- default function, can be overriden by it.take function is defined
--- return 1) number took of input_stack + 2) current have
--- have what I initially have (for loops ?)
-item_funcs.get_have = get_have
-
--- get max of this item we can craft
--- returns state table {have= ..., max = ...}
-local function get_state(it, item_hash)
-    if not item_hash then
-        core.log("in recipes.lua 'get_have' : item_hash is missing") -- #TODO better check
-        return
-    end
-    local it_state = {}
-    it_state.have = it:get_have(item_hash)
-    if it_state.have >= it.need then
-        it_state.max = math.floor(it_state.have/it.need)
-    else
-        it_state.max  = 0
-    end
-    return it_state
-end
-
-item_funcs.get_state = get_state
-
-
---[[ Returns a list of all item names matching this input
-    * find every variant (item name) of a recipe item, including groups
-    * `existing_list is optional, if provided, item names will be added to it`
-]]--
-local function get_items_names(r_item, existing_list)
-    existing_list = existing_list or {}
-    local group_stats = r_item.gstats
-    if group_stats then
-        -- get items matching group name, or item matching unit if nothing in name
-        -- (case of group:/pot for example)
-        local t = crafting.get_group_items(group_stats.name)
-                or crafting.get_group_items(group_stats.unit)
-        if not t then
-            core.log("no items defined for group: " .. group_stats.tag )
-        else
-            for _,it in ipairs(t) do
-                if group_stats:does_match(it) then
-                    table.insert(existing_list, it)
-                end
-            end
-        end
-    else
-        table.insert(existing_list, r_item.name)
-    end
-    return existing_list
-end
-
-item_funcs.get_items_names = get_items_names
 
 -- recipe class --
 
