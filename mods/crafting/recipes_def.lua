@@ -237,35 +237,56 @@ item_funcs.__index = item_funcs
     * value : a list with those parameters :
         * `name` = name of the item
         * `gstats` = groups stats if item is a group, nil else
-        * `description` = description of the item
         * `short` = description of the item to be displayed in recipe panel
         * `need` = the number we need for the recipe
 This will be used to display custom infotext on recipe panel
 ]]
+-- #TODO this part is still to clean/improve
+-- we could take the custom table (function of table) and complete them
+-- custom items ar still experimental, made to be used for damo salad.
 local function generate_item_details(input_item)
     local item_details
     -- if item is a function, use that one to generate
     if type(input_item) == "function" then
         -- custom table generation
         item_details = input_item()
+    -- already a table ? use it
+    elseif type(input_item) == "table" then
+        item_details = input_item
     -- else if no input_item or type is not string
-    -- (maybe format is alread transdormed if the caller used the same item table for many recipes)
     elseif type(input_item) ~= "string"  then
+        core.log ("invalid item in recipe: " .. tostring(input_item) ..
+                 " string or function expected, got " .. type(input_item) ..
+                 " item will be ignored")
         return nil
     else -- else, use default generation
         local gstats = crafting.get_group_stats(input_item)
         local stack = ItemStack(input_item)
-        local def = table.copy(stack:get_definition())
-        def.name = gstats and gstats.tag or def.name
-        def.description = (gstats and gstats.desc) or def.description
-        def._orig_desc = def._orig_desc or def.description
-        item_details = {
-            name = def.name,
-            gstats = gstats, -- nil if not a group
-            description = def.description,
-            short = def._orig_desc,
-            need = stack:get_count()
-        }
+        -- if input_item is a group string
+        if gstats then
+            -- generate the table
+            item_details = {
+                gstats = gstats,
+                name = gstats.tag,
+                short = gstats.desc
+            }
+        -- if input_item is an ItemStack string
+        else
+            local def = table.copy(stack:get_definition())
+            -- throw a log if def couldn't be found
+            if not def then
+                core.log ("invalid item in recipe: " .. input_item ..
+                         "name and short will be 'unknown'")
+                def = {}
+            end
+            -- generate the table
+            item_details = {
+                name = def.name or "unknown",
+                short = def._orig_desc or def.description or "unknown"
+            }
+        end
+        -- same `need` field in both case
+        item_details.need = stack:get_count()
     end
     -- adds item_functs dedicated default functions
     setmetatable(item_details, item_funcs)
@@ -446,9 +467,13 @@ end
 -- have to wait for all modules load before generating list fo recipes per crafting type
 minetest.register_on_mods_loaded( function ()
     for _,recipe in ipairs(recipes_by_id) do
-        -- doing it now else items in recipes are not registered...
+        -- doing it now because we need all the items to be registered...
         recipe.items = generate_items_table(recipe.items)
-        recipe.tool = generate_item_details(recipe.tool)
+        if recipe.tool then
+            recipe.tool = generate_item_details(recipe.tool)
+        end
+        -- checking if recipes don't have duplicated ingredients
+        -- (would be an issue at crafting calculation time)
         check_recipe_def(recipe)
         if type(recipe.type) == "string" then
             recipe.type = { recipe.type }
