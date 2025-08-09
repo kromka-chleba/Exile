@@ -20,8 +20,11 @@ local tofstring = function(t) return table.concat(t,"") end
 ]]
 
 -- registering all craft type (tabs) and level available per tool
--- #TODO could be check once at login I guess
+-- It is filled when we call get_craft_types and crafting.get_tool_level
+-- if the requested tool is not in table yet, we get the info and add it.
+-- #TODO decision: It could be check once at login instead, I am not sure what is the best.
 local tools_craft_tabs = {}
+local tools_level = {}
 
 -- return table of craft subtabs for tool in parameter
 -- set by def.exile_crafting.craft_type of registered tool/item/node
@@ -51,7 +54,6 @@ local function get_craft_types(tool)
     end
 end
 
-local tools_level = {}
 -- return level for that tool (#TODO I think this is unused, not sure yet)
 -- set by def.exile_crafting.craft_level of registered tool/item/node
 function crafting.get_tool_level(tool)
@@ -77,12 +79,13 @@ end
 -- station's tool lists -------------------------------------------------------
 
 -- Load craft type : buttons on the top left "tool used"
---[[#TODO right now, only one tool can be used at the same time (placed tool)
+--[[NOTE: right now, only one tool can be used at the same time (placed tool)
 but we could imagine using tool in inventory like knifes too
-In that case, this could be modified to have "craft_item" being a list]]
+In that case, this could be modified to have "craft_item" being a list
+--]]
 function crafting.generate_tools_list(station_name)
     -- #TODO this could be improved to check if station is a valid tool/
-    -- to make custom possbile tools per station
+    -- to make custom possible tools per station
     if not station_name or station_name == crafting.default_tool then
         return {crafting.default_tool}
     else

@@ -7,15 +7,16 @@ local tofstring = function(t) return table.concat(t,"") end
 --[[ take a recipe list with crafting.get_all return format and sort it in 2 lists :
     returns craftable and uncraftable table of results
     format of each table is the one documented for crafting.get_all
-    #TODO could be solved using single/max etc buttons
 ]]
 local function sort_craftable_recipes(cache)
     local c_recipes = cache.c_recipes
     local p_recipes = cache.p_recipes
     local u_recipes = cache.u_recipes
 
-    -- if I already had a craftable list, don't change the order to avoid missclick
-    -- #TODO could probably be improved, or solved with craft buttons
+    -- if I already had a craftable list,
+    -- don't change the order to avoid missclick
+    -- the need for this is confusing if recipes position moves during crafting
+    -- #TODO: would craft button solve this ? unsure (still confusing ?)
     if c_recipes then
         -- updates ingredients state and infotext in second list
         -- and move new craftable recipes to end of first one
