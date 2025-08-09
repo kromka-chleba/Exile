@@ -295,29 +295,83 @@ end
 
 -- Recipe Class ---------------------------------------------------------------
 
-local recipe_funcs = {}
+-- Methods for recipes, to be used as metatable
+--[[
+    * available_level (self, p_level)
+    * find_max_craftable (self, item_hash)
+--]]
+local recipe_funcs = {
+    -- is `p_level` (player level/crafting level) enough to craft that recipe
+    available_level = function (self, p_level)
+        return (self.level <= p_level)
+    end,
+    -- Find maximum number of times we can craft that recipe with what item_hash provided
+    find_max_craftable = function(recipe, item_hash)
+        if not item_hash then
+            core.log("in find_max_craftable for recipe ".. recipe.output
+            .. ": item_hash is missing")
+            return 0 --#TODO or nil to throw errors ?
+        end
+
+        -- final results
+        local max_count -- max time we can craft the recipe
+
+        local states = {} -- recipe state
+        --[[ NOTE:
+        -- we will continue parsing even if "false" already
+        -- to be able to get the state of all items
+        -- for recipe panel tooltip display
+        --]]
+
+        -- test tool
+        if recipe.tool then
+            states.tool = {}
+            states.tool.have = get_have(recipe.tool, item_hash)
+            if states.tool.have < recipe.tool.need then
+                max_count = 0  -- no tool, no craft !
+            end
+        end
+
+        states.items = {} -- stores the have/max state of items
+        -- check each row of input items
+        for i, row in ipairs(recipe.items) do
+            states.items[i] = {}
+            local row_max = 0
+            -- adds the max for each item in the or list
+            -- for a combined max per row
+            for j, it in ipairs(row) do
+                local it_state = get_state(it, item_hash)
+                row_max = row_max + it_state.max
+                -- store state
+                states.items[i][j] = it_state
+            end
+
+
+            -- if the row is non craftable
+            if row_max == 0 then
+                max_count = 0
+            end
+
+            -- if this row has less max_count than current total, adjus max to it
+            -- can't have a count bigger then any input row.
+            if not max_count or max_count > row_max then
+                max_count = row_max
+            end
+            -- elseif previous max_count is inferior to that row, don't up
+        end
+
+        --[[ if not item table (like for sleeping spot, free craft)
+            then I didn't parse and max_count was not affected
+            -> put 1 as default]]
+        if not max_count then
+            max_count = 1
+        end
+
+        return max_count, states
+    end
+}
 recipe_funcs.__index = recipe_funcs
 
-local function generate_items_table(recipe_items)
-    local items_details = {}
-    -- case string or function
-    if type(recipe_items) ~= "table" then
-        recipe_items = {recipe_items}
-    end
-    for row, rowItems in ipairs(recipe_items) do
-        local t = {}
-        -- single item peeks need to be in table for processing
-        if (type(rowItems) ~= 'table') then
-            rowItems = {rowItems}
-        end
-        for _, item in ipairs(rowItems) do
-             t[#t + 1] = generate_item_details(item)
-        end
-         -- save items by recipe input row
-        items_details[row] = t
-    end
-    return items_details
-end
 
 --[[register recipe using `def` table with following fields:
     * `id`           - ID of recipe, in order of registration'
@@ -427,13 +481,30 @@ function crafting.register_recipe(def)
     return def.id
 end
 
--- is `p_level` (player level/crafting level) enough to craft that recipe
-recipe_funcs.available_level = function (self, p_level)
-    return (self.level <= p_level)
-end
+
 
 -- Check of recipe validity and generationg of item and tool table
  ----------------------------------------------------------------------
+ local function generate_items_table(recipe_items)
+     local items_details = {}
+     -- case string or function
+     if type(recipe_items) ~= "table" then
+         recipe_items = {recipe_items}
+     end
+     for row, rowItems in ipairs(recipe_items) do
+         local t = {}
+         -- single item peeks need to be in table for processing
+         if (type(rowItems) ~= 'table') then
+             rowItems = {rowItems}
+         end
+         for _, item in ipairs(rowItems) do
+              t[#t + 1] = generate_item_details(item)
+         end
+          -- save items by recipe input row
+         items_details[row] = t
+     end
+     return items_details
+ end
 
 --[[ check if no duplicates inputs, which currentldy would make craft do unwanted things
 run after mods loaded
@@ -488,69 +559,3 @@ minetest.register_on_mods_loaded( function ()
         end
     end
 end)
-
-
--- Testing and Crafting functions -------------------------------------------
-
--- Find maximum number of times we can craft that recipe with what it in tiem_hash provided
--- TODO update to not use that weird item_hash format
--- TODO could be improved to also get to_take table ?
-recipe_funcs.find_max_craftable = function(recipe, item_hash)
-    if not item_hash then
-        core.log("in find_max_craftable for recipe ".. recipe.output
-        .. ": item_hash is missing")
-        return 0 --#TODO or nil to trhow errors ?
-    end
-
-    -- final results
-    local max_count -- max time we can craft the recipe
-    -- (we will continue parsing even if "false" already to be able to get the recipe_state)
-    local states = {} -- recipe state
-
-    -- (we will continue parsing even if "false" already to be able to get the recipe_state)
-    -- test tool
-    if recipe.tool then
-        states.tool = {}
-        states.tool.have = get_have(recipe.tool, item_hash)
-        if states.tool.have < recipe.tool.need then
-            max_count = 0  -- no tool, no craft !
-        end
-    end
-
-    states.items = {} -- stores the have/max state of items
-    -- check each row of input items
-    for i, row in ipairs(recipe.items) do
-        states.items[i] = {}
-        local row_max = 0
-        -- adds the max for each item in the or list
-        --   for a combined max per row
-        for j, it in ipairs(row) do
-            local it_state = get_state(it, item_hash)
-            row_max = row_max + it_state.max
-            -- store state
-            states.items[i][j] = it_state
-        end
-
-
-        -- if the row is non craftable
-        if row_max == 0 then
-            max_count = 0
-        end
-
-        -- if this row has less max_count than current total, adjus max to it
-        -- can't have a count bigger then any input row.
-        if not max_count or max_count > row_max then
-            max_count = row_max
-        end
-        -- elseif previous max_count is inferior to that row, don't up
-    end
-
-    --[[ if not item table (like for sleeping spot, free craft)
-        then I didn't parse and max_count was not affected
-        -> put 1 as default]]
-    if not max_count then
-        max_count = 1
-    end
-
-    return max_count, states
-end
