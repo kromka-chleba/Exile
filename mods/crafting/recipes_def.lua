@@ -98,7 +98,7 @@ function crafting.register_type(name, label, icon_item_name, sound)
     crafting.recipes[name] = crafting.get_recipes_by_type(name)
 end
 
--- Recipes ---------------------------------------------------------
+-- Recipes ---------------------------------------------------------------------
 
 --array of all registered recipes, by `id`
 local recipes_by_id = {}
@@ -293,7 +293,7 @@ local function generate_item_details(input_item)
     return item_details
 end
 
--- recipe class --
+-- Recipe Class ---------------------------------------------------------------
 
 local recipe_funcs = {}
 recipe_funcs.__index = recipe_funcs
