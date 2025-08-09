@@ -373,8 +373,8 @@ function crafting.register_recipe(def)
     if type(def.items) == 'string'then
         def.items = {def.items}
     end
-    if type(def.items) ~= "table" and type(def.items) ~= "function" then
-        recipe_error("expected string, table or function for 'items', got '"..type(def.items).."'")
+    if type(def.items) ~= "table" then
+        recipe_error("expected string or table for 'items' field, got '"..type(def.items).."'")
     end
 
     -- checks table format and remove if invalid
