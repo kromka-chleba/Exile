@@ -178,7 +178,7 @@ local function get_have (it, item_hash)
 end
 
 -- Returns a boolean indicating if given `stack_name` matches with `it`
-local function match (it, stack_name)
+local function item_check (it, stack_name)
     local gstats = it.gstats
     -- if it is not a group, just count the number of it I have in item_hash
     if not gstats then
@@ -210,7 +210,7 @@ end
 local item_funcs = {
     get_items_names = get_items_names,
     get_have = get_have,
-    match = match,
+    item_check = item_check,
     get_state = get_state,
     -- Called to take items in item_hash
     -- return
@@ -218,7 +218,7 @@ local item_funcs = {
     -- 2) how much are still needed to validate the recipe
     take = function(it, input_stack, still_needed)
         -- if stack matches the item's conditions
-        if it:match(input_stack:get_name()) then
+        if it:item_check(input_stack:get_name()) then
             local found = ItemStack(input_stack)
             if found:get_count() > still_needed then
                 found:set_count(still_needed)
