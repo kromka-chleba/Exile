@@ -136,7 +136,7 @@ function seasons.is_winter(season_name)
     return false
 end
 
-local function get_seasonal_soil_names(include_slopes, include_roots)
+function nn.get_seasonal_soil_names(include_slopes, include_roots)
     local soil_names = {}
     for name, nodedef in pairs(minetest.registered_nodes) do
         if minetest.get_item_group(name, "spreading") > 0 then
@@ -158,7 +158,7 @@ end
 
 local function spring_to_winter_pairs(include_slopes, include_roots)
     local soil_pairs = {}
-    local spring_soils = get_seasonal_soil_names(include_slopes, include_roots)
+    local spring_soils = nn.get_seasonal_soil_names(include_slopes, include_roots)
     for _, name in pairs(spring_soils) do
         local nodedef = minetest.registered_nodes[name]
         if not nodedef then
@@ -174,7 +174,7 @@ local function spring_to_winter_pairs(include_slopes, include_roots)
     return soil_pairs
 end
 
-local function get_winter_soil_names(include_slopes, include_roots)
+function nn.get_winter_soil_names(include_slopes, include_roots)
     local spring_to_winter = spring_to_winter_pairs(include_slopes,
                                                     include_roots)
     local names = {}
@@ -194,8 +194,6 @@ local function winter_to_spring_pairs(include_slopes, include_roots)
     return soil_pairs
 end
 
-local spring_soils = get_seasonal_soil_names()
-local winter_soils = get_winter_soil_names()
 local spring_to_winter = spring_to_winter_pairs(true, true)
 local winter_to_spring = winter_to_spring_pairs(true, true)
 
@@ -420,43 +418,3 @@ end
 minetest.register_on_mods_loaded(function ()
         minetest.after(2, season_loop)
 end)
-
--- Turning this off because now we have mapgen scanners in the shepherd
--- ms.register_scanner({name = "spring_soil_finder",
---                      fun = spring_soil_finder})
-
-local spring_labels = {
-    "spring_soil",
-    "seasonal_plants",
-}
-
-minetest.register_lbm({
-        name = "nodes_nature:spring_chunk_lbm",
-        label = "Spring soil finder for mapchunk shepherd",
-        nodenames = spring_soils,
-        run_at_every_load = false,
-        action = function(pos, node)
-            local hash = ms.mapchunk_hash(pos)
-            if not ms.contains_labels(hash, spring_labels) then
-                ms.handle_labels(hash, spring_labels)
-            end
-        end,
-})
-
-local winter_labels = {
-    "winter_soil",
-    "seasonal_plants",
-}
-
-minetest.register_lbm({
-        name = "nodes_nature:winter_chunk_lbm",
-        label = "Winter soil finder for mapchunk shepherd",
-        nodenames = winter_soils,
-        run_at_every_load = false,
-        action = function(pos, node)
-            local hash = ms.mapchunk_hash(pos)
-            if not ms.contains_labels(hash, winter_labels) then
-                ms.handle_labels(hash, winter_labels)
-            end
-        end,
-})
