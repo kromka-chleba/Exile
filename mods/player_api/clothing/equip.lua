@@ -60,7 +60,7 @@ local clothing_page = {
         local formspec = {
 
             -- clothing_model (right part)
-            "container[0.8,0]",
+            "container[0,0]",
             "label[4,1;" .. FS("Min Temperature Tolerance: @1", cur_tmin) .. " ]",
             "label[4,1.5;" .. FS("Max Temperature Tolerance: @1", cur_tmax) .. " ]",
 
