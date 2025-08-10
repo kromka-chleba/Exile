@@ -913,9 +913,12 @@ minetest.register_on_player_inventory_action(function(player, action,
                 or listname == "input_items" then
             local cache = FS_cache[player:get_player_name()]
             -- cache shouldn't be nil anyway, if we have access to input_list
-            if cache and not cache.open then
-                -- that should happen only if we open the inv formspec
-                cache.open = "" -- sfinv version of open
+            if cache then
+                -- marke the formspec as open
+                if not cache.open then
+                    -- that should happen only if we open the inv formspec
+                    cache.open = "" -- sfinv version of open
+                end
             else
                 core.log("cache shouldn't be nil "
                 .. "since we moved things in input_items list (in on_player_inventory_action)")
