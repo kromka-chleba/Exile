@@ -233,7 +233,8 @@ local function on_place_node(place_to, newnode,
     -- Run script hook
     for _, callback in ipairs(minetest.registered_on_placenodes) do
         -- Deepcopy pos, node and pointed_thing because callback can modify them
-        local place_to_copy = {x = place_to.x, y = place_to.y, z = place_to.z}
+        local place_to_copy =
+            vector.new(place_to.x, place_to.y, place_to.z)
         local newnode_copy =
             {name = newnode.name, param1 = newnode.param1, param2 = newnode.param2}
         local oldnode_copy =
@@ -288,7 +289,7 @@ function doors.register(name, def)
                     end
                 end
 
-                local above = {x = pos.x, y = pos.y + 1, z = pos.z}
+                local above = vector.new(pos.x, pos.y + 1, pos.z)
                 local top_node = minetest.get_node_or_nil(above)
                 local topdef = top_node and minetest.registered_nodes[top_node.name]
 
@@ -299,7 +300,7 @@ function doors.register(name, def)
                 local pn = placer and placer:get_player_name() or ""
                 if minetest.is_protected(pos, pn)
                     or minetest.is_protected(above, pn) then
-                    
+
                     return itemstack
                 end
 
@@ -323,9 +324,9 @@ function doors.register(name, def)
                     x = pos.x - ref[dir + 1].x,
                     y = pos.y - ref[dir + 1].y,
                     z = pos.z - ref[dir + 1].z,
-                } 
+                }
                 other_aside = minetest.get_node(other_aside)
-                
+
                 local state = 0
                 if ( (minetest.get_item_group(aside.name, "door") == 1
                       and string.match(aside.name,"_b$") ~= "_b")
@@ -403,8 +404,8 @@ function doors.register(name, def)
         end
     end
     def.after_dig_node = function(pos, node, meta, digger)
-        minetest.remove_node({x = pos.x, y = pos.y + 1, z = pos.z})
-        minetest.check_for_falling({x = pos.x, y = pos.y + 1, z = pos.z})
+        minetest.remove_node(vector.new(pos.x, pos.y + 1, pos.z))
+        minetest.check_for_falling(vector.new(pos.x, pos.y + 1, pos.z))
     end
     def.on_rotate = function(pos, node, user, mode, new_param2)
         return false
@@ -442,13 +443,13 @@ function doors.register(name, def)
         def.on_blast = function(pos, intensity)
             minetest.remove_node(pos)
             -- hidden node doesn't get blasted away.
-            minetest.remove_node({x = pos.x, y = pos.y + 1, z = pos.z})
+            minetest.remove_node(vector.new(pos.x, pos.y + 1, pos.z))
             return {name}
         end
     end
 
     def.on_destruct = function(pos)
-        minetest.remove_node({x = pos.x, y = pos.y + 1, z = pos.z})
+        minetest.remove_node(vector.new(pos.x, pos.y + 1, pos.z))
     end
 
     def.drawtype = "mesh"
