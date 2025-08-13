@@ -72,4 +72,7 @@ Grouping them on separate lines can improve clarity.
 
 If this puts the start of the "and/or" clauses on the same indent level as the code below, insert a line break for separation, or else enclose the block in parentheses and indent them to match.
 
+We prefer to use double quotes ("), with single quotes (') used
+for quotes inside other quotes.
+
 Please use #TODO for things that need doing later.
