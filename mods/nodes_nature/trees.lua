@@ -703,6 +703,7 @@ function trees.register_tree(name,def)
     -- tree will have different leaves and fruits mentioned
     trees.list[name] = {
         tree = def.name,
-        log = log_def.name
+        log = log_def.name,
+        log_tiles = log_def.tiles
     }
 end

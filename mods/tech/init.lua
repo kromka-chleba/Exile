@@ -37,6 +37,7 @@ dofile(modpath .. "/bricks_and_mortar.lua")
 dofile(modpath..'/food_crafts.lua')
 dofile(modpath .. "/cooking_pot.lua")
 dofile(modpath .. "/lantern.lua")
+dofile(modpath .. "/chairs.lua")
 -- mod support
 dofile(modpath .. "/ucsigns.lua")
 -------------------------------
