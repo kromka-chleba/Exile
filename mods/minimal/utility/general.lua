@@ -421,3 +421,50 @@ minetest.register_on_player_receive_fields(function(player,
         end
         open_yesno[playername] = nil
 end)
+
+local function generic_group_finder(def_table, group_name, min, max)
+    local mi = min or 1
+    local mx = max or math.huge
+    local definitions = {}
+    for name, def in pairs(def_table) do
+        local value = def.groups[group_name]
+        if type(value) == "number" and
+            value >= mi and
+            value <= mx then
+            definitions[name] = def
+        end
+    end
+    return definitions
+end
+
+-- Returns a table of name->definition mappings for items belonging to
+-- the `group_name` group.  `min` and `max` (integer) are optional
+-- arguments that specify the minimal and maximal values (inclusive)
+-- of numerical subgroups of the group
+function minimal.get_items_from_group(group_name, min, max)
+    return generic_group_finder(core.registered_items, group_name, min, max)
+end
+
+-- Returns a table of name->definition mappings for nodes belonging to
+-- the `group_name` group.  `min` and `max` (integer) are optional
+-- arguments that specify the minimal and maximal values (inclusive)
+-- of numerical subgroups of the group
+function minimal.get_nodes_from_group(group_name, min, max)
+    return generic_group_finder(core.registered_nodes, group_name, min, max)
+end
+
+-- Returns a table of name->definition mappings for tools belonging to
+-- the `group_name` group.  `min` and `max` (integer) are optional
+-- arguments that specify the minimal and maximal values (inclusive)
+-- of numerical subgroups of the group
+function minimal.get_tools_from_group(group_name, min, max)
+    return generic_group_finder(core.registered_tools, group_name, min, max)
+end
+
+-- Returns a table of name->definition mappings for craftitems
+-- belonging to the `group_name` group.  `min` and `max` (integer) are
+-- optional arguments that specify the minimal and maximal values
+-- (inclusive) of numerical subgroups of the group
+function minimal.get_craftitems_from_group(group_name, min, max)
+    return generic_group_finder(core.registered_craftitems, group_name, min, max)
+end
