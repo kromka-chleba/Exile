@@ -917,7 +917,7 @@ minetest.register_on_player_inventory_action(function(player, action,
             local cache = FS_cache[player:get_player_name()]
             -- cache shouldn't be nil anyway, if we have access to input_list
             if cache then
-                -- marke the formspec as open
+                -- mark the formspec as open
                 if not cache.open then
                     -- that should happen only if we open the inv formspec
                     cache.open = "" -- sfinv version of open
