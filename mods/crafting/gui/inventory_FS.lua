@@ -14,8 +14,10 @@ sfinv.register_page(
             -- initiates FS_cache[player_name] if non existant
             local cache = crafting.get_FS_cache(player, true)
 
-            -- flag formspec as open (or not if context.open_inv = nil)
-            cache.open = context.open_inv
+            -- flag formspec as open if we changed tab in sfinv
+            if context.open_inv then
+                cache.open = ""
+            end
 
             -- last parameter is to indicate if inv fs is open for sure
             local formspec = crafting.make_crafting_formspec(player, cache)
