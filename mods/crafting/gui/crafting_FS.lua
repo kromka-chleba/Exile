@@ -57,8 +57,8 @@ local input_options = {
             end
         end,
         hint_btn = true, -- is the hint button available ?
-        -- when is the recipe panel tag as "updated" ?
-        updated = function(cache) return not(cache.possible_hint) end
+        -- true if we are not sure that the recipes remain updated
+        to_update = function(cache) return cache.possible_hint end
     },
     [1] = {
         label = " Do not use",
@@ -82,7 +82,9 @@ local input_options = {
             end
         end,
         hint_btn = false,
-        updated = function(cache) return false end -- updated at arrival
+        -- true if we are not sure that the recipes remain updated
+        -- this is because the sorting is based on main inventory content
+        to_update = function(cache) return true end
     },
     -- [3] = {
     --     label = " Use first",
@@ -125,7 +127,8 @@ local default_option = 1
         `p_recipes` = nil : list of possible recipe if everything is used
         `u_recipes` = nil : list of uncraftable recipes to display
         `recipes` = nil : unsorted list of recipes
-        `updated` = false if inventoryFS was closed and recipes crafting state is not uptodate.
+        `to_update` = true if forsmpec was closed
+            and recipes crafting state may not remain updated for next sfinv opening
             This is because there is currently no callback for "I opened the inventory"
 
         -- recipe panel
@@ -292,10 +295,10 @@ local function new_cache(player, station)
     -- Automatic filter checkbox --
     cache.input_filter = false -- never active on opening.
 
-    -- are recipe updated when we arrive ?
+    -- are we not sure recipes are updated when we arrive ?
     -- depends on activated options
     -- used to trigger refresh recipe button/system
-    cache.updated = input_options[option].updated(cache)
+    cache.to_update = input_options[option].to_update(cache)
 
     -- adds modification and initiate functions metatable
     setmetatable(cache, cache_func)
@@ -391,10 +394,10 @@ function crafting.make_crafting_formspec(player, cache)
     cache = cache or get_FS_cache(player, true)
 
     -- if we are sure the formspec is open, then update if needed
-    if cache.open and not cache.updated then
+    if cache.open and cache.to_update then
         -- updates item_hash and recipes
         cache:reset_recipes()
-        cache.updated = true -- no need for refresh button
+        cache.to_update = false -- no need for refresh button
     end
 
     -- output will be the formspec string
@@ -459,7 +462,7 @@ function crafting.make_crafting_formspec(player, cache)
 
     --[[ uncomment to bring back the recipe button + part in button event
     -- Recipes panel drawing, button if recipes are not uptodate
-    if not cache.updated then
+    if cache.to_update then
         -- recipe refrehs button
         -- TODO put a textarea : "Click on any tabs or button, including this one to get the matching recipes"
         output[#output + 1]=  "style[refresh_r; border=true]"
@@ -673,8 +676,8 @@ function crafting.close_crafting_formspec(player, cache)
     -- reset recipes panel and item_hashes for next opening
     cache:reset_recipes() -- needed after getting back the inputs
 
-    -- set updated status and next opening page
-    cache.updated = input_options[cache.craft_input].updated(cache)
+    -- set to_update status
+    cache.to_update = input_options[cache.craft_input].to_update(cache)
 
     cache.open = nil -- formspec closed
 
@@ -682,7 +685,7 @@ function crafting.close_crafting_formspec(player, cache)
     ------------------------------------
     --[[ to bring clothing page
     -- if current craft input option trigger the need of recipe refresh system
-    if not cache.updated then
+    if cache.to_update then
         -- delete cache
         FS_cache[player:get_player_name()] = nil
         -- if clothing page is here
@@ -801,7 +804,7 @@ function crafting.process_receive_fields(player, formname, fields)
     --[[ uncomment to bring back the recipe button + part in crafting.make_crafting_formspec
     -- process get recipes button
     if fields.refresh_r then
-        cache.updated = true
+        cache.to_update = false
         -- reset item_hashes and recipe panel
         cache:reset_recipes()
         return cache
@@ -899,7 +902,7 @@ function crafting.refresh_recipes_FS(player)
     if cache then
         local fs_name = cache.open
         -- do nothing if cache is closed and doesn't need an update
-        if not fs_name and cache.updated then
+        if not fs_name and not cache.to_update then
             return
         end
         -- reset item_hashes and recipe panel, and reorder
