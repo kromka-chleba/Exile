@@ -899,7 +899,7 @@ end
 ]]
 
 -- Delete recipes list cache and update inventory formspec
-function crafting.refresh_recipes_FS(player)
+local function refresh_recipes_FS(player)
     local player_name = player:get_player_name()
     local cache = FS_cache[player_name]
     if cache then
@@ -920,7 +920,7 @@ function crafting.refresh_recipes_FS(player)
     --[[ happens if other moves to inventory,
         triggered by inventory moves in clothing formspec too]]
     -- else
-    --     core.log("no cache in crafting.refresh_recipes_FS")
+    --     core.log("no cache in refresh_recipes_FS")
     end
 end
 
@@ -962,7 +962,7 @@ minetest.register_on_player_inventory_action(function(player, action,
             end
         end
 
-        core.after(0.1, crafting.refresh_recipes_FS , player)
+        core.after(0.1, refresh_recipes_FS , player)
     end
 end
 )

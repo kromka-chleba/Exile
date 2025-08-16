@@ -19,9 +19,6 @@
     >* `fs_name` is name of the opened formspec
     >* `cache` is optional and will be get for `player` if not given
 
-* crafting.**refresh_recipes_FS**(`player`)
-    > Let other mods update recipes states to be displayed on re-opening of inv formspec
-
 * crafting.**close_crafting_formspec**(`player`, *(optional)* `cache`)
     >* Gives back items from input panel and updates [cache](#crafting-cache)
     >* `cache` will be get for `player` if not given

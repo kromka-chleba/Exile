@@ -374,8 +374,6 @@ This is meant to have a custom recipe object per player, so we can change crafta
     > Processes fields in crafting formspec
     >* Returns `true` if something changed, `false` else
 
-* crafting.**refresh_recipes_FS**(`player`)
-    > Let other mods update recipes states to be displayed on re-opening of inv formspec
 
 #### Stations and tools
 
