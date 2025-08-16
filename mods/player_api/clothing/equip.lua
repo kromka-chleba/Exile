@@ -125,6 +125,13 @@ local clothing_page = {
                                         context, fields)
         -- currently only one button, could be more later
         process_receive_fields(player, fields)
+    end,
+    -- selecting the tab from an other tab or using sfinv.set_page
+    on_enter = function(self, player, context)
+        -- WARNING:
+        -- 1) it is called even if sfinv is closed, so we can't assume formspec is open.
+        -- 2) it is called before `get` function so formspec will be generated AFTER on_enter call
+        -- 3) it is not called on sfinv opening (no trigger for that, yet)
     end
 }
 
