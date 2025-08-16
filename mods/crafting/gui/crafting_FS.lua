@@ -966,34 +966,3 @@ minetest.register_on_player_inventory_action(function(player, action,
     end
 end
 )
-
-if minetest.register_on_item_pickup then
-    minetest.register_on_item_pickup(function(itemstack, picker)
-            if picker and picker:is_player() then
-                core.after(0.1, crafting.refresh_recipes_FS , picker)
-            end
-    end
-    )
-end
-
-minetest.register_on_placenode(function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
-    if placer and placer:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , placer)
-    end
-end
-)
-
-minetest.register_on_dignode(function(pos, oldnode, digger)
-    if digger and digger:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , digger)
-    end
-end
-)
-
--- #TODO useless for now (we use on_use and _on_consume)
-minetest.register_on_item_eat(function(itemstack, picker)
-    if picker:is_player() then
-        core.after(0.1, crafting.refresh_recipes_FS , picker)
-    end
-end
-)

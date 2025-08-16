@@ -198,10 +198,6 @@ local function handle_use_key(player, name, held)
     if using_tool and not minimal.player_in_creative(player) then
         player:set_wielded_item(using_tool)
     end
-    -- refresh recipes (will go later, but cleans current refreshes)
-    if using_tool then
-        core.after(0.1, crafting.refresh_recipes_FS, player)
-    end
     return
 end
 
