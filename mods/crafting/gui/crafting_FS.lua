@@ -442,7 +442,7 @@ function crafting.make_crafting_formspec(player, cache)
     end
     output[#output + 1] = cache.FS_ctabs
 
-    --[[ uncomment to bring back the recipe button
+    --[[ uncomment to bring back the recipe button + part in button event
     -- Recipes panel drawing, button if recipes are not uptodate
     if not cache.updated then
         -- recipe refrehs button
@@ -457,7 +457,7 @@ function crafting.make_crafting_formspec(player, cache)
         end
         output[#output + 1] = cache.FS_recipes
     end
-    ]]--
+    -- ]]
 
     if not cache.FS_recipes then
         -- in gui/recipes_panel.lua
@@ -771,6 +771,7 @@ function crafting.process_receive_fields(player, formname, fields)
         return cache
     end
 
+    --[[ uncomment to bring back the recipe button + part in crafting.make_crafting_formspec
     -- process get recipes button
     if fields.refresh_r then
         cache.updated = true
@@ -778,6 +779,8 @@ function crafting.process_receive_fields(player, formname, fields)
         cache:reset_recipes()
         return cache
     end
+    --]]
+
     -- process new craft tabs
     for i = 1, #(cache.cTabs), 1 do
         if fields['sCraftTab_'..i] then
