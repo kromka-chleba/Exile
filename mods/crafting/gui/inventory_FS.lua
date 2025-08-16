@@ -24,27 +24,24 @@ sfinv.register_page(
             return sfinv.make_formspec_for_exile(player, context,
                                                  formspec, false)
         end,
-        on_player_receive_fields = function(self, player,
-                                            context, fields)
+        on_player_receive_fields = function(self, player, context, fields)
             -- if something changed, redraw the page
             local cache = crafting.process_receive_fields(player, "", fields)
             if cache then
                 sfinv.set_player_inventory_formspec(player, context)
             end
+            return true -- stop checking other events
         end,
         -- selecting the tab from an other tab or seting to crafting tab
         on_enter = function(self, player, context)
-            print ("--------------------------]ENTER[-------------------")
             -- WARNING: is called even if sfinv is closed, this is why I don't update the cache here
 
             -- it is called before `get` function so formspec will be generated AFTER on_enter call
         end,
-        -- triggered when leaving tab or if we change page in sfinv
+        -- triggered when leaving tab or by calling sfinv.set_page
+        -- WARNING: be careful to not call sfinv.set_page here or you will get an infinite loop...
         on_leave = function(self, player, context)
-            print ("--------------------------]LEAVE[-------------------")
-            -- gives back input panle items
+            -- gives back input panel items and update player's cache
             crafting.close_crafting_formspec(player)
-            --[[be careful to not update sfinv page here or you may get infinite loop.]]
-            -- TODO We may change that and not delete but trigger dfferent things if on leave ?
         end
 })
