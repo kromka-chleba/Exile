@@ -13,6 +13,11 @@
 * crafting.**process_receive_fields**(`player`, `formname`, `fields`)
     >* Processes fields in crafting formspec
     >* Returns `true` if something changed, `false` else
+    
+* crafting.**open_formspec**(`player`, `fs_name`, *(optional)* `cache`)
+    >* Mark the formspec as open
+    >* `fs_name` is name of the opened formspec
+    >* `cache` is optional and will be get for `player` if not given
 
 * crafting.**refresh_recipes_FS**(`player`)
     > Let other mods update recipes states to be displayed on re-opening of inv formspec

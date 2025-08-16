@@ -16,7 +16,7 @@ sfinv.register_page(
 
             -- flag formspec as open if we changed tab in sfinv
             if context.open_inv then
-                cache.open = ""
+                cache = crafting.open_formspec(player, "", cache)
             end
 
             -- last parameter is to indicate if inv fs is open for sure

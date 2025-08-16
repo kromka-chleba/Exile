@@ -633,6 +633,19 @@ local function get_inputs_back_in_inv(player)
     end
 end
 
+-- mark the formspec open
+-- `cache` is optional
+function crafting.open_formspec(player, fs_name, cache)
+    -- initiates FS_cache[player_name] if non existant
+    cache = cache or crafting.get_FS_cache(player, true)
+
+    -- flag formspec as open (or not if fs_name = nil)
+    cache.open = fs_name
+
+    -- returns cache in case we need it
+    -- to avoid an other call to crafting.get_FS_cache
+    return cache
+end
 --[[ Called when the inventory formspec is closed to clear cache
     * get input items back in main
     * returns name of next sfinv opening page

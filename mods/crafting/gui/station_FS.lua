@@ -94,11 +94,8 @@ crafting.make_tool_formspec = make_tool_formspec
 -- `cache` is optional : we will get it from player if not provided
 -- if cache is not created yet, station will be "nil"
 local function show_station_formspec(player, cache)
-    -- initiates FS_cache[player_name] if non existant
-    cache = cache or crafting.get_FS_cache(player, true)
-
-    -- flag formspec as open (or not if fs_name = nil)
-    cache.open = "exile:crafting"
+    -- mark cache open with exile:crafting" formspec name
+    cache = crafting.open_formspec(player, "exile:crafting", cache)
 
     -- updates formspec content
     local fs = make_tool_formspec(player, cache)
