@@ -677,8 +677,8 @@ end
 function crafting.close_crafting_formspec(player, cache)
     -- get cache if not given
     cache = cache or FS_cache[player:get_player_name()]
-    -- if no player's cache, do nothing
-    if not cache then
+    -- if no cache or formspec already close, do nothing
+    if type(cache) ~= "table" or not cache.open then
         -- no change to make
          -- #TODO we could add a message or other behavior in this case ?
         return nil
