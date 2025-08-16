@@ -654,20 +654,16 @@ end
     * returns name of next sfinv opening page
 ]]
 function crafting.close_crafting_formspec(player, cache)
-    -- fives back items in input panel to main inv
-    get_inputs_back_in_inv(player)
-
-    -- cache changes
-    if not cache then -- no cache in param
-        local player_name = player:get_player_name()
-        cache = FS_cache[player_name]
-
-        -- cache already deleted sometimes when called by "on_leave"
-        if not cache then  --- no player's cache ?
-            -- no change to make
-            return nil -- TODO check if I can improve/clarify the return
-        end
+    -- get cache if not given
+    cache = cache or FS_cache[player:get_player_name()]
+    -- if no player's cache, do nothing
+    if not cache then
+        -- no change to make
+         -- #TODO we could add a message or other behavior in this case ?
+        return nil
     end
+    -- get back items from input_panel
+    get_inputs_back_in_inv(player)
 
     --various updates
     cache.possible_hint = false -- disable "hint"
