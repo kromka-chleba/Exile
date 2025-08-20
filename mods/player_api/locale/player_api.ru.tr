@@ -19,6 +19,7 @@ Classic Green Sweater=Классический зеленый свитер
 Fine Blue Pants=Изящные синие брюки
 # equip.lua
 Clothing=Одежда
+Wear clothing=
 Min Temperature Tolerance: @1=Мин. допустимая температура: @1
 Max Temperature Tolerance: @1=Макс. допустимая температура: @1
 You can't equip a blanket outside of a bed.=Вы не можете использовать одеяло вне кровати.

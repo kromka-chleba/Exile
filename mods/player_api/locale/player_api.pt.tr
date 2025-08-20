@@ -30,5 +30,6 @@ You can't equip a blanket outside of a bed.=
 
 # equip.lua
 Clothing=
+Wear clothing=
 Min Temperature Tolerance: @1=
 Max Temperature Tolerance: @1=
