@@ -200,10 +200,11 @@ _on_use_node = function(player, pointed_node, pointed_thing, wielded_item)
 _on_use_object = function(player, intersection_point, wielded_item)
 	Called when the player presses the "use" key while pointing at an object
 	intersection_point is the absolute pos where the player is pointing
+
 _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
 	_on_use_node and _on_use_object takes precedence over this
-
+    must return the new wielded item if we need to update it
 
 	^ functions for these should return false if the item/node isn't used.
 

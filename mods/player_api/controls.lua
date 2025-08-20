@@ -190,10 +190,13 @@ local function handle_use_key(player, name, held)
     local wdef = minetest.registered_items[wnm]
     if not using_tool and wdef then
         if wdef._on_use_item then
+            -- get new itemstack to be put in wielded item
+            -- or nil or false if nothing is to update
             using_tool = wdef._on_use_item(player, witem, pointed_thing)
         end
     end
     if using_tool and not minimal.player_in_creative(player) then
+        witem = using_tool
         player:set_wielded_item(witem)
     end
     return
