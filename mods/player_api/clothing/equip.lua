@@ -276,9 +276,8 @@ minetest.register_on_player_inventory_action(function(player, action,
     end
 end)
 
--- This is used to equip cloths from HUD main inventory with right click
--- the player move the arms until I rotate... #TODO ?
-function player_api.on_rightclick(itemstack, user, pointed_thing)
+-- This is used to equip cloths from HUD main inventory
+function player_api._on_use_item(itemstack, user, pointed_thing)
     -- deletes items (or reproduces if programmed differently - gotta fix)
     if not (minetest.is_player(user) and itemstack) then
         return
@@ -304,15 +303,16 @@ function player_api.on_rightclick(itemstack, user, pointed_thing)
         -- note : allow function already checked if they were identical (meaning had the same name)
 
     local in_dest
+    -- if the destination is not empty, copy what is in it in "in_dest"
     if not p_inv:is_empty(destination) then
         in_dest = p_inv:get_stack(destination, 1)
         p_inv:set_stack(destination,1,ItemStack(""))
     end
 
-    -- add it in destination
+    -- add our new clothing in destination
     p_inv:add_item(destination, new_cloth)
     minimal.send_message(user, nil, S("@1 equipped!", new_cloth:get_short_description()))
-    -- update player settings
+    -- update player settings (temperature and formspec)
     player_api.update_player(user)
 
     -- if I have the old equipment to deal with :
