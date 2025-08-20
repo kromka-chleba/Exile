@@ -536,7 +536,6 @@ function HEALTH.add_food_hooks(name,info)
             minetest.override_item(
                 name,{
                     _on_use_item = function(player, itemstack, pointed_thing)
-                        core.after(0.1, crafting.refresh_recipes_FS, player) -- #TODO is that dirty to refresh crafting formspec in HEALTH mod ?
                         return itemstack:get_definition()._on_consume(player,
                                                                       itemstack,
                                                                       pointed_thing)

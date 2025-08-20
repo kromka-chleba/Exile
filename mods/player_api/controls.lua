@@ -199,6 +199,10 @@ local function handle_use_key(player, name, held)
         witem = using_tool
         player:set_wielded_item(witem)
     end
+    -- refresh recipes (will go later, but cleans current refreshes)
+    if using_tool then
+        core.after(0.1, crafting.refresh_recipes_FS, player)
+    end
     return
 end
 
