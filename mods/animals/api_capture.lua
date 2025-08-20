@@ -263,7 +263,6 @@ animals.register_spawnegg = function(name, def, animal)
           end
       end
       wielded_item:take_item()
-      player:set_wielded_item(wielded_item)
       return wielded_item
   end
   -- register spawnegg and return definition
