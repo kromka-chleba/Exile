@@ -33,5 +33,6 @@ Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire 
 
 # equip.lua
 Clothing=Vêtements
+Wear clothing=Équiper le vêtement
 Min Temperature Tolerance: @1=Température minimum tolérée: @1
 Max Temperature Tolerance: @1=Température maximum tolérée: @1

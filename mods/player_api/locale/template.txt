@@ -19,6 +19,7 @@ Classic Green Sweater=
 Fine Blue Pants=
 # equip.lua
 Clothing=
+Wear clothing=
 Min Temperature Tolerance: @1=
 Max Temperature Tolerance: @1=
 You can't equip a blanket outside of a bed.=

@@ -165,6 +165,7 @@ function player_api.register_cloth(name, def)
         palette = "natural_dyes.png",
         groups = def.groups or nil,
     }
+    newdef._use_tip = S("Wear clothing")
 
     -- below functions will be added to blankets - but will not have any clothing functionality
 
