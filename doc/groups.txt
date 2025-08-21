@@ -78,6 +78,21 @@ Temperature:
   10 means 10% of base speed (e.g. like metal which holds heat well). Allows different materials to lose heat at different rates.
 `temp_flow`: 100 = air_temp nodes can jump through this; like an open door
   Value = % chance of passing through. 100% will always succeed
+  
+Cloth groups
+-------------
+
+`cloth`: {
+    [1] = hat
+    [2] = shirt
+    [3] = pants
+    [4] = shoes
+    [5] = cape
+    [6] = blanket
+}
+
+Each number correspond to a clothing slot in clothing formspec
+See details in player_api/clothing/cloth_definitions.lua
 
 Plant groups
 -------------
