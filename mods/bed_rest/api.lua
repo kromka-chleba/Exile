@@ -142,9 +142,12 @@ function bed_rest.register_bed(name, def)
             local dir = minetest.facedir_to_dir(node.param2)
             local p = vector.add(pos, dir)
             local node2 = minetest.get_node_or_nil(p)
-            if not node2
-                or not minetest.get_item_group(node2.name, "bed") == 2
-                or not node.param2 == node2.param2 then
+            -- don't rotate if second part of the bed is wrong:
+            if not node2 -- if there is no second part of the bed
+                -- if it is node2 is not the top part of a bed
+                or core.get_item_group(node2.name, "bed") ~= 2
+                -- if top and bottom of the bed don't have the same facedir
+                or node.param2 ~= node2.param2 then
 
                 return false
             end
