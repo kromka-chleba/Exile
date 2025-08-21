@@ -151,17 +151,18 @@ sfinv.register_page("clothing:clothing", clothing_page)
 -- return the number allowed and the destination inventory name
 local function allow_cloth_equip (player, inventory, stack, to_slot)
     if stack then
-        local item_group = minimal.is_group(stack:get_name(),"cloth")
+        -- get group value of "cloth" group
+        local item_group = core.get_item_group(stack:get_name(),"cloth")
         -- refuse the move if not a cloth
-        if not item_group then
-            return 0
+        if item_group == 0 then
+            return 0 -- no move is allowed
         end
         -- else refuse if this is a blanket and I am not in bed
         if item_group == 6 and player_api.get_state(player, "health"):is("resting") == false then
             minimal.send_message(
                 player, nil,
                 S("You can't equip a blanket outside of a bed."))
-            return 0
+            return 0 -- no move is allowed
         end
 
         local rightplace = player_api.get_inv_name_from_group(item_group)
@@ -173,9 +174,10 @@ local function allow_cloth_equip (player, inventory, stack, to_slot)
             minimal.send_message(
                 player, nil,
                 S("You already wear that!"))
-            return 0
-            -- else allow 1 to destination
+            return 0 -- no move is allowed
         else
+            -- 1 item is allowed to move
+            -- destination is `rightplace`
             return 1, rightplace
         end
     end
