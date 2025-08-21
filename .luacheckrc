@@ -44,7 +44,7 @@ files["mods/bed_rest"] = {
     globals = {"bed_rest"},
     read_globals = {
         -- dependencies in mod.conf
-        "player_api", "player_monoids"
+        "player_api", "player_monoids", "minimal"
     }
 }
 
