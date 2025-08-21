@@ -3,7 +3,6 @@
 --
 -----------------------------------------------------------------
 local S = minetest.get_translator("bed_rest")
-local NS = function(s) return s end
 
 local pi = math.pi
 --silence luacheck warnings about accessing globals:
@@ -41,7 +40,7 @@ local function blanket_find(inv,listName)
 end
 
 --[[ Dealing with my blanket when standing up from a bed
-    * if `leave_on_bed` is true, I leave leave it on the bed
+    * if `leave_on_bed` is true, I leave it on the bed
     * else, I wil take it back
     Also updates infotext.
 ]]
@@ -88,12 +87,12 @@ end
     * Else, I will look in my main inventory to see if I have one to equip, and if yes, equip it
     Also updates infotext
 ]]
-local function equip_blanket(player, bed_pos, bed_meta)
+local function equip_blanket(player, bed_pos)
     -- get player's inv
     local p_inv = player:get_inventory()
     -- gets bed's meta and inv
-    local bmeta = bed_meta or minetest.get_meta(bed_pos)
-    local bedInv = bmeta:get_inventory()
+    local bed_meta = minetest.get_meta(bed_pos)
+    local bedInv = bed_meta:get_inventory()
 
     local blanket
     if not bedInv:is_empty("main") then
