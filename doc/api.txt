@@ -30,6 +30,18 @@ minimal.get_pointed_thing(player/playername, range, objects, liquids)
 minimal.invlists2string(lists)
 +minimal.string2invlists(string)
 		- Convert inventory lists into a serialized string and back
+        
+function minimal.is_group(name, group_name)
+        - Custom alternative to core.get_item_group(name, group_name)
+        -   * `name` is the name of the item to test, 
+            * `group_name` the name of the group
+        - returns:
+            * nil if item is not in group or if the value is <= 0
+            * returns the group value if > 0
+        - As comparison: core.get_item_group(name, group_name) returns:
+            * the value even if negative (range is [-32767, 32767])
+            * 0 if not in group
+        
 minimal.item_pickup(clicker, pointed_thing)
 		- Used inside a custom on_use so held items don't block pickup
 		- See artifacts/tools.lua for examples

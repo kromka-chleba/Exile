@@ -1,10 +1,18 @@
 minimal = minimal
 
+-- Custom alternative to core.get_item_group(name, group_name)
+-- `name` is the name of the item to test, `group_name` the name of the group
+-- * returns nil if item is not in group or if the value is <= 0
+-- * returns the group value if > 0
+--[[NOTE: to compare, core.get_item_group(name, group_name) returns:
+--  * the value even if negative (range is [-32767, 32767])
+--  * 0 if not in group
+-- ]]
 function minimal.is_group(name, group_name)
-    if not minetest.registered_items[name] then
+    if not core.registered_items[name] then
         return
     end
-    local group_val = minetest.get_item_group(name, group_name)
+    local group_val = core.get_item_group(name, group_name)
     if group_val > 0 then
         return group_val
     end
