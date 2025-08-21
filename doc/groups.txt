@@ -146,6 +146,13 @@ Tool groups:
 --------------
 `club`: 1= blunt weapon. can stun catch mobs on right click
 
+Bed groups:
+-------------
+`bed` : {
+    1: bottom node of a bed
+    2: top_node of a bed
+}
+
 Storage groups:
 --------------
 `storage`: a node that provides storage space
