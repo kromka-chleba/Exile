@@ -6,4 +6,4 @@ steps:
     image: registry.gitlab.com/pipeline-components/luacheck:latest
     commands:
       - params=`echo ${CI_PIPELINE_FILES} | tr -d "[]" | tr "," " "`
-      - if [ "$params" ]; then luacheck `echo $params --include-files "**/*.lua"`; fi
+      - if [ "$params" ]; then luacheck `echo $params --include-files "**/*.lua"`; else echo "CI_PIPELINE_FILES is empty"; fi
