@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-22 07:55+0200\n"
-"PO-Revision-Date: 2025-08-22 07:57+0200\n"
+"PO-Revision-Date: 2025-08-22 08:02+0200\n"
 "Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -184,19 +184,15 @@ msgstr "de siltite"
 
 #. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:996
-#, fuzzy
-#| msgid "Sandstone"
 msgctxt "tech:brick"
 msgid "Sandstone"
-msgstr "Grès"
+msgstr "de grès"
 
 #. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:998
-#, fuzzy
-#| msgid "Conglomerate"
 msgctxt "tech:brick"
 msgid "Conglomerate"
-msgstr "Conglomérat"
+msgstr "de conglomérat"
 
 #. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:1003
@@ -206,11 +202,9 @@ msgstr "de Coquina"
 
 #. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:1005
-#, fuzzy
-#| msgid "Limestone"
 msgctxt "tech:brick"
 msgid "Limestone"
-msgstr "Calcaire"
+msgstr "de calcaire"
 
 #. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:1007
@@ -484,7 +478,7 @@ msgstr "Fabrication du pain"
 
 #: craft_stations.lua:230
 msgid "Cannot place here! Needs a whole block of: "
-msgstr "Impossible de placer ici! Besoin d'un bloc entier de:"
+msgstr "Impossible de placer ici! Besoin d'un bloc entier de: "
 
 #: craft_stations.lua:290
 msgid "Mixing Spot"
