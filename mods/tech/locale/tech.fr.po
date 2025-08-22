@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 09:37+0200\n"
-"PO-Revision-Date: 2025-08-22 09:37+0200\n"
+"POT-Creation-Date: 2025-08-22 09:57+0200\n"
+"PO-Revision-Date: 2025-08-22 09:57+0200\n"
 "Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -322,81 +322,90 @@ msgstr "Bol vide"
 msgid "Bowl"
 msgstr "Bol"
 
-#: cooking_pot.lua:789 cooking_pot.lua:1110
+#. TR: content of a Soup Pot
+#. TR: content of a Soup Pot (infotext)
+#: cooking_pot.lua:790 cooking_pot.lua:1119
 msgid "Water"
-msgstr ""
+msgstr "Eau"
 
-#: cooking_pot.lua:827 cooking_pot.lua:928 cooking_pot.lua:1110
+#. TR: Ex of @1: "Bowl of Zufani Soup"
+#. TR: content of a Soup Pot (infotext)
+#: cooking_pot.lua:828 cooking_pot.lua:933 cooking_pot.lua:1119
 msgid "Contents: @1"
 msgstr "Contenu: @1"
 
-#: cooking_pot.lua:918
+#. TR: used in "Bowl of @1"
+#: cooking_pot.lua:869
 msgid "Stew"
-msgstr ""
+msgstr "ragoût"
 
-#: cooking_pot.lua:919
+#. TR: used in "Bowl of @1"
+#: cooking_pot.lua:871
 msgid "Soup"
 msgstr "Soupe"
 
 #. TR: @1 is an ingredient, @2 is soup or stew
 #. Ex: "Bowl of Zufani Soup"
-#: cooking_pot.lua:924
+#: cooking_pot.lua:928
 msgid "Bowl of @1 @2"
 msgstr "Bol de @2 de @1"
 
-#: cooking_pot.lua:929
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:935
 msgid "Status: @1 pot (finished)"
-msgstr ""
+msgstr "Statut: pot de @1 (cuisson terminée)"
 
-#: cooking_pot.lua:938
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:945
 msgid "Status: @1 pot (cooking)"
-msgstr ""
+msgstr "Statut: pot de @1 (en cours de cuisson)"
 
-#: cooking_pot.lua:964
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:972
 msgid "Status: @1 pot"
-msgstr ""
+msgstr "Statut: pot de @1"
 
-#: cooking_pot.lua:988
+#: cooking_pot.lua:996
 msgid "Cooking Pot"
 msgstr "Marmite"
 
-#: cooking_pot.lua:1019
+#: cooking_pot.lua:1027
 msgid "This pot is full and heavy. Spill it?"
 msgstr "Cette marmite est pleine et lourde. La renverser?"
 
-#: cooking_pot.lua:1083
+#: cooking_pot.lua:1091
 msgid "Unprepared Pot"
 msgstr "Marmite"
 
-#: cooking_pot.lua:1084
+#: cooking_pot.lua:1092
 msgid "Contents: <EMPTY>"
 msgstr "Contenu: <VIDE>"
 
-#: cooking_pot.lua:1085
+#: cooking_pot.lua:1093
 msgid "Note: Add water to pot to make soup"
 msgstr "Remarque: Ajoutez de l'eau à la marmite pour faire de la soupe"
 
-#: cooking_pot.lua:1090
+#: cooking_pot.lua:1098
 msgid "Note: Use a Bowl to Get!"
-msgstr ""
+msgstr "Note : Utiliser un bol pour en prendre !"
 
-#: cooking_pot.lua:1091
+#: cooking_pot.lua:1099
 msgid "Leftover: @1%"
 msgstr ""
 
-#: cooking_pot.lua:1109
+#: cooking_pot.lua:1117
 msgid "Soup Pot"
 msgstr "Marmite"
 
-#: cooking_pot.lua:1111
+#: cooking_pot.lua:1120
 msgid "Note: Add food to the pot to make soup"
 msgstr "Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe"
 
-#: cooking_pot.lua:1212
+#: cooking_pot.lua:1221
 msgid "Cooking Pot (unfired)"
 msgstr "Marmite (non cuite)"
 
-#: cooking_pot.lua:1265
+#: cooking_pot.lua:1274
 msgid "Bowl (unfired)"
 msgstr "Bol (non cuit)"
 
@@ -530,7 +539,7 @@ msgstr "en bois"
 
 #: craft_stations.lua:661
 msgid "Wooden Mortar and Pestle"
-msgstr ""
+msgstr "Mortier et pilon en bois"
 
 #: craft_stations.lua:674
 msgid "@1 Mortar and Pestle"
@@ -1336,7 +1345,7 @@ msgstr "Coffre en fer"
 
 #: tools.lua:196
 msgid "Bare Hands"
-msgstr ""
+msgstr "Mains nues"
 
 #: tools.lua:238
 msgid "Stone Knife"
@@ -1480,24 +1489,25 @@ msgstr "Torche"
 
 #: ucsigns.lua:26
 msgid "Signs"
-msgstr ""
+msgstr "Panneaux"
 
-#: ucsigns.lua:117
+#. TR: @1 is the description of a woody node
+#: ucsigns.lua:119
 msgid "@1 Sign"
-msgstr ""
+msgstr "Panneau en @1"
 
-#: ucsigns.lua:149
+#: ucsigns.lua:151
 msgid "Oiled Sign"
-msgstr ""
+msgstr "Panneau huilé"
 
-#: ucsigns.lua:185
+#: ucsigns.lua:187
 msgid "Iron Sign"
 msgstr "Panneau en fer"
 
 #. TR: @1 in "<container> with @1" / Ex: "Water Pot with Freshwater"
 #: waterworking.lua:56
 msgid "Freshwater"
-msgstr ""
+msgstr "de l'eau de source"
 
 #. TR: @1 in "<container> with @1" / Ex: "Water Pot with Salt Water"
 #: waterworking.lua:58
@@ -1541,11 +1551,11 @@ msgstr "@2 en @1 vide"
 #. TR: Ex: Clay Water Pot with Freshwater
 #: waterworking.lua:261
 msgid "@1 @2 with @3"
-msgstr ""
+msgstr "@2 @1 contenant @3"
 
 #: waterworking.lua:327
 msgid "Salty Clay Water Pot"
-msgstr ""
+msgstr "Cruche d'eau salée"
 
 #: waterworking.lua:392
 msgid "@1 Bottle"

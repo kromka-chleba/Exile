@@ -786,6 +786,7 @@ local function pot_receive_fields(pos, formname, fields, sender)
     local contents = {} -- table containing list of pot contents
     if water_type == 'nodes_nature:freshwater_source' then -- regular water
         total.th = 100
+        -- TR: content of a Soup Pot
         contents = {S("Water")}
     elseif water_type == 'nodes_nature:saltwater_source' then -- saltwater, NOT YET IMPLEMENTED
     end
@@ -860,6 +861,14 @@ local function pot_cook(pos, elapsed)
         local opened = #get_watchers(pos) > 0
         -- basically means we're workin on a nice yummy treat
         if kind == "Soup" then
+            -- stew is when hunger content is greater than thirst content
+            kind = total.hu > total.th and "Stew" or kind
+            -- set kind again for soup/stew
+            if kind == "Stew" then meta:set_string("type",kind) end
+            -- TR: used in "Bowl of @1"
+            local kind_desc = (kind == "Stew") and S("Stew")
+                              -- TR: used in "Bowl of @1"
+                              or S("Soup")
             -- finished cooking
             if baking <= 0 then
                 -- get pot contents table (satiation total)
@@ -904,29 +913,26 @@ local function pot_cook(pos, elapsed)
                 if sounds.frying_final then
                     minimal.sound_play(pos, sounds.frying_final)
                 end
-                -- stew is when hunger content is greater than thirst content
-                kind = total.hu > total.th and "Stew" or kind
+
                 -- remove formspec + inventory, set percentage
                 meta:set_string("formspec","")
                 inv:set_size("main", 0)
                 meta:set_int("soup_percent",100)
                 -- set as finished
                 meta:set_string("status", "finished")
-                -- set kind again for soup/stew
-                if kind == "Stew" then meta:set_string("type",kind) end
                 -- get proper description
-                local kind_desc = (kind == "Stew") and S("Stew")
-                               or S("Soup")
                 -- #TODO issue is that ingredient is from the item description
                 -- and... the translation will be different depending on it !
                 -- TR: @1 is an ingredient, @2 is soup or stew
                 -- Ex: "Bowl of Zufani Soup"
-                local desc = S( "Bowl of @1 @2",firstingr, kind_desc)
+                local desc = S("Bowl of @1 @2",firstingr, kind_desc)
                 meta:set_string("soup_desc", desc) -- used to name gotten soup
                 inv:set_list("main", inv_main)
                 -- set infotext
+                -- TR: Ex of @1: "Bowl of Zufani Soup"
                 meta:set_string("contents_string",S("Contents: @1",desc))
-                meta:set_string("status_string",S("Status: @1 pot (finished)",S(kind)))
+                -- TR: @1 is "Soup" or "Stew"
+                meta:set_string("status_string",S("Status: @1 pot (finished)", kind_desc))
                 -- pos, meta, meta_params, custom_func, nodedef
                 minimal.infotext_set_new(pos, meta, nil, nil, ndef)
             -- we're gonna cook!
@@ -935,7 +941,8 @@ local function pot_cook(pos, elapsed)
                 -- not cooking already, let's get to it!
                 if status ~= 'cooking' then
                     meta:set_string('status', 'cooking')
-                    meta:set_string('status_string',S("Status: @1 pot (cooking)", S(kind)))
+                    -- TR: @1 is "Soup" or "Stew"
+                    meta:set_string('status_string',S("Status: @1 pot (cooking)", kind_desc))
                     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
                     spawn_steam(pos,{amt={14,24}})
                     if sounds.frying_start then
@@ -961,7 +968,8 @@ local function pot_cook(pos, elapsed)
             elseif temp < 100 then
                 if status ~= 'prepared' and status ~= 'cooling' then
                     meta:set_string("status", "cooling")
-                    meta:set_string("status_string",S('Status: @1 pot', S(kind)))
+                    -- TR: @1 is "Soup" or "Stew"
+                    meta:set_string("status_string",S('Status: @1 pot', kind_desc))
                     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
                 end
             end -- baking/temp if statements
@@ -1107,6 +1115,7 @@ minetest.register_node("tech:cooking_pot",{
         meta:set_string("status","prepared") -- between water and ingredients, and cooling/cooking/finished
         meta:set_string("water_type",source) -- set water type
         meta:set_string("status_string",S("Soup Pot"))
+        -- TR: content of a Soup Pot (infotext)
         meta:set_string("contents_string",S("Contents: @1",S("Water")))
         meta:set_string("note",S("Note: Add food to the pot to make soup"))
         minimal.infotext_set_new(pos, meta, nil, nil, selfdef)

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 09:37+0200\n"
+"POT-Creation-Date: 2025-08-22 09:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -322,81 +322,90 @@ msgstr ""
 msgid "Bowl"
 msgstr ""
 
-#: cooking_pot.lua:789 cooking_pot.lua:1110
+#. TR: content of a Soup Pot
+#. TR: content of a Soup Pot (infotext)
+#: cooking_pot.lua:790 cooking_pot.lua:1119
 msgid "Water"
 msgstr ""
 
-#: cooking_pot.lua:827 cooking_pot.lua:928 cooking_pot.lua:1110
+#. TR: Ex of @1: "Bowl of Zufani Soup"
+#. TR: content of a Soup Pot (infotext)
+#: cooking_pot.lua:828 cooking_pot.lua:933 cooking_pot.lua:1119
 msgid "Contents: @1"
 msgstr ""
 
-#: cooking_pot.lua:918
+#. TR: used in "Bowl of @1"
+#: cooking_pot.lua:869
 msgid "Stew"
 msgstr ""
 
-#: cooking_pot.lua:919
+#. TR: used in "Bowl of @1"
+#: cooking_pot.lua:871
 msgid "Soup"
 msgstr ""
 
 #. TR: @1 is an ingredient, @2 is soup or stew
 #. Ex: "Bowl of Zufani Soup"
-#: cooking_pot.lua:924
+#: cooking_pot.lua:928
 msgid "Bowl of @1 @2"
 msgstr ""
 
-#: cooking_pot.lua:929
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:935
 msgid "Status: @1 pot (finished)"
 msgstr ""
 
-#: cooking_pot.lua:938
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:945
 msgid "Status: @1 pot (cooking)"
 msgstr ""
 
-#: cooking_pot.lua:964
+#. TR: @1 is "Soup" or "Stew"
+#: cooking_pot.lua:972
 msgid "Status: @1 pot"
 msgstr ""
 
-#: cooking_pot.lua:988
+#: cooking_pot.lua:996
 msgid "Cooking Pot"
 msgstr ""
 
-#: cooking_pot.lua:1019
+#: cooking_pot.lua:1027
 msgid "This pot is full and heavy. Spill it?"
 msgstr ""
 
-#: cooking_pot.lua:1083
+#: cooking_pot.lua:1091
 msgid "Unprepared Pot"
 msgstr ""
 
-#: cooking_pot.lua:1084
+#: cooking_pot.lua:1092
 msgid "Contents: <EMPTY>"
 msgstr ""
 
-#: cooking_pot.lua:1085
+#: cooking_pot.lua:1093
 msgid "Note: Add water to pot to make soup"
 msgstr ""
 
-#: cooking_pot.lua:1090
+#: cooking_pot.lua:1098
 msgid "Note: Use a Bowl to Get!"
 msgstr ""
 
-#: cooking_pot.lua:1091
+#: cooking_pot.lua:1099
 msgid "Leftover: @1%"
 msgstr ""
 
-#: cooking_pot.lua:1109
+#: cooking_pot.lua:1117
 msgid "Soup Pot"
 msgstr ""
 
-#: cooking_pot.lua:1111
+#: cooking_pot.lua:1120
 msgid "Note: Add food to the pot to make soup"
 msgstr ""
 
-#: cooking_pot.lua:1212
+#: cooking_pot.lua:1221
 msgid "Cooking Pot (unfired)"
 msgstr ""
 
-#: cooking_pot.lua:1265
+#: cooking_pot.lua:1274
 msgid "Bowl (unfired)"
 msgstr ""
 
@@ -1482,15 +1491,16 @@ msgstr ""
 msgid "Signs"
 msgstr ""
 
-#: ucsigns.lua:117
+#. TR: @1 is the description of a woody node
+#: ucsigns.lua:119
 msgid "@1 Sign"
 msgstr ""
 
-#: ucsigns.lua:149
+#: ucsigns.lua:151
 msgid "Oiled Sign"
 msgstr ""
 
-#: ucsigns.lua:185
+#: ucsigns.lua:187
 msgid "Iron Sign"
 msgstr ""
 

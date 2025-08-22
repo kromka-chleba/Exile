@@ -114,6 +114,8 @@ for nname, ndef in pairs(core.registered_nodes) do
         local signcolor = ndef.average_color or signcolors[name] or nil
         name = "exile_"..name
         ucsigns.register_sign(name, signcolor, minimal.merge_tables(signdef, {
+            -- #TODO this should be changed: it may not allow proper translation
+            -- TR: @1 is the description of a woody node
             description = S("@1 Sign", ndef.description),
             tiles = tiles
         }))
