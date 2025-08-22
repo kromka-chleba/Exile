@@ -4,7 +4,18 @@
 tech = {}
 
 -- Internationalization
-tech.S = minetest.get_translator("tech")
+tech.S = core.get_translator("tech")
+
+-- SC(S with Context) is to allow more precise context than just text
+-- For example, "Limestone" has different translation
+-- in bricks_and_mortar and in craft_stations
+-- Having a "context" argument also let us
+-- have automatic generation of context in .po files
+tech.SC = function(context, ...)
+    context = context or ""
+    return core.translate(context, ...)
+end
+
 tech.FS = function(...)
     return minetest.formspec_escape(tech.S(...))
 end

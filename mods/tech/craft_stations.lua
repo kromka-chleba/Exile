@@ -628,11 +628,12 @@ end
 -- Exile's defautl registrations:
 
 -- available materials for Exile's registered Mortar and Pestle
+-- and their translated string
 local mortar_and_pestle_mats = {
-    "limestone",
-    "basalt",
-    "granite",
-    "wooden"
+    limestone = S("Limestone"),
+    basalt = S("Basalt"),
+    granite = S("Granite"),
+    wooden = S("Wooden")
 }
 
 -- specific defintion per material
@@ -666,7 +667,8 @@ local function generate_mortar_def(mat)
         }
     else
         local capsmat = mat:gsub("^%l", string.upper)
-        def.description =  S(capsmat .." Mortar and Pestle")
+         -- TRANSLATORS: @1 is a material. Ex: Limestone Mortar and Pestle
+        def.description =  S("@1 Mortar and Pestle", capsmat)
         def.tiles = {"nodes_nature_" .. mat .. ".png"}
         def.sounds = nodes_nature.node_sound_stone_defaults()
         def.recipe = {
@@ -692,7 +694,7 @@ end
     in order to have only one recipe for all stone mortars.
     so it could be back (with custom image/texture I guess ?)
     ]]
-for _, mat in pairs (mortar_and_pestle_mats) do
+for mat, tr_mat in pairs (mortar_and_pestle_mats) do
     tech.register_mortar_pestle("tech:mortar_pestle_" .. mat,  -- name
                                           generate_mortar_def(mat)) -- def
 end

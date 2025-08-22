@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 04:52+0200\n"
-"PO-Revision-Date: 2025-08-22 04:53+0200\n"
+"POT-Creation-Date: 2025-08-22 07:55+0200\n"
+"PO-Revision-Date: 2025-08-22 07:57+0200\n"
 "Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -12,8 +12,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
 "X-Generator: Poedit 3.4.2\n"
-"X-Poedit-KeywordsList: S;FS\n"
+"X-Poedit-KeywordsList: S;FS;SC:1c,2\n"
 "X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=TR:\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: backpacks.lua:17
@@ -48,174 +49,204 @@ msgstr "Matelas"
 msgid "Bed"
 msgstr "Lit"
 
-#: bricks_and_mortar.lua:44
+#: bricks_and_mortar.lua:43
 msgid "Crushed Lime"
 msgstr "Chaux concassée"
 
-#: bricks_and_mortar.lua:66
+#: bricks_and_mortar.lua:65
 msgid "Quicklime"
 msgstr "Chaux vive"
 
-#: bricks_and_mortar.lua:127
+#: bricks_and_mortar.lua:126
 msgid "Slaked Lime"
 msgstr "Chaux hydratée"
 
-#: bricks_and_mortar.lua:174
+#: bricks_and_mortar.lua:173
 msgid "Slaked Lime (ruined)"
 msgstr "Chaux hydratée (abîmée)"
 
-#: bricks_and_mortar.lua:212
+#: bricks_and_mortar.lua:211
 msgid "Lime Mortar Slab"
 msgstr "Dalle de mortier de chaux"
 
-#: bricks_and_mortar.lua:224 earthen_building.lua:402 fires.lua:235
+#: bricks_and_mortar.lua:223 earthen_building.lua:402 fires.lua:235
 #: fires.lua:301 fires.lua:359 fires.lua:896 fires.lua:946 pottery.lua:37
 msgid "Combine with another slab"
 msgstr "Combiner avec une autre dalle"
 
-#: bricks_and_mortar.lua:235
+#: bricks_and_mortar.lua:234
 msgid "Lime Mortar"
 msgstr "Mortier de chaux"
 
-#: bricks_and_mortar.lua:307
+#: bricks_and_mortar.lua:306
 msgid "Loose Bricks (unfired)"
 msgstr "Briques détachées (non cuites)"
 
-#: bricks_and_mortar.lua:359
+#: bricks_and_mortar.lua:358
 msgid "Loose Bricks"
 msgstr "Briques détachées"
 
-#: bricks_and_mortar.lua:403
+#: bricks_and_mortar.lua:402
 msgid "Brick and Mortar"
 msgstr "Briques et mortier"
 
-#: bricks_and_mortar.lua:421
+#: bricks_and_mortar.lua:420
 msgid "Brick and Mortar Stair"
 msgstr "Escalier en briques et mortier"
 
-#: bricks_and_mortar.lua:422
+#: bricks_and_mortar.lua:421
 msgid "Brick and Mortar Slab"
 msgstr "Dalle en briques et mortier"
 
-#: bricks_and_mortar.lua:460
+#: bricks_and_mortar.lua:459
 msgid "Loose Roof Tile (unfired)"
 msgstr "Tuile de toit détachées (non cuite)"
 
-#: bricks_and_mortar.lua:536
+#: bricks_and_mortar.lua:535
 msgid "Loose Roof Tile"
 msgstr "Tuile de toit détachée"
 
-#: bricks_and_mortar.lua:602
+#: bricks_and_mortar.lua:601
 msgid "Roof Tile"
 msgstr "Tuile de toit"
 
-#: bricks_and_mortar.lua:635
+#: bricks_and_mortar.lua:634
 msgid "Roof Tile (outer corner)"
 msgstr "Tuile de toit (coin extérieur)"
 
-#: bricks_and_mortar.lua:669
+#: bricks_and_mortar.lua:668
 msgid "Roof Tile (inner corner)"
 msgstr "Tuile de toit (coin intérieur)"
 
-#: bricks_and_mortar.lua:764
+#: bricks_and_mortar.lua:763
 msgid "Tile Block (unfired)"
 msgstr "Bloc de tuiles (non cuit)"
 
-#: bricks_and_mortar.lua:798
+#: bricks_and_mortar.lua:797
 msgid "Tile Block (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:815
+#: bricks_and_mortar.lua:814
 msgid "Tile Block"
 msgstr "Bloc de tuiles"
 
-#: bricks_and_mortar.lua:845
+#: bricks_and_mortar.lua:844
 msgid "Tile Stair (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:846
+#: bricks_and_mortar.lua:845
 msgid "Tile Slab (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:881
+#: bricks_and_mortar.lua:880
 msgid "Tile Stair"
 msgstr "Escalier en tuiles"
 
-#: bricks_and_mortar.lua:882
+#: bricks_and_mortar.lua:881
 msgid "Tile Slab"
 msgstr "Dalle en tuiles"
 
-#: bricks_and_mortar.lua:914
+#: bricks_and_mortar.lua:913
 msgid "@1 Brick with Mortar"
-msgstr "Brique de @1 avec mortier"
+msgstr "Brique @1 avec mortier"
 
-#: bricks_and_mortar.lua:926
+#: bricks_and_mortar.lua:925
 msgid "@1 Block with Mortar"
-msgstr "Bloc de @1 avec mortier"
+msgstr "Bloc @1 avec mortier"
+
+#: bricks_and_mortar.lua:962
+msgid "@1 Brick with Mortar Stair"
+msgstr "Escalier en brique @1 avec mortier"
 
 #: bricks_and_mortar.lua:963
-msgid "@1 Brick with Mortar Stair"
-msgstr "Escalier en brique de @1 avec mortier"
-
-#: bricks_and_mortar.lua:964
 msgid "@1 Brick with Mortar Slab"
-msgstr "Dalle en brique de @1 avec mortier"
+msgstr "Dalle en brique @1 avec mortier"
+
+#: bricks_and_mortar.lua:980
+msgid "@1 Block with Mortar Stair"
+msgstr "Escalier en bloc @1 avec mortier"
 
 #: bricks_and_mortar.lua:981
-msgid "@1 Block with Mortar Stair"
-msgstr "Escalier en bloc de @1 avec mortier"
-
-#: bricks_and_mortar.lua:982
 msgid "@1 Block with Mortar Slab"
-msgstr "Dalle en bloc de @1 avec mortier"
+msgstr "Dalle en bloc @1 avec mortier"
 
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:992
+msgctxt "tech:brick"
 msgid "Claystone"
-msgstr "Argilite"
+msgstr "d'argilite"
 
-#: bricks_and_mortar.lua:993
-msgid "Siltstone"
-msgstr "Lutite"
-
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:994
+msgctxt "tech:brick"
+msgid "Siltstone"
+msgstr "de siltite"
+
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:996
+#, fuzzy
+#| msgid "Sandstone"
+msgctxt "tech:brick"
 msgid "Sandstone"
 msgstr "Grès"
 
-#: bricks_and_mortar.lua:995
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:998
+#, fuzzy
+#| msgid "Conglomerate"
+msgctxt "tech:brick"
 msgid "Conglomerate"
 msgstr "Conglomérat"
 
-#: bricks_and_mortar.lua:999
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1003
+msgctxt "tech:brick"
 msgid "Coquina"
-msgstr ""
+msgstr "de Coquina"
 
-#: bricks_and_mortar.lua:1000
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1005
+#, fuzzy
+#| msgid "Limestone"
+msgctxt "tech:brick"
 msgid "Limestone"
 msgstr "Calcaire"
 
-#: bricks_and_mortar.lua:1001
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1007
+msgctxt "tech:brick"
 msgid "Ironstone"
-msgstr "Fer"
+msgstr "de fer"
 
-#: bricks_and_mortar.lua:1002 tools.lua:587 tools.lua:708
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1009
+msgctxt "tech:brick"
 msgid "Granite"
-msgstr "granite"
+msgstr "de granite"
 
-#: bricks_and_mortar.lua:1003 tools.lua:577 tools.lua:707
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1011
+msgctxt "tech:brick"
 msgid "Basalt"
-msgstr "basalte"
+msgstr "de basalte"
 
-#: bricks_and_mortar.lua:1004
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1013
+msgctxt "tech:brick"
 msgid "Scoria"
-msgstr ""
+msgstr "de Scoria"
 
-#: bricks_and_mortar.lua:1005
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1015
+msgctxt "tech:brick"
 msgid "Gneiss"
-msgstr "gneiss"
+msgstr "de gneiss"
 
-#: bricks_and_mortar.lua:1006 tools.lua:582
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1017
+msgctxt "tech:brick"
 msgid "Jade"
-msgstr "jade"
+msgstr "de jade"
 
 #: clothing.lua:20
 msgid "Woven Hat"
@@ -399,7 +430,7 @@ msgstr "Mortier et pilon"
 msgid "Crafting"
 msgstr "Artisanat"
 
-#: craft_stations.lua:60 craft_stations.lua:830
+#: craft_stations.lua:60 craft_stations.lua:832
 msgid "Carpentry Bench"
 msgstr "Établi de menuiserie"
 
@@ -411,15 +442,15 @@ msgstr "Briques"
 msgid "Blocks"
 msgstr "Blocs"
 
-#: craft_stations.lua:83 craft_stations.lua:927
+#: craft_stations.lua:83 craft_stations.lua:929
 msgid "Spinning Wheel"
 msgstr "Rouet"
 
-#: craft_stations.lua:86 craft_stations.lua:973
+#: craft_stations.lua:86 craft_stations.lua:975
 msgid "Loom"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:89 craft_stations.lua:1027
+#: craft_stations.lua:89 craft_stations.lua:1029
 msgid "Glass furnace"
 msgstr "Four à verre"
 
@@ -479,49 +510,65 @@ msgstr "Emplacement pour le martelage"
 msgid "Mortar and Pestle"
 msgstr "Mortier et pilon"
 
-#: craft_stations.lua:657
+#: craft_stations.lua:633
+msgid "Limestone"
+msgstr "Calcaire"
+
+#: craft_stations.lua:634 tools.lua:577 tools.lua:707
+msgid "Basalt"
+msgstr "basalte"
+
+#: craft_stations.lua:635 tools.lua:587 tools.lua:708
+msgid "Granite"
+msgstr "granite"
+
+#: craft_stations.lua:636
+#, fuzzy
+#| msgid "Wooden Door"
+msgid "Wooden"
+msgstr "Porte en bois"
+
+#: craft_stations.lua:658
 msgid "Wooden Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:669
-#, fuzzy
-#| msgid "Mortar and Pestle"
-msgid " Mortar and Pestle"
-msgstr "Mortier et pilon"
+#: craft_stations.lua:671
+msgid "@1 Mortar and Pestle"
+msgstr "Mortier et pilon en @1"
 
-#: craft_stations.lua:722
+#: craft_stations.lua:724
 msgid "Brick Maker's Bench"
 msgstr "Établi de fabrication de briques"
 
-#: craft_stations.lua:786
+#: craft_stations.lua:788
 msgid "Anvil"
 msgstr "Enclume"
 
-#: craft_stations.lua:875
+#: craft_stations.lua:877
 msgid "Masonry Bench"
 msgstr "Établi de maçonnerie"
 
-#: craft_stations.lua:1077
+#: craft_stations.lua:1079
 msgid "Weaving Frame"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:1142
+#: craft_stations.lua:1144
 msgid "Granite Grinding Stone"
 msgstr "Meule en granite"
 
-#: craft_stations.lua:1182
+#: craft_stations.lua:1184
 msgid "Limestone Grinding Stone"
 msgstr "Meule en calcaire"
 
-#: craft_stations.lua:1223
+#: craft_stations.lua:1225
 msgid "Basalt Grinding Stone"
 msgstr "Meule en basalte"
 
-#: craft_stations.lua:1265
+#: craft_stations.lua:1267
 msgid "Chopping Block"
 msgstr "Bloc de coupe"
 
-#: craft_stations.lua:1303
+#: craft_stations.lua:1305
 msgid "Hammering Block"
 msgstr "Bloc de martelage"
 
@@ -1340,6 +1387,10 @@ msgstr "Couper du bois tendre"
 msgid "Placed @1 adze"
 msgstr "Herminette en @1 placée"
 
+#: tools.lua:582
+msgid "Jade"
+msgstr "jade"
+
 #: tools.lua:617
 msgid "@1 Hammer"
 msgstr "Marteau en @1"
@@ -1488,6 +1539,27 @@ msgstr "Planches de plancher en bois"
 msgid "Wooden Stairs"
 msgstr "Escalier en bois"
 
+#~ msgctxt "@1 in @1 Mortar and Pestle"
+#~ msgid "Limestone"
+#~ msgstr "Calcaire"
+
+#, fuzzy
+#~| msgid "Basalt"
+#~ msgctxt "@1 in @1 Mortar and Pestle"
+#~ msgid "Basalt"
+#~ msgstr "basalte"
+
+#, fuzzy
+#~| msgid "Granite"
+#~ msgctxt "@1 in @1 Mortar and Pestle"
+#~ msgid "Granite"
+#~ msgstr "granite"
+
+#, fuzzy
+#~| msgid "Mortar and Pestle"
+#~ msgid " Mortar and Pestle"
+#~ msgstr "Mortier et pilon"
+
 #~ msgid "Soup"
 #~ msgstr "Soupe"
 
@@ -1502,9 +1574,6 @@ msgstr "Escalier en bois"
 
 #~ msgid "Granite Mortar and Pestle"
 #~ msgstr "Mortier et pilon en granite"
-
-#~ msgid "@1 Mortar and Pestle"
-#~ msgstr "Mortier et pilon en @1"
 
 #~ msgid "Status: needs a clear glass pane and a wick (coarse fibre)!"
 #~ msgstr "Statut: nécessite un carreau de verre transparent et une mèche (fibre grossière)!"

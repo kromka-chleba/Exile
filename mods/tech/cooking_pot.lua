@@ -909,7 +909,7 @@ local function pot_cook(pos, elapsed)
                 if kind == "Stew" then meta:set_string("type",kind) end
                 -- get proper description
                 local desc = S(
-                  "Bowl of @1 "..(kind == "Stew" and "Stew" or "Soup"),firstingr
+                  "Bowl of @1".. " " .. (kind == "Stew" and "Stew" or "Soup"),firstingr
                 )
                 meta:set_string("soup_desc", desc) -- used to name gotten soup
                 inv:set_list("main", inv_main)

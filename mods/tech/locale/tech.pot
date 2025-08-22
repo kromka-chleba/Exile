@@ -1,9 +1,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Luanti textdomain tech x.x.x\n"
+"Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 04:23+0200\n"
+"POT-Creation-Date: 2025-08-22 07:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,8 +12,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.4.2\n"
-"X-Poedit-KeywordsList: S\n"
+"X-Poedit-KeywordsList: S;SC:1c,2\n"
 "X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=TR:\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: backpacks.lua:17
@@ -48,172 +49,196 @@ msgstr ""
 msgid "Bed"
 msgstr ""
 
-#: bricks_and_mortar.lua:44
+#: bricks_and_mortar.lua:43
 msgid "Crushed Lime"
 msgstr ""
 
-#: bricks_and_mortar.lua:66
+#: bricks_and_mortar.lua:65
 msgid "Quicklime"
 msgstr ""
 
-#: bricks_and_mortar.lua:127
+#: bricks_and_mortar.lua:126
 msgid "Slaked Lime"
 msgstr ""
 
-#: bricks_and_mortar.lua:174
+#: bricks_and_mortar.lua:173
 msgid "Slaked Lime (ruined)"
 msgstr ""
 
-#: bricks_and_mortar.lua:212
+#: bricks_and_mortar.lua:211
 msgid "Lime Mortar Slab"
 msgstr ""
 
-#: bricks_and_mortar.lua:224 earthen_building.lua:402 fires.lua:235
+#: bricks_and_mortar.lua:223 earthen_building.lua:402 fires.lua:235
 #: fires.lua:301 fires.lua:359 fires.lua:896 fires.lua:946 pottery.lua:37
 msgid "Combine with another slab"
 msgstr ""
 
-#: bricks_and_mortar.lua:235
+#: bricks_and_mortar.lua:234
 msgid "Lime Mortar"
 msgstr ""
 
-#: bricks_and_mortar.lua:307
+#: bricks_and_mortar.lua:306
 msgid "Loose Bricks (unfired)"
 msgstr ""
 
-#: bricks_and_mortar.lua:359
+#: bricks_and_mortar.lua:358
 msgid "Loose Bricks"
 msgstr ""
 
-#: bricks_and_mortar.lua:403
+#: bricks_and_mortar.lua:402
 msgid "Brick and Mortar"
 msgstr ""
 
-#: bricks_and_mortar.lua:421
+#: bricks_and_mortar.lua:420
 msgid "Brick and Mortar Stair"
 msgstr ""
 
-#: bricks_and_mortar.lua:422
+#: bricks_and_mortar.lua:421
 msgid "Brick and Mortar Slab"
 msgstr ""
 
-#: bricks_and_mortar.lua:460
+#: bricks_and_mortar.lua:459
 msgid "Loose Roof Tile (unfired)"
 msgstr ""
 
-#: bricks_and_mortar.lua:536
+#: bricks_and_mortar.lua:535
 msgid "Loose Roof Tile"
 msgstr ""
 
-#: bricks_and_mortar.lua:602
+#: bricks_and_mortar.lua:601
 msgid "Roof Tile"
 msgstr ""
 
-#: bricks_and_mortar.lua:635
+#: bricks_and_mortar.lua:634
 msgid "Roof Tile (outer corner)"
 msgstr ""
 
-#: bricks_and_mortar.lua:669
+#: bricks_and_mortar.lua:668
 msgid "Roof Tile (inner corner)"
 msgstr ""
 
-#: bricks_and_mortar.lua:764
+#: bricks_and_mortar.lua:763
 msgid "Tile Block (unfired)"
 msgstr ""
 
-#: bricks_and_mortar.lua:798
+#: bricks_and_mortar.lua:797
 msgid "Tile Block (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:815
+#: bricks_and_mortar.lua:814
 msgid "Tile Block"
 msgstr ""
 
-#: bricks_and_mortar.lua:845
+#: bricks_and_mortar.lua:844
 msgid "Tile Stair (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:846
+#: bricks_and_mortar.lua:845
 msgid "Tile Slab (Loose)"
 msgstr ""
 
-#: bricks_and_mortar.lua:881
+#: bricks_and_mortar.lua:880
 msgid "Tile Stair"
 msgstr ""
 
-#: bricks_and_mortar.lua:882
+#: bricks_and_mortar.lua:881
 msgid "Tile Slab"
 msgstr ""
 
-#: bricks_and_mortar.lua:914
+#: bricks_and_mortar.lua:913
 msgid "@1 Brick with Mortar"
 msgstr ""
 
-#: bricks_and_mortar.lua:926
+#: bricks_and_mortar.lua:925
 msgid "@1 Block with Mortar"
 msgstr ""
 
-#: bricks_and_mortar.lua:963
+#: bricks_and_mortar.lua:962
 msgid "@1 Brick with Mortar Stair"
 msgstr ""
 
-#: bricks_and_mortar.lua:964
+#: bricks_and_mortar.lua:963
 msgid "@1 Brick with Mortar Slab"
 msgstr ""
 
-#: bricks_and_mortar.lua:981
+#: bricks_and_mortar.lua:980
 msgid "@1 Block with Mortar Stair"
 msgstr ""
 
-#: bricks_and_mortar.lua:982
+#: bricks_and_mortar.lua:981
 msgid "@1 Block with Mortar Slab"
 msgstr ""
 
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
 #: bricks_and_mortar.lua:992
+msgctxt "tech:brick"
 msgid "Claystone"
 msgstr ""
 
-#: bricks_and_mortar.lua:993
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:994
+msgctxt "tech:brick"
 msgid "Siltstone"
 msgstr ""
 
-#: bricks_and_mortar.lua:994
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:996
+msgctxt "tech:brick"
 msgid "Sandstone"
 msgstr ""
 
-#: bricks_and_mortar.lua:995
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:998
+msgctxt "tech:brick"
 msgid "Conglomerate"
 msgstr ""
 
-#: bricks_and_mortar.lua:999
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1003
+msgctxt "tech:brick"
 msgid "Coquina"
 msgstr ""
 
-#: bricks_and_mortar.lua:1000
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1005
+msgctxt "tech:brick"
 msgid "Limestone"
 msgstr ""
 
-#: bricks_and_mortar.lua:1001
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1007
+msgctxt "tech:brick"
 msgid "Ironstone"
 msgstr ""
 
-#: bricks_and_mortar.lua:1002 tools.lua:587 tools.lua:708
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1009
+msgctxt "tech:brick"
 msgid "Granite"
 msgstr ""
 
-#: bricks_and_mortar.lua:1003 tools.lua:577 tools.lua:707
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1011
+msgctxt "tech:brick"
 msgid "Basalt"
 msgstr ""
 
-#: bricks_and_mortar.lua:1004
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1013
+msgctxt "tech:brick"
 msgid "Scoria"
 msgstr ""
 
-#: bricks_and_mortar.lua:1005
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1015
+msgctxt "tech:brick"
 msgid "Gneiss"
 msgstr ""
 
-#: bricks_and_mortar.lua:1006 tools.lua:582
+#. TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+#: bricks_and_mortar.lua:1017
+msgctxt "tech:brick"
 msgid "Jade"
 msgstr ""
 
@@ -393,7 +418,7 @@ msgstr ""
 msgid "Crafting"
 msgstr ""
 
-#: craft_stations.lua:60 craft_stations.lua:830
+#: craft_stations.lua:60 craft_stations.lua:832
 msgid "Carpentry Bench"
 msgstr ""
 
@@ -405,15 +430,15 @@ msgstr ""
 msgid "Blocks"
 msgstr ""
 
-#: craft_stations.lua:83 craft_stations.lua:927
+#: craft_stations.lua:83 craft_stations.lua:929
 msgid "Spinning Wheel"
 msgstr ""
 
-#: craft_stations.lua:86 craft_stations.lua:973
+#: craft_stations.lua:86 craft_stations.lua:975
 msgid "Loom"
 msgstr ""
 
-#: craft_stations.lua:89 craft_stations.lua:1027
+#: craft_stations.lua:89 craft_stations.lua:1029
 msgid "Glass furnace"
 msgstr ""
 
@@ -473,47 +498,63 @@ msgstr ""
 msgid "Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:657
+#: craft_stations.lua:633
+msgid "Limestone"
+msgstr ""
+
+#: craft_stations.lua:634 tools.lua:577 tools.lua:707
+msgid "Basalt"
+msgstr ""
+
+#: craft_stations.lua:635 tools.lua:587 tools.lua:708
+msgid "Granite"
+msgstr ""
+
+#: craft_stations.lua:636
+msgid "Wooden"
+msgstr ""
+
+#: craft_stations.lua:658
 msgid "Wooden Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:669
-msgid " Mortar and Pestle"
+#: craft_stations.lua:671
+msgid "@1 Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:722
+#: craft_stations.lua:724
 msgid "Brick Maker's Bench"
 msgstr ""
 
-#: craft_stations.lua:786
+#: craft_stations.lua:788
 msgid "Anvil"
 msgstr ""
 
-#: craft_stations.lua:875
+#: craft_stations.lua:877
 msgid "Masonry Bench"
 msgstr ""
 
-#: craft_stations.lua:1077
+#: craft_stations.lua:1079
 msgid "Weaving Frame"
 msgstr ""
 
-#: craft_stations.lua:1142
+#: craft_stations.lua:1144
 msgid "Granite Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1182
+#: craft_stations.lua:1184
 msgid "Limestone Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1223
+#: craft_stations.lua:1225
 msgid "Basalt Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1265
+#: craft_stations.lua:1267
 msgid "Chopping Block"
 msgstr ""
 
-#: craft_stations.lua:1303
+#: craft_stations.lua:1305
 msgid "Hammering Block"
 msgstr ""
 
@@ -1314,6 +1355,10 @@ msgstr ""
 
 #: tools.lua:527
 msgid "Placed @1 adze"
+msgstr ""
+
+#: tools.lua:582
+msgid "Jade"
 msgstr ""
 
 #: tools.lua:617

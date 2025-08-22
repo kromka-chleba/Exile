@@ -28,8 +28,7 @@
 
 -- Internationalization
 local S = tech.S
-local FS = tech.FS
-
+local SC = tech.SC
 
 local random = math.random
 
@@ -989,21 +988,33 @@ end
 
 
 local sediments = {
-    {"claystone", S("Claystone"), 3},
-    {"siltstone", S("Siltstone"), 3},
-    {"sandstone", S("Sandstone"), 3},
-    {"conglomerate", S("Conglomerate"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"claystone", SC("tech:brick", "Claystone"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"siltstone", SC("tech:brick", "Siltstone"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"sandstone", SC("tech:brick", "Sandstone"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"conglomerate", SC("tech:brick", "Conglomerate"), 3},
 }
 
 local stones = {
-    {"coquina", S("Coquina"), 3},
-    {"limestone", S("Limestone"), 3},
-    {"ironstone", S("Ironstone"), 3},
-    {"granite", S("Granite"), 1},
-    {"basalt", S("Basalt"), 2},
-    {"scoria", S("Scoria"), 3},
-    {"gneiss", S("Gneiss"), 1},
-    {"jade", S("Jade"), 1},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"coquina", SC("tech:brick", "Coquina"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"limestone", SC("tech:brick", "Limestone"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"ironstone", SC("tech:brick", "Ironstone"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"granite", SC("tech:brick", "Granite"), 1},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"basalt", SC("tech:brick", "Basalt"), 2},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"scoria", SC("tech:brick", "Scoria"), 3},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"gneiss", SC("tech:brick", "Gneiss"), 1},
+    -- TR: in ""@1 Brick with mortar" or  ""@1 Block with mortar"
+    {"jade", SC("tech:brick", "Jade"), 1},
 }
 local bmb = 'brick_makers_bench'
 local bmb_blocks = 'brick_makers_bench_blocks'

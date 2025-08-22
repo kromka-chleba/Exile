@@ -1,4 +1,5 @@
 # textdomain: tech
+
 # backpacks.lua
 Woven Bag=
 Wicker Bag=
@@ -43,6 +44,8 @@ Siltstone=
 Sandstone=
 Conglomerate=
 Coquina=
+
+# textdomain: tech:bricks_and_mortar.lua
 # bricks_and_mortar.lua
 Limestone=
 Ironstone=
@@ -52,6 +55,8 @@ Combine with another slab=
 Granite=
 Basalt=
 Jade=
+
+# textdomain: tech
 # clothing.lua
 Woven Hat=
 Sun Hat=
