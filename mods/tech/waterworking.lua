@@ -51,14 +51,18 @@ end
 
 -- Global shared datas ---------------------------------------------------------
 
--- gives matching string for parameters
--- used to avoir translation string looking like "@1 @2"
--- So we can keep using the full string in translation
-local to_s = {
-    freshwater = "Freshwater",
-    salt_water = "Salt Water",
-    clear = "Clear",
-    green = "Green"
+local liquids = {
+    -- TR: @1 in "<container> with @1" / Ex: "Water Pot with Freshwater"
+    freshwater = S("Freshwater"),
+    -- TR: @1 in "<container> with @1" / Ex: "Water Pot with Salt Water"
+    salt_water = S("Salt Water"),
+}
+
+local glass_type ={
+    -- TR: @1 in  "@1 <container>" / Ex: "Clear Glass Bottle"
+    clear = S("Clear Glass"),
+    -- TR: @1 in  "@1 <container>" / Ex: "Green Glass Bottle"
+    green = S("Green Glass")
 }
 
 local mats_def = {
@@ -250,8 +254,13 @@ local function get_base_def(mat, container, liquid)
     local def = {
         source = "nodes_nature:".. liquid .."_source",
         empty = "tech:".. mat .. "_" .. container,
-        description = S("@1 " .. to_s[container]
-                                  .. " with " .. to_s[liquid], mats_def[mat].desc),
+        -- TR: @1 is the material
+        -- TR: @2 is the container
+        -- TR: @3 is the liquid
+        -- TR: Ex: Clay Water Pot with Freshwater
+        description = S("@1 @2 with @3", mats_def[mat].desc,
+                                         containers[container],
+                                         liquids[liquid]),
         groups = {dig_immediate = 2},
         tiles = tech.get_stored_liquid_tiles(mat, container, "^tech_pot_water.png"),
         node_box = nodeboxes[container]
@@ -380,7 +389,7 @@ local bottle_base_properties = {
 -- TODO add green/clear translation and maybe functions to make them easier
 for _, glass in pairs ({"green", "clear"}) do
     local empty_def = {
-        description = S(to_s[glass] .. " " .. "Glass Bottle"),
+        description = S("@1 Bottle", glass_type[glass]),
         tiles = {"tech_bottle_".. glass .. ".png"},
         inventory_image = "tech_bottle_".. glass .. "_icon.png",
         paramtype = "light",
@@ -434,9 +443,8 @@ for _, glass in pairs ({"green", "clear"}) do
         local filled_def = {
             source = "nodes_nature:".. liquid .."_source",
             empty = "tech:glass_bottle_" .. glass,
-            description = S(to_s[glass]
-                            .. " Glass Bottle With "
-                            ..to_s[liquid]),
+            description = S("@1 Bottle With @2", glass_type[glass],
+                                                 liquids[liquid]),
             groups = {dig_immediate = 2},
             tiles  = {tile},
             inventory_image = "tech_bottle_icon_water.png"
