@@ -1,1190 +1,1627 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Luanti textdomain tech x.x.x\n"
+"Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 02:09+0000\n"
-"PO-Revision-Date: 2025-08-22 02:09+0000\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2025-08-22 04:52+0200\n"
+"PO-Revision-Date: 2025-08-22 04:53+0200\n"
+"Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: ltt_convert 0.2.1\n"
+"X-Generator: Poedit 3.4.2\n"
+"X-Poedit-KeywordsList: S;FS\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SearchPath-0: .\n"
 
+#: backpacks.lua:17
 msgid "Woven Bag"
 msgstr "Sac tissé"
 
+#: backpacks.lua:41
 msgid "Wicker Bag"
 msgstr "Sac en osier"
 
+#: backpacks.lua:66
 msgid "Fabric Bag"
 msgstr "Sac en tissu"
 
+#: beds.lua:17
 msgid "Sleeping Spot"
 msgstr "Coin pour dormir"
 
+#: beds.lua:67
 msgid "Sleeping Mat"
 msgstr "Tapis de sol"
 
+#: beds.lua:104
 msgid "Primitive Bed"
 msgstr "Lit primitif"
 
+#: beds.lua:147
 msgid "Mattress"
 msgstr "Matelas"
 
+#: beds.lua:185
 msgid "Bed"
 msgstr "Lit"
 
+#: bricks_and_mortar.lua:44
 msgid "Crushed Lime"
 msgstr "Chaux concassée"
 
+#: bricks_and_mortar.lua:66
 msgid "Quicklime"
 msgstr "Chaux vive"
 
+#: bricks_and_mortar.lua:127
 msgid "Slaked Lime"
 msgstr "Chaux hydratée"
 
+#: bricks_and_mortar.lua:174
 msgid "Slaked Lime (ruined)"
 msgstr "Chaux hydratée (abîmée)"
 
+#: bricks_and_mortar.lua:212
 msgid "Lime Mortar Slab"
 msgstr "Dalle de mortier de chaux"
 
-msgid "Lime Mortar"
-msgstr "Mortier de chaux"
-
-msgid "Loose Bricks (unfired)"
-msgstr "Briques détachées (non cuites)"
-
-msgid "Loose Bricks"
-msgstr "Briques détachées"
-
-msgid "Brick and Mortar"
-msgstr "Briques et mortier"
-
-msgid "Brick and Mortar Stair"
-msgstr "Escalier en briques et mortier"
-
-msgid "Brick and Mortar Slab"
-msgstr "Dalle en briques et mortier"
-
-msgid "Loose Roof Tile (unfired)"
-msgstr "Tuile de toit détachées (non cuite)"
-
-msgid "Loose Roof Tile"
-msgstr "Tuile de toit détachée"
-
-msgid "Roof Tile"
-msgstr "Tuile de toit"
-
-msgid "Roof Tile (outer corner)"
-msgstr "Tuile de toit (coin extérieur)"
-
-msgid "Roof Tile (inner corner)"
-msgstr "Tuile de toit (coin intérieur)"
-
-msgid "Tile Block (unfired)"
-msgstr "Bloc de tuiles (non cuit)"
-
-msgid "Tile Block (Loose)"
-msgstr ""
-
-msgid "Tile Block"
-msgstr "Bloc de tuiles"
-
-msgid "Tile Stair (Loose)"
-msgstr ""
-
-msgid "Tile Slab (Loose)"
-msgstr ""
-
-msgid "Tile Stair"
-msgstr "Escalier en tuiles"
-
-msgid "Tile Slab"
-msgstr "Dalle en tuiles"
-
-msgid "@1 Brick with Mortar"
-msgstr "Brique de @1 avec mortier"
-
-msgid "@1 Block with Mortar"
-msgstr "Bloc de @1 avec mortier"
-
-msgid "@1 Brick with Mortar Stair"
-msgstr "Escalier en brique de @1 avec mortier"
-
-msgid "@1 Brick with Mortar Slab"
-msgstr "Dalle en brique de @1 avec mortier"
-
-msgid "@1 Block with Mortar Stair"
-msgstr "Escalier en bloc de @1 avec mortier"
-
-msgid "@1 Block with Mortar Slab"
-msgstr "Dalle en bloc de @1 avec mortier"
-
-msgid "Claystone"
-msgstr "Argilite"
-
-msgid "Siltstone"
-msgstr "Lutite"
-
-msgid "Sandstone"
-msgstr "Grès"
-
-msgid "Conglomerate"
-msgstr "Conglomérat"
-
-msgid "Limestone"
-msgstr "Calcaire"
-
-msgid "Ironstone"
-msgstr "Fer"
-
-msgid "Granite"
-msgstr "granite"
-
-msgid "Basalt"
-msgstr "basalte"
-
-msgid "Gneiss"
-msgstr "gneiss"
-
-msgid "Jade"
-msgstr "jade"
-
+#: bricks_and_mortar.lua:224 earthen_building.lua:402 fires.lua:235
+#: fires.lua:301 fires.lua:359 fires.lua:896 fires.lua:946 pottery.lua:37
 msgid "Combine with another slab"
 msgstr "Combiner avec une autre dalle"
 
+#: bricks_and_mortar.lua:235
+msgid "Lime Mortar"
+msgstr "Mortier de chaux"
+
+#: bricks_and_mortar.lua:307
+msgid "Loose Bricks (unfired)"
+msgstr "Briques détachées (non cuites)"
+
+#: bricks_and_mortar.lua:359
+msgid "Loose Bricks"
+msgstr "Briques détachées"
+
+#: bricks_and_mortar.lua:403
+msgid "Brick and Mortar"
+msgstr "Briques et mortier"
+
+#: bricks_and_mortar.lua:421
+msgid "Brick and Mortar Stair"
+msgstr "Escalier en briques et mortier"
+
+#: bricks_and_mortar.lua:422
+msgid "Brick and Mortar Slab"
+msgstr "Dalle en briques et mortier"
+
+#: bricks_and_mortar.lua:460
+msgid "Loose Roof Tile (unfired)"
+msgstr "Tuile de toit détachées (non cuite)"
+
+#: bricks_and_mortar.lua:536
+msgid "Loose Roof Tile"
+msgstr "Tuile de toit détachée"
+
+#: bricks_and_mortar.lua:602
+msgid "Roof Tile"
+msgstr "Tuile de toit"
+
+#: bricks_and_mortar.lua:635
+msgid "Roof Tile (outer corner)"
+msgstr "Tuile de toit (coin extérieur)"
+
+#: bricks_and_mortar.lua:669
+msgid "Roof Tile (inner corner)"
+msgstr "Tuile de toit (coin intérieur)"
+
+#: bricks_and_mortar.lua:764
+msgid "Tile Block (unfired)"
+msgstr "Bloc de tuiles (non cuit)"
+
+#: bricks_and_mortar.lua:798
+msgid "Tile Block (Loose)"
+msgstr ""
+
+#: bricks_and_mortar.lua:815
+msgid "Tile Block"
+msgstr "Bloc de tuiles"
+
+#: bricks_and_mortar.lua:845
+msgid "Tile Stair (Loose)"
+msgstr ""
+
+#: bricks_and_mortar.lua:846
+msgid "Tile Slab (Loose)"
+msgstr ""
+
+#: bricks_and_mortar.lua:881
+msgid "Tile Stair"
+msgstr "Escalier en tuiles"
+
+#: bricks_and_mortar.lua:882
+msgid "Tile Slab"
+msgstr "Dalle en tuiles"
+
+#: bricks_and_mortar.lua:914
+msgid "@1 Brick with Mortar"
+msgstr "Brique de @1 avec mortier"
+
+#: bricks_and_mortar.lua:926
+msgid "@1 Block with Mortar"
+msgstr "Bloc de @1 avec mortier"
+
+#: bricks_and_mortar.lua:963
+msgid "@1 Brick with Mortar Stair"
+msgstr "Escalier en brique de @1 avec mortier"
+
+#: bricks_and_mortar.lua:964
+msgid "@1 Brick with Mortar Slab"
+msgstr "Dalle en brique de @1 avec mortier"
+
+#: bricks_and_mortar.lua:981
+msgid "@1 Block with Mortar Stair"
+msgstr "Escalier en bloc de @1 avec mortier"
+
+#: bricks_and_mortar.lua:982
+msgid "@1 Block with Mortar Slab"
+msgstr "Dalle en bloc de @1 avec mortier"
+
+#: bricks_and_mortar.lua:992
+msgid "Claystone"
+msgstr "Argilite"
+
+#: bricks_and_mortar.lua:993
+msgid "Siltstone"
+msgstr "Lutite"
+
+#: bricks_and_mortar.lua:994
+msgid "Sandstone"
+msgstr "Grès"
+
+#: bricks_and_mortar.lua:995
+msgid "Conglomerate"
+msgstr "Conglomérat"
+
+#: bricks_and_mortar.lua:999
+msgid "Coquina"
+msgstr ""
+
+#: bricks_and_mortar.lua:1000
+msgid "Limestone"
+msgstr "Calcaire"
+
+#: bricks_and_mortar.lua:1001
+msgid "Ironstone"
+msgstr "Fer"
+
+#: bricks_and_mortar.lua:1002 tools.lua:587 tools.lua:708
+msgid "Granite"
+msgstr "granite"
+
+#: bricks_and_mortar.lua:1003 tools.lua:577 tools.lua:707
+msgid "Basalt"
+msgstr "basalte"
+
+#: bricks_and_mortar.lua:1004
+msgid "Scoria"
+msgstr ""
+
+#: bricks_and_mortar.lua:1005
+msgid "Gneiss"
+msgstr "gneiss"
+
+#: bricks_and_mortar.lua:1006 tools.lua:582
+msgid "Jade"
+msgstr "jade"
+
+#: clothing.lua:20
 msgid "Woven Hat"
 msgstr "Chapeau tissé"
 
+#: clothing.lua:40
 msgid "Sun Hat"
 msgstr "Chapeau de soleil"
 
+#: clothing.lua:60
 msgid "Woven Sandals"
 msgstr "Sandales tissées"
 
+#: clothing.lua:81
 msgid "Woven Cape"
 msgstr "Cape tissée"
 
+#: clothing.lua:101
 msgid "Woven Poncho"
 msgstr "Poncho tissé"
 
+#: clothing.lua:121
 msgid "Woven Leggings"
 msgstr "Jambières tissées"
 
+#: clothing.lua:140
 msgid "Woven Blanket"
 msgstr "Couverture tissée"
 
+#: clothing.lua:166
 msgid "Light Fabric Hat"
 msgstr "Chapeau en tissu léger"
 
+#: clothing.lua:186
 msgid "Thick Fabric Hat"
 msgstr "Chapeau en tissu épais"
 
+#: clothing.lua:206
 msgid "Light Fabric Cape"
 msgstr "Cape en tissu léger"
 
+#: clothing.lua:225
 msgid "Thick Fabric Cape"
 msgstr "Cape en tissu épais"
 
+#: clothing.lua:245
 msgid "Light Fabric Trousers"
 msgstr "Pantalon en tissu léger"
 
+#: clothing.lua:265
 msgid "Thick Fabric Trousers"
 msgstr "Pantalon en tissu épais"
 
+#: clothing.lua:285
 msgid "Light Fabric Tunic"
 msgstr "Tunique en tissu léger"
 
+#: clothing.lua:305
 msgid "Thick Fabric Tunic"
 msgstr "Tunique en tissu épais"
 
-msgid "Cooking Pot (unfired)"
-msgstr "Marmite (non cuite)"
-
-msgid "Bowl (unfired)"
-msgstr "Bol (non cuit)"
-
-msgid "Cooking Pot"
-msgstr "Marmite"
-
-msgid "Bowl"
-msgstr "Bol"
-
-msgid "Empty Bowl"
-msgstr "Bol vide"
-
-msgid "Bowl of @1 Stew"
-msgstr ""
-
+#: cooking_pot.lua:298
 msgid "Bowl of @1 Soup"
 msgstr "Bol de soupe de @1"
 
+#: cooking_pot.lua:299
+msgid "Bowl of @1 Stew"
+msgstr ""
+
+#: cooking_pot.lua:299
+#, fuzzy
+#| msgid "Bowl of @1 Soup"
+msgid "Bowl of @1"
+msgstr "Bol de soupe de @1"
+
+#: cooking_pot.lua:435
+msgid "Empty Bowl"
+msgstr "Bol vide"
+
+#: cooking_pot.lua:499
+msgid "Bowl"
+msgstr "Bol"
+
+#: cooking_pot.lua:782 cooking_pot.lua:1099
 msgid "Water"
 msgstr ""
 
+#: cooking_pot.lua:820 cooking_pot.lua:917 cooking_pot.lua:1099
 msgid "Contents: @1"
 msgstr "Contenu: @1"
 
-msgid "Contents: <EMPTY>"
-msgstr "Contenu: <VIDE>"
+#: cooking_pot.lua:912
+#, fuzzy
+#| msgid "Bowl of @1 Soup"
+msgid "Bowl of @1 "
+msgstr "Bol de soupe de @1"
 
-msgid "Leftover: @1%"
-msgstr ""
-
-msgid "Soup"
-msgstr "Soupe"
-
-msgid "Stew"
-msgstr ""
-
-msgid "Unprepared Pot"
-msgstr "Marmite"
-
-msgid "Soup Pot"
-msgstr "Marmite"
-
-msgid "Status: @1 pot"
-msgstr ""
-
-msgid "Status: @1 pot (cooking)"
-msgstr ""
-
+#: cooking_pot.lua:918
 msgid "Status: @1 pot (finished)"
 msgstr ""
 
+#: cooking_pot.lua:927
+msgid "Status: @1 pot (cooking)"
+msgstr ""
+
+#: cooking_pot.lua:953
+msgid "Status: @1 pot"
+msgstr ""
+
+#: cooking_pot.lua:977
+msgid "Cooking Pot"
+msgstr "Marmite"
+
+#: cooking_pot.lua:1008
 msgid "This pot is full and heavy. Spill it?"
 msgstr "Cette marmite est pleine et lourde. La renverser?"
 
+#: cooking_pot.lua:1072
+msgid "Unprepared Pot"
+msgstr "Marmite"
+
+#: cooking_pot.lua:1073
+msgid "Contents: <EMPTY>"
+msgstr "Contenu: <VIDE>"
+
+#: cooking_pot.lua:1074
 msgid "Note: Add water to pot to make soup"
 msgstr "Remarque: Ajoutez de l'eau à la marmite pour faire de la soupe"
 
-msgid "Note: Add food to the pot to make soup"
-msgstr "Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe"
-
+#: cooking_pot.lua:1079
 msgid "Note: Use a Bowl to Get!"
 msgstr ""
 
-msgid "Eat"
-msgstr "Manger"
+#: cooking_pot.lua:1080
+msgid "Leftover: @1%"
+msgstr ""
 
-msgid "Drink"
-msgstr "Boire"
+#: cooking_pot.lua:1098
+msgid "Soup Pot"
+msgstr "Marmite"
 
-msgid "Create"
-msgstr "Créer"
+#: cooking_pot.lua:1100
+msgid "Note: Add food to the pot to make soup"
+msgstr "Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe"
 
+#: cooking_pot.lua:1201
+msgid "Cooking Pot (unfired)"
+msgstr "Marmite (non cuite)"
+
+#: cooking_pot.lua:1254
+msgid "Bowl (unfired)"
+msgstr "Bol (non cuit)"
+
+#: craft_stations.lua:31 craft_stations.lua:251
 msgid "Crafting Spot"
 msgstr "Artisanat de base"
 
+#: craft_stations.lua:36
 msgid "Weaving"
 msgstr "Tissage"
 
+#: craft_stations.lua:40 craft_stations.lua:56 craft_stations.lua:78
+#: craft_stations.lua:107 craft_stations.lua:122 craft_stations.lua:129
+#: craft_stations.lua:140 craft_stations.lua:148
 msgid "Mixing"
 msgstr "Mélange"
 
+#: craft_stations.lua:43
 msgid "Grinding stone"
 msgstr "Meule"
 
-msgid "Mortar and Pestle"
+#: craft_stations.lua:46
+#, fuzzy
+#| msgid "Mortar and Pestle"
+msgid "Mortar and pestle"
 msgstr "Mortier et pilon"
 
-msgid "Limestone Mortar and Pestle"
-msgstr "Mortier et pilon en calcaire"
-
-msgid "Basalt Mortar and Pestle"
-msgstr "Mortier et pilon en basalte"
-
-msgid "Granite Mortar and Pestle"
-msgstr "Mortier et pilon en granite"
-
-msgid "@1 Mortar and Pestle"
-msgstr "Mortier et pilon en @1"
-
-msgid "Wooden Mortar and Pestle"
-msgstr ""
-
+#: craft_stations.lua:52 craft_stations.lua:66 craft_stations.lua:94
+#: craft_stations.lua:112 craft_stations.lua:125 craft_stations.lua:133
+#: craft_stations.lua:144
 msgid "Crafting"
 msgstr "Artisanat"
 
+#: craft_stations.lua:60 craft_stations.lua:830
 msgid "Carpentry Bench"
 msgstr "Établi de menuiserie"
 
+#: craft_stations.lua:70
 msgid "Bricks"
 msgstr "Briques"
 
+#: craft_stations.lua:74
 msgid "Blocks"
 msgstr "Blocs"
 
+#: craft_stations.lua:83 craft_stations.lua:927
 msgid "Spinning Wheel"
 msgstr "Rouet"
 
+#: craft_stations.lua:86 craft_stations.lua:973
 msgid "Loom"
 msgstr "Métier à tisser"
 
+#: craft_stations.lua:89 craft_stations.lua:1027
 msgid "Glass furnace"
 msgstr "Four à verre"
 
+#: craft_stations.lua:99
 msgid "Pottery"
 msgstr "Poterie"
 
+#: craft_stations.lua:104
 msgid "Tools"
 msgstr "Outils"
 
+#: craft_stations.lua:115
 msgid "Stations"
 msgstr "Stations"
 
-msgid "Agriculture"
-msgstr "Agriculture"
-
-msgid "Pickaxe"
-msgstr "Pioche"
-
-msgid "Breadmaking"
-msgstr "Fabrication du pain"
-
-msgid "Cannot place here! Needs a whole block of: "
-msgstr "Impossible de placer ici! Besoin d'un bloc entier de:"
-
-msgid "Mixing Spot"
-msgstr "Emplacement pour le mélange"
-
-msgid "Threshing Spot"
-msgstr "Emplacement pour le battage"
-
-msgid "Weaving Spot"
-msgstr "Emplacement pour le tissage"
-
-msgid "Grinding Spot"
-msgstr "Emplacement pour le meulage"
-
-msgid "Hammering Spot"
-msgstr "Emplacement pour le martelage"
-
-msgid "Chopping Block"
-msgstr "Bloc de coupe"
-
-msgid "Anvil"
-msgstr "Enclume"
-
-msgid "Masonry Bench"
-msgstr "Établi de maçonnerie"
-
-msgid "Brick Maker's Bench"
-msgstr "Établi de fabrication de briques"
-
-msgid "Weaving Frame"
-msgstr "Métier à tisser"
-
-msgid "Granite Grinding Stone"
-msgstr "Meule en granite"
-
-msgid "Limestone Grinding Stone"
-msgstr "Meule en calcaire"
-
-msgid "Basalt Grinding Stone"
-msgstr "Meule en basalte"
-
-msgid "Hammering Block"
-msgstr "Bloc de martelage"
-
+#: craft_stations.lua:118 earthen_building.lua:208
 msgid "Wattle"
 msgstr "Clayonnage"
 
+#: craft_stations.lua:136
+msgid "Agriculture"
+msgstr "Agriculture"
+
+#: craft_stations.lua:153
+msgid "Pickaxe"
+msgstr "Pioche"
+
+#: craft_stations.lua:157
+msgid "Breadmaking"
+msgstr "Fabrication du pain"
+
+#: craft_stations.lua:230
+msgid "Cannot place here! Needs a whole block of: "
+msgstr "Impossible de placer ici! Besoin d'un bloc entier de:"
+
+#: craft_stations.lua:290
+msgid "Mixing Spot"
+msgstr "Emplacement pour le mélange"
+
+#: craft_stations.lua:328
+msgid "Threshing Spot"
+msgstr "Emplacement pour le battage"
+
+#: craft_stations.lua:375
+msgid "Weaving Spot"
+msgstr "Emplacement pour le tissage"
+
+#: craft_stations.lua:418
+msgid "Grinding Spot"
+msgstr "Emplacement pour le meulage"
+
+#: craft_stations.lua:463
+msgid "Hammering Spot"
+msgstr "Emplacement pour le martelage"
+
+#: craft_stations.lua:572
+msgid "Mortar and Pestle"
+msgstr "Mortier et pilon"
+
+#: craft_stations.lua:657
+msgid "Wooden Mortar and Pestle"
+msgstr ""
+
+#: craft_stations.lua:669
+#, fuzzy
+#| msgid "Mortar and Pestle"
+msgid " Mortar and Pestle"
+msgstr "Mortier et pilon"
+
+#: craft_stations.lua:722
+msgid "Brick Maker's Bench"
+msgstr "Établi de fabrication de briques"
+
+#: craft_stations.lua:786
+msgid "Anvil"
+msgstr "Enclume"
+
+#: craft_stations.lua:875
+msgid "Masonry Bench"
+msgstr "Établi de maçonnerie"
+
+#: craft_stations.lua:1077
+msgid "Weaving Frame"
+msgstr "Métier à tisser"
+
+#: craft_stations.lua:1142
+msgid "Granite Grinding Stone"
+msgstr "Meule en granite"
+
+#: craft_stations.lua:1182
+msgid "Limestone Grinding Stone"
+msgstr "Meule en calcaire"
+
+#: craft_stations.lua:1223
+msgid "Basalt Grinding Stone"
+msgstr "Meule en basalte"
+
+#: craft_stations.lua:1265
+msgid "Chopping Block"
+msgstr "Bloc de coupe"
+
+#: craft_stations.lua:1303
+msgid "Hammering Block"
+msgstr "Bloc de martelage"
+
+#: doors.lua:16
 msgid "Wattle Door"
 msgstr "Porte en clayonnage"
 
+#: doors.lua:25
 msgid "Wattle Trapdoor"
 msgstr "Trappe en clayonnage"
 
+#: doors.lua:43
 msgid "Wooden Door"
 msgstr "Porte en bois"
 
+#: doors.lua:53
 msgid "Wooden Trapdoor"
 msgstr "Trappe en bois"
 
+#: doors.lua:70
 msgid "Iron Door"
 msgstr "Porte en fer"
 
+#: doors.lua:79
 msgid "Iron Trapdoor"
 msgstr "Trappe en fer"
 
+#: doors.lua:96
 msgid "Glass Door"
 msgstr "Porte en verre"
 
+#: doors.lua:106
 msgid "Glass Trapdoor"
 msgstr "Trappe en verre"
 
+#: doors.lua:120
 msgid "Clear Glass Door"
 msgstr "Porte en verre transparent"
 
+#: doors.lua:130
 msgid "Clear Glass Trapdoor"
 msgstr "Tappe en verre transparent"
 
+#: drugs.lua:26
 msgid "Herbal Medicine"
 msgstr "Médecine à base de plantes"
 
+#: drugs.lua:30 drugs.lua:66 food_crafts.lua:109 food_crafts.lua:129
+#: food_crafts.lua:166 food_crafts.lua:184 food_crafts.lua:220
+#: food_crafts.lua:238
+msgid "Eat"
+msgstr "Manger"
+
+#: drugs.lua:62
 msgid "Tiku (stimulant)"
 msgstr "Tiku (stimulant)"
 
+#: drugs.lua:70
 msgid "Vinegar"
 msgstr "Vinaigre"
 
+#: drugs.lua:71 drugs.lua:88
 msgid "Tang Vinegar"
 msgstr "Vinaigre de Tang"
 
+#: drugs.lua:108
 msgid "Tang Vinegar with Mother"
 msgstr "Vinaigre de Tang avec mère"
 
+#: drugs.lua:148
 msgid "Mother of Tang"
 msgstr "Mère de Tang"
 
+#: drugs.lua:151
 msgid "Infect Other Pots"
 msgstr "Infecter d'autres pots"
 
+#: drugs.lua:227
 msgid "Tang"
 msgstr "Tang"
 
+#: drugs.lua:261
+msgid "Drink"
+msgstr "Boire"
+
+#: drugs.lua:289
 msgid "Tang (unfermented)"
 msgstr "Tang (non fermenté)"
 
+#: earthen_building.lua:20
 msgid "Drystack"
 msgstr "Pierres sèches"
 
+#: earthen_building.lua:40
 msgid "Drystack Stair"
 msgstr "Escalier en pierres sèches"
 
+#: earthen_building.lua:41
 msgid "Drystack Slab"
 msgstr "Dalle en pierres sèches"
 
+#: earthen_building.lua:52
 msgid "Mudbrick"
 msgstr "Briques de terre crue"
 
+#: earthen_building.lua:69
 msgid "Mudbrick Stair"
 msgstr "Escalier en briques de terre crue"
 
+#: earthen_building.lua:70
 msgid "Mudbrick Slab"
 msgstr "Dalle eb briques de terre crue"
 
+#: earthen_building.lua:81
 msgid "Rammed Earth"
 msgstr "Terre battue"
 
+#: earthen_building.lua:113
 msgid "Rammed Earth Stair"
 msgstr "Escalier en terre battue"
 
+#: earthen_building.lua:114
 msgid "Rammed Earth Slab"
 msgstr "Dalle en terre battue"
 
+#: earthen_building.lua:139
 msgid "Wicker well lining"
 msgstr "Doublure de puits en osier"
 
+#: earthen_building.lua:140
+#, fuzzy
+#| msgid "Wicker well lining"
+msgid "Wet wicker well lining"
+msgstr "Doublure de puits en osier"
+
+#: earthen_building.lua:141
+#, fuzzy
+#| msgid "Wicker well lining"
+msgid "Salty wet wicker well lining"
+msgstr "Doublure de puits en osier"
+
+#: earthen_building.lua:247
 msgid "Reinforce a well wall"
 msgstr "Renforcer le mur d'un puit"
 
+#: earthen_building.lua:254
 msgid "Loose Wattle"
 msgstr "Clayonnage distendu"
 
+#: earthen_building.lua:338
 msgid "Wattle Door Frame"
 msgstr "Cadre de porte en clayonnage"
 
+#: earthen_building.lua:369
 msgid "Thatch"
 msgstr "Chaume"
 
+#: earthen_building.lua:394
 msgid "Thatch Stair"
 msgstr "Escalier en chaume"
 
+#: earthen_building.lua:395
 msgid "Thatch Slab"
 msgstr "Dalle en chaume"
 
+#: fibreworking.lua:50
 msgid "Unretted Cana Bundle"
 msgstr "Fagot de canne non roui"
 
+#: fibreworking.lua:78
 msgid "Retted Cana Bundle"
 msgstr "Fagot de canne roui"
 
+#: fibreworking.lua:97
 msgid "Coarse Fibre"
 msgstr "Fibre grossière"
 
+#: fibreworking.lua:106
 msgid "Fine Fibre"
 msgstr "Fibre fine"
 
+#: fibreworking.lua:117
 msgid "Coarse Fabric"
 msgstr "Tissu grossier"
 
+#: fibreworking.lua:126
 msgid "Fine Fabric"
 msgstr "Tissu fin"
 
+#: fires.lua:188
 msgid "Wood Ash Block"
 msgstr "Bloc de cendre de bois"
 
+#: fires.lua:204 fires.lua:234
 msgid "Enrich depleted soil"
 msgstr "Enrichir le sol appauvri"
 
+#: fires.lua:213
 msgid "Wood Ash"
 msgstr "Cendre de bois"
 
+#: fires.lua:268
 msgid "Charcoal Block"
 msgstr "Bloc de charbon"
 
+#: fires.lua:286
 msgid "Charcoal"
 msgstr "Charbon"
 
+#: fires.lua:347
 msgid "Small Wood Fire (unlit)"
 msgstr "Petit feu de bois (éteint)"
 
+#: fires.lua:374
 msgid "Large Wood Fire (unlit)"
 msgstr "Grand feu de bois (éteint)"
 
+#: fires.lua:393
 msgid "Small Wood Fire"
 msgstr "Petit feu de bois"
 
+#: fires.lua:448
 msgid "Large Wood Fire"
 msgstr "Grand feu de bois"
 
+#: fires.lua:502
 msgid "Small Wood Fire (smoldering)"
 msgstr "Petit feu de bois (charbonnant)"
 
+#: fires.lua:572
 msgid "Large Wood Fire (smoldering)"
 msgstr "Grand feu de bois (charbonnant)"
 
+#: fires.lua:632
 msgid "Small Charcoal Fire"
 msgstr "Petit feu de charbon"
 
+#: fires.lua:687
 msgid "Large Charcoal Fire"
 msgstr "Grand feu de charbon"
 
+#: fires.lua:742
 msgid "Small Charcoal Fire (smoldering)"
 msgstr "Petit feu de charbon (charbonnant)"
 
+#: fires.lua:792
 msgid "Large Charcoal Fire (smoldering)"
 msgstr "Grand feu de charbon (charbonnant)"
 
+#: fires.lua:883
 msgid "Small Wood Fire (extinguished)"
 msgstr "Petit feu de bois (éteint)"
 
+#: fires.lua:913
 msgid "Large Wood Fire (extinguished)"
 msgstr "Grand feu de bois (éteint)"
 
+#: fires.lua:935
 msgid "Small Charcoal Fire (extinguished)"
 msgstr "Petit feu de charbon (éteint)"
 
+#: fires.lua:964
 msgid "Large Charcoal Fire (extinguished)"
 msgstr "Grand feu de charbon (éteint)"
 
-msgid "Green Glass Sand Mix"
-msgstr "Mélange de sable pour verre vert"
-
-msgid "Green Glass Ingot"
-msgstr "Lingot de verre vert"
-
-msgid "Potash Block"
-msgstr "Bloc de potasse"
-
-msgid "Potash"
-msgstr "Potasse"
-
-msgid "Potash Solution Source"
-msgstr "Source de solution de potasse"
-
-msgid "Flowing Potash Solution"
-msgstr "Solution de potasse coulante"
-
-msgid "Clay Water Pot with Potash Solution"
-msgstr "Cruche en argile avec solution de potasse"
-
-msgid "Wooden Water Pot with Potash Solution"
-msgstr "Cruche en bois avec solution de potasse"
-
-msgid "Clay Water Pot With Potash"
-msgstr "Cruche en argile avec potasse"
-
-msgid "Clear Glass Sand Mix"
-msgstr "Mélange de sable pour verre transparent"
-
-msgid "Clear Glass Ingot"
-msgstr "Lingot de verre transparent"
-
-msgid "Pane Casting Tray"
-msgstr "Plateau de moulage de carreau"
-
-msgid "Pane Casting Tray With Green Glass Pane"
-msgstr "Plateau de moulage avec carreau de verre vert"
-
-msgid "Pane Casting Tray With Clear Glass Pane"
-msgstr "Plateau de moulage avec carreau de verre transparent"
-
-msgid "Green Glass Pane"
-msgstr "Carreau de verre vert"
-
-msgid "Clear Glass Pane"
-msgstr "Carreau de verre transparent"
-
-msgid "Green Glass Window"
-msgstr "Fenêtre en verre vert"
-
-msgid "Clear Glass Window"
-msgstr "Fenêtre en verre transparent"
-
-msgid "Painting Kit (lime white)"
-msgstr "Kit de peinture (blanc chaux)"
-
-msgid "Painting Kit (glow paint)"
-msgstr "Kit de peinture (peinture fluorescente)"
-
-msgid "Stone Etcher"
-msgstr "Graveur de pierre"
-
-msgid "Flip to stone knife"
-msgstr "Retourner pour couteau en pierre"
-
-msgid "Painting Kit (ochre red)"
-msgstr "Kit de peinture (ocre rouge)"
-
-msgid "Crushed Iron Ore"
-msgstr "Minerai de fer concassé"
-
-msgid "Roasted Iron Ore"
-msgstr "Minerai de fer grillé"
-
-msgid "Roasted Iron Ore Powder"
-msgstr "Poudre de minerai de fer grillé"
-
-msgid "Iron Smelting Mix"
-msgstr "Mélange de fonte de fer"
-
-msgid "Iron and Slag"
-msgstr "Fer et laitier de fonte"
-
-msgid "Iron Bloom"
-msgstr "Fer pâteux"
-
-msgid "Iron Ingot"
-msgstr "Lingot de fer"
-
-msgid "Slag"
-msgstr "Laitier noir"
-
-msgid "Slag Stair"
-msgstr "Escalier en laitier noir"
-
-msgid "Slag Slab"
-msgstr "Dalle en laitier noir"
-
-msgid "Molten Slag"
-msgstr "Laitier en fusion"
-
-msgid "Flowing Molten Slag"
-msgstr "Laitier en fusion coulant"
-
-msgid "Iron Fittings"
-msgstr "Ferrures"
-
-msgid "Protection Nails"
-msgstr "Clous de protection"
-
-msgid "Protect Item"
-msgstr "Protéger l'article"
-
-msgid "Iron Key"
-msgstr "Clé en fer"
-
-msgid "Grant key owner access."
-msgstr "Accorder l'accès au propriétaire de la clé."
-
-msgid "Lantern Case"
-msgstr "Boîtier de lanterne"
-
-msgid "Status: needs a clear glass pane and a wick (coarse fibre)!"
-msgstr "Statut: nécessite un carreau de verre transparent et une mèche (fibre grossière)!"
-
-msgid "Lantern Case with a wick"
-msgstr "Boîtier de lanterne avec une mèche"
-
-msgid "Status: needs a clear glass pane!"
-msgstr "Statut: nécessite un carreau de verre transparent!"
-
-msgid "Lantern Case with Glass"
-msgstr "Boîtier de lanterne avec verre"
-
-msgid "Status: needs a wick (coarse fibre)!"
-msgstr "Statut: nécessite une mèche (fibre grossière)!"
-
-msgid "Unlit Lantern"
-msgstr "Lanterne éteinte"
-
-msgid "Lit Lantern"
-msgstr "Lanterne allumée"
-
-msgid "lever"
-msgstr "Levier"
-
-msgid "Rotate face"
-msgstr "Tourner la face"
-
-msgid "Flip to aligner"
-msgstr "Retourner pour aligner"
-
-msgid "Rotate axis"
-msgstr "Pivoter l'axe"
-
-msgid "alignment tool"
-msgstr "Outil d'alignement"
-
-msgid "Pick up a node's facing"
-msgstr "Noter l'orientation d'un nœud"
-
-msgid "Flip to lever"
-msgstr "Retourner pour faire levier"
-
-msgid "Apply facing to another node"
-msgstr "Appliquer l'orientation à un autre nœud"
-
-msgid "Empty"
-msgstr "Vide"
-
-msgid "fuel left"
-msgstr "carburant restant"
-
-msgid "Status: "
-msgstr "Statut:"
-
-msgid "Stick"
-msgstr "Bâton"
-
-msgid "Grass Fibre"
-msgstr "Fibres végétales"
-
-msgid "Vegetable Oil"
-msgstr "Huile végétale"
-
+#: food_crafts.lua:17
 msgid "Sea Salt"
 msgstr "Sel de Mer"
 
+#: food_crafts.lua:43
 msgid "Bitter Maraka Flour"
 msgstr "Farine de Maraka amère"
 
+#: food_crafts.lua:64
 msgid "Maraka Flour"
 msgstr "Farine de Maraka"
 
+#: food_crafts.lua:77
 msgid "Unbaked Maraka Cake"
 msgstr "Gâteau de Maraka non cuit"
 
+#: food_crafts.lua:95
 msgid "Maraka Cake"
 msgstr "Gâteau de Maraka"
 
+#: food_crafts.lua:115
 msgid "Maraka Cake Burned"
 msgstr "Gâteau de Maraka brûlé"
 
+#: food_crafts.lua:136
 msgid "Peeled Anperla Tuber"
 msgstr "Tubercule d'Anperla pelé"
 
+#: food_crafts.lua:153
 msgid "Burned Anperla Tuber"
 msgstr "Tubercule d'Anperla brûlé"
 
+#: food_crafts.lua:171
 msgid "Cooked Anperla Tuber"
 msgstr "Tubercule d'Anperla cuit"
 
+#: food_crafts.lua:190
 msgid "Mashed Anperla (uncooked)"
 msgstr "Purée d'Anperla (non cuite)"
 
+#: food_crafts.lua:207
 msgid "Mashed Anperla"
 msgstr "Purée d'Anperla"
 
+#: food_crafts.lua:225
 msgid "Burned Anperla"
 msgstr "Anperla brûlé"
 
+#: food_crafts.lua:245
 msgid "flour"
 msgstr "farine"
 
+#: food_crafts.lua:246
 msgid "bread flour"
 msgstr "farine à pain"
 
+#: food_crafts.lua:247
 msgid "cake flour"
 msgstr "farine à gâteau"
 
+#: food_crafts.lua:248
 msgid "dough"
 msgstr "pâte"
 
+#: food_crafts.lua:249
 msgid "bread dough"
 msgstr "pâte à pain"
 
+#: food_crafts.lua:250
 msgid "cake dough"
 msgstr "pâte à gâteau"
 
+#: food_crafts.lua:256
 msgid "Raw Rhuya Flour"
 msgstr "Farine de Rhuya crue"
 
-msgid "Raw Hardy Rhuya Flour"
-msgstr "Farine de Rhuya rustique crue"
-
+#: food_crafts.lua:272
 msgid "Rhuya Flour"
 msgstr "Farine de Rhuya"
 
+#: food_crafts.lua:290
+msgid "Raw Hardy Rhuya Flour"
+msgstr "Farine de Rhuya rustique crue"
+
+#: food_crafts.lua:307
 msgid "Hardy Rhuya Flour"
 msgstr "Farine de Rhuya rustique"
 
+#: food_crafts.lua:328
 msgid "Burnt Rhuya Flour"
 msgstr "Farine de Rhuya brûlée"
 
-msgid "Uncured Barshocha Flour"
-msgstr "Farine de Barshocha non traitée"
-
-msgid "Cured Barshocha Flour"
-msgstr "Farine de Barshocha traitée"
-
+#: food_crafts.lua:344
 msgid "All-Purpose Flour"
 msgstr "Farine tout usage"
 
+#: food_crafts.lua:362
+msgid "Uncured Barshocha Flour"
+msgstr "Farine de Barshocha non traitée"
+
+#: food_crafts.lua:390
+msgid "Cured Barshocha Flour"
+msgstr "Farine de Barshocha traitée"
+
+#: food_crafts.lua:416 food_crafts.lua:559
 msgid "Maraka Dough"
 msgstr "Pâte de Maraka"
 
+#: food_crafts.lua:442 food_crafts.lua:576
 msgid "Rhuya Dough"
 msgstr "Pâte de Rhuya"
 
+#: food_crafts.lua:468 food_crafts.lua:593
 msgid "Hardy Rhuya Dough"
 msgstr "Pâte de Rhuya rustique"
 
-msgid "Barshocha Dough"
-msgstr "Pâte de Barshocha"
-
+#: food_crafts.lua:494 food_crafts.lua:633
 msgid "All-Purpose Dough"
 msgstr "Pâte tout usage"
 
-msgid "@1 Fermenting"
-msgstr "@1 en cours de fermentation"
+#: food_crafts.lua:521 food_crafts.lua:613
+msgid "Barshocha Dough"
+msgstr "Pâte de Barshocha"
 
-msgid "@1 Fermented"
-msgstr "@1 fermentée"
-
-msgid "Crumbly Bread"
-msgstr "Pain friable"
-
-msgid "Tiger Bread Dough"
-msgstr ""
-
-msgid "Tiger Bread"
-msgstr ""
-
-msgid "Baguette Dough"
-msgstr "Pâte de baguette"
-
-msgid "Black Bread"
-msgstr "Pain noir"
-
-msgid "Crumbly Bread"
-msgstr "Pain friable"
-
-msgid "Unleavened Bread"
-msgstr "Pain azyme (sans levure)"
-
-msgid "Fluffy Unleavened Bread"
-msgstr "Pain azyme moelleux"
-
-msgid "Basic Crackerbread"
-msgstr ""
-
-msgid "Soft Bread"
-msgstr ""
-
-msgid "Burned Bread"
-msgstr "Pain brûlé"
-
+#: food_crafts.lua:548
 msgid "Ikippe Yeast"
 msgstr "Levain Ikippe"
 
+#: food_crafts.lua:549
 msgid "Infect Dough"
 msgstr "Ensemencer la pâte"
 
-msgid "Yeast added to the @1"
-msgstr "Levain ajouté à la @1"
+#: food_crafts.lua:559 food_crafts.lua:576 food_crafts.lua:593
+#: food_crafts.lua:613 food_crafts.lua:633
+#, fuzzy
+#| msgid "@1 Fermented"
+msgid "Fermented @1"
+msgstr "@1 fermentée"
 
+#: food_crafts.lua:655
+msgid "Black Bread"
+msgstr "Pain noir"
+
+#: food_crafts.lua:675
+msgid "Crumbly Bread"
+msgstr "Pain friable"
+
+#: food_crafts.lua:694
+msgid "Unleavened Bread"
+msgstr "Pain azyme (sans levure)"
+
+#: food_crafts.lua:710
+msgid "Fluffy Unleavened Bread"
+msgstr "Pain azyme moelleux"
+
+#: food_crafts.lua:727
+msgid "Basic Crackerbread"
+msgstr ""
+
+#: food_crafts.lua:743
+msgid "Soft Bread"
+msgstr ""
+
+#: food_crafts.lua:763
+msgid "Burned Bread"
+msgstr "Pain brûlé"
+
+#: food_crafts.lua:944
 msgid "Cracked Egg"
 msgstr "Oeuf cassé"
 
+#: food_crafts.lua:968
 msgid "Fried Egg"
 msgstr "Œuf au Plat"
 
+#: glassworking.lua:125
+msgid "Green Glass Sand Mix"
+msgstr "Mélange de sable pour verre vert"
+
+#: glassworking.lua:146
+msgid "Green Glass Ingot"
+msgstr "Lingot de verre vert"
+
+#: glassworking.lua:190
+msgid "Potash Block"
+msgstr "Bloc de potasse"
+
+#: glassworking.lua:200
+msgid "Potash"
+msgstr "Potasse"
+
+#: glassworking.lua:217
+msgid "Potash Solution Source"
+msgstr "Source de solution de potasse"
+
+#: glassworking.lua:244
+msgid "Flowing Potash Solution"
+msgstr "Solution de potasse coulante"
+
+#: glassworking.lua:299
+msgid "Clay Water Pot with Potash Solution"
+msgstr "Cruche en argile avec solution de potasse"
+
+#: glassworking.lua:302
+msgid "Wooden Water Pot with Potash Solution"
+msgstr "Cruche en bois avec solution de potasse"
+
+#: glassworking.lua:346
+msgid "Clay Water Pot With Potash"
+msgstr "Cruche en argile avec potasse"
+
+#: glassworking.lua:423
+msgid "Clear Glass Sand Mix"
+msgstr "Mélange de sable pour verre transparent"
+
+#: glassworking.lua:444
+msgid "Clear Glass Ingot"
+msgstr "Lingot de verre transparent"
+
+#: glassworking.lua:486
+msgid "Pane Casting Tray"
+msgstr "Plateau de moulage de carreau"
+
+#: glassworking.lua:513
+msgid "Pane Casting Tray With Green Glass Pane"
+msgstr "Plateau de moulage avec carreau de verre vert"
+
+#: glassworking.lua:556
+msgid "Pane Casting Tray With Clear Glass Pane"
+msgstr "Plateau de moulage avec carreau de verre transparent"
+
+#: glassworking.lua:611
+msgid "Green Glass Pane"
+msgstr "Carreau de verre vert"
+
+#: glassworking.lua:633
+msgid "Clear Glass Pane"
+msgstr "Carreau de verre transparent"
+
+#: glassworking.lua:657
+msgid "Green Glass Window"
+msgstr "Fenêtre en verre vert"
+
+#: glassworking.lua:681
+msgid "Clear Glass Window"
+msgstr "Fenêtre en verre transparent"
+
+#: grafitti.lua:96
+msgid "Painting Kit (lime white)"
+msgstr "Kit de peinture (blanc chaux)"
+
+#: grafitti.lua:138
+msgid "Painting Kit (glow paint)"
+msgstr "Kit de peinture (peinture fluorescente)"
+
+#: grafitti.lua:189
+msgid "Stone Etcher"
+msgstr "Graveur de pierre"
+
+#: grafitti.lua:197
+msgid "Flip to stone knife"
+msgstr "Retourner pour couteau en pierre"
+
+#: grafitti.lua:266
+msgid "Painting Kit (ochre red)"
+msgstr "Kit de peinture (ocre rouge)"
+
+#: ironworking.lua:159
+msgid "Crushed Iron Ore"
+msgstr "Minerai de fer concassé"
+
+#: ironworking.lua:196
+msgid "Roasted Iron Ore"
+msgstr "Minerai de fer grillé"
+
+#: ironworking.lua:208
+msgid "Roasted Iron Ore Powder"
+msgstr "Poudre de minerai de fer grillé"
+
+#: ironworking.lua:230
+msgid "Iron Smelting Mix"
+msgstr "Mélange de fonte de fer"
+
+#: ironworking.lua:297
+msgid "Iron and Slag"
+msgstr "Fer et laitier de fonte"
+
+#: ironworking.lua:323
+msgid "Iron Bloom"
+msgstr "Fer pâteux"
+
+#: ironworking.lua:343
+msgid "Iron Ingot"
+msgstr "Lingot de fer"
+
+#: ironworking.lua:372
+msgid "Slag"
+msgstr "Laitier noir"
+
+#: ironworking.lua:388
+msgid "Slag Stair"
+msgstr "Escalier en laitier noir"
+
+#: ironworking.lua:389
+msgid "Slag Slab"
+msgstr "Dalle en laitier noir"
+
+#: ironworking.lua:401
+msgid "Molten Slag"
+msgstr "Laitier en fusion"
+
+#: ironworking.lua:464
+msgid "Flowing Molten Slag"
+msgstr "Laitier en fusion coulant"
+
+#: ironworking.lua:546
+msgid "Iron Fittings"
+msgstr "Ferrures"
+
+#: ironworking.lua:573
+msgid "Protection Nails"
+msgstr "Clous de protection"
+
+#: ironworking.lua:576
+msgid "Protect Item"
+msgstr "Protéger l'article"
+
+#: ironworking.lua:592
+msgid "Iron Key"
+msgstr "Clé en fer"
+
+#: ironworking.lua:596
+msgid "Grant key owner access."
+msgstr "Accorder l'accès au propriétaire de la clé."
+
+#: lantern.lua:42
+msgid "Lantern Case"
+msgstr "Boîtier de lanterne"
+
+#: lantern.lua:70
+#, fuzzy
+#| msgid "Status: needs a wick (coarse fibre)!"
+msgid "Status: needs a @1 and a wick (@2)!"
+msgstr "Statut: nécessite une mèche (fibre grossière)!"
+
+#: lantern.lua:88
+msgid "Lantern Case with a wick"
+msgstr "Boîtier de lanterne avec une mèche"
+
+#: lantern.lua:116
+#, fuzzy
+#| msgid "Status: needs a clear glass pane!"
+msgid "Status: needs a @1!"
+msgstr "Statut: nécessite un carreau de verre transparent!"
+
+#: lantern.lua:133
+msgid "Lantern Case with Glass"
+msgstr "Boîtier de lanterne avec verre"
+
+#: lantern.lua:158
+#, fuzzy
+#| msgid "Status: needs a wick (coarse fibre)!"
+msgid "Status: needs a wick (@1)!"
+msgstr "Statut: nécessite une mèche (fibre grossière)!"
+
+#: lantern.lua:175
+msgid "Unlit Lantern"
+msgstr "Lanterne éteinte"
+
+#: lantern.lua:223
+msgid "Lit Lantern"
+msgstr "Lanterne allumée"
+
+#: lever.lua:165
+msgid "lever"
+msgstr "Levier"
+
+#: lever.lua:169
+msgid "Rotate face"
+msgstr "Tourner la face"
+
+#: lever.lua:170
+msgid "Flip to aligner"
+msgstr "Retourner pour aligner"
+
+#: lever.lua:171
+msgid "Rotate axis"
+msgstr "Pivoter l'axe"
+
+#: lever.lua:249
+msgid "alignment tool"
+msgstr "Outil d'alignement"
+
+#: lever.lua:253
+msgid "Pick up a node's facing"
+msgstr "Noter l'orientation d'un nœud"
+
+#: lever.lua:254
+msgid "Flip to lever"
+msgstr "Retourner pour faire levier"
+
+#: lever.lua:255
+msgid "Apply facing to another node"
+msgstr "Appliquer l'orientation à un autre nœud"
+
+#: lightsource_api.lua:47
+msgid "Empty"
+msgstr "Vide"
+
+#: lightsource_api.lua:49
+#, fuzzy
+#| msgid "fuel left"
+msgid "@1% fuel left"
+msgstr "carburant restant"
+
+#: lightsource_api.lua:52
+#, fuzzy
+#| msgid "Status: "
+msgid "Status: @1"
+msgstr "Statut:"
+
+#: plant_crafts.lua:17
+msgid "Stick"
+msgstr "Bâton"
+
+#: plant_crafts.lua:86
+msgid "Grass Fibre"
+msgstr "Fibres végétales"
+
+#: plant_crafts.lua:100
+msgid "Vegetable Oil"
+msgstr "Huile végétale"
+
+#: pottery.lua:26
 msgid "Broken Pottery Slab"
 msgstr "Dalle de poterie cassée"
 
+#: pottery.lua:54
 msgid "Broken Pottery"
 msgstr "Poterie cassée"
 
+#: pottery.lua:147
 msgid "Clay Water Pot (unfired)"
 msgstr "Cruche en argile (non cuite)"
 
+#: pottery.lua:192
 msgid "Clay Storage Pot (unfired)"
 msgstr "Pot de stockage en argile (non cuit)"
 
+#: pottery.lua:238
 msgid "Clay Oil Lamps (x4) (unfired)"
 msgstr "Lampes à huile en argile (x4) (non cuites)"
 
+#: pottery.lua:318
 msgid "Clay Oil Lamps (x4)"
 msgstr "Lampes à huile en argile (x4)"
 
+#: pottery.lua:522
 msgid "Clay Oil Lamp"
 msgstr "Lampe à huile en argile"
 
+#: pottery.lua:523
 msgid "Clay Oil Lamp (Lit)"
 msgstr "Lampe à huile en argile (allumée)"
 
+#: pottery.lua:535
 msgid "Hanging Oil Lamp"
 msgstr "Lampe à huile suspendue"
 
+#: pottery.lua:536
 msgid "Hanging Oil Lamp (Lit)"
 msgstr "Lampe à huile suspendue (allumée)"
 
+#: pottery.lua:593
 msgid "Clay Watering Can (unfired)"
 msgstr "Arrosoir en argile (non cuit)"
 
+#: storage.lua:15
 msgid "Clay Storage Pot"
 msgstr "Pot de stockage en argile"
 
+#: storage.lua:45
 msgid "Primitive Wooden Chest"
 msgstr "Coffre en bois primitif"
 
+#: storage.lua:66
 msgid "Wicker Storage Basket"
 msgstr "Panier de stockage en osier"
 
+#: storage.lua:90
 msgid "Woven Storage Basket"
 msgstr "Panier de stockage tissé"
 
+#: storage.lua:114
 msgid "Wooden Chest"
 msgstr "Coffre en bois"
 
+#: storage.lua:161
 msgid "Iron Chest"
 msgstr "Coffre en fer"
 
+#: tools.lua:196
+msgid "Bare Hands"
+msgstr ""
+
+#: tools.lua:238
 msgid "Stone Knife"
 msgstr "Couteau en pierre"
 
+#: tools.lua:255
 msgid "Cut plants faster than bare hands"
 msgstr "Couper les plantes plus vite qu'à mains nues"
 
+#: tools.lua:256
 msgid "Flip to stone etcher"
 msgstr "Retourner pour graver avec"
 
-msgid "Place tool for cutting crafts"
-msgstr "Placer l'outil pour les travaux de découpe"
-
+#: tools.lua:272
 msgid "Placed Stone Knife"
 msgstr "Couteau en pierre placé"
 
+#: tools.lua:384
 msgid "Digging Stick"
 msgstr "Bâton à fouir"
 
+#: tools.lua:399 tools.lua:1056
 msgid "Dig hard earth"
 msgstr "Creuser la terre dure"
 
+#: tools.lua:400
 msgid "Till soil slowly"
 msgstr "Labourer le sol lentement"
 
+#: tools.lua:402 tools.lua:1059
 msgid "Place tool for plant crafts"
 msgstr "Placer l'outil pour travailler les plantes"
 
+#: tools.lua:412
 msgid "Placed Digging Stick"
 msgstr "Bâton à fouir placé"
 
-msgid "Cut softwood logs"
-msgstr "Couper du bois tendre"
-
-msgid "Adze"
-msgstr "Herminette"
-
-msgid "Placed Granite Adze"
-msgstr "Herminette en granite placée"
-
-msgid "Placed Basalt Adze"
-msgstr "Herminette en basalte placée"
-
-msgid "Placed Jade Adze"
-msgstr "Herminette en jade placée"
-
-msgid "Basalt Adze"
-msgstr "Herminette en basalte"
-
-msgid "Jade Adze"
-msgstr "Herminette en jade"
-
-msgid "Granite Adze"
-msgstr "Herminette en granite"
-
-msgid "Placed @1 adze"
-msgstr "Herminette en @1 placée"
-
+#: tools.lua:499
 msgid "@1 Adze"
 msgstr "Herminette en @1"
 
-msgid "Stone Club"
-msgstr "Massue en pierre"
+#: tools.lua:519
+msgid "Cut softwood logs"
+msgstr "Couper du bois tendre"
 
-msgid "Strike"
-msgstr "Frapper"
+#: tools.lua:527
+msgid "Placed @1 adze"
+msgstr "Herminette en @1 placée"
 
-msgid "Stun animals"
-msgstr "Assommer les animaux"
-
-msgid "Iron Axe"
-msgstr "Hache en fer"
-
-msgid "Cut any wood"
-msgstr "Couper n'importe quel bois"
-
-msgid "Placed Iron Axe"
-msgstr "Hache en fer placée"
-
-msgid "Iron Shovel"
-msgstr "Pelle en fer"
-
-msgid "Dig earth quickly"
-msgstr "Creuser la terre rapidement"
-
-msgid "Till soil"
-msgstr "Labourer le sol"
-
-msgid "Place for plant crafts"
-msgstr "Placer pour travailler les plantes"
-
-msgid "Placed Iron Shovel"
-msgstr "Pelle en fer placée"
-
-msgid "Iron Mace"
-msgstr "Masse en fer"
-
-msgid "Iron Pickaxe"
-msgstr "Pioche en fer"
-
-msgid "Dig stone"
-msgstr "Creuser la pierre"
-
-msgid "Placed Iron Pickaxe"
-msgstr "Pioche en fer placée"
-
-msgid "Iron Hoe"
-msgstr "Binette en fer"
-
-msgid "Till soil quickly"
-msgstr "Labourer le sol rapidement"
-
-msgid "Placed Iron Hoe"
-msgstr "Binette en fer placée"
-
+#: tools.lua:617
 msgid "@1 Hammer"
 msgstr "Marteau en @1"
 
+#: tools.lua:645 tools.lua:731 tools.lua:954
+msgid "Stun animals"
+msgstr "Assommer les animaux"
+
+#: tools.lua:646
 msgid "or Place on solid surface for hammering crafts"
 msgstr "ou Placer sur une surface solide pour marteler"
 
+#: tools.lua:656
 msgid "Placed @1 Hammer"
 msgstr "Marteau en @1 placé"
 
-msgid "Placed Granite Hammer"
-msgstr "Marteau en granite placé"
+#: tools.lua:716
+msgid "Stone Club"
+msgstr "Massue en pierre"
 
-msgid "Placed Basalt Hammer"
-msgstr "Marteau en basalte placé"
+#: tools.lua:730 tools.lua:953
+msgid "Strike"
+msgstr "Frapper"
 
-msgid "Basalt Hammer"
-msgstr "Marteau en basalte"
+#: tools.lua:779
+msgid "Iron Axe"
+msgstr "Hache en fer"
 
-msgid "Granite Hammer"
-msgstr "Marteau en granite"
+#: tools.lua:795
+msgid "Cut any wood"
+msgstr "Couper n'importe quel bois"
 
+#: tools.lua:807
+msgid "Placed Iron Axe"
+msgstr "Hache en fer placée"
+
+#: tools.lua:858
+msgid "Iron Shovel"
+msgstr "Pelle en fer"
+
+#: tools.lua:874
+msgid "Dig earth quickly"
+msgstr "Creuser la terre rapidement"
+
+#: tools.lua:877
+msgid "Till soil"
+msgstr "Labourer le sol"
+
+#: tools.lua:878
+msgid "Place for plant crafts"
+msgstr "Placer pour travailler les plantes"
+
+#: tools.lua:888
+msgid "Placed Iron Shovel"
+msgstr "Pelle en fer placée"
+
+#: tools.lua:937
+msgid "Iron Mace"
+msgstr "Masse en fer"
+
+#: tools.lua:972
+msgid "Iron Pickaxe"
+msgstr "Pioche en fer"
+
+#: tools.lua:989
+msgid "Dig stone"
+msgstr "Creuser la pierre"
+
+#: tools.lua:1000
+msgid "Placed Iron Pickaxe"
+msgstr "Pioche en fer placée"
+
+#: tools.lua:1041
+msgid "Iron Hoe"
+msgstr "Binette en fer"
+
+#: tools.lua:1057
+msgid "Till soil quickly"
+msgstr "Labourer le sol rapidement"
+
+#: tools.lua:1068
+msgid "Placed Iron Hoe"
+msgstr "Binette en fer placée"
+
+#: torch.lua:192
 msgid "Torch"
 msgstr "Torche"
 
+#: ucsigns.lua:26
+msgid "Signs"
+msgstr ""
+
+#: ucsigns.lua:117
+msgid "@1 Sign"
+msgstr ""
+
+#: ucsigns.lua:149
+msgid "Oiled Sign"
+msgstr ""
+
+#: ucsigns.lua:185
+#, fuzzy
+#| msgid "Iron and Slag"
+msgid "Iron Sign"
+msgstr "Fer et laitier de fonte"
+
+#: waterworking.lua:149
+#, fuzzy
+#| msgid "Empty"
+msgid "Empty "
+msgstr "Vide"
+
+#: waterworking.lua:200
 msgid "Water Pot"
 msgstr "Cruche"
 
-msgid "Clay Water Pot"
-msgstr "Cruche en argile"
+#: waterworking.lua:245
+msgid " "
+msgstr ""
 
-msgid "Clay Water Pot with Salt Water"
-msgstr "Cruche en argile avec eau salée"
-
-msgid "Clay Water Pot with Freshwater"
-msgstr "Cruche en argile avec eau douce"
-
+#: waterworking.lua:310
 msgid "Salty Clay Water Pot"
 msgstr ""
 
-msgid "Wooden Water Pot"
-msgstr "Cruche en bois"
-
-msgid "Wooden Water Pot with Salt Water"
-msgstr "Cruche en bois avec eau salée"
-
-msgid "Wooden Water Pot with Freshwater"
-msgstr "Cruche en bois avec eau douce"
-
-msgid "Clay Watering Can"
-msgstr "Arrosoir en argile"
-
-msgid "Clay Watering Can with Freshwater"
-msgstr "Arrosoir en argile avec eau douce"
-
-msgid "Clay Watering Can with Salt Water"
-msgstr "Arrosoir en argile avec eau salée"
-
-msgid "Wooden Watering Can"
-msgstr "Arrosoir en bois"
-
-msgid "Wooden Watering Can with Freshwater"
-msgstr "Arrosoir en bois avec eau douce"
-
-msgid "Wooden Watering Can with Salt Water"
-msgstr "Arrosoir en bois avec eau salée"
-
-msgid "Green Glass Bottle"
+#: waterworking.lua:375
+#, fuzzy
+#| msgid "Green Glass Bottle"
+msgid " Glass Bottle"
 msgstr "Bouteille en verre vert"
 
-msgid "Clear Glass Bottle"
-msgstr "Bouteille en verre transparent"
-
-msgid "Green Glass Bottle With Salt Water"
+#: waterworking.lua:430
+#, fuzzy
+#| msgid "Green Glass Bottle With Salt Water"
+msgid " Glass Bottle With "
 msgstr "Bouteille en verre vert avec eau salée"
 
-msgid "Clear Glass Bottle With Salt Water"
-msgstr "Bouteille en verre transparent avec eau salée"
-
-msgid "Green Glass Bottle With Fresh Water"
-msgstr "Bouteille en verre vert avec eau douce"
-
-msgid "Clear Glass Bottle With Fresh Water"
-msgstr "Bouteille en verre transparent avec eau douce"
-
+#: woodworking.lua:36
 msgid "Wooden Ladder"
 msgstr "Échelle en bois"
 
+#: woodworking.lua:102
 msgid "Wooden Floor Boards"
 msgstr "Planches de plancher en bois"
 
+#: woodworking.lua:143
 msgid "Wooden Stairs"
 msgstr "Escalier en bois"
 
-msgid "Cannot place here ! Needs a whole block of : "
-msgstr "Impossible de placer ici ! Besoin d'un bloc entier de :"
+#~ msgid "Soup"
+#~ msgstr "Soupe"
 
-msgid "Status : needs a clear glass pane and a wick (coarse fibre) !"
-msgstr "Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !"
+#~ msgid "Create"
+#~ msgstr "Créer"
 
-msgid "Status : needs a clear glass pane !"
-msgstr "Statut : nécessite un carreau de verre clair !"
+#~ msgid "Limestone Mortar and Pestle"
+#~ msgstr "Mortier et pilon en calcaire"
 
-msgid "Status : needs a wick (coarse fibre) !"
-msgstr "Statut : nécessite une mèche (fibre grossière) !"
+#~ msgid "Basalt Mortar and Pestle"
+#~ msgstr "Mortier et pilon en basalte"
 
-msgid "Status : "
-msgstr "Statut :"
+#~ msgid "Granite Mortar and Pestle"
+#~ msgstr "Mortier et pilon en granite"
 
-msgid "Clay Oil Lamp (lit)"
-msgstr "Lampe à huile en argile (allumée)"
+#~ msgid "@1 Mortar and Pestle"
+#~ msgstr "Mortier et pilon en @1"
 
-msgid "Dump"
-msgstr "Décharge"
+#~ msgid "Status: needs a clear glass pane and a wick (coarse fibre)!"
+#~ msgstr "Statut: nécessite un carreau de verre transparent et une mèche (fibre grossière)!"
 
-msgid "red dye"
-msgstr "Teinture rouge"
+#~ msgid "@1 Fermenting"
+#~ msgstr "@1 en cours de fermentation"
+
+#~ msgid "Baguette Dough"
+#~ msgstr "Pâte de baguette"
+
+#~ msgid "Yeast added to the @1"
+#~ msgstr "Levain ajouté à la @1"
+
+#~ msgid "Place tool for cutting crafts"
+#~ msgstr "Placer l'outil pour les travaux de découpe"
+
+#~ msgid "Adze"
+#~ msgstr "Herminette"
+
+#~ msgid "Placed Granite Adze"
+#~ msgstr "Herminette en granite placée"
+
+#~ msgid "Placed Basalt Adze"
+#~ msgstr "Herminette en basalte placée"
+
+#~ msgid "Placed Jade Adze"
+#~ msgstr "Herminette en jade placée"
+
+#~ msgid "Basalt Adze"
+#~ msgstr "Herminette en basalte"
+
+#~ msgid "Jade Adze"
+#~ msgstr "Herminette en jade"
+
+#~ msgid "Granite Adze"
+#~ msgstr "Herminette en granite"
+
+#~ msgid "Placed Granite Hammer"
+#~ msgstr "Marteau en granite placé"
+
+#~ msgid "Placed Basalt Hammer"
+#~ msgstr "Marteau en basalte placé"
+
+#~ msgid "Basalt Hammer"
+#~ msgstr "Marteau en basalte"
+
+#~ msgid "Granite Hammer"
+#~ msgstr "Marteau en granite"
+
+#~ msgid "Clay Water Pot"
+#~ msgstr "Cruche en argile"
+
+#~ msgid "Clay Water Pot with Salt Water"
+#~ msgstr "Cruche en argile avec eau salée"
+
+#~ msgid "Clay Water Pot with Freshwater"
+#~ msgstr "Cruche en argile avec eau douce"
+
+#~ msgid "Wooden Water Pot"
+#~ msgstr "Cruche en bois"
+
+#~ msgid "Wooden Water Pot with Salt Water"
+#~ msgstr "Cruche en bois avec eau salée"
+
+#~ msgid "Wooden Water Pot with Freshwater"
+#~ msgstr "Cruche en bois avec eau douce"
+
+#~ msgid "Clay Watering Can"
+#~ msgstr "Arrosoir en argile"
+
+#~ msgid "Clay Watering Can with Freshwater"
+#~ msgstr "Arrosoir en argile avec eau douce"
+
+#~ msgid "Clay Watering Can with Salt Water"
+#~ msgstr "Arrosoir en argile avec eau salée"
+
+#~ msgid "Wooden Watering Can"
+#~ msgstr "Arrosoir en bois"
+
+#~ msgid "Wooden Watering Can with Freshwater"
+#~ msgstr "Arrosoir en bois avec eau douce"
+
+#~ msgid "Wooden Watering Can with Salt Water"
+#~ msgstr "Arrosoir en bois avec eau salée"
+
+#~ msgid "Clear Glass Bottle"
+#~ msgstr "Bouteille en verre transparent"
+
+#~ msgid "Clear Glass Bottle With Salt Water"
+#~ msgstr "Bouteille en verre transparent avec eau salée"
+
+#~ msgid "Green Glass Bottle With Fresh Water"
+#~ msgstr "Bouteille en verre vert avec eau douce"
+
+#~ msgid "Clear Glass Bottle With Fresh Water"
+#~ msgstr "Bouteille en verre transparent avec eau douce"
+
+#~ msgid "Cannot place here ! Needs a whole block of : "
+#~ msgstr "Impossible de placer ici ! Besoin d'un bloc entier de :"
+
+#~ msgid "Status : needs a clear glass pane and a wick (coarse fibre) !"
+#~ msgstr "Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !"
+
+#~ msgid "Status : needs a clear glass pane !"
+#~ msgstr "Statut : nécessite un carreau de verre clair !"
+
+#~ msgid "Status : needs a wick (coarse fibre) !"
+#~ msgstr "Statut : nécessite une mèche (fibre grossière) !"
+
+#~ msgid "Status : "
+#~ msgstr "Statut :"
+
+#~ msgid "Clay Oil Lamp (lit)"
+#~ msgstr "Lampe à huile en argile (allumée)"
+
+#~ msgid "Dump"
+#~ msgstr "Décharge"
+
+#~ msgid "red dye"
+#~ msgstr "Teinture rouge"
