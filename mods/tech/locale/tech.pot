@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 08:29+0200\n"
+"POT-Creation-Date: 2025-08-22 09:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -418,7 +418,7 @@ msgstr ""
 msgid "Crafting"
 msgstr ""
 
-#: craft_stations.lua:60 craft_stations.lua:833
+#: craft_stations.lua:60 craft_stations.lua:835
 msgid "Carpentry Bench"
 msgstr ""
 
@@ -430,15 +430,15 @@ msgstr ""
 msgid "Blocks"
 msgstr ""
 
-#: craft_stations.lua:83 craft_stations.lua:930
+#: craft_stations.lua:83 craft_stations.lua:932
 msgid "Spinning Wheel"
 msgstr ""
 
-#: craft_stations.lua:86 craft_stations.lua:976
+#: craft_stations.lua:86 craft_stations.lua:978
 msgid "Loom"
 msgstr ""
 
-#: craft_stations.lua:89 craft_stations.lua:1030
+#: craft_stations.lua:89 craft_stations.lua:1032
 msgid "Glass furnace"
 msgstr ""
 
@@ -498,66 +498,67 @@ msgstr ""
 msgid "Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:633
+#. TR: Ex: Limestone Mortar and pestle
+#: craft_stations.lua:634
 msgid "Limestone"
 msgstr ""
 
-#: craft_stations.lua:634 tools.lua:577 tools.lua:707
+#: craft_stations.lua:635 tools.lua:577 tools.lua:707
 msgid "Basalt"
 msgstr ""
 
-#: craft_stations.lua:635 tools.lua:587 tools.lua:708
+#. TR: Ex: Basalt Mortar and pestle
+#: craft_stations.lua:637 tools.lua:587 tools.lua:708
 msgid "Granite"
 msgstr ""
 
-#. TR: is used as material. Ex: Wooden Mortar and pestle
-#. TR: is used as container
+#. TR: Ex: Wooden Mortar and pestle
 #. TR: Ex: Wooden Water Pot
-#: craft_stations.lua:637 waterworking.lua:75
+#: craft_stations.lua:639 waterworking.lua:77
 msgid "Wooden"
 msgstr ""
 
-#: craft_stations.lua:659
+#: craft_stations.lua:661
 msgid "Wooden Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:672
+#: craft_stations.lua:674
 msgid "@1 Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:725
+#: craft_stations.lua:727
 msgid "Brick Maker's Bench"
 msgstr ""
 
-#: craft_stations.lua:789
+#: craft_stations.lua:791
 msgid "Anvil"
 msgstr ""
 
-#: craft_stations.lua:878
+#: craft_stations.lua:880
 msgid "Masonry Bench"
 msgstr ""
 
-#: craft_stations.lua:1080
+#: craft_stations.lua:1082
 msgid "Weaving Frame"
 msgstr ""
 
-#: craft_stations.lua:1145
+#: craft_stations.lua:1147
 msgid "Granite Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1185
+#: craft_stations.lua:1187
 msgid "Limestone Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1226
+#: craft_stations.lua:1228
 msgid "Basalt Grinding Stone"
 msgstr ""
 
-#: craft_stations.lua:1268
+#: craft_stations.lua:1270
 msgid "Chopping Block"
 msgstr ""
 
-#: craft_stations.lua:1306
+#: craft_stations.lua:1308
 msgid "Hammering Block"
 msgstr ""
 
@@ -1156,31 +1157,36 @@ msgstr ""
 msgid "Lantern Case"
 msgstr ""
 
-#: lantern.lua:70
+#. TR:
+#. @1 is a Clear Glass Pane
+#. @2 is a Coarse Fibre
+#: lantern.lua:73
 msgid "Status: needs a @1 and a wick (@2)!"
 msgstr ""
 
-#: lantern.lua:88
+#: lantern.lua:91
 msgid "Lantern Case with a wick"
 msgstr ""
 
-#: lantern.lua:116
+#. TR: @1 is a clear glass pane
+#: lantern.lua:120
 msgid "Status: needs a @1!"
 msgstr ""
 
-#: lantern.lua:133
+#: lantern.lua:137
 msgid "Lantern Case with Glass"
 msgstr ""
 
-#: lantern.lua:158
+#. TR: @1 is a Coarse Fiber
+#: lantern.lua:163
 msgid "Status: needs a wick (@1)!"
 msgstr ""
 
-#: lantern.lua:175
+#: lantern.lua:180
 msgid "Unlit Lantern"
 msgstr ""
 
-#: lantern.lua:223
+#: lantern.lua:228
 msgid "Lit Lantern"
 msgstr ""
 
@@ -1468,42 +1474,65 @@ msgstr ""
 msgid "Iron Sign"
 msgstr ""
 
-#. TR: is used as container material.
-#. TR: Ex: Clay Water Pot
-#: waterworking.lua:68
+#. TR: @1 in "<container> with @1" / Ex: "Water Pot with Freshwater"
+#: waterworking.lua:56
+msgid "Freshwater"
+msgstr ""
+
+#. TR: @1 in "<container> with @1" / Ex: "Water Pot with Salt Water"
+#: waterworking.lua:58
+msgid "Salt Water"
+msgstr ""
+
+#. TR: @1 in  "@1 <container>" / Ex: "Clear Glass Bottle"
+#: waterworking.lua:63
+msgid "Clear Glass"
+msgstr ""
+
+#. TR: @1 in  "@1 <container>" / Ex: "Green Glass Bottle"
+#: waterworking.lua:65
+msgid "Green Glass"
+msgstr ""
+
+#. TR: Ex: Clay Water Pot in @1 Water Pot
+#: waterworking.lua:71
 msgctxt "tech:water_pot"
 msgid "Clay"
 msgstr ""
 
-#: waterworking.lua:148 waterworking.lua:211
+#: waterworking.lua:150 waterworking.lua:213
 msgid "Water Pot"
 msgstr ""
 
-#: waterworking.lua:149
+#: waterworking.lua:151
 msgid "Watering Can"
 msgstr ""
 
 #. TR: @1 is the material (tech:water_pot context). Ex: Clay
 #. TR: @2 is the container. Ex: Water Port
 #. TR: Full ex: Empty Clay Water Pot
-#: waterworking.lua:160
+#: waterworking.lua:162
 msgid "Empty @1 @2"
 msgstr ""
 
-#: waterworking.lua:255
-msgid "@1 "
+#. TR: @1 is the material
+#. TR: @2 is the container
+#. TR: @3 is the liquid
+#. TR: Ex: Clay Water Pot with Freshwater
+#: waterworking.lua:261
+msgid "@1 @2 with @3"
 msgstr ""
 
-#: waterworking.lua:320
+#: waterworking.lua:327
 msgid "Salty Clay Water Pot"
 msgstr ""
 
-#: waterworking.lua:385
-msgid " "
+#: waterworking.lua:392
+msgid "@1 Bottle"
 msgstr ""
 
-#: waterworking.lua:440
-msgid " Glass Bottle With "
+#: waterworking.lua:446
+msgid "@1 Bottle With @2"
 msgstr ""
 
 #: woodworking.lua:36

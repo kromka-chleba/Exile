@@ -67,6 +67,9 @@ minetest.register_node(
             --   the pane and coarse fibre
             meta:set_string(
                 "status",
+                -- TR:
+                -- @1 is a Clear Glass Pane
+                -- @2 is a Coarse Fibre
                 S("Status: needs a @1 and a wick (@2)!",
                   minetest.registered_nodes["tech:pane_clear"].description,
                   minetest.registered_items["tech:coarse_fibre"].description))
@@ -113,6 +116,7 @@ minetest.register_node(
         on_construct = function(pos)
             local meta = minetest.get_meta(pos)
             meta:set_string(
+                -- TR: @1 is a clear glass pane
                 "status",S("Status: needs a @1!",
                            minetest.registered_nodes[
                                "tech:pane_clear"].description))
@@ -155,6 +159,7 @@ minetest.register_node(
             local meta = minetest.get_meta(pos)
             meta:set_string(
                 "status",S(
+                    -- TR: @1 is a Coarse Fiber
                     "Status: needs a wick (@1)!",
                     minetest.registered_items["tech:coarse_fibre"].description))
             minimal.infotext_set_new(pos, meta)

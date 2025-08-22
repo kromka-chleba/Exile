@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 08:26+0200\n"
-"PO-Revision-Date: 2025-08-22 08:27+0200\n"
+"POT-Creation-Date: 2025-08-22 09:13+0200\n"
+"PO-Revision-Date: 2025-08-22 09:17+0200\n"
 "Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -422,7 +422,7 @@ msgstr "Mortar and pestle"
 msgid "Crafting"
 msgstr "Artisanat"
 
-#: craft_stations.lua:60 craft_stations.lua:833
+#: craft_stations.lua:60 craft_stations.lua:835
 msgid "Carpentry Bench"
 msgstr "Établi de menuiserie"
 
@@ -434,15 +434,15 @@ msgstr "Briques"
 msgid "Blocks"
 msgstr "Blocs"
 
-#: craft_stations.lua:83 craft_stations.lua:930
+#: craft_stations.lua:83 craft_stations.lua:932
 msgid "Spinning Wheel"
 msgstr "Rouet"
 
-#: craft_stations.lua:86 craft_stations.lua:976
+#: craft_stations.lua:86 craft_stations.lua:978
 msgid "Loom"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:89 craft_stations.lua:1030
+#: craft_stations.lua:89 craft_stations.lua:1032
 msgid "Glass furnace"
 msgstr "Four à verre"
 
@@ -502,66 +502,67 @@ msgstr "Emplacement pour le martelage"
 msgid "Mortar and Pestle"
 msgstr "Mortier et pilon"
 
-#: craft_stations.lua:633
+#. TR: Ex: Limestone Mortar and pestle
+#: craft_stations.lua:634
 msgid "Limestone"
 msgstr "Calcaire"
 
-#: craft_stations.lua:634 tools.lua:577 tools.lua:707
+#: craft_stations.lua:635 tools.lua:577 tools.lua:707
 msgid "Basalt"
 msgstr "basalte"
 
-#: craft_stations.lua:635 tools.lua:587 tools.lua:708
+#. TR: Ex: Basalt Mortar and pestle
+#: craft_stations.lua:637 tools.lua:587 tools.lua:708
 msgid "Granite"
 msgstr "granite"
 
-#. TR: is used as material. Ex: Wooden Mortar and pestle
-#. TR: is used as container
+#. TR: Ex: Wooden Mortar and pestle
 #. TR: Ex: Wooden Water Pot
-#: craft_stations.lua:637 waterworking.lua:75
+#: craft_stations.lua:639 waterworking.lua:77
 msgid "Wooden"
 msgstr "en bois"
 
-#: craft_stations.lua:659
+#: craft_stations.lua:661
 msgid "Wooden Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:672
+#: craft_stations.lua:674
 msgid "@1 Mortar and Pestle"
 msgstr "Mortier et pilon en @1"
 
-#: craft_stations.lua:725
+#: craft_stations.lua:727
 msgid "Brick Maker's Bench"
 msgstr "Établi de fabrication de briques"
 
-#: craft_stations.lua:789
+#: craft_stations.lua:791
 msgid "Anvil"
 msgstr "Enclume"
 
-#: craft_stations.lua:878
+#: craft_stations.lua:880
 msgid "Masonry Bench"
 msgstr "Établi de maçonnerie"
 
-#: craft_stations.lua:1080
+#: craft_stations.lua:1082
 msgid "Weaving Frame"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:1145
+#: craft_stations.lua:1147
 msgid "Granite Grinding Stone"
 msgstr "Meule en granite"
 
-#: craft_stations.lua:1185
+#: craft_stations.lua:1187
 msgid "Limestone Grinding Stone"
 msgstr "Meule en calcaire"
 
-#: craft_stations.lua:1226
+#: craft_stations.lua:1228
 msgid "Basalt Grinding Stone"
 msgstr "Meule en basalte"
 
-#: craft_stations.lua:1268
+#: craft_stations.lua:1270
 msgid "Chopping Block"
 msgstr "Bloc de coupe"
 
-#: craft_stations.lua:1306
+#: craft_stations.lua:1308
 msgid "Hammering Block"
 msgstr "Bloc de martelage"
 
@@ -692,16 +693,12 @@ msgid "Wicker well lining"
 msgstr "Doublure de puits en osier"
 
 #: earthen_building.lua:140
-#, fuzzy
-#| msgid "Wicker well lining"
 msgid "Wet wicker well lining"
-msgstr "Doublure de puits en osier"
+msgstr "Revêtements de puits en osier mouillé"
 
 #: earthen_building.lua:141
-#, fuzzy
-#| msgid "Wicker well lining"
 msgid "Salty wet wicker well lining"
-msgstr "Doublure de puits en osier"
+msgstr "Revêtements de puits en osier mouillé d'eau salée"
 
 #: earthen_building.lua:247
 msgid "Reinforce a well wall"
@@ -1166,37 +1163,36 @@ msgstr "Accorder l'accès au propriétaire de la clé."
 msgid "Lantern Case"
 msgstr "Boîtier de lanterne"
 
-#: lantern.lua:70
-#, fuzzy
-#| msgid "Status: needs a wick (coarse fibre)!"
+#. TR:
+#. @1 is a Clear Glass Pane
+#. @2 is a Coarse Fibre
+#: lantern.lua:73
 msgid "Status: needs a @1 and a wick (@2)!"
-msgstr "Statut: nécessite une mèche (fibre grossière)!"
+msgstr "Statut: nécessite un @1 et une mèche (@2)!"
 
-#: lantern.lua:88
+#: lantern.lua:91
 msgid "Lantern Case with a wick"
 msgstr "Boîtier de lanterne avec une mèche"
 
-#: lantern.lua:116
-#, fuzzy
-#| msgid "Status: needs a clear glass pane!"
+#. TR: @1 is a clear glass pane
+#: lantern.lua:120
 msgid "Status: needs a @1!"
-msgstr "Statut: nécessite un carreau de verre transparent!"
+msgstr "Statut: nécessite un @1"
 
-#: lantern.lua:133
+#: lantern.lua:137
 msgid "Lantern Case with Glass"
 msgstr "Boîtier de lanterne avec verre"
 
-#: lantern.lua:158
-#, fuzzy
-#| msgid "Status: needs a wick (coarse fibre)!"
+#. TR: @1 is a Coarse Fiber
+#: lantern.lua:163
 msgid "Status: needs a wick (@1)!"
-msgstr "Statut: nécessite une mèche (fibre grossière)!"
+msgstr "Statut: nécessite une mèche (@1)!"
 
-#: lantern.lua:175
+#: lantern.lua:180
 msgid "Unlit Lantern"
 msgstr "Lanterne éteinte"
 
-#: lantern.lua:223
+#: lantern.lua:228
 msgid "Lit Lantern"
 msgstr "Lanterne allumée"
 
@@ -1237,16 +1233,12 @@ msgid "Empty"
 msgstr "Vide"
 
 #: lightsource_api.lua:49
-#, fuzzy
-#| msgid "fuel left"
 msgid "@1% fuel left"
-msgstr "carburant restant"
+msgstr "il reste @1% de combustible"
 
 #: lightsource_api.lua:52
-#, fuzzy
-#| msgid "Status: "
 msgid "Status: @1"
-msgstr "Statut:"
+msgstr "Statut: @1"
 
 #: plant_crafts.lua:17
 msgid "Stick"
@@ -1485,54 +1477,69 @@ msgid "Oiled Sign"
 msgstr ""
 
 #: ucsigns.lua:185
-#, fuzzy
-#| msgid "Iron and Slag"
 msgid "Iron Sign"
-msgstr "Fer et laitier de fonte"
+msgstr "Panneau en fer"
 
-#. TR: is used as container material.
-#. TR: Ex: Clay Water Pot
-#: waterworking.lua:68
+#. TR: @1 in "<container> with @1" / Ex: "Water Pot with Freshwater"
+#: waterworking.lua:56
+msgid "Freshwater"
+msgstr ""
+
+#. TR: @1 in "<container> with @1" / Ex: "Water Pot with Salt Water"
+#: waterworking.lua:58
+msgid "Salt Water"
+msgstr "de l'eau salée"
+
+#. TR: @1 in  "@1 <container>" / Ex: "Clear Glass Bottle"
+#: waterworking.lua:63
+msgid "Clear Glass"
+msgstr "verre transparent"
+
+#. TR: @1 in  "@1 <container>" / Ex: "Green Glass Bottle"
+#: waterworking.lua:65
+msgid "Green Glass"
+msgstr "verre vert"
+
+#. TR: Ex: Clay Water Pot in @1 Water Pot
+#: waterworking.lua:71
 msgctxt "tech:water_pot"
 msgid "Clay"
 msgstr "en argile"
 
-#: waterworking.lua:148 waterworking.lua:211
+#: waterworking.lua:150 waterworking.lua:213
 msgid "Water Pot"
 msgstr "Cruche"
 
-#: waterworking.lua:149
-#, fuzzy
-#| msgid "Clay Watering Can"
+#: waterworking.lua:151
 msgid "Watering Can"
-msgstr "Arrosoir en argile"
+msgstr "Arrosoir"
 
 #. TR: @1 is the material (tech:water_pot context). Ex: Clay
 #. TR: @2 is the container. Ex: Water Port
 #. TR: Full ex: Empty Clay Water Pot
-#: waterworking.lua:160
+#: waterworking.lua:162
 msgid "Empty @1 @2"
 msgstr "@2 en @1 vide"
 
-#: waterworking.lua:255
-#, fuzzy
-#| msgid "@1 Adze"
-msgid "@1 "
-msgstr "Herminette en @1"
+#. TR: @1 is the material
+#. TR: @2 is the container
+#. TR: @3 is the liquid
+#. TR: Ex: Clay Water Pot with Freshwater
+#: waterworking.lua:261
+msgid "@1 @2 with @3"
+msgstr ""
 
-#: waterworking.lua:320
+#: waterworking.lua:327
 msgid "Salty Clay Water Pot"
 msgstr ""
 
-#: waterworking.lua:385
-msgid " "
-msgstr ""
+#: waterworking.lua:392
+msgid "@1 Bottle"
+msgstr "Bouteille en @1"
 
-#: waterworking.lua:440
-#, fuzzy
-#| msgid "Green Glass Bottle With Salt Water"
-msgid " Glass Bottle With "
-msgstr "Bouteille en verre vert avec eau salée"
+#: waterworking.lua:446
+msgid "@1 Bottle With @2"
+msgstr "Bouteille en @1 avec @2"
 
 #: woodworking.lua:36
 msgid "Wooden Ladder"
@@ -1546,14 +1553,14 @@ msgstr "Planches de plancher en bois"
 msgid "Wooden Stairs"
 msgstr "Escalier en bois"
 
+#, fuzzy
+#~| msgid "@1 Adze"
+#~ msgid "@1 "
+#~ msgstr "Herminette en @1"
+
 #~ msgctxt "tech:water_pot"
 #~ msgid "Wooden"
 #~ msgstr "en bois"
-
-#, fuzzy
-#~| msgid "Green Glass Bottle"
-#~ msgid " Glass Bottle"
-#~ msgstr "Bouteille en verre vert"
 
 #~ msgctxt "@1 in @1 Mortar and Pestle"
 #~ msgid "Limestone"
@@ -1632,9 +1639,6 @@ msgstr "Escalier en bois"
 
 #~ msgid "Placed Basalt Hammer"
 #~ msgstr "Marteau en basalte placé"
-
-#~ msgid "Basalt Hammer"
-#~ msgstr "Marteau en basalte"
 
 #~ msgid "Granite Hammer"
 #~ msgstr "Marteau en granite"
