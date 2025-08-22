@@ -3,6 +3,7 @@
 
 -- Internationalisaton
 local S = tech.S
+local SC = tech.SC
 
 -- fill pot_name with freshwater (called in on_timer functions)
 local function water_pot(pos, pot_name, elapsed)
@@ -54,22 +55,22 @@ end
 -- used to avoir translation string looking like "@1 @2"
 -- So we can keep using the full string in translation
 local to_s = {
-    clay = "Clay",
-    wooden = "Wooden",
     freshwater = "Freshwater",
     salt_water = "Salt Water",
-    water_pot = "Water Pot",
-    watering_can = "Watering Can",
     clear = "Clear",
     green = "Green"
 }
 
 local mats_def = {
     ["clay"] = {
+        -- TR: Ex: Clay Water Pot in @1 Water Pot
+        desc = SC("tech:water_pot","Clay"),
         texture = "tech_pottery.png",
         sound = tech.node_sound_earthenware_defaults(),
     },
     ["wooden"] = {
+        -- TR: Ex: Wooden Water Pot
+        desc = S("Wooden"),
         texture = "tech_primitive_wood.png",
         sound = nodes_nature.node_sound_wood_defaults(),
     }
@@ -141,12 +142,20 @@ local nodeboxes = {
     }
 }
 
+local containers = {
+    water_pot = S("Water Pot"),
+    watering_can = S("Watering Can"),
+}
+
 -- register empty pots and watering cans (clay and wood)
-for _, container in pairs ({"water_pot", "watering_can"}) do
+for container, tr_container in pairs (containers) do
     for mat, _ in pairs (mats_def) do
         local name = "tech:" .. mat .. "_".. container
         local def = {
-            description = S("Empty " .. to_s[mat] ..  " " .. to_s[container]),
+            -- TR: @1 is the material (tech:water_pot context). Ex: Clay
+            -- TR: @2 is the container. Ex: Water Port
+            -- TR: Full ex: Empty Clay Water Pot
+            description = S("Empty @1 @2", mats_def[mat].desc, tr_container),
             -- Appearance
             tiles = tech.get_stored_liquid_tiles(mat, container),
             drawtype = "nodebox",
@@ -241,9 +250,8 @@ local function get_base_def(mat, container, liquid)
     local def = {
         source = "nodes_nature:".. liquid .."_source",
         empty = "tech:".. mat .. "_" .. container,
-        -- TODO make translation ! maybe a cleared function for translators :D
-        description = S(to_s[mat] ..  " " .. to_s[container]
-                                  .. " with " .. to_s[liquid]),
+        description = S("@1 " .. to_s[container]
+                                  .. " with " .. to_s[liquid], mats_def[mat].desc),
         groups = {dig_immediate = 2},
         tiles = tech.get_stored_liquid_tiles(mat, container, "^tech_pot_water.png"),
         node_box = nodeboxes[container]
@@ -372,7 +380,7 @@ local bottle_base_properties = {
 -- TODO add green/clear translation and maybe functions to make them easier
 for _, glass in pairs ({"green", "clear"}) do
     local empty_def = {
-        description = S(to_s[glass] .. " Glass Bottle"),
+        description = S(to_s[glass] .. " " .. "Glass Bottle"),
         tiles = {"tech_bottle_".. glass .. ".png"},
         inventory_image = "tech_bottle_".. glass .. "_icon.png",
         paramtype = "light",

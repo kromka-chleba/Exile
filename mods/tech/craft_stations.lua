@@ -630,9 +630,12 @@ end
 -- available materials for Exile's registered Mortar and Pestle
 -- and their translated string
 local mortar_and_pestle_mats = {
+    -- TR: Ex: Limestone Mortar and pestle
     limestone = S("Limestone"),
     basalt = S("Basalt"),
+    -- TR: Ex: Basalt Mortar and pestle
     granite = S("Granite"),
+    -- TR: Ex: Wooden Mortar and pestle
     wooden = S("Wooden")
 }
 

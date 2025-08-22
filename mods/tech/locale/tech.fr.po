@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 07:55+0200\n"
-"PO-Revision-Date: 2025-08-22 08:02+0200\n"
+"POT-Creation-Date: 2025-08-22 08:26+0200\n"
+"PO-Revision-Date: 2025-08-22 08:27+0200\n"
 "Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -413,10 +413,8 @@ msgid "Grinding stone"
 msgstr "Meule"
 
 #: craft_stations.lua:46
-#, fuzzy
-#| msgid "Mortar and Pestle"
 msgid "Mortar and pestle"
-msgstr "Mortier et pilon"
+msgstr "Mortar and pestle"
 
 #: craft_stations.lua:52 craft_stations.lua:66 craft_stations.lua:94
 #: craft_stations.lua:112 craft_stations.lua:125 craft_stations.lua:133
@@ -424,7 +422,7 @@ msgstr "Mortier et pilon"
 msgid "Crafting"
 msgstr "Artisanat"
 
-#: craft_stations.lua:60 craft_stations.lua:832
+#: craft_stations.lua:60 craft_stations.lua:833
 msgid "Carpentry Bench"
 msgstr "Établi de menuiserie"
 
@@ -436,15 +434,15 @@ msgstr "Briques"
 msgid "Blocks"
 msgstr "Blocs"
 
-#: craft_stations.lua:83 craft_stations.lua:929
+#: craft_stations.lua:83 craft_stations.lua:930
 msgid "Spinning Wheel"
 msgstr "Rouet"
 
-#: craft_stations.lua:86 craft_stations.lua:975
+#: craft_stations.lua:86 craft_stations.lua:976
 msgid "Loom"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:89 craft_stations.lua:1029
+#: craft_stations.lua:89 craft_stations.lua:1030
 msgid "Glass furnace"
 msgstr "Four à verre"
 
@@ -516,53 +514,54 @@ msgstr "basalte"
 msgid "Granite"
 msgstr "granite"
 
-#: craft_stations.lua:636
-#, fuzzy
-#| msgid "Wooden Door"
+#. TR: is used as material. Ex: Wooden Mortar and pestle
+#. TR: is used as container
+#. TR: Ex: Wooden Water Pot
+#: craft_stations.lua:637 waterworking.lua:75
 msgid "Wooden"
-msgstr "Porte en bois"
+msgstr "en bois"
 
-#: craft_stations.lua:658
+#: craft_stations.lua:659
 msgid "Wooden Mortar and Pestle"
 msgstr ""
 
-#: craft_stations.lua:671
+#: craft_stations.lua:672
 msgid "@1 Mortar and Pestle"
 msgstr "Mortier et pilon en @1"
 
-#: craft_stations.lua:724
+#: craft_stations.lua:725
 msgid "Brick Maker's Bench"
 msgstr "Établi de fabrication de briques"
 
-#: craft_stations.lua:788
+#: craft_stations.lua:789
 msgid "Anvil"
 msgstr "Enclume"
 
-#: craft_stations.lua:877
+#: craft_stations.lua:878
 msgid "Masonry Bench"
 msgstr "Établi de maçonnerie"
 
-#: craft_stations.lua:1079
+#: craft_stations.lua:1080
 msgid "Weaving Frame"
 msgstr "Métier à tisser"
 
-#: craft_stations.lua:1144
+#: craft_stations.lua:1145
 msgid "Granite Grinding Stone"
 msgstr "Meule en granite"
 
-#: craft_stations.lua:1184
+#: craft_stations.lua:1185
 msgid "Limestone Grinding Stone"
 msgstr "Meule en calcaire"
 
-#: craft_stations.lua:1225
+#: craft_stations.lua:1226
 msgid "Basalt Grinding Stone"
 msgstr "Meule en basalte"
 
-#: craft_stations.lua:1267
+#: craft_stations.lua:1268
 msgid "Chopping Block"
 msgstr "Bloc de coupe"
 
-#: craft_stations.lua:1305
+#: craft_stations.lua:1306
 msgid "Hammering Block"
 msgstr "Bloc de martelage"
 
@@ -1491,31 +1490,45 @@ msgstr ""
 msgid "Iron Sign"
 msgstr "Fer et laitier de fonte"
 
-#: waterworking.lua:149
-#, fuzzy
-#| msgid "Empty"
-msgid "Empty "
-msgstr "Vide"
+#. TR: is used as container material.
+#. TR: Ex: Clay Water Pot
+#: waterworking.lua:68
+msgctxt "tech:water_pot"
+msgid "Clay"
+msgstr "en argile"
 
-#: waterworking.lua:200
+#: waterworking.lua:148 waterworking.lua:211
 msgid "Water Pot"
 msgstr "Cruche"
 
-#: waterworking.lua:245
-msgid " "
-msgstr ""
+#: waterworking.lua:149
+#, fuzzy
+#| msgid "Clay Watering Can"
+msgid "Watering Can"
+msgstr "Arrosoir en argile"
 
-#: waterworking.lua:310
+#. TR: @1 is the material (tech:water_pot context). Ex: Clay
+#. TR: @2 is the container. Ex: Water Port
+#. TR: Full ex: Empty Clay Water Pot
+#: waterworking.lua:160
+msgid "Empty @1 @2"
+msgstr "@2 en @1 vide"
+
+#: waterworking.lua:255
+#, fuzzy
+#| msgid "@1 Adze"
+msgid "@1 "
+msgstr "Herminette en @1"
+
+#: waterworking.lua:320
 msgid "Salty Clay Water Pot"
 msgstr ""
 
-#: waterworking.lua:375
-#, fuzzy
-#| msgid "Green Glass Bottle"
-msgid " Glass Bottle"
-msgstr "Bouteille en verre vert"
+#: waterworking.lua:385
+msgid " "
+msgstr ""
 
-#: waterworking.lua:430
+#: waterworking.lua:440
 #, fuzzy
 #| msgid "Green Glass Bottle With Salt Water"
 msgid " Glass Bottle With "
@@ -1532,6 +1545,15 @@ msgstr "Planches de plancher en bois"
 #: woodworking.lua:143
 msgid "Wooden Stairs"
 msgstr "Escalier en bois"
+
+#~ msgctxt "tech:water_pot"
+#~ msgid "Wooden"
+#~ msgstr "en bois"
+
+#, fuzzy
+#~| msgid "Green Glass Bottle"
+#~ msgid " Glass Bottle"
+#~ msgstr "Bouteille en verre vert"
 
 #~ msgctxt "@1 in @1 Mortar and Pestle"
 #~ msgid "Limestone"
@@ -1634,9 +1656,6 @@ msgstr "Escalier en bois"
 
 #~ msgid "Wooden Water Pot with Freshwater"
 #~ msgstr "Cruche en bois avec eau douce"
-
-#~ msgid "Clay Watering Can"
-#~ msgstr "Arrosoir en argile"
 
 #~ msgid "Clay Watering Can with Freshwater"
 #~ msgstr "Arrosoir en argile avec eau douce"
