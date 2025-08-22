@@ -1,0 +1,1101 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti textdomain tech x.x.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 02:09+0000\n"
+"PO-Revision-Date: 2025-08-22 02:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: ltt_convert 0.2.1\n"
+
+msgid "Woven Bag"
+msgstr "Вязанная сумка"
+
+msgid "Wicker Bag"
+msgstr "Плетеная сумка"
+
+msgid "Fabric Bag"
+msgstr "Тканевая сумка"
+
+msgid "Sleeping Spot"
+msgstr "Спальное место"
+
+msgid "Sleeping Mat"
+msgstr "Спальный коврик"
+
+msgid "Primitive Bed"
+msgstr "Примитивная кровать"
+
+msgid "Mattress"
+msgstr "Матрас"
+
+msgid "Bed"
+msgstr "Кровать"
+
+msgid "Crushed Lime"
+msgstr "Дробленая известь"
+
+msgid "Quicklime"
+msgstr "Негашеная известь"
+
+msgid "Slaked Lime"
+msgstr "Гашеная известь"
+
+msgid "Slaked Lime (ruined)"
+msgstr "Гашеная известь (испорченная)"
+
+msgid "Lime Mortar Slab"
+msgstr "Плита с известковым раствором"
+
+msgid "Lime Mortar"
+msgstr "Известковый раствор"
+
+msgid "Loose Bricks (unfired)"
+msgstr "Кирпичи (необожженные)"
+
+msgid "Loose Bricks"
+msgstr "Обожженные кирпичи"
+
+msgid "Brick and Mortar"
+msgstr "Кирпич с раствором"
+
+msgid "Brick and Mortar Stair"
+msgstr "Лестница из кирпича и раствора"
+
+msgid "Brick and Mortar Slab"
+msgstr "Плита из кирпича и раствора"
+
+msgid "Loose Roof Tile (unfired)"
+msgstr "Кровельная черепица (необожженная)"
+
+msgid "Loose Roof Tile"
+msgstr "Кровельная черепица"
+
+msgid "Roof Tile"
+msgstr "Кровельная плитка"
+
+msgid "Roof Tile (outer corner)"
+msgstr "Кровельная плитка (внешний угол)"
+
+msgid "Roof Tile (inner corner)"
+msgstr "Кровельная плитка (внутренний угол)"
+
+msgid "Tile Block (unfired)"
+msgstr "Плиточный блок (необожженный)"
+
+msgid "Tile Block (Loose)"
+msgstr "Плиточный блок (рыхлый)"
+
+msgid "Tile Block"
+msgstr "Плиточный блок"
+
+msgid "Tile Stair (Loose)"
+msgstr ""
+
+msgid "Tile Slab (Loose)"
+msgstr ""
+
+msgid "Tile Stair"
+msgstr "Плиточная лестница"
+
+msgid "Tile Slab"
+msgstr "Плиточная плита"
+
+msgid "@1 Brick with Mortar"
+msgstr "Кирпич с раствором @1"
+
+msgid "@1 Block with Mortar"
+msgstr "Блок с раствором @1"
+
+msgid "@1 Brick with Mortar Stair"
+msgstr "Лестница из кирпичей с раствором @1"
+
+msgid "@1 Brick with Mortar Slab"
+msgstr "Плита из кирпичей с раствором @1"
+
+msgid "@1 Block with Mortar Stair"
+msgstr "Лестница из блоков с раствором @1"
+
+msgid "@1 Block with Mortar Slab"
+msgstr "Плита из блоков с раствором @1"
+
+msgid "Claystone"
+msgstr "Аргиллит"
+
+msgid "Siltstone"
+msgstr "Алевролит"
+
+msgid "Sandstone"
+msgstr "Песчаник"
+
+msgid "Conglomerate"
+msgstr "Конгломерат"
+
+msgid "Coquina"
+msgstr "Ракушечник"
+
+msgid "Limestone"
+msgstr "Известняк"
+
+msgid "Ironstone"
+msgstr "Железняк"
+
+msgid "Scoria"
+msgstr "Шлак"
+
+msgid "Gneiss"
+msgstr "Гнейс"
+
+msgid "Combine with another slab"
+msgstr "Соедините с другой плитой"
+
+msgid "Granite"
+msgstr "Гранит"
+
+msgid "Basalt"
+msgstr "Базальт"
+
+msgid "Jade"
+msgstr "Нефрит"
+
+msgid "Woven Hat"
+msgstr "Вязаная шляпа"
+
+msgid "Sun Hat"
+msgstr "Солнечная шляпа"
+
+msgid "Woven Sandals"
+msgstr "Вязаные сандалии"
+
+msgid "Woven Cape"
+msgstr "Вязаный плащ"
+
+msgid "Woven Poncho"
+msgstr "Вязаное пончо"
+
+msgid "Woven Leggings"
+msgstr "Вязаные леггинсы"
+
+msgid "Woven Blanket"
+msgstr "Вязаное одеяло"
+
+msgid "Light Fabric Hat"
+msgstr "Шляпа из легкой ткани"
+
+msgid "Thick Fabric Hat"
+msgstr "Шляпа из плотной ткани"
+
+msgid "Light Fabric Cape"
+msgstr "Плащ из легкой ткани"
+
+msgid "Thick Fabric Cape"
+msgstr "Плащ из плотной ткани"
+
+msgid "Light Fabric Trousers"
+msgstr "Брюки из легкой ткани"
+
+msgid "Thick Fabric Trousers"
+msgstr "Брюки из плотной ткани"
+
+msgid "Light Fabric Tunic"
+msgstr "Туника из легкой ткани"
+
+msgid "Thick Fabric Tunic"
+msgstr "Туника из плотной ткани"
+
+msgid "Cooking Pot (unfired)"
+msgstr "Горшок для приготовления пищи (необожженный)"
+
+msgid "Bowl (unfired)"
+msgstr ""
+
+msgid "Cooking Pot"
+msgstr "Горшок для приготовления пищи"
+
+msgid "Empty Bowl"
+msgstr ""
+
+msgid "Bowl of @1 Stew"
+msgstr ""
+
+msgid "Bowl of @1 Soup"
+msgstr ""
+
+msgid "Water"
+msgstr "Вода"
+
+msgid "Contents: @1"
+msgstr "Содержимое: @1"
+
+msgid "Contents: <EMPTY>"
+msgstr "Содержимое: <ПУСТО>"
+
+msgid "Leftover: @1%"
+msgstr ""
+
+msgid "Soup"
+msgstr "Суп"
+
+msgid "Stew"
+msgstr ""
+
+msgid "Unprepared Pot"
+msgstr "Неподготовленный горшок"
+
+msgid "Soup Pot"
+msgstr "Горшок для супа"
+
+msgid "Status: @1 pot"
+msgstr "Статус: Содержит - @1"
+
+msgid "Status: @1 pot (cooking)"
+msgstr "Статус: Готовится - @1"
+
+msgid "Status: @1 pot (finished)"
+msgstr "Статус: Готов - @1"
+
+msgid "This pot is full and heavy. Spill it?"
+msgstr "Этот горшок полный и тяжелый. Вылить его?"
+
+msgid "Note: Add water to pot to make soup"
+msgstr "Примечание: Добавьте воды в горшок, чтобы приготовить суп"
+
+msgid "Note: Add food to the pot to make soup"
+msgstr "Примечание: Добавьте продукты в горшок, чтобы приготовить суп"
+
+msgid "Note: Use a Bowl to Get!"
+msgstr ""
+
+msgid "Eat"
+msgstr "Есть"
+
+msgid "Drink"
+msgstr "Выпить"
+
+msgid "Crafting Spot"
+msgstr "Место создания"
+
+msgid "Weaving"
+msgstr "Ткачество"
+
+msgid "Mixing"
+msgstr "Смешивание"
+
+msgid "Grinding stone"
+msgstr "Точильный камень"
+
+msgid "@1 Mortar and Pestle"
+msgstr "@1 Ступка и пестик"
+
+msgid "Mortar and Pestle"
+msgstr "Ступка и пестик"
+
+msgid "Limestone Mortar and Pestle"
+msgstr "Известняк Ступка и пестик"
+
+msgid "Basalt Mortar and Pestle"
+msgstr "Базальт Ступка и пестик"
+
+msgid "Granite Mortar and Pestle"
+msgstr "Гранит Ступка и пестик"
+
+msgid "Wooden Mortar and Pestle"
+msgstr "Деревянная ступка и пестик"
+
+msgid "Crafting"
+msgstr "Создание"
+
+msgid "Carpentry Bench"
+msgstr "Верстак столяра"
+
+msgid "Bricks"
+msgstr "Кирпичи"
+
+msgid "Blocks"
+msgstr "Блоки"
+
+msgid "Spinning Wheel"
+msgstr "Прядильное колесо"
+
+msgid "Loom"
+msgstr "Ткацкий станок"
+
+msgid "Glass furnace"
+msgstr "Стеклянная печь"
+
+msgid "Pottery"
+msgstr "Керамика"
+
+msgid "Tools"
+msgstr "Инструменты"
+
+msgid "Stations"
+msgstr "Станции"
+
+msgid "Agriculture"
+msgstr "Агрокультура"
+
+msgid "Pickaxe"
+msgstr "Кирка"
+
+msgid "Breadmaking"
+msgstr "Хлебопечение"
+
+msgid "Cannot place here! Needs a whole block of: "
+msgstr "Невозможно установить здесь! Нужен целый блок:"
+
+msgid "Mixing Spot"
+msgstr "Место смешивания"
+
+msgid "Threshing Spot"
+msgstr "Молотильное место"
+
+msgid "Weaving Spot"
+msgstr "Ткацкое место"
+
+msgid "Grinding Spot"
+msgstr "Точильное место"
+
+msgid "Hammering Spot"
+msgstr "Ударное место"
+
+msgid "Brick Maker's Bench"
+msgstr "Верстак кирпичника"
+
+msgid "Anvil"
+msgstr "Наковальня"
+
+msgid "Masonry Bench"
+msgstr "Верстак каменщика"
+
+msgid "Weaving Frame"
+msgstr "Ткацкая рама"
+
+msgid "Granite Grinding Stone"
+msgstr "Гранитный шлифовальный камень"
+
+msgid "Limestone Grinding Stone"
+msgstr "Известковый шлифовальный камень"
+
+msgid "Basalt Grinding Stone"
+msgstr "Базальтовый шлифовальный камень"
+
+msgid "Chopping Block"
+msgstr "Разделочный блок"
+
+msgid "Hammering Block"
+msgstr "Ударный блок"
+
+msgid "Wattle"
+msgstr "Плетень"
+
+msgid "Wattle Door"
+msgstr "Плетеная дверь"
+
+msgid "Wattle Trapdoor"
+msgstr "Плетеный люк"
+
+msgid "Wooden Door"
+msgstr "Деревянная дверь"
+
+msgid "Wooden Trapdoor"
+msgstr "Деревянный люк"
+
+msgid "Iron Door"
+msgstr "Железная дверь"
+
+msgid "Iron Trapdoor"
+msgstr "Железный люк"
+
+msgid "Glass Door"
+msgstr "Стеклянная дверь"
+
+msgid "Glass Trapdoor"
+msgstr "Стеклянный люк"
+
+msgid "Clear Glass Door"
+msgstr "Дверь из прозрачного стекла"
+
+msgid "Clear Glass Trapdoor"
+msgstr "Люк из прозрачного стекла"
+
+msgid "Herbal Medicine"
+msgstr "Травы"
+
+msgid "Tiku (stimulant)"
+msgstr "Тику (стимулятор)"
+
+msgid "Tang Vinegar"
+msgstr "Танговый уксус"
+
+msgid "Tang Vinegar with Mother"
+msgstr "Танговый уксус с маткой"
+
+msgid "Mother of Tang"
+msgstr "Матка Танга"
+
+msgid "Infect Other Pots"
+msgstr "Заразить другие горшки"
+
+msgid "Tang"
+msgstr "Танг"
+
+msgid "Tang (unfermented)"
+msgstr "Танг (неферментированный)"
+
+msgid "Drystack"
+msgstr "Сухой штабель"
+
+msgid "Drystack Stair"
+msgstr "Лестница из сухого штабеля"
+
+msgid "Drystack Slab"
+msgstr "Плита из сухого штабеля"
+
+msgid "Mudbrick"
+msgstr "Глинобитный кирпич"
+
+msgid "Mudbrick Stair"
+msgstr "Лестница из глинобитного кирпича"
+
+msgid "Mudbrick Slab"
+msgstr "Глинобитная плита"
+
+msgid "Rammed Earth"
+msgstr "Утрамбованная земля"
+
+msgid "Rammed Earth Stair"
+msgstr "Лестница из утрамбованной земли"
+
+msgid "Rammed Earth Slab"
+msgstr "Плита из утрамбованной земли"
+
+msgid "Wicker well lining"
+msgstr "Плетеная облицовка колодца"
+
+msgid "Wet wicker well lining"
+msgstr "Мокрая плетеная облицовка колодца"
+
+msgid "Salty wet wicker well lining"
+msgstr "Соленая мокрая плетеная облицовка колодца"
+
+msgid "Reinforce a well wall"
+msgstr "Укрепление стен колодца"
+
+msgid "Loose Wattle"
+msgstr "Плетень с прорезями"
+
+msgid "Wattle Door Frame"
+msgstr "Дверная рама из плетня"
+
+msgid "Thatch"
+msgstr "Солома"
+
+msgid "Thatch Stair"
+msgstr "Лестница из соломы"
+
+msgid "Thatch Slab"
+msgstr "Плита из соломы"
+
+msgid "Unretted Cana Bundle"
+msgstr "Нерафинированный тростник"
+
+msgid "Retted Cana Bundle"
+msgstr "Рафинированный тростник"
+
+msgid "Coarse Fibre"
+msgstr "Грубое волокно"
+
+msgid "Fine Fibre"
+msgstr "Тонкое волокно"
+
+msgid "Coarse Fabric"
+msgstr "Грубая ткань"
+
+msgid "Fine Fabric"
+msgstr "Тонкая ткань"
+
+msgid "Wood Ash Block"
+msgstr "Блок древесной золы"
+
+msgid "Enrich depleted soil"
+msgstr "Удобрить истощенную почву"
+
+msgid "Wood Ash"
+msgstr "Древесная зола"
+
+msgid "Charcoal Block"
+msgstr "Блок древесного угля"
+
+msgid "Charcoal"
+msgstr "Древесный уголь"
+
+msgid "Small Wood Fire (unlit)"
+msgstr "Малый дровяной костер (не горит)"
+
+msgid "Large Wood Fire (unlit)"
+msgstr "Большой дровяной костер (не горит)"
+
+msgid "Small Wood Fire"
+msgstr "Малый дровяной костер"
+
+msgid "Large Wood Fire"
+msgstr "Большой дровяной костер"
+
+msgid "Small Wood Fire (smoldering)"
+msgstr "Малый дровяной костер (тлеющий)"
+
+msgid "Large Wood Fire (smoldering)"
+msgstr "Большой дровяной костер (тлеющий)"
+
+msgid "Small Charcoal Fire"
+msgstr "Малый костер из древесного угля"
+
+msgid "Large Charcoal Fire"
+msgstr "Большой костер из древесного угля"
+
+msgid "Small Charcoal Fire (smoldering)"
+msgstr "Малый костер из древесного угля (тлеющий)"
+
+msgid "Large Charcoal Fire (smoldering)"
+msgstr "Большой костер из древесного угля (тлеющий)"
+
+msgid "Small Wood Fire (extinguished)"
+msgstr "Малый дровяной костер (потушен)"
+
+msgid "Large Wood Fire (extinguished)"
+msgstr "Большой дровяной костер (потушен)"
+
+msgid "Small Charcoal Fire (extinguished)"
+msgstr "Малый костер из древесного угля (потушен)"
+
+msgid "Large Charcoal Fire (extinguished)"
+msgstr "Большой костер из древесного угля (потушен)"
+
+msgid "Sea Salt"
+msgstr ""
+
+msgid "Bitter Maraka Flour"
+msgstr "Мука из горького марака"
+
+msgid "Maraka Flour"
+msgstr "Мука из марака"
+
+msgid "Unbaked Maraka Cake"
+msgstr "Невыпеченный торт из марака"
+
+msgid "Maraka Cake"
+msgstr "Торт из марака"
+
+msgid "Maraka Cake Burned"
+msgstr "Сгоревший торт из марака"
+
+msgid "Peeled Anperla Tuber"
+msgstr "Очищенный клубень анперлы"
+
+msgid "Burned Anperla Tuber"
+msgstr "Сгоревший клубень анперлы"
+
+msgid "Cooked Anperla Tuber"
+msgstr "Приготовленный клубень анперлы"
+
+msgid "Mashed Anperla (uncooked)"
+msgstr "Пюре из анперлы (не приготовленно)"
+
+msgid "Mashed Anperla"
+msgstr "Пюре из анперлы"
+
+msgid "Burned Anperla"
+msgstr "Сгоревшая анперла"
+
+msgid "Raw Rhuya Flour"
+msgstr "Необработанная мука из руйи"
+
+msgid "Rhuya Flour"
+msgstr "Мука из руйи"
+
+msgid "Raw Hardy Rhuya Flour"
+msgstr "Необработанная мука из зимней руйи"
+
+msgid "Hardy Rhuya Flour"
+msgstr "Мука из зимней руйи"
+
+msgid "Burnt Rhuya Flour"
+msgstr "Подгоревшая мука из руйи"
+
+msgid "Uncured Barshocha Flour"
+msgstr ""
+
+msgid "Cured Barshocha Flour"
+msgstr ""
+
+msgid "All-Purpose Flour"
+msgstr ""
+
+msgid "Maraka Dough"
+msgstr "Тесто из марака"
+
+msgid "Rhuya Dough"
+msgstr "Тесто из руйи"
+
+msgid "Hardy Rhuya Dough"
+msgstr "Тесто из зимней руйи"
+
+msgid "Barshocha Dough"
+msgstr ""
+
+msgid "All-Purpose Dough"
+msgstr ""
+
+msgid "Fermenting @1"
+msgstr "Ферментация @1"
+
+msgid "Fermented @1"
+msgstr "Ферментированное @1"
+
+msgid "Ikippe Yeast"
+msgstr "Дрожжи Икиппе"
+
+msgid "Black Bread"
+msgstr "Черный хлеб"
+
+msgid "Crumbly Bread"
+msgstr "Рассыпчатый хлеб"
+
+msgid "Unleavened Bread"
+msgstr ""
+
+msgid "Fluffy Unleavened Bread"
+msgstr ""
+
+msgid "Basic Crackerbread"
+msgstr ""
+
+msgid "Soft Bread"
+msgstr ""
+
+msgid "Burned Bread"
+msgstr "Подгоревший хлеб"
+
+msgid "Cracked Egg"
+msgstr "Разбитое яйцо"
+
+msgid "Fried Egg"
+msgstr "Яичница"
+
+msgid "Infect Dough"
+msgstr ""
+
+msgid "Yeast added to the @1"
+msgstr ""
+
+msgid "Green Glass Sand Mix"
+msgstr "Песчаная смесь зеленого стекла"
+
+msgid "Green Glass Ingot"
+msgstr "Слиток зеленого стекла"
+
+msgid "Potash Block"
+msgstr "Блок калия"
+
+msgid "Potash"
+msgstr "Калий"
+
+msgid "Potash Solution Source"
+msgstr "Источник раствора калия"
+
+msgid "Flowing Potash Solution"
+msgstr "Текучий раствор калия"
+
+msgid "Clay Water Pot with Potash Solution"
+msgstr "Глиняный горшок для воды с раствором калия"
+
+msgid "Wooden Water Pot with Potash Solution"
+msgstr "Деревянный горшок для воды с раствором калия"
+
+msgid "Clay Water Pot With Potash"
+msgstr "Глиняный горшок для воды с калием"
+
+msgid "Clear Glass Sand Mix"
+msgstr "Песчаная смесь прозрачного стекла"
+
+msgid "Clear Glass Ingot"
+msgstr "Слиток прозрачного стекла"
+
+msgid "Pane Casting Tray"
+msgstr "Лоток для литья стекла"
+
+msgid "Pane Casting Tray With Green Glass Pane"
+msgstr "Лоток для литья стекла с зеленым стеклом"
+
+msgid "Pane Casting Tray With Clear Glass Pane"
+msgstr "Лоток для литья стекла с прозрачным стеклом"
+
+msgid "Green Glass Pane"
+msgstr "Зеленое стекло"
+
+msgid "Clear Glass Pane"
+msgstr "Прозрачное стекло"
+
+msgid "Green Glass Window"
+msgstr "Зеленое стеклянное окно"
+
+msgid "Clear Glass Window"
+msgstr "Прозрачное стеклянное окно"
+
+msgid "Painting Kit (lime white)"
+msgstr "Набор для рисования (белая известь)"
+
+msgid "Painting Kit (glow paint)"
+msgstr "Набор для рисования (светящаяся краска)"
+
+msgid "Stone Etcher"
+msgstr "Каменный резчик"
+
+msgid "Flip to stone knife"
+msgstr "Перевернуть на каменный нож"
+
+msgid "Painting Kit (ochre red)"
+msgstr "Набор для росписи (охристо-красный)"
+
+msgid "Crushed Iron Ore"
+msgstr "Дробленая железная руда"
+
+msgid "Roasted Iron Ore"
+msgstr "Обожженная железная руда"
+
+msgid "Roasted Iron Ore Powder"
+msgstr "Порошок из обожженной железной руды"
+
+msgid "Iron Smelting Mix"
+msgstr "Смесь для плавки железа"
+
+msgid "Iron and Slag"
+msgstr "Железо и шлак"
+
+msgid "Iron Bloom"
+msgstr "Железная мелочь"
+
+msgid "Iron Ingot"
+msgstr "Железный слиток"
+
+msgid "Slag"
+msgstr "Шлак"
+
+msgid "Slag Stair"
+msgstr "Шлаковая лестница"
+
+msgid "Slag Slab"
+msgstr "Шлаковая плита"
+
+msgid "Molten Slag"
+msgstr "Расплавленный шлак"
+
+msgid "Flowing Molten Slag"
+msgstr "Текущий расплавленный шлак"
+
+msgid "Iron Fittings"
+msgstr "Железная арматура"
+
+msgid "Protection Nails"
+msgstr "Защитные гвозди"
+
+msgid "Protect Item"
+msgstr "Защищает элемент"
+
+msgid "Iron Key"
+msgstr "Железный ключ"
+
+msgid "Grant key owner access."
+msgstr "Предоставление доступа владельцу ключа."
+
+msgid "Lantern Case"
+msgstr "Корпус фонаря"
+
+msgid "Status: needs a @1 and a wick (@2)!"
+msgstr "Статус: требуется @1 и фитиль (@2)!"
+
+msgid "Lantern Case with a wick"
+msgstr "Корпус фонаря с фитилем"
+
+msgid "Status: needs a @1!"
+msgstr "Статус: требуется @1!"
+
+msgid "Lantern Case with Glass"
+msgstr "Корпус фонаря со стеклом"
+
+msgid "Status: needs a wick (@1)!"
+msgstr "Состояние: нужен фитиль (@1)!"
+
+msgid "Unlit Lantern"
+msgstr "Незажженный фонарь"
+
+msgid "Lit Lantern"
+msgstr "Зажженный фонарь"
+
+msgid "lever"
+msgstr "Рычаг"
+
+msgid "Rotate face"
+msgstr "Поворот лицевой стороны"
+
+msgid "Flip to aligner"
+msgstr "Переворачивание на выравниватель"
+
+msgid "Rotate axis"
+msgstr "Повернуть ось"
+
+msgid "alignment tool"
+msgstr "Инструмент выравнивания"
+
+msgid "Pick up a node's facing"
+msgstr "Выбор грани узла"
+
+msgid "Flip to lever"
+msgstr "Перевернуть на рычаг"
+
+msgid "Apply facing to another node"
+msgstr "Применить облицовку к другому узлу"
+
+msgid "Empty"
+msgstr "Пустой"
+
+msgid "@1% fuel left"
+msgstr "Осталось @1% топлива"
+
+msgid "Status: @1"
+msgstr "Состояние: @1"
+
+msgid "Stick"
+msgstr "Палка"
+
+msgid "Grass Fibre"
+msgstr "Растительные волокна"
+
+msgid "Vegetable Oil"
+msgstr "Растительное масло"
+
+msgid "Broken Pottery Slab"
+msgstr "Плита из разбитой керамики"
+
+msgid "Broken Pottery"
+msgstr "Разбитая керамика"
+
+msgid "Clay Water Pot (unfired)"
+msgstr "Глиняный горшок для воды (необожженный)"
+
+msgid "Clay Storage Pot (unfired)"
+msgstr "Глиняный горшок для хранения (необожженный)"
+
+msgid "Clay Oil Lamps (x4) (unfired)"
+msgstr "Глиняные масляные лампы (x4) (необожженные)"
+
+msgid "Clay Oil Lamps (x4)"
+msgstr "Глиняные масляные лампы (x4)"
+
+msgid "Clay Oil Lamp"
+msgstr "Глиняная масляная лампа"
+
+msgid "Clay Oil Lamp (Lit)"
+msgstr "Глиняная масляная лампа (горит)"
+
+msgid "Hanging Oil Lamp"
+msgstr "Подвесная масляная лампа"
+
+msgid "Hanging Oil Lamp (Lit)"
+msgstr "Подвесная масляная лампа (горит)"
+
+msgid "Clay Watering Can (unfired)"
+msgstr "Глиняная лейка (необожженная)"
+
+msgid "Clay Storage Pot"
+msgstr "Глиняный горшок для хранения"
+
+msgid "Primitive Wooden Chest"
+msgstr "Примитивный деревянный сундук"
+
+msgid "Wicker Storage Basket"
+msgstr "Плетеная корзина для хранения"
+
+msgid "Woven Storage Basket"
+msgstr "Вязаная корзина для хранения"
+
+msgid "Wooden Chest"
+msgstr "Деревянный сундук"
+
+msgid "Iron Chest"
+msgstr "Железный сундук"
+
+msgid "Stone Knife"
+msgstr "Каменный нож"
+
+msgid "Cut plants faster than bare hands"
+msgstr "Срезайте растения быстрее, чем голыми руками"
+
+msgid "Flip to stone etcher"
+msgstr "Перевернуть на каменный резчик"
+
+msgid "Placed Stone Knife"
+msgstr "Каменный нож"
+
+msgid "Digging Stick"
+msgstr "Палка для копания"
+
+msgid "Dig hard earth"
+msgstr "Копайте твердую землю"
+
+msgid "Till soil slowly"
+msgstr "Медленно обрабатывайте почву"
+
+msgid "Place tool for plant crafts"
+msgstr "Поместите инструмент для поделок из растений"
+
+msgid "Placed Digging Stick"
+msgstr "Палка для копания"
+
+msgid "Cut softwood logs"
+msgstr "Рубка бревен мягких пород древесины"
+
+msgid "Placed @1 adze"
+msgstr "Лопатка @1"
+
+msgid "@1 Adze"
+msgstr "Лопатка @1"
+
+msgid "@1 Hammer"
+msgstr "Молоток @1"
+
+msgid "or Place on solid surface for hammering crafts"
+msgstr "или поместить на твердую поверхность для поделок из молота"
+
+msgid "Placed @1 Hammer"
+msgstr "Молоток @1"
+
+msgid "Stone Club"
+msgstr "Каменная дубина"
+
+msgid "Strike"
+msgstr "Ударить"
+
+msgid "Stun animals"
+msgstr "Оглушать животных"
+
+msgid "Iron Axe"
+msgstr "Железный топор"
+
+msgid "Cut any wood"
+msgstr "Резать любое дерево"
+
+msgid "Placed Iron Axe"
+msgstr "Железный топор"
+
+msgid "Iron Shovel"
+msgstr "Железная лопата"
+
+msgid "Dig earth quickly"
+msgstr "Быстро копать землю"
+
+msgid "Till soil"
+msgstr "Обрабатывать почву"
+
+msgid "Place for plant crafts"
+msgstr "Место для поделок из растений"
+
+msgid "Placed Iron Shovel"
+msgstr "Железная лопата"
+
+msgid "Iron Mace"
+msgstr "Железная булава"
+
+msgid "Iron Pickaxe"
+msgstr "Железная кирка"
+
+msgid "Dig stone"
+msgstr "Копать камень"
+
+msgid "Placed Iron Pickaxe"
+msgstr "Железная кирка"
+
+msgid "Iron Hoe"
+msgstr "Железная мотыга"
+
+msgid "Till soil quickly"
+msgstr "Быстро обработайте почву"
+
+msgid "Placed Iron Hoe"
+msgstr "Железная мотыга"
+
+msgid "Torch"
+msgstr "Факел"
+
+msgid "Clay Water Pot"
+msgstr "Глиняный горшок для воды"
+
+msgid "Clay Water Pot with Salt Water"
+msgstr "Глиняный горшок с соленой водой"
+
+msgid "Clay Water Pot with Freshwater"
+msgstr "Глиняный горшок с пресной водой"
+
+msgid "Salty Clay Water Pot"
+msgstr ""
+
+msgid "Wooden Water Pot"
+msgstr "Деревянный горшок для воды"
+
+msgid "Wooden Water Pot with Salt Water"
+msgstr "Деревянный горшок с соленой водой"
+
+msgid "Wooden Water Pot with Freshwater"
+msgstr "Деревянный горшок с пресной водой"
+
+msgid "Clay Watering Can"
+msgstr "Глиняная лейка"
+
+msgid "Clay Watering Can with Freshwater"
+msgstr "Глиняная лейка с пресной водой"
+
+msgid "Clay Watering Can with Salt Water"
+msgstr "Глиняная лейка с соленой водой"
+
+msgid "Wooden Watering Can"
+msgstr "Деревянная лейка"
+
+msgid "Wooden Watering Can with Freshwater"
+msgstr "Деревянная лейка с пресной водой"
+
+msgid "Wooden Watering Can with Salt Water"
+msgstr "Деревянная лейка с соленой водой"
+
+msgid "Green Glass Bottle"
+msgstr "Зеленая стеклянная бутылка"
+
+msgid "Clear Glass Bottle"
+msgstr "Прозрачная стеклянная бутылка"
+
+msgid "Green Glass Bottle With Salt Water"
+msgstr "Зеленая стеклянная бутылка с соленой водой"
+
+msgid "Clear Glass Bottle With Salt Water"
+msgstr "Прозрачная стеклянная бутылка с соленой водой"
+
+msgid "Green Glass Bottle With Fresh Water"
+msgstr "Зеленая стеклянная бутылка с пресной водой"
+
+msgid "Clear Glass Bottle With Fresh Water"
+msgstr "Прозрачная стеклянная бутылка с пресной водой"
+
+msgid "Wooden Ladder"
+msgstr "Деревянная лестница"
+
+msgid "Wooden Floor Boards"
+msgstr "Деревянные доски пола"
+
+msgid "Wooden Stairs"
+msgstr "Деревянные ступеньки"
+

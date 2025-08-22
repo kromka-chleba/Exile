@@ -1,0 +1,1119 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti textdomain tech x.x.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-22 02:09+0000\n"
+"PO-Revision-Date: 2025-08-22 02:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: ltt_convert 0.2.1\n"
+
+msgid "Woven Bag"
+msgstr "Mochila de Mimbre"
+
+msgid "Wicker Bag"
+msgstr "Mochila de Zarzo"
+
+msgid "Fabric Bag"
+msgstr "Mochila de Tela"
+
+msgid "Sleeping Spot"
+msgstr "Lugar para Dormir"
+
+msgid "Sleeping Mat"
+msgstr "Estera"
+
+msgid "Primitive Bed"
+msgstr "Cama Rudimentaria"
+
+msgid "Mattress"
+msgstr "Colchon"
+
+msgid "Bed"
+msgstr "Cama"
+
+msgid "Crushed Lime"
+msgstr "Cal"
+
+msgid "Quicklime"
+msgstr "Cal Viva"
+
+msgid "Slaked Lime"
+msgstr "Cal Hidratada"
+
+msgid "Slaked Lime (ruined)"
+msgstr "Cal Hidratada Arruinada"
+
+msgid "Lime Mortar Slab"
+msgstr ""
+
+msgid "Lime Mortar"
+msgstr "Mortero de Cal"
+
+msgid "Loose Bricks (unfired)"
+msgstr "Ladrillos Sueltos sin Curar"
+
+msgid "Loose Bricks"
+msgstr "Ladrillos Sueltos"
+
+msgid "Brick and Mortar"
+msgstr "Ladrillos con Mortero"
+
+msgid "Brick and Mortar Stair"
+msgstr ""
+
+msgid "Brick and Mortar Slab"
+msgstr ""
+
+msgid "Loose Roof Tile (unfired)"
+msgstr "Tejas Sueltas sin Curar"
+
+msgid "Loose Roof Tile"
+msgstr "Tejas Sueltas"
+
+msgid "Roof Tile"
+msgstr "Tejado"
+
+msgid "Roof Tile (outer corner)"
+msgstr "Esquina Externa de Tejado"
+
+msgid "Roof Tile (inner corner)"
+msgstr "Esquina Interna de Tejado"
+
+msgid "Tile Block (unfired)"
+msgstr ""
+
+msgid "Tile Block (Loose)"
+msgstr ""
+
+msgid "Tile Block"
+msgstr ""
+
+msgid "Tile Stair (Loose)"
+msgstr ""
+
+msgid "Tile Slab (Loose)"
+msgstr ""
+
+msgid "Tile Stair"
+msgstr ""
+
+msgid "Tile Slab"
+msgstr ""
+
+msgid "@1 Brick with Mortar"
+msgstr "Ladrillo de @1 con Mortero"
+
+msgid "@1 Block with Mortar"
+msgstr "Bloque de @1 con Mortero"
+
+msgid "@1 Brick with Mortar Stair"
+msgstr ""
+
+msgid "@1 Brick with Mortar Slab"
+msgstr ""
+
+msgid "@1 Block with Mortar Stair"
+msgstr ""
+
+msgid "@1 Block with Mortar Slab"
+msgstr ""
+
+msgid "Claystone"
+msgstr ""
+
+msgid "Siltstone"
+msgstr ""
+
+msgid "Sandstone"
+msgstr ""
+
+msgid "Conglomerate"
+msgstr ""
+
+msgid "Limestone"
+msgstr "Caliza"
+
+msgid "Ironstone"
+msgstr "Mineral de Hierro"
+
+msgid "Granite"
+msgstr "Granito"
+
+msgid "Basalt"
+msgstr "Basalto"
+
+msgid "Gneiss"
+msgstr "Gneis"
+
+msgid "Jade"
+msgstr "Jade"
+
+msgid "Combine with another slab"
+msgstr ""
+
+msgid "Woven Hat"
+msgstr "Sombrero de Mimbre"
+
+msgid "Sun Hat"
+msgstr ""
+
+msgid "Woven Sandals"
+msgstr ""
+
+msgid "Woven Cape"
+msgstr "Capa de Mimbre"
+
+msgid "Woven Poncho"
+msgstr "Poncho de Mimbre"
+
+msgid "Woven Leggings"
+msgstr "Pantalon de Mimbre"
+
+msgid "Woven Blanket"
+msgstr "Manta de Mimbre"
+
+msgid "Light Fabric Hat"
+msgstr "Sombrero de Tela Ligera"
+
+msgid "Thick Fabric Hat"
+msgstr "Sombrero de Tela Gruesa"
+
+msgid "Light Fabric Cape"
+msgstr "Capa de Tela Ligera"
+
+msgid "Thick Fabric Cape"
+msgstr "Capa de Tela Gruesa"
+
+msgid "Light Fabric Trousers"
+msgstr "Pantalon de Tela Ligera"
+
+msgid "Thick Fabric Trousers"
+msgstr "Pantalon de Tela Gruesa"
+
+msgid "Light Fabric Tunic"
+msgstr "Tunica de Tela Ligera"
+
+msgid "Thick Fabric Tunic"
+msgstr "Tunica de Tela Gruesa"
+
+msgid "Cooking Pot (unfired)"
+msgstr "Olla Ceramica sin Curar"
+
+msgid "Bowl (unfired)"
+msgstr ""
+
+msgid "Cooking Pot"
+msgstr "Olla Ceramica"
+
+msgid "Empty Bowl"
+msgstr ""
+
+msgid "Bowl of @1 Stew"
+msgstr ""
+
+msgid "Bowl of @1 Soup"
+msgstr ""
+
+msgid "Water"
+msgstr ""
+
+msgid "Contents: @1"
+msgstr ""
+
+msgid "Contents: <EMPTY>"
+msgstr ""
+
+msgid "Leftover: @1%"
+msgstr ""
+
+msgid "Soup"
+msgstr "Sopa"
+
+msgid "Stew"
+msgstr ""
+
+msgid "Soup Pot"
+msgstr ""
+
+msgid "Unprepared Pot"
+msgstr ""
+
+msgid "Status: @1 pot"
+msgstr ""
+
+msgid "Status: @1 pot (cooking)"
+msgstr ""
+
+msgid "Status: @1 pot (finished)"
+msgstr ""
+
+msgid "This pot is full and heavy. Spill it?"
+msgstr ""
+
+msgid "Note: Add water to pot to make soup"
+msgstr ""
+
+msgid "Note: Add food to the pot to make soup"
+msgstr ""
+
+msgid "Note: Use a Bowl to Get!"
+msgstr ""
+
+msgid "Eat"
+msgstr "Comer"
+
+msgid "Drink"
+msgstr ""
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Crafting Spot"
+msgstr "Lugar para Fabricar"
+
+msgid "Weaving"
+msgstr ""
+
+msgid "Mixing"
+msgstr ""
+
+msgid "Grinding stone"
+msgstr "Piedra de Amolar"
+
+msgid "@1 Mortar and Pestle"
+msgstr "Mortero de @1"
+
+msgid "Mortar and Pestle"
+msgstr "Mortero"
+
+msgid "Limestone Mortar and Pestle"
+msgstr "Mortero de Caliza"
+
+msgid "Basalt Mortar and Pestle"
+msgstr "Mortero de Basalto"
+
+msgid "Granite Mortar and Pestle"
+msgstr "Mortero de Granito"
+
+msgid "Wooden Mortar and Pestle"
+msgstr ""
+
+msgid "Crafting"
+msgstr ""
+
+msgid "Carpentry Bench"
+msgstr "Banco de Carpintería"
+
+msgid "Bricks"
+msgstr ""
+
+msgid "Blocks"
+msgstr ""
+
+msgid "Spinning Wheel"
+msgstr "Rueca Hiladora"
+
+msgid "Loom"
+msgstr "Telar"
+
+msgid "Glass furnace"
+msgstr "Horno para Vidrio"
+
+msgid "Pottery"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Stations"
+msgstr ""
+
+msgid "Agriculture"
+msgstr "Agricultura"
+
+msgid "Pickaxe"
+msgstr ""
+
+msgid "Breadmaking"
+msgstr ""
+
+msgid "Cannot place here! Needs a whole block of:"
+msgstr ""
+
+msgid "Mixing Spot"
+msgstr "Lugar para Mezclar"
+
+msgid "Threshing Spot"
+msgstr "Lugar para Trillar"
+
+msgid "Weaving Spot"
+msgstr "Lugar para Tejer"
+
+msgid "Grinding Spot"
+msgstr "Lugar para Amolar"
+
+msgid "Hammering Spot"
+msgstr "Lugar para Martillar"
+
+msgid "Chopping Block"
+msgstr "Tronco para Cortar"
+
+msgid "Anvil"
+msgstr "Yunque"
+
+msgid "Masonry Bench"
+msgstr "Banco de Albañilería"
+
+msgid "Brick Maker's Bench"
+msgstr "Banco Ladrillero"
+
+msgid "Weaving Frame"
+msgstr "Marco para Tejer"
+
+msgid "Granite Grinding Stone"
+msgstr ""
+
+msgid "Limestone Grinding Stone"
+msgstr ""
+
+msgid "Basalt Grinding Stone"
+msgstr ""
+
+msgid "Hammering Block"
+msgstr "Tronco de Martillado"
+
+msgid "Wattle"
+msgstr "Zarzo"
+
+msgid "Wattle Door"
+msgstr "Puerta de Zarzo"
+
+msgid "Wattle Trapdoor"
+msgstr "Trampilla de Zarzo"
+
+msgid "Wooden Door"
+msgstr "Puerta de Madera"
+
+msgid "Wooden Trapdoor"
+msgstr "Trampilla de Madera"
+
+msgid "Iron Door"
+msgstr "Puerta de Hierro"
+
+msgid "Iron Trapdoor"
+msgstr "Trampilla de Hierro"
+
+msgid "Glass Door"
+msgstr ""
+
+msgid "Glass Trapdoor"
+msgstr ""
+
+msgid "Clear Glass Door"
+msgstr ""
+
+msgid "Clear Glass Trapdoor"
+msgstr ""
+
+msgid "Herbal Medicine"
+msgstr "Medicina Herbal"
+
+msgid "Tiku (stimulant)"
+msgstr "Estimulante Tiku"
+
+msgid "Tang Vinegar"
+msgstr ""
+
+msgid "Tang Vinegar with Mother"
+msgstr ""
+
+msgid "Mother of Tang"
+msgstr ""
+
+msgid "Infect Other Pots"
+msgstr ""
+
+msgid "Tang"
+msgstr "Sidra de Tangkal"
+
+msgid "Tang (unfermented)"
+msgstr "Sidra de Tangkal sin Fermentar"
+
+msgid "Drystack"
+msgstr "Grava Apilada"
+
+msgid "Drystack Stair"
+msgstr ""
+
+msgid "Drystack Slab"
+msgstr ""
+
+msgid "Mudbrick"
+msgstr "Bareque"
+
+msgid "Mudbrick Stair"
+msgstr ""
+
+msgid "Mudbrick Slab"
+msgstr ""
+
+msgid "Rammed Earth"
+msgstr "Tapial"
+
+msgid "Rammed Earth Stair"
+msgstr ""
+
+msgid "Rammed Earth Slab"
+msgstr ""
+
+msgid "Wicker well lining"
+msgstr ""
+
+msgid "Reinforce a well wall"
+msgstr ""
+
+msgid "Loose Wattle"
+msgstr "Zarzo Suelto"
+
+msgid "Wattle Door Frame"
+msgstr "Marco de Puerta de Zarzo"
+
+msgid "Thatch"
+msgstr "Fardo de Paja"
+
+msgid "Thatch Stair"
+msgstr ""
+
+msgid "Thatch Slab"
+msgstr ""
+
+msgid "Unretted Cana Bundle"
+msgstr "Fardo de Caña sin Tratar"
+
+msgid "Retted Cana Bundle"
+msgstr "Fardo de Caña Enriado"
+
+msgid "Coarse Fibre"
+msgstr "Fibras Vegetales Gruesas"
+
+msgid "Fine Fibre"
+msgstr "Fibras Vegetales Finas"
+
+msgid "Coarse Fabric"
+msgstr "Tejido Grueso"
+
+msgid "Fine Fabric"
+msgstr "Tejido Fino"
+
+msgid "Wood Ash Block"
+msgstr "Bloque de Cenizas"
+
+msgid "Enrich depleted soil"
+msgstr ""
+
+msgid "Wood Ash"
+msgstr "Ceniza"
+
+msgid "Charcoal Block"
+msgstr "Bloque de Carbon"
+
+msgid "Charcoal"
+msgstr "Carbon"
+
+msgid "Small Wood Fire (unlit)"
+msgstr "Fogata Pequeña Apagada"
+
+msgid "Large Wood Fire (unlit)"
+msgstr "Fogata Grande Apagada"
+
+msgid "Small Wood Fire"
+msgstr "Fogata Pequeña"
+
+msgid "Large Wood Fire"
+msgstr "Fogata Grande"
+
+msgid "Small Wood Fire (smoldering)"
+msgstr "Fogata Pequeña Latente"
+
+msgid "Large Wood Fire (smoldering)"
+msgstr "Fogata Grande Latente"
+
+msgid "Small Charcoal Fire"
+msgstr "Carbones Encendidos"
+
+msgid "Large Charcoal Fire"
+msgstr "Bloque de Carbones Encendidos"
+
+msgid "Small Charcoal Fire (smoldering)"
+msgstr "Carbones Latentes"
+
+msgid "Large Charcoal Fire (smoldering)"
+msgstr "Bloque de Carbones Latentes"
+
+msgid "Small Wood Fire (extinguished)"
+msgstr "Fogata Pequeña Apagada"
+
+msgid "Large Wood Fire (extinguished)"
+msgstr "Fogata Grande Apagada"
+
+msgid "Small Charcoal Fire (extinguished)"
+msgstr "Carbones Apagados"
+
+msgid "Large Charcoal Fire (extinguished)"
+msgstr "Bloque de Carbones Apagados"
+
+msgid "Green Glass Sand Mix"
+msgstr "Mezcla para Vidrio Verde"
+
+msgid "Green Glass Ingot"
+msgstr "Lingote de Vidrio Verde"
+
+msgid "Potash Block"
+msgstr "Bloque de Potasa"
+
+msgid "Potash"
+msgstr "Potasa"
+
+msgid "Potash Solution Source"
+msgstr "Fuente de Potasa Diluida"
+
+msgid "Flowing Potash Solution"
+msgstr "Corriente de Potasa Diluida"
+
+msgid "Clay Water Pot with Potash Solution"
+msgstr "Vasija con Potasa Diluida"
+
+msgid "Wooden Water Pot with Potash Solution"
+msgstr ""
+
+msgid "Clay Water Pot With Potash"
+msgstr ""
+
+msgid "Clear Glass Sand Mix"
+msgstr "Mezcla para Vidrio Transparente"
+
+msgid "Clear Glass Ingot"
+msgstr "Lingote de Vidrio Transparente"
+
+msgid "Pane Casting Tray"
+msgstr "Bandeja de Fundición"
+
+msgid "Pane Casting Tray With Green Glass Pane"
+msgstr "Bandeja de Fundición con Vidrio Verde"
+
+msgid "Pane Casting Tray With Clear Glass Pane"
+msgstr "Bandeja de Fundición con Vidrio Transparent"
+
+msgid "Green Glass Pane"
+msgstr "Panel de Vidrio Verde"
+
+msgid "Clear Glass Pane"
+msgstr "Panel de Vidrio Transparente"
+
+msgid "Green Glass Window"
+msgstr "Ventana de Vidrio Verde"
+
+msgid "Clear Glass Window"
+msgstr "Ventana de Vidrio Transparente"
+
+msgid "Painting Kit (lime white)"
+msgstr "Kit de Pintura Blanco Caliza"
+
+msgid "Painting Kit (glow paint)"
+msgstr "Kit de Pintura Bioluminicente"
+
+msgid "Stone Etcher"
+msgstr ""
+
+msgid "Flip to stone knife"
+msgstr ""
+
+msgid "Painting Kit (ochre red)"
+msgstr ""
+
+msgid "Crushed Iron Ore"
+msgstr "Mineral de Hierro Triturado"
+
+msgid "Roasted Iron Ore"
+msgstr "Mineral de Hierro Tostado"
+
+msgid "Roasted Iron Ore Powder"
+msgstr "Mineral de Hierro Pulverizado"
+
+msgid "Iron Smelting Mix"
+msgstr "Mezcla para Fundición de Hierro"
+
+msgid "Iron and Slag"
+msgstr "Hierro y Escoria"
+
+msgid "Iron Bloom"
+msgstr "Tocho de Hierro"
+
+msgid "Iron Ingot"
+msgstr "Lingote de Hierro"
+
+msgid "Slag"
+msgstr "Escoria"
+
+msgid "Slag Stair"
+msgstr ""
+
+msgid "Slag Slab"
+msgstr ""
+
+msgid "Molten Slag"
+msgstr "Escoria Fundida"
+
+msgid "Flowing Molten Slag"
+msgstr "Corriente de Escoria Fundida"
+
+msgid "Iron Fittings"
+msgstr "Piezas de Hierro"
+
+msgid "Protection Nails"
+msgstr ""
+
+msgid "Protect Item"
+msgstr ""
+
+msgid "Iron Key"
+msgstr ""
+
+msgid "Grant key owner access."
+msgstr ""
+
+msgid "Lantern Case"
+msgstr ""
+
+msgid "Status: needs a clear glass pane and a wick (coarse fibre)!"
+msgstr ""
+
+msgid "Lantern Case with a wick"
+msgstr ""
+
+msgid "Status: needs a clear glass pane!"
+msgstr ""
+
+msgid "Lantern Case with Glass"
+msgstr ""
+
+msgid "Status: needs a wick (coarse fibre)!"
+msgstr ""
+
+msgid "Unlit Lantern"
+msgstr ""
+
+msgid "Lit Lantern"
+msgstr ""
+
+msgid "lever"
+msgstr "Palanca"
+
+msgid "Rotate face"
+msgstr "Rota la cara"
+
+msgid "Flip to aligner"
+msgstr "Voltear al alineador"
+
+msgid "Rotate axis"
+msgstr "Rota el eje"
+
+msgid "alignment tool"
+msgstr "Alineador"
+
+msgid "Pick up a node's facing"
+msgstr "Obtener la cara"
+
+msgid "Flip to lever"
+msgstr "Voltear a palanca"
+
+msgid "Apply facing to another node"
+msgstr "Aplicar la cara"
+
+msgid "Empty"
+msgstr ""
+
+msgid "fuel left"
+msgstr ""
+
+msgid "Status:"
+msgstr ""
+
+msgid "Stick"
+msgstr "Vara"
+
+msgid "Grass Fibre"
+msgstr ""
+
+msgid "Vegetable Oil"
+msgstr "Aceite Vegetal"
+
+msgid "Sea Salt"
+msgstr ""
+
+msgid "Bitter Maraka Flour"
+msgstr "Harina Amarga de Maraka"
+
+msgid "Maraka Flour"
+msgstr "Harina de Maraka"
+
+msgid "Unbaked Maraka Cake"
+msgstr "Masa Cruda de Maraka"
+
+msgid "Maraka Cake"
+msgstr "Pastel de Maraka"
+
+msgid "Maraka Cake Burned"
+msgstr "Pastel de Maraka Quemado"
+
+msgid "Peeled Anperla Tuber"
+msgstr "Tuberculo de Anperla Pelado"
+
+msgid "Burned Anperla Tuber"
+msgstr "Tuberculo de Anperla Quemado"
+
+msgid "Cooked Anperla Tuber"
+msgstr "Tuberculo de Anperla Cocido"
+
+msgid "Mashed Anperla (uncooked)"
+msgstr "Puré de Anperla Crudo"
+
+msgid "Mashed Anperla"
+msgstr "Puré de Anperla"
+
+msgid "Burned Anperla"
+msgstr "Puré de Anperla Quemado"
+
+msgid "Raw Rhuya Flour"
+msgstr ""
+
+msgid "Raw Hardy Rhuya Flour"
+msgstr ""
+
+msgid "Rhuya Flour"
+msgstr ""
+
+msgid "Hardy Rhuya Flour"
+msgstr ""
+
+msgid "Burnt Rhuya Flour"
+msgstr ""
+
+msgid "Uncured Barshocha Flour"
+msgstr ""
+
+msgid "Cured Barshocha Flour"
+msgstr ""
+
+msgid "All-Purpose Flour"
+msgstr ""
+
+msgid "Maraka Dough"
+msgstr ""
+
+msgid "Rhuya Dough"
+msgstr ""
+
+msgid "Hardy Rhuya Dough"
+msgstr ""
+
+msgid "Barshocha Dough"
+msgstr ""
+
+msgid "All-Purpose Dough"
+msgstr ""
+
+msgid "@1 Fermenting"
+msgstr ""
+
+msgid "@1 Fermented"
+msgstr ""
+
+msgid "Black Bread"
+msgstr ""
+
+msgid "Crumbly Bread"
+msgstr ""
+
+msgid "Unleavened Bread"
+msgstr ""
+
+msgid "Fluffy Unleavened Bread"
+msgstr ""
+
+msgid "Basic Crackerbread"
+msgstr ""
+
+msgid "Soft Bread"
+msgstr ""
+
+msgid "Burned Bread"
+msgstr ""
+
+msgid "Ikippe Yeast"
+msgstr ""
+
+msgid "Cracked Egg"
+msgstr ""
+
+msgid "Fried Egg"
+msgstr "Huevo Frito"
+
+msgid "Infect Dough"
+msgstr ""
+
+msgid "Yeast added to the @1"
+msgstr ""
+
+msgid "Broken Pottery Slab"
+msgstr ""
+
+msgid "Broken Pottery"
+msgstr "Ceramica Rota"
+
+msgid "Clay Water Pot (unfired)"
+msgstr "Vasija Ceramica sin Curar"
+
+msgid "Clay Storage Pot (unfired)"
+msgstr "Vasija Ceramica de Almacenamiento sin Curar"
+
+msgid "Clay Oil Lamps (x4) (unfired)"
+msgstr ""
+
+msgid "Clay Oil Lamps (x4)"
+msgstr ""
+
+msgid "Clay Oil Lamp"
+msgstr "Lampara Ceramica"
+
+msgid "Clay Oil Lamp (Lit)"
+msgstr ""
+
+msgid "Hanging Oil Lamp"
+msgstr ""
+
+msgid "Hanging Oil Lamp (Lit)"
+msgstr ""
+
+msgid "Clay Watering Can (unfired)"
+msgstr ""
+
+msgid "Clay Storage Pot"
+msgstr "Vasija Ceramica de Almacenamiento"
+
+msgid "Primitive Wooden Chest"
+msgstr "Cofre de Madera Rudimentario"
+
+msgid "Wicker Storage Basket"
+msgstr "Cesto de Zarzo"
+
+msgid "Woven Storage Basket"
+msgstr "Cesto de Mimbre"
+
+msgid "Wooden Chest"
+msgstr "Cofre de Madera"
+
+msgid "Iron Chest"
+msgstr "Cofre de Hierro"
+
+msgid "Stone Knife"
+msgstr "Piedra Afilada"
+
+msgid "Cut plants faster than bare hands"
+msgstr ""
+
+msgid "Flip to stone etcher"
+msgstr ""
+
+msgid "Place tool for cutting crafts"
+msgstr ""
+
+msgid "Placed Stone Knife"
+msgstr ""
+
+msgid "Digging Stick"
+msgstr "Apero de Labranza"
+
+msgid "Dig hard earth"
+msgstr ""
+
+msgid "Till soil slowly"
+msgstr ""
+
+msgid "Place tool for plant crafts"
+msgstr ""
+
+msgid "Placed Digging Stick"
+msgstr ""
+
+msgid "Cut softwood logs"
+msgstr ""
+
+msgid "Adze"
+msgstr ""
+
+msgid "Placed Granite Adze"
+msgstr ""
+
+msgid "Placed Basalt Adze"
+msgstr ""
+
+msgid "Placed Jade Adze"
+msgstr ""
+
+msgid "Basalt Adze"
+msgstr "Hachuela de Basalto"
+
+msgid "Jade Adze"
+msgstr "Hachuela de Jade"
+
+msgid "Granite Adze"
+msgstr "Hachuela de Granito"
+
+msgid "Stone Club"
+msgstr "Mazo de Piedra"
+
+msgid "Strike"
+msgstr ""
+
+msgid "Stun animals"
+msgstr ""
+
+msgid "Iron Axe"
+msgstr "Hacha de Hierro"
+
+msgid "Cut any wood"
+msgstr ""
+
+msgid "Placed Iron Axe"
+msgstr ""
+
+msgid "Iron Shovel"
+msgstr "Pala de Hierro"
+
+msgid "Dig earth quickly"
+msgstr ""
+
+msgid "Till soil"
+msgstr ""
+
+msgid "Place for plant crafts"
+msgstr ""
+
+msgid "Placed Iron Shovel"
+msgstr ""
+
+msgid "Iron Mace"
+msgstr "Mazo de Hierro"
+
+msgid "Iron Pickaxe"
+msgstr "Pico de Hierro"
+
+msgid "Dig stone"
+msgstr ""
+
+msgid "Placed Iron Pickaxe"
+msgstr ""
+
+msgid "Iron Hoe"
+msgstr ""
+
+msgid "Till soil quickly"
+msgstr ""
+
+msgid "Placed Iron Hoe"
+msgstr ""
+
+msgid "Hammer"
+msgstr ""
+
+msgid "or Place on solid surface for hammering crafts"
+msgstr ""
+
+msgid "Placed Granite Hammer"
+msgstr ""
+
+msgid "Placed Basalt Hammer"
+msgstr ""
+
+msgid "Basalt Hammer"
+msgstr ""
+
+msgid "Granite Hammer"
+msgstr ""
+
+msgid "Torch"
+msgstr "Antorcha"
+
+msgid "Clay Water Pot"
+msgstr "Vasija Ceramica"
+
+msgid "Clay Water Pot with Salt Water"
+msgstr "Vasija Ceramica con Agua Salada"
+
+msgid "Clay Water Pot with Freshwater"
+msgstr "Vasija Ceramica con Agua Fresca"
+
+msgid "Salty Clay Water Pot"
+msgstr ""
+
+msgid "Wooden Water Pot"
+msgstr "Vasija de Madera"
+
+msgid "Wooden Water Pot with Salt Water"
+msgstr "Vasija de Madera con Agua Salada"
+
+msgid "Wooden Water Pot with Freshwater"
+msgstr "Vasija de Madera con Agua Fresca"
+
+msgid "Clay Watering Can"
+msgstr ""
+
+msgid "Clay Watering Can with Freshwater"
+msgstr ""
+
+msgid "Clay Watering Can with Salt Water"
+msgstr ""
+
+msgid "Wooden Watering Can"
+msgstr ""
+
+msgid "Wooden Watering Can with Freshwater"
+msgstr ""
+
+msgid "Wooden Watering Can with Salt Water"
+msgstr ""
+
+msgid "Green Glass Bottle"
+msgstr "Botella de Vidrio Verde"
+
+msgid "Clear Glass Bottle"
+msgstr "Botella de Vidrio Transparente"
+
+msgid "Green Glass Bottle With Salt Water"
+msgstr "Botella de Vidrio Verde cos Agua Salada"
+
+msgid "Clear Glass Bottle With Salt Water"
+msgstr "Botella de Vidrio Transparente cos Agua Salada"
+
+msgid "Green Glass Bottle With Fresh Water"
+msgstr "Botella de Vidrio Verde con Agua Fresca"
+
+msgid "Clear Glass Bottle With Fresh Water"
+msgstr "Botella de Vidrio Transparente con Agua Fresca"
+
+msgid "Wooden Ladder"
+msgstr "Escalera de Madera"
+
+msgid "Wooden Floor Boards"
+msgstr "Piso de Madera Laminado"
+
+msgid "Wooden Stairs"
+msgstr "Escalinata de Madera"
+
