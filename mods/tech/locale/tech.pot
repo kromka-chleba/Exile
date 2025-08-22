@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Exile tech x.x.x\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-22 09:18+0200\n"
+"POT-Creation-Date: 2025-08-22 09:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -302,91 +302,101 @@ msgstr ""
 msgid "Thick Fabric Tunic"
 msgstr ""
 
-#: cooking_pot.lua:298
-msgid "Bowl of @1 Soup"
+#: cooking_pot.lua:300
+msgid "Bowl of Soup"
 msgstr ""
 
-#: cooking_pot.lua:299
-msgid "Bowl of @1 Stew"
+#: cooking_pot.lua:302
+msgid "Bowl of Stew"
 msgstr ""
 
-#: cooking_pot.lua:299
+#: cooking_pot.lua:304
 msgid "Bowl of @1"
 msgstr ""
 
-#: cooking_pot.lua:435
+#: cooking_pot.lua:442
 msgid "Empty Bowl"
 msgstr ""
 
-#: cooking_pot.lua:499
+#: cooking_pot.lua:506
 msgid "Bowl"
 msgstr ""
 
-#: cooking_pot.lua:782 cooking_pot.lua:1099
+#: cooking_pot.lua:789 cooking_pot.lua:1110
 msgid "Water"
 msgstr ""
 
-#: cooking_pot.lua:820 cooking_pot.lua:917 cooking_pot.lua:1099
+#: cooking_pot.lua:827 cooking_pot.lua:928 cooking_pot.lua:1110
 msgid "Contents: @1"
 msgstr ""
 
-#: cooking_pot.lua:912
-msgid "Bowl of @1 "
+#: cooking_pot.lua:918
+msgid "Stew"
 msgstr ""
 
-#: cooking_pot.lua:918
+#: cooking_pot.lua:919
+msgid "Soup"
+msgstr ""
+
+#. TR: @1 is an ingredient, @2 is soup or stew
+#. Ex: "Bowl of Zufani Soup"
+#: cooking_pot.lua:924
+msgid "Bowl of @1 @2"
+msgstr ""
+
+#: cooking_pot.lua:929
 msgid "Status: @1 pot (finished)"
 msgstr ""
 
-#: cooking_pot.lua:927
+#: cooking_pot.lua:938
 msgid "Status: @1 pot (cooking)"
 msgstr ""
 
-#: cooking_pot.lua:953
+#: cooking_pot.lua:964
 msgid "Status: @1 pot"
 msgstr ""
 
-#: cooking_pot.lua:977
+#: cooking_pot.lua:988
 msgid "Cooking Pot"
 msgstr ""
 
-#: cooking_pot.lua:1008
+#: cooking_pot.lua:1019
 msgid "This pot is full and heavy. Spill it?"
 msgstr ""
 
-#: cooking_pot.lua:1072
+#: cooking_pot.lua:1083
 msgid "Unprepared Pot"
 msgstr ""
 
-#: cooking_pot.lua:1073
+#: cooking_pot.lua:1084
 msgid "Contents: <EMPTY>"
 msgstr ""
 
-#: cooking_pot.lua:1074
+#: cooking_pot.lua:1085
 msgid "Note: Add water to pot to make soup"
 msgstr ""
 
-#: cooking_pot.lua:1079
+#: cooking_pot.lua:1090
 msgid "Note: Use a Bowl to Get!"
 msgstr ""
 
-#: cooking_pot.lua:1080
+#: cooking_pot.lua:1091
 msgid "Leftover: @1%"
 msgstr ""
 
-#: cooking_pot.lua:1098
+#: cooking_pot.lua:1109
 msgid "Soup Pot"
 msgstr ""
 
-#: cooking_pot.lua:1100
+#: cooking_pot.lua:1111
 msgid "Note: Add food to the pot to make soup"
 msgstr ""
 
-#: cooking_pot.lua:1201
+#: cooking_pot.lua:1212
 msgid "Cooking Pot (unfired)"
 msgstr ""
 
-#: cooking_pot.lua:1254
+#: cooking_pot.lua:1265
 msgid "Bowl (unfired)"
 msgstr ""
 
@@ -924,23 +934,28 @@ msgstr ""
 msgid "Cured Barshocha Flour"
 msgstr ""
 
-#: food_crafts.lua:416 food_crafts.lua:559
+#. TR: Fermented Maraka Dough
+#: food_crafts.lua:416 food_crafts.lua:560
 msgid "Maraka Dough"
 msgstr ""
 
-#: food_crafts.lua:442 food_crafts.lua:576
+#. TR: Fermented Rhuya Dough
+#: food_crafts.lua:442 food_crafts.lua:578
 msgid "Rhuya Dough"
 msgstr ""
 
-#: food_crafts.lua:468 food_crafts.lua:593
+#. TR: Fermented Hardy Rhuya Dough
+#: food_crafts.lua:468 food_crafts.lua:596
 msgid "Hardy Rhuya Dough"
 msgstr ""
 
-#: food_crafts.lua:494 food_crafts.lua:633
+#. TR: Fermented All-Purpose Dough
+#: food_crafts.lua:494 food_crafts.lua:638
 msgid "All-Purpose Dough"
 msgstr ""
 
-#: food_crafts.lua:521 food_crafts.lua:613
+#. TR: Fermented Barshocha Dough
+#: food_crafts.lua:521 food_crafts.lua:617
 msgid "Barshocha Dough"
 msgstr ""
 
@@ -952,44 +967,49 @@ msgstr ""
 msgid "Infect Dough"
 msgstr ""
 
-#: food_crafts.lua:559 food_crafts.lua:576 food_crafts.lua:593
-#: food_crafts.lua:613 food_crafts.lua:633
+#. TR: Fermented Maraka Dough
+#. TR: Fermented Rhuya Dough
+#. TR: Fermented Hardy Rhuya Dough
+#. TR: Fermented Barshocha Dough
+#. TR: Fermented All-Purpose Dough
+#: food_crafts.lua:560 food_crafts.lua:578 food_crafts.lua:596
+#: food_crafts.lua:617 food_crafts.lua:638
 msgid "Fermented @1"
 msgstr ""
 
-#: food_crafts.lua:655
+#: food_crafts.lua:660
 msgid "Black Bread"
 msgstr ""
 
-#: food_crafts.lua:675
+#: food_crafts.lua:680
 msgid "Crumbly Bread"
 msgstr ""
 
-#: food_crafts.lua:694
+#: food_crafts.lua:699
 msgid "Unleavened Bread"
 msgstr ""
 
-#: food_crafts.lua:710
+#: food_crafts.lua:715
 msgid "Fluffy Unleavened Bread"
 msgstr ""
 
-#: food_crafts.lua:727
+#: food_crafts.lua:732
 msgid "Basic Crackerbread"
 msgstr ""
 
-#: food_crafts.lua:743
+#: food_crafts.lua:748
 msgid "Soft Bread"
 msgstr ""
 
-#: food_crafts.lua:763
+#: food_crafts.lua:768
 msgid "Burned Bread"
 msgstr ""
 
-#: food_crafts.lua:944
+#: food_crafts.lua:949
 msgid "Cracked Egg"
 msgstr ""
 
-#: food_crafts.lua:968
+#: food_crafts.lua:973
 msgid "Fried Egg"
 msgstr ""
 

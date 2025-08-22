@@ -295,8 +295,15 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
     -- set description
     local desc_tag = def.description_tag
     def.description_tag = nil
-    def.description = def.description or soupstew == "soup" and S("Bowl of @1 Soup","") or soupstew == "stew" and
-        S("Bowl of @1 Stew","") or desc_tag and S("Bowl of @1", desc_tag) or name
+    if not def.description then
+        if soupstew == "soup" then
+            def.description = S("Bowl of Soup")
+        elseif soupstew == "stew" then
+            def.description = S("Bowl of Stew")
+        else
+            def.description =  desc_tag and S("Bowl of @1", desc_tag) or name
+        end
+    end
     -- set tiles
     if not def.tiles or not def.tiles[1] then
         -- how???
@@ -908,9 +915,13 @@ local function pot_cook(pos, elapsed)
                 -- set kind again for soup/stew
                 if kind == "Stew" then meta:set_string("type",kind) end
                 -- get proper description
-                local desc = S(
-                  "Bowl of @1".. " " .. (kind == "Stew" and "Stew" or "Soup"),firstingr
-                )
+                local kind_desc = (kind == "Stew") and S("Stew")
+                               or S("Soup")
+                -- #TODO issue is that ingredient is from the item description
+                -- and... the translation will be different depending on it !
+                -- TR: @1 is an ingredient, @2 is soup or stew
+                -- Ex: "Bowl of Zufani Soup"
+                local desc = S( "Bowl of @1 @2",firstingr, kind_desc)
                 meta:set_string("soup_desc", desc) -- used to name gotten soup
                 inv:set_list("main", inv_main)
                 -- set infotext

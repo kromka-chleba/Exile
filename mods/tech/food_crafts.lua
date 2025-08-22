@@ -556,6 +556,7 @@ local ferm_dough_preserve_metadata = ncrafting.dough_fermented_preserve_metadata
 
 minetest.register_node(
     "tech:maraka_dough_fermented",  {
+        -- TR: Fermented Maraka Dough
         description = S("Fermented @1",S("Maraka Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -573,6 +574,7 @@ minetest.register_node(
 
 minetest.register_node(
     "tech:rhuya_dough_fermented",  {
+        -- TR: Fermented Rhuya Dough
         description = S("Fermented @1",S("Rhuya Dough")),
         tiles = {"tech_dough.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -590,6 +592,7 @@ minetest.register_node(
 
 minetest.register_node(
     "tech:rhuya_wintery_dough_fermented",  {
+        -- TR: Fermented Hardy Rhuya Dough
         description = S("Fermented @1",S("Hardy Rhuya Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -610,6 +613,7 @@ minetest.register_node(
 
 minetest.register_node(
     "tech:barszcz_dough_fermented",  {
+        -- TR: Fermented Barshocha Dough
         description = S("Fermented @1",S("Barshocha Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 2,
@@ -630,6 +634,7 @@ minetest.register_node(
 
 minetest.register_node(
     "tech:all_dough_fermented",  {
+        -- TR: Fermented All-Purpose Dough
         description = S("Fermented @1",S("All-Purpose Dough")),
         tiles = {"tech_dough_all.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
         stack_max = minimal.stack_max_medium * 2,
