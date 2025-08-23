@@ -238,14 +238,14 @@ end)
 crafting.register_cache_function("set_tool", function(self, tool)
     -- if no parameter tool is given, put default tool
     tool = tool or crafting.default_tool
-    -- don't reset if tool didn't change
+    -- reset the tool panel in any case, because we may arrive here by changing station, evenkeeping the same tool
+    self.FS_tool_panel = nil
+    -- don't reset tabs if tool didn't change
     if self.sTool ~= tool then
         -- initialize cache
         self.sTool = tool
         self.sToolID =  val_to_ID(tool, self.tool_list)
         self.sLevel = crafting.get_tool_level(tool)
-        --self.FS_tool_panel = self:get_tool_panel()
-        self.FS_tool_panel = nil
         -- reset craft type tabs
         self:set_craft_tabs(1, get_craft_types(tool))
     end
