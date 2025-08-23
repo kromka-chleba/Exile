@@ -552,6 +552,46 @@ do
 
         return  tofstring(FS_recipes)
     end)
+
+    -- For the currently selected recipe, returns a table to offer up
+    -- to 3 different quantities for crafting, or nil if there is no selection
+    -- or the current id does not refer to a registered recipe.
+    -- The first quantity is either 0 or 1. The last quantitiy is always the
+    -- maximum possible with the available inputs. If a quantitiy 1 < q < max
+    -- exists, then it would be the size of a stack devided by output count of
+    -- the recipe if possible, or less otherwise.
+    crafting.register_cache_function("get_output_quantities", function(self)
+        if not self.selected_id then return nil end
+
+        -- get player recipe
+        local recipe = crafting.get_recipe(self.selected_id)
+        if not recipe then return nil end
+
+        local qty_max = recipe:find_max_craftable(self.item_hash)
+
+        -- max is 0 or 1 -> return only a single quantity
+        if qty_max < 2 then return {qty_max} end
+
+        -- try to find a unique 2nd quantity 1 < qty_2 < qty_max
+        -- start with stack limit devided by output count of recipe,
+        -- but make it at least 2
+        local stack_max = calculate_stack_input(recipe.output)
+        local qty_2 = stack_max > 1 and stack_max or 2
+        -- assure qty_2 < qty_max
+        while (qty_2 >= qty_max) and (qty_2 > 1)  do
+            qty_2 = math.ceil(qty_2 / 2)
+        end
+
+        -- build return value
+        local quantities =  {1}
+        -- do we have 3 unique quantities to offer?
+        if qty_2 > 1 then
+            quantities[#quantities + 1] = qty_2
+        end
+        quantities[#quantities + 1] = qty_max
+
+        return quantities
+    end)
 end
 
 -- FORMSPEC ACTIONS ------------------------------------------------------------
