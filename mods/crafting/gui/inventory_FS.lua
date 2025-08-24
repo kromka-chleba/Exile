@@ -54,7 +54,10 @@ sfinv.register_page(
         get = function(self, player, context)
             local fs = {}
             fs[#fs + 1] = 'label[0.9,1.0;'.. S("Use a free hand at a suitable place (v).") .. ']'
-            fs[#fs + 1] = 'image[0.8,2;9.8,7;crafting_help_basic_crafting.png]'
+            fs[#fs + 1] = 'image[0.8,2.0;4.8,3.5;crafting_help_surface_good_01.png]'
+            fs[#fs + 1] = 'image[0.8,5.7;4.8,3.5;crafting_help_surface_good_02.png]'
+            fs[#fs + 1] = 'image[5.8,2.0;4.8,3.5;crafting_help_surface_bad_01.png]'
+            fs[#fs + 1] = 'image[5.8,5.7;4.8,3.5;crafting_help_surface_bad_02.png]'
             local content = table.concat(fs,"")
 
             return sfinv.make_formspec_for_exile(player, context,
