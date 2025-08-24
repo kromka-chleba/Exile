@@ -50,7 +50,7 @@ sfinv.register_page(
 -- Register help formspec as inv tab
 sfinv.register_page(
     "crafting:help", {
-        title = S("Crafting?"),
+        title = " ? ",
         get = function(self, player, context)
             local fs = {}
             fs[#fs + 1] = 'label[0.9,1.0;'.. S("Use a free hand at a suitable place (v).") .. ']'
