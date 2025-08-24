@@ -70,7 +70,7 @@ local function leave_blanket(player, bed_pos, leave_on_bed)
                 p_inv:add_item("main",blanket)
             else
                 core.item_drop(blanket, player, player:get_pos())
-                --minimal.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
+                minimal.send_message(player, nil, S("You have no room to hold your blanket, so you drop it."),2)
                 minimal.warn_inv_full(player)
             end
         end

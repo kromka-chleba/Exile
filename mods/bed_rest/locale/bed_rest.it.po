@@ -1,0 +1,603 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti textdomain bed_rest x.x.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-24 08:21+0200\n"
+"PO-Revision-Date: 2025-08-24 08:22+0200\n"
+"Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
+"Language-Team: \n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: break_taker.lua:13
+msgid "Seneca"
+msgstr ""
+
+#: break_taker.lua:14
+msgid "Sometimes even to live is an act of courage."
+msgstr ""
+
+#: break_taker.lua:16
+msgid "Cicero"
+msgstr ""
+
+#: break_taker.lua:17
+msgid ""
+"It is not by muscle, speed, or physical dexterity that great things are "
+"achieved,\n"
+"but by reflection, force of character, and judgment."
+msgstr ""
+
+#: break_taker.lua:19
+msgid "Ovid"
+msgstr ""
+
+#: break_taker.lua:20
+msgid ""
+"Dripping water hollows out stone,\n"
+"not through force but through persistence."
+msgstr ""
+
+#: break_taker.lua:22
+msgid "Marcus Aurelius"
+msgstr ""
+
+#: break_taker.lua:23
+msgid "Life is a struggle and wandering in a foreign country."
+msgstr ""
+
+#: break_taker.lua:26
+msgid "Hippocrates"
+msgstr ""
+
+#: break_taker.lua:27
+msgid "Let food be thy medicine and medicine be thy food."
+msgstr ""
+
+#: break_taker.lua:30
+msgid "Sun Tzu"
+msgstr ""
+
+#: break_taker.lua:31
+msgid "If quick, I survive. If not quick, I am lost."
+msgstr ""
+
+#: break_taker.lua:33
+msgid "Lao Tzu"
+msgstr ""
+
+#: break_taker.lua:34
+msgid ""
+"Fill your bowl to the brim and it will spill.\n"
+"Keep sharpening your knife and it will blunt."
+msgstr ""
+
+#: break_taker.lua:36
+msgid "Confucius"
+msgstr ""
+
+#: break_taker.lua:37
+msgid ""
+"Learning without thought is labour lost;\n"
+"thought without learning is perilous."
+msgstr ""
+
+#: break_taker.lua:39
+msgid "Chongyang"
+msgstr ""
+
+#: break_taker.lua:40
+msgid ""
+"Reed-thatched huts and grass-thatched shelters are essential for protecting "
+"the body.\n"
+"To sleep in the open air or in the open fields offends the sun and moon."
+msgstr ""
+
+#: break_taker.lua:41
+msgid ""
+"On the other hand,\n"
+"living beneath carved beams and high eaves is also not the action of a "
+"superior adept.\n"
+"Great palaces and elevated halls,\n"
+"— how can these be part of the living plan for followers of the Dao?"
+msgstr ""
+
+#: break_taker.lua:42
+msgid ""
+"Medicinal herbs are the flourishing emanations of mountains and waterways,\n"
+"the essential florescence of plants and trees."
+msgstr ""
+
+#: break_taker.lua:43
+msgid ""
+"Followers of the Dao join together as companions\n"
+"because they can assist each other in sickness and disease.\n"
+"If you die, I’ll bury you; if I die, you’ll bury me."
+msgstr ""
+
+#: break_taker.lua:45
+msgid "The Dalai Lama"
+msgstr ""
+
+#: break_taker.lua:46
+msgid ""
+"If you think you are too small to make a difference,\n"
+"try sleeping with a mosquito."
+msgstr ""
+
+#: break_taker.lua:49
+msgid "Masanobu Fukuoka"
+msgstr ""
+
+#: break_taker.lua:50
+msgid ""
+"The ultimate goal of farming is not the growing of crops,\n"
+"but the cultivation and perfection of human beings."
+msgstr ""
+
+#: break_taker.lua:52
+msgid "Kazuaki Tanahashi"
+msgstr ""
+
+#: break_taker.lua:53
+msgid "Artist's need the world."
+msgstr ""
+
+#: break_taker.lua:55
+msgid "Kobayashi Issa"
+msgstr ""
+
+#: break_taker.lua:56
+msgid ""
+"O snail\n"
+"Climb Mount Fuji\n"
+"But slowly, slowly!"
+msgstr ""
+
+#: break_taker.lua:59
+msgid "Mahatma Gandhi"
+msgstr ""
+
+#: break_taker.lua:60
+msgid ""
+"Each night, when I go to sleep, I die.\n"
+"And the next morning, when I wake up, I am reborn."
+msgstr ""
+
+#: break_taker.lua:63
+msgid "Saadi"
+msgstr ""
+
+#: break_taker.lua:64
+msgid "Whatever is produced in haste goes hastily to waste."
+msgstr ""
+
+#: break_taker.lua:67
+msgid "Nick Joaquín"
+msgstr ""
+
+#: break_taker.lua:68
+msgid "The point is not how we use a tool, but how it uses us."
+msgstr ""
+
+#: break_taker.lua:71
+msgid "John Plant"
+msgstr ""
+
+#: break_taker.lua:72
+msgid ""
+"My approach is to look for what I’m interested in using\n"
+"and if it’s there I use it."
+msgstr ""
+
+#: break_taker.lua:75
+msgid "Joss Whedon"
+msgstr ""
+
+#: break_taker.lua:76
+msgid ""
+"Humor keeps us alive. Humor and food.\n"
+"Don't forget food. You can go a week without laughing."
+msgstr ""
+
+#: break_taker.lua:78
+msgid "Carl Sagan"
+msgstr ""
+
+#: break_taker.lua:79
+msgid ""
+"Extinction is the rule.\n"
+"Survival is the exception."
+msgstr ""
+
+#: break_taker.lua:80
+msgid "Somewhere, something incredible is waiting to be known."
+msgstr ""
+
+#: break_taker.lua:81
+msgid ""
+"If you wish to make an apple pie from scratch, you must first invent the "
+"universe."
+msgstr ""
+
+#: break_taker.lua:83
+msgid "Edwin Louis Cole"
+msgstr ""
+
+#: break_taker.lua:84
+msgid ""
+"You don't drown by falling in the water;\n"
+"you drown by staying there."
+msgstr ""
+
+#: break_taker.lua:86
+msgid "Ernest Hemmingway"
+msgstr ""
+
+#: break_taker.lua:87
+msgid "Never confuse movement with action."
+msgstr ""
+
+#: break_taker.lua:89
+msgid "Kurt Vonnegut"
+msgstr ""
+
+#: break_taker.lua:90
+msgid ""
+"A step backward, after making a wrong turn, is a step in the right direction."
+msgstr ""
+
+#: break_taker.lua:92
+msgid "Jane Addams"
+msgstr ""
+
+#: break_taker.lua:93
+msgid ""
+"Perhaps nothing is so fraught with significance as the human hand,\n"
+"this oldest tool with which man has dug his way from savagery,\n"
+"and with which he is constantly groping forward."
+msgstr ""
+
+#: break_taker.lua:95
+msgid "Barry Gehm"
+msgstr ""
+
+#: break_taker.lua:96
+msgid "Any technology distinguishable from magic is insufficiently advanced."
+msgstr ""
+
+#: break_taker.lua:98
+msgid "Bob Ross"
+msgstr ""
+
+#: break_taker.lua:99
+msgid ""
+"Lets build a happy little cloud.\n"
+"Lets build some happy little trees."
+msgstr ""
+
+#: break_taker.lua:101
+msgid "John Muir"
+msgstr ""
+
+#: break_taker.lua:102
+msgid "The mountains are calling and I must go."
+msgstr ""
+
+#: break_taker.lua:104
+msgid "Ralph Waldo Emerson"
+msgstr ""
+
+#: break_taker.lua:105
+msgid "Adopt the pace of nature: her secret is patience."
+msgstr ""
+
+#: break_taker.lua:107
+msgid "Daniel Boone"
+msgstr ""
+
+#: break_taker.lua:108
+msgid ""
+"I've never been lost, but I was mighty turned around for three days once."
+msgstr ""
+
+#: break_taker.lua:110
+msgid "Thomas Edison"
+msgstr ""
+
+#: break_taker.lua:111
+msgid "I have not failed. I've just found 10,000 ways that won't work."
+msgstr ""
+
+#: break_taker.lua:113
+msgid "Woody Allen"
+msgstr ""
+
+#: break_taker.lua:114
+msgid ""
+"I'm not afraid of death;\n"
+"I just don't want to be there when it happens."
+msgstr ""
+
+#: break_taker.lua:116
+msgid "Bill Watterson"
+msgstr ""
+
+#: break_taker.lua:117
+msgid "Reality continues to ruin my life."
+msgstr ""
+
+#: break_taker.lua:119
+msgid "Oscar Levant"
+msgstr ""
+
+#: break_taker.lua:120
+msgid ""
+"There's a fine line between genius and insanity.\n"
+"I have erased this line."
+msgstr ""
+
+#: break_taker.lua:122
+msgid "Dr. Seuss"
+msgstr ""
+
+#: break_taker.lua:123
+msgid ""
+"They say I'm old-fashioned, and live in the past,\n"
+"but sometimes I think progress progresses too fast!"
+msgstr ""
+
+#: break_taker.lua:126
+msgid "Arthur C. Clarke"
+msgstr ""
+
+#: break_taker.lua:127
+msgid "It has yet to be proven that intelligence has any survival value."
+msgstr ""
+
+#: break_taker.lua:128
+msgid ""
+"The only way of discovering the limits of the possible\n"
+"is to venture a little way past them into the impossible."
+msgstr ""
+
+#: break_taker.lua:130
+msgid "Bear Grylls"
+msgstr ""
+
+#: break_taker.lua:131
+msgid ""
+"That fine line between bravery and stupidity is endlessly debated\n"
+"– the difference really doesn’t matter."
+msgstr ""
+
+#: break_taker.lua:133
+msgid "Winston Churchill"
+msgstr ""
+
+#: break_taker.lua:134
+msgid "If you're going through hell, keep going"
+msgstr ""
+
+#: break_taker.lua:136
+msgid "George Orwell"
+msgstr ""
+
+#: break_taker.lua:137
+msgid ""
+"Progress is not an illusion; it happens,\n"
+"but it is slow and invariably disappointing."
+msgstr ""
+
+#: break_taker.lua:139
+msgid "The Black Knight"
+msgstr ""
+
+#: break_taker.lua:140
+msgid "Tis but a scratch!"
+msgstr ""
+
+#: break_taker.lua:142
+msgid "William Shakespeare"
+msgstr ""
+
+#: break_taker.lua:143
+msgid "I like this place and could willingly waste my time in it."
+msgstr ""
+
+#: break_taker.lua:145
+msgid "Isaac Newton"
+msgstr ""
+
+#: break_taker.lua:146
+msgid "Nature is pleased with simplicity. And nature is no dummy."
+msgstr ""
+
+#: break_taker.lua:148
+msgid "Tolkien"
+msgstr ""
+
+#: break_taker.lua:149
+msgid "Not all those who wander are lost."
+msgstr ""
+
+#: break_taker.lua:151
+msgid "Terry Pratchett"
+msgstr ""
+
+#: break_taker.lua:152
+msgid ""
+"Give a man a fire and he's warm for a day,\n"
+"but set fire to him and he's warm for the rest of his life."
+msgstr ""
+
+#: break_taker.lua:154
+msgid "Douglas Adams"
+msgstr ""
+
+#: break_taker.lua:155
+msgid ""
+"Let's think the unthinkable, let's do the undoable.\n"
+"Let us prepare to grapple with the ineffable itself, and see if we may not "
+"eff it after all."
+msgstr ""
+
+#: break_taker.lua:157
+msgid "Virginia Woolf"
+msgstr ""
+
+#: break_taker.lua:158
+msgid ""
+"One cannot think well, love well, sleep well, if one has not dined well."
+msgstr ""
+
+#: break_taker.lua:160
+msgid "Dylan Thomas"
+msgstr ""
+
+#: break_taker.lua:161
+msgid ""
+"Do not go gentle into that good night.\n"
+"Rage, rage against the dying of the light."
+msgstr ""
+
+#: break_taker.lua:163
+msgid "Robert Swan"
+msgstr ""
+
+#: break_taker.lua:164
+msgid ""
+"The greatest threat to our planet\n"
+"is the belief that someone else will save it."
+msgstr ""
+
+#: break_taker.lua:167
+msgid "Victor Hugo"
+msgstr ""
+
+#: break_taker.lua:168
+msgid "Emergencies have always been necessary to progress."
+msgstr ""
+
+#: break_taker.lua:170
+msgid "Albert Camus"
+msgstr ""
+
+#: break_taker.lua:171
+msgid "There is scarcely any passion without struggle."
+msgstr ""
+
+#: break_taker.lua:173
+msgid "Marthe Troly-Curtin"
+msgstr ""
+
+#: break_taker.lua:174
+msgid "Time you enjoy wasting is not wasted time."
+msgstr ""
+
+#: break_taker.lua:177
+msgid "Franz Kafka"
+msgstr ""
+
+#: break_taker.lua:178
+msgid "I only fear danger where I want to fear it."
+msgstr ""
+
+#: break_taker.lua:180
+msgid "Friedrich Nietzsche"
+msgstr ""
+
+#: break_taker.lua:181
+msgid "All truly great thoughts are conceived while walking."
+msgstr ""
+
+#: break_taker.lua:182
+msgid "When we are tired, we are attacked by ideas we conquered long ago."
+msgstr ""
+
+#: break_taker.lua:183
+msgid "He who has a strong enough why can bear any how."
+msgstr ""
+
+#: break_taker.lua:185
+msgid "Markus Herz"
+msgstr ""
+
+#: break_taker.lua:186
+msgid ""
+"Be careful about reading health books.\n"
+"Some fine day you'll die of a misprint."
+msgstr ""
+
+#: break_taker.lua:189
+msgid "Balthasar Gracian"
+msgstr ""
+
+#: break_taker.lua:190
+msgid ""
+"There are rules to luck, not everything is chance for the wise;\n"
+"luck can be helped by skill."
+msgstr ""
+
+#: break_taker.lua:193
+msgid "Edward de Bono"
+msgstr ""
+
+#: break_taker.lua:194
+msgid ""
+"It will be a sinister day when computers start to laugh,\n"
+"because that will mean they are capable of a lot of other things as well."
+msgstr ""
+
+#: break_taker.lua:195
+msgid ""
+"Po converts what might otherwise be taken as madness\n"
+"into a perfectly reasonable illogical procedure."
+msgstr ""
+
+#: break_taker.lua:198
+msgid "Soren Kierkegaard"
+msgstr ""
+
+#: break_taker.lua:199
+msgid "Life can only be understood backwards; but it must be lived forwards."
+msgstr ""
+
+#: break_taker.lua:226
+msgid "BREAK TIME!"
+msgstr ""
+
+#: break_taker.lua:228
+msgid ""
+"You've been here long enough to justify a real break.\n"
+"Think of this as a reminder from your better self.\n"
+"Go get some rest. Leave Exile behind. You can come back any time."
+msgstr ""
+
+#: break_taker.lua:247
+msgid "Disable Break-taker popup"
+msgstr ""
+
+#: functions.lua:67
+msgid "Contains Blanket"
+msgstr ""
+
+#: functions.lua:74
+msgid "You have no room to hold your blanket, so you drop it."
+msgstr ""
+
+#: functions.lua:276
+msgid "This bed is already occupied!"
+msgstr ""
+
+#: functions.lua:279 functions.lua:290
+msgid "Status: Occupied by @1"
+msgstr ""
+
+#: functions.lua:376
+msgid "Status: Occupied by @1 (old)"
+msgstr ""

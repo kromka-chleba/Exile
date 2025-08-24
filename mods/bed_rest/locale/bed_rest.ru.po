@@ -1,0 +1,685 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti textdomain bed_rest x.x.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-24 08:21+0200\n"
+"PO-Revision-Date: 2025-08-24 08:21+0200\n"
+"Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: break_taker.lua:13
+msgid "Seneca"
+msgstr "Сенека"
+
+#: break_taker.lua:14
+msgid "Sometimes even to live is an act of courage."
+msgstr "Иногда даже жить - это акт мужества."
+
+#: break_taker.lua:16
+msgid "Cicero"
+msgstr "Цицерон"
+
+#: break_taker.lua:17
+msgid ""
+"It is not by muscle, speed, or physical dexterity that great things are "
+"achieved,\n"
+"but by reflection, force of character, and judgment."
+msgstr ""
+"Великие вещи достигаются не мускулами, скоростью или физической ловкостью, \n"
+"а размышлениями, силой характера и суждениями."
+
+#: break_taker.lua:19
+msgid "Ovid"
+msgstr "Овидий"
+
+#: break_taker.lua:20
+msgid ""
+"Dripping water hollows out stone,\n"
+"not through force but through persistence."
+msgstr ""
+"Капающая вода вытесывает камень, \n"
+"но не силой, а упорством."
+
+#: break_taker.lua:22
+msgid "Marcus Aurelius"
+msgstr "Маркус Аврелий"
+
+#: break_taker.lua:23
+msgid "Life is a struggle and wandering in a foreign country."
+msgstr "Жизнь - это борьба и блуждание по чужой стране."
+
+#: break_taker.lua:26
+msgid "Hippocrates"
+msgstr "Гиппократ"
+
+#: break_taker.lua:27
+msgid "Let food be thy medicine and medicine be thy food."
+msgstr "Пусть еда будет твоим лекарством и лекарством будет твоей пищей."
+
+#: break_taker.lua:30
+msgid "Sun Tzu"
+msgstr "Сунь-цзы"
+
+#: break_taker.lua:31
+msgid "If quick, I survive. If not quick, I am lost."
+msgstr "Если быстро, я выживаю. Если не быстро, я потерян."
+
+#: break_taker.lua:33
+msgid "Lao Tzu"
+msgstr "Лао-цзы"
+
+#: break_taker.lua:34
+msgid ""
+"Fill your bowl to the brim and it will spill.\n"
+"Keep sharpening your knife and it will blunt."
+msgstr ""
+"Наполните миску до краев, и она прольется.\n"
+"Продолжайте точить нож, и он затупится."
+
+#: break_taker.lua:36
+msgid "Confucius"
+msgstr "Конфуций"
+
+#: break_taker.lua:37
+msgid ""
+"Learning without thought is labour lost;\n"
+"thought without learning is perilous."
+msgstr ""
+"Обучение без размышлений - потерянный труд;\n"
+"а размышления без обучения - опасность."
+
+#: break_taker.lua:39
+msgid "Chongyang"
+msgstr "Ван Чунъян"
+
+#: break_taker.lua:40
+msgid ""
+"Reed-thatched huts and grass-thatched shelters are essential for protecting "
+"the body.\n"
+"To sleep in the open air or in the open fields offends the sun and moon."
+msgstr ""
+"Для защиты тела необходимы хижины из тростника и навесы из травы.\n"
+"Сон под открытым небом или в открытом поле оскорбляет солнце и луну."
+
+#: break_taker.lua:41
+msgid ""
+"On the other hand,\n"
+"living beneath carved beams and high eaves is also not the action of a "
+"superior adept.\n"
+"Great palaces and elevated halls,\n"
+"— how can these be part of the living plan for followers of the Dao?"
+msgstr ""
+"С другой стороны,\n"
+"жить под резными балками и высокими карнизами также не является действием "
+"высшего адепта.\n"
+"Большие дворцы и возвышенные залы,\n"
+"- как они могут быть частью плана жизни последователей Дао?"
+
+#: break_taker.lua:42
+msgid ""
+"Medicinal herbs are the flourishing emanations of mountains and waterways,\n"
+"the essential florescence of plants and trees."
+msgstr ""
+"Лекарственные травы - это цветущие эманации гор и водных потоков,\n"
+"а также эфирное цветение растений и деревьев."
+
+#: break_taker.lua:43
+msgid ""
+"Followers of the Dao join together as companions\n"
+"because they can assist each other in sickness and disease.\n"
+"If you die, I’ll bury you; if I die, you’ll bury me."
+msgstr ""
+"Последователи Дао объединяются в компаньонов \n"
+"потому, что могут помочь друг другу в болезни и недуге. \n"
+"Если ты умрешь, я похороню тебя; если я умру, ты похоронишь меня."
+
+#: break_taker.lua:45
+msgid "The Dalai Lama"
+msgstr "Далай-лама"
+
+#: break_taker.lua:46
+msgid ""
+"If you think you are too small to make a difference,\n"
+"try sleeping with a mosquito."
+msgstr ""
+"Если вы думаете, что вы слишком малы, чтобы изменить ситуацию, \n"
+"попробуйте спать с комаром."
+
+#: break_taker.lua:49
+msgid "Masanobu Fukuoka"
+msgstr "Масанобу Фукуока"
+
+#: break_taker.lua:50
+msgid ""
+"The ultimate goal of farming is not the growing of crops,\n"
+"but the cultivation and perfection of human beings."
+msgstr ""
+"Конечная цель земледелия - не выращивание урожая, \n"
+"а воспитание и совершенствование человека."
+
+#: break_taker.lua:52
+msgid "Kazuaki Tanahashi"
+msgstr "Кадзуаки Танахаси"
+
+#: break_taker.lua:53
+msgid "Artist's need the world."
+msgstr "Художник нуждается в мире."
+
+#: break_taker.lua:55
+msgid "Kobayashi Issa"
+msgstr "Кобаяси Исса"
+
+#: break_taker.lua:56
+msgid ""
+"O snail\n"
+"Climb Mount Fuji\n"
+"But slowly, slowly!"
+msgstr ""
+"Улитка\n"
+"Взобраться на гору Фудзи\n"
+"Но медленно, медленно!"
+
+#: break_taker.lua:59
+msgid "Mahatma Gandhi"
+msgstr "Махатма Моханда́с Карамча́нд Га́нди (Махатма Ганди)"
+
+#: break_taker.lua:60
+msgid ""
+"Each night, when I go to sleep, I die.\n"
+"And the next morning, when I wake up, I am reborn."
+msgstr ""
+"Каждую ночь, когда я ложусь спать, я умираю.\n"
+"А на следующее утро, когда я просыпаюсь, я возрождаюсь."
+
+#: break_taker.lua:63
+msgid "Saadi"
+msgstr "Саади"
+
+#: break_taker.lua:64
+msgid "Whatever is produced in haste goes hastily to waste."
+msgstr "Все, что производится в спешке, быстро пропадает."
+
+#: break_taker.lua:67
+msgid "Nick Joaquín"
+msgstr "Ник Хоакин"
+
+#: break_taker.lua:68
+msgid "The point is not how we use a tool, but how it uses us."
+msgstr ""
+"Дело не в том, как мы используем инструмент, а в том, как он использует нас."
+
+#: break_taker.lua:71
+msgid "John Plant"
+msgstr "Джон Плант"
+
+#: break_taker.lua:72
+msgid ""
+"My approach is to look for what I’m interested in using\n"
+"and if it’s there I use it."
+msgstr ""
+"Мой подход заключается в поиске того, что мне интересно использовать,\n"
+"и если оно есть, я его использую."
+
+#: break_taker.lua:75
+msgid "Joss Whedon"
+msgstr "Джосс Уэдон"
+
+#: break_taker.lua:76
+msgid ""
+"Humor keeps us alive. Humor and food.\n"
+"Don't forget food. You can go a week without laughing."
+msgstr ""
+"Юмор помогает нам жить. Юмор и еда.\n"
+"Не забывайте о еде. Вы можете неделю не смеяться."
+
+#: break_taker.lua:78
+msgid "Carl Sagan"
+msgstr "Карл Саган"
+
+#: break_taker.lua:79
+msgid ""
+"Extinction is the rule.\n"
+"Survival is the exception."
+msgstr ""
+"Вымирание - это правило,\n"
+"а выживание - исключение."
+
+#: break_taker.lua:80
+msgid "Somewhere, something incredible is waiting to be known."
+msgstr "Где-то есть что-то невероятное, что ждет своего часа."
+
+#: break_taker.lua:81
+msgid ""
+"If you wish to make an apple pie from scratch, you must first invent the "
+"universe."
+msgstr ""
+"Если вы хотите приготовить яблочный пирог с нуля, вам нужно сначала "
+"изобрести вселенную."
+
+#: break_taker.lua:83
+msgid "Edwin Louis Cole"
+msgstr "Эдвин Луи Коул"
+
+#: break_taker.lua:84
+msgid ""
+"You don't drown by falling in the water;\n"
+"you drown by staying there."
+msgstr ""
+"Вы не утонете, упав в воду;\n"
+"вы утонете, оставшись там."
+
+#: break_taker.lua:86
+msgid "Ernest Hemmingway"
+msgstr "Эрнест Хемингуэй"
+
+#: break_taker.lua:87
+msgid "Never confuse movement with action."
+msgstr "Никогда не путайте движение с действием."
+
+#: break_taker.lua:89
+msgid "Kurt Vonnegut"
+msgstr "Курт Воннегут"
+
+#: break_taker.lua:90
+msgid ""
+"A step backward, after making a wrong turn, is a step in the right direction."
+msgstr "Шаг назад после неверного поворота - это шаг в правильном направлении."
+
+#: break_taker.lua:92
+msgid "Jane Addams"
+msgstr "Джейн Аддамс"
+
+#: break_taker.lua:93
+msgid ""
+"Perhaps nothing is so fraught with significance as the human hand,\n"
+"this oldest tool with which man has dug his way from savagery,\n"
+"and with which he is constantly groping forward."
+msgstr ""
+"Пожалуй, ничто не имеет такого значения, как человеческая рука,\n"
+"этот древнейший инструмент, с помощью которого человек пробивал себе путь из "
+"дикости,\n"
+"и с помощью которого он постоянно пробирается вперед."
+
+#: break_taker.lua:95
+msgid "Barry Gehm"
+msgstr "Барри Гем"
+
+#: break_taker.lua:96
+msgid "Any technology distinguishable from magic is insufficiently advanced."
+msgstr "Любая технология, отличимая от магии, недостаточно развита."
+
+#: break_taker.lua:98
+msgid "Bob Ross"
+msgstr "Боб Росс"
+
+#: break_taker.lua:99
+msgid ""
+"Lets build a happy little cloud.\n"
+"Lets build some happy little trees."
+msgstr ""
+"Построим маленькое счастливое облако.\n"
+"Давайте построим несколько маленьких счастливых деревьев."
+
+#: break_taker.lua:101
+msgid "John Muir"
+msgstr "Джон Мьюр"
+
+#: break_taker.lua:102
+msgid "The mountains are calling and I must go."
+msgstr "Горы зовут, и я должен идти."
+
+#: break_taker.lua:104
+msgid "Ralph Waldo Emerson"
+msgstr "Ральф Уолдо Эмерсон"
+
+#: break_taker.lua:105
+msgid "Adopt the pace of nature: her secret is patience."
+msgstr "Возьмите на вооружение темп природы: ее секрет - терпение."
+
+#: break_taker.lua:107
+msgid "Daniel Boone"
+msgstr "Даниэль Бун"
+
+#: break_taker.lua:108
+msgid ""
+"I've never been lost, but I was mighty turned around for three days once."
+msgstr "Я никогда не терялся, но однажды меня три дня крутили по кругу."
+
+#: break_taker.lua:110
+msgid "Thomas Edison"
+msgstr "Томас Эдисон"
+
+#: break_taker.lua:111
+msgid "I have not failed. I've just found 10,000 ways that won't work."
+msgstr ""
+"Я не потерпел неудачу. Я просто нашел 10 000 способов, которые не работают."
+
+#: break_taker.lua:113
+msgid "Woody Allen"
+msgstr "Вуди Аллен"
+
+#: break_taker.lua:114
+msgid ""
+"I'm not afraid of death;\n"
+"I just don't want to be there when it happens."
+msgstr ""
+"Я не боюсь смерти,\n"
+"я просто не хочу быть там, когда она случится."
+
+#: break_taker.lua:116
+msgid "Bill Watterson"
+msgstr "Билл Уоттерсон"
+
+#: break_taker.lua:117
+msgid "Reality continues to ruin my life."
+msgstr "Реальность продолжает разрушать мою жизнь."
+
+#: break_taker.lua:119
+msgid "Oscar Levant"
+msgstr "Оскар Левант"
+
+#: break_taker.lua:120
+msgid ""
+"There's a fine line between genius and insanity.\n"
+"I have erased this line."
+msgstr ""
+"Есть тонкая грань между гениальностью и безумием.\n"
+"Я стер эту грань."
+
+#: break_taker.lua:122
+msgid "Dr. Seuss"
+msgstr "Доктор Сьюз"
+
+#: break_taker.lua:123
+msgid ""
+"They say I'm old-fashioned, and live in the past,\n"
+"but sometimes I think progress progresses too fast!"
+msgstr ""
+"Говорят, что я старомоден и живу прошлым,\n"
+"но иногда мне кажется, что прогресс идет слишком быстро!"
+
+#: break_taker.lua:126
+msgid "Arthur C. Clarke"
+msgstr "Артур С. Кларк"
+
+#: break_taker.lua:127
+msgid "It has yet to be proven that intelligence has any survival value."
+msgstr ""
+"Пока не доказано, что интеллект имеет какое-либо значение для выживания."
+
+#: break_taker.lua:128
+msgid ""
+"The only way of discovering the limits of the possible\n"
+"is to venture a little way past them into the impossible."
+msgstr ""
+"Единственный способ обнаружить границы возможного\n"
+"- это рискнуть выйти за них в невозможное."
+
+#: break_taker.lua:130
+msgid "Bear Grylls"
+msgstr "Беар Гриллс"
+
+#: break_taker.lua:131
+msgid ""
+"That fine line between bravery and stupidity is endlessly debated\n"
+"– the difference really doesn’t matter."
+msgstr ""
+"О тонкой грани между храбростью и глупостью можно спорить бесконечно\n"
+"- на самом деле разница не имеет значения."
+
+#: break_taker.lua:133
+msgid "Winston Churchill"
+msgstr "Уинстон Черчилль"
+
+#: break_taker.lua:134
+msgid "If you're going through hell, keep going"
+msgstr "Если вы проходите через ад, продолжайте идти."
+
+#: break_taker.lua:136
+msgid "George Orwell"
+msgstr "Джордж Оруэлл"
+
+#: break_taker.lua:137
+msgid ""
+"Progress is not an illusion; it happens,\n"
+"but it is slow and invariably disappointing."
+msgstr ""
+"Прогресс - это не иллюзия, он происходит,\n"
+"но медленно и неизменно разочаровывает."
+
+#: break_taker.lua:139
+msgid "The Black Knight"
+msgstr "Черный рыцарь"
+
+#: break_taker.lua:140
+msgid "Tis but a scratch!"
+msgstr "Это всего лишь царапина!"
+
+#: break_taker.lua:142
+msgid "William Shakespeare"
+msgstr "Вильям Шекспир"
+
+#: break_taker.lua:143
+msgid "I like this place and could willingly waste my time in it."
+msgstr "Мне нравится это место, и я охотно трачу на него свое время."
+
+#: break_taker.lua:145
+msgid "Isaac Newton"
+msgstr "Исаак Ньютон"
+
+#: break_taker.lua:146
+msgid "Nature is pleased with simplicity. And nature is no dummy."
+msgstr "Природе нравится простота. А природа - не дура."
+
+#: break_taker.lua:148
+msgid "Tolkien"
+msgstr "Джон Ро́нальд Ру́эл То́лкин"
+
+#: break_taker.lua:149
+msgid "Not all those who wander are lost."
+msgstr "Не все блуждающие теряются."
+
+#: break_taker.lua:151
+msgid "Terry Pratchett"
+msgstr "Терри Пратчетт"
+
+#: break_taker.lua:152
+msgid ""
+"Give a man a fire and he's warm for a day,\n"
+"but set fire to him and he's warm for the rest of his life."
+msgstr ""
+"Дайте человеку огонь, и он согреется на день,\n"
+"но подожгите его, и он согреется на всю оставшуюся жизнь."
+
+#: break_taker.lua:154
+msgid "Douglas Adams"
+msgstr "Дуглас Адамс"
+
+#: break_taker.lua:155
+msgid ""
+"Let's think the unthinkable, let's do the undoable.\n"
+"Let us prepare to grapple with the ineffable itself, and see if we may not "
+"eff it after all."
+msgstr ""
+"Давайте думать о немыслимом, давайте делать немыслимое.\n"
+"Давайте подготовимся к встрече с самим невыразимым и посмотрим, может быть, "
+"мы все-таки его не вытравим."
+
+#: break_taker.lua:157
+msgid "Virginia Woolf"
+msgstr "Вирджиния Вульф"
+
+#: break_taker.lua:158
+msgid ""
+"One cannot think well, love well, sleep well, if one has not dined well."
+msgstr "Нельзя хорошо думать, любить, спать, если не пообедал."
+
+#: break_taker.lua:160
+msgid "Dylan Thomas"
+msgstr "Дилан Томас"
+
+#: break_taker.lua:161
+msgid ""
+"Do not go gentle into that good night.\n"
+"Rage, rage against the dying of the light."
+msgstr ""
+"Не уходите в эту спокойную ночь.\n"
+"Ярость, ярость против угасания света."
+
+#: break_taker.lua:163
+msgid "Robert Swan"
+msgstr "Роберт Свон"
+
+#: break_taker.lua:164
+msgid ""
+"The greatest threat to our planet\n"
+"is the belief that someone else will save it."
+msgstr ""
+"Самая большая угроза для нашей планеты\n"
+"- это вера в то, что ее спасет кто-то другой."
+
+#: break_taker.lua:167
+msgid "Victor Hugo"
+msgstr "Виктор Гюго"
+
+#: break_taker.lua:168
+msgid "Emergencies have always been necessary to progress."
+msgstr "Чрезвычайные ситуации всегда были необходимы для прогресса."
+
+#: break_taker.lua:170
+msgid "Albert Camus"
+msgstr "Альберт Камю"
+
+#: break_taker.lua:171
+msgid "There is scarcely any passion without struggle."
+msgstr "Вряд ли существует страсть без борьбы."
+
+#: break_taker.lua:173
+msgid "Marthe Troly-Curtin"
+msgstr "Марта Троли-Куртин"
+
+#: break_taker.lua:174
+msgid "Time you enjoy wasting is not wasted time."
+msgstr "Время, которое вам нравится тратить, - это не зря потраченное время."
+
+#: break_taker.lua:177
+msgid "Franz Kafka"
+msgstr "Франс Кафка"
+
+#: break_taker.lua:178
+msgid "I only fear danger where I want to fear it."
+msgstr "Я боюсь опасности только там, где хочу ее бояться."
+
+#: break_taker.lua:180
+msgid "Friedrich Nietzsche"
+msgstr "Фридрих Ницше"
+
+#: break_taker.lua:181
+msgid "All truly great thoughts are conceived while walking."
+msgstr "Все по-настоящему великие мысли зарождаются во время прогулки."
+
+#: break_taker.lua:182
+msgid "When we are tired, we are attacked by ideas we conquered long ago."
+msgstr "Когда мы устали, нас атакуют идеи, которые мы давно завоевали."
+
+#: break_taker.lua:183
+msgid "He who has a strong enough why can bear any how."
+msgstr "Тот, у кого есть достаточно сильное почему, может вынести любое как."
+
+#: break_taker.lua:185
+msgid "Markus Herz"
+msgstr "Маркус Герц"
+
+#: break_taker.lua:186
+msgid ""
+"Be careful about reading health books.\n"
+"Some fine day you'll die of a misprint."
+msgstr ""
+"Осторожно читайте книги о здоровье.\n"
+"В один прекрасный день вы умрете от опечатки."
+
+#: break_taker.lua:189
+msgid "Balthasar Gracian"
+msgstr "Балтасар Грасиан"
+
+#: break_taker.lua:190
+msgid ""
+"There are rules to luck, not everything is chance for the wise;\n"
+"luck can be helped by skill."
+msgstr ""
+"В удаче есть свои правила, не все является шансом для мудрых;\n"
+"Удаче может помочь мастерство."
+
+#: break_taker.lua:193
+msgid "Edward de Bono"
+msgstr "Эдвард де Боно"
+
+#: break_taker.lua:194
+msgid ""
+"It will be a sinister day when computers start to laugh,\n"
+"because that will mean they are capable of a lot of other things as well."
+msgstr ""
+"Это будет зловещий день, когда компьютеры начнут смеяться,\n"
+"потому что это будет означать, что они способны и на многое другое."
+
+#: break_taker.lua:195
+msgid ""
+"Po converts what might otherwise be taken as madness\n"
+"into a perfectly reasonable illogical procedure."
+msgstr ""
+"По превращает то, что иначе можно было бы принять за безумие,\n"
+"в совершенно разумную нелогичную процедуру."
+
+#: break_taker.lua:198
+msgid "Soren Kierkegaard"
+msgstr "Сёрен Кьеркегор"
+
+#: break_taker.lua:199
+msgid "Life can only be understood backwards; but it must be lived forwards."
+msgstr ""
+"Жизнь можно осмыслить только вспять. Но жить ее нужно в направлении вперед"
+
+#: break_taker.lua:226
+msgid "BREAK TIME!"
+msgstr "ВРЕМЯ ПЕРЕРЫВА!"
+
+#: break_taker.lua:228
+msgid ""
+"You've been here long enough to justify a real break.\n"
+"Think of this as a reminder from your better self.\n"
+"Go get some rest. Leave Exile behind. You can come back any time."
+msgstr ""
+"Вы здесь уже достаточно долго, чтобы оправдать настоящий перерыв.\n"
+"Считайте это напоминанием от вашего лучшего я.\n"
+"Иди и отдохни. Оставьте Изгнание позади. Вы можете вернуться в любое время."
+
+#: break_taker.lua:247
+msgid "Disable Break-taker popup"
+msgstr ""
+
+#: functions.lua:67
+msgid "Contains Blanket"
+msgstr "содержит одеяло"
+
+#: functions.lua:74
+msgid "You have no room to hold your blanket, so you drop it."
+msgstr ""
+
+#: functions.lua:276
+msgid "This bed is already occupied!"
+msgstr "Эта кровать уже занята!"
+
+#: functions.lua:279 functions.lua:290
+msgid "Status: Occupied by @1"
+msgstr "Статус: Занимает @1"
+
+#: functions.lua:376
+msgid "Status: Occupied by @1 (old)"
+msgstr "Статус: Занимает @1 (давно)"
