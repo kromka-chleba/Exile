@@ -1,0 +1,373 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luanti textdomain minimal x.x.x\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-24 08:27+0200\n"
+"PO-Revision-Date: 2025-08-24 08:38+0200\n"
+"Last-Translator: lili36 <lili36@noreply.codeberg.org>\n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: currentrevision.lua:15
+msgid "Display the current git revision"
+msgstr ""
+
+#: currentrevision.lua:18
+msgid "This server is currently running git revision"
+msgstr ""
+
+#: interface/infotext.lua:74
+msgid "Owner:"
+msgstr ""
+
+#: interface/infotext.lua:76
+msgid "Label:"
+msgstr ""
+
+#: interface/playersettings.lua:59
+msgid "Enable wide HUDbar"
+msgstr ""
+
+#: interface/playersettings.lua:62
+msgid "Show numeric stats"
+msgstr ""
+
+#: interface/playersettings.lua:64
+msgid "Enable Break-taker popup"
+msgstr ""
+
+#: interface/playersettings.lua:68
+msgid "Allow digging with a full inventory"
+msgstr ""
+
+#: interface/playersettings.lua:72
+msgid "Keep fixed order for recipes"
+msgstr ""
+
+#: interface/playersettings.lua:74
+msgid "Disable music"
+msgstr ""
+
+#: interface/playersettings.lua:76
+msgid "Temperature scale"
+msgstr ""
+
+#: interface/playersettings.lua:80
+msgid "GUI theme"
+msgstr ""
+
+#: interface/playersettings.lua:83
+msgid "HUD Opacity"
+msgstr ""
+
+#: interface/themes.lua:35
+msgid "Default"
+msgstr ""
+
+#: interface/themes.lua:36
+msgid "Antiglass"
+msgstr ""
+
+#: interface/themes.lua:37
+msgid "Antiblue"
+msgstr ""
+
+#: interface/themes.lua:38
+msgid "Legacy Grey"
+msgstr ""
+
+#: interface/themes.lua:39
+msgid "New Grey"
+msgstr ""
+
+#: overrides.lua:90
+msgid "Too far away!"
+msgstr ""
+
+#: protection.lua:48
+msgid "Access List"
+msgstr ""
+
+#: protection.lua:51
+msgid "Delete"
+msgstr ""
+
+#: protection.lua:52
+msgid "Close"
+msgstr ""
+
+#: protection.lua:55
+msgid "Access list empty."
+msgstr ""
+
+#: protection.lua:86
+msgid "Deleted @1 from access list."
+msgstr ""
+
+#: protection.lua:112
+msgid "Can't grant access to items you don't own"
+msgstr ""
+
+#: protection.lua:125
+msgid "@1 already has access"
+msgstr ""
+
+#: protection.lua:135
+msgid "@1 has been granted access"
+msgstr ""
+
+#: storage_api.lua:34 triggers.lua:390 zones.lua:655
+msgid "Label"
+msgstr ""
+
+#: storage_api.lua:42 triggers.lua:374 zones.lua:637 zones.lua:683
+msgid "Set"
+msgstr ""
+
+#: storage_api.lua:48
+msgid "Crafted by"
+msgstr ""
+
+#: storage_api.lua:333
+msgid "Burnt Storage Pile"
+msgstr ""
+
+#: triggers.lua:101 triggers.lua:111
+msgid "Invalid teleport vector, must be '(x,y,z)'"
+msgstr ""
+
+#: triggers.lua:245
+msgid "Reset player"
+msgstr ""
+
+#: triggers.lua:246
+msgid "Will reset player stats to full"
+msgstr ""
+
+#: triggers.lua:247
+msgid "Hurt player"
+msgstr ""
+
+#: triggers.lua:247
+msgid "Hits player for <value> damage, 1-20"
+msgstr ""
+
+#: triggers.lua:248
+msgid "Set energy"
+msgstr ""
+
+#: triggers.lua:248
+msgid "Set player energy to <value> percent"
+msgstr ""
+
+#: triggers.lua:249
+msgid "Set HP"
+msgstr ""
+
+#: triggers.lua:249
+msgid "Set player hp to <value>, 0-20"
+msgstr ""
+
+#: triggers.lua:250
+msgid "Set hunger"
+msgstr ""
+
+#: triggers.lua:250
+msgid "Set player hunger to <value> percent"
+msgstr ""
+
+#: triggers.lua:251
+msgid "Set thirst"
+msgstr ""
+
+#: triggers.lua:251
+msgid "Set player thirst to <value> percent"
+msgstr ""
+
+#: triggers.lua:252
+msgid "Teleport"
+msgstr ""
+
+#: triggers.lua:252
+msgid "Send player to an exact xyz position"
+msgstr ""
+
+#: triggers.lua:254
+msgid "Relaport"
+msgstr ""
+
+#: triggers.lua:254
+msgid "Send player a relative xyz distance"
+msgstr ""
+
+#: triggers.lua:256
+msgid "Clear inventory"
+msgstr ""
+
+#: triggers.lua:256
+msgid "Empties main inventory"
+msgstr ""
+
+#: triggers.lua:257
+msgid "Set inventory"
+msgstr ""
+
+#: triggers.lua:258
+msgid "Overwrite player inv with contents"
+msgstr ""
+
+#: triggers.lua:259
+msgid "Give item"
+msgstr ""
+
+#: triggers.lua:259
+msgid "Gives an item, in itemstring format"
+msgstr ""
+
+#: triggers.lua:260
+msgid "This requires a unique label."
+msgstr ""
+
+#: triggers.lua:261
+msgid "Set weather"
+msgstr ""
+
+#: triggers.lua:261
+msgid "Changes weather displayed to player"
+msgstr ""
+
+#: triggers.lua:263
+msgid "Use /set_weather help to list available weather."
+msgstr ""
+
+#: triggers.lua:264
+msgid "Reset weather"
+msgstr ""
+
+#: triggers.lua:265
+msgid "Restores normal weather for player"
+msgstr ""
+
+#: triggers.lua:266
+msgid "Hide hud elements"
+msgstr ""
+
+#: triggers.lua:267
+msgid "Hide health/energy/thirst/hunger/temp/"
+msgstr ""
+
+#: triggers.lua:268
+msgid "/enviro_temp/effects by names, or all"
+msgstr ""
+
+#: triggers.lua:269
+msgid "Show hud elements"
+msgstr ""
+
+#: triggers.lua:269
+msgid "Restore all hidden hud elements"
+msgstr ""
+
+#: triggers.lua:270
+msgid "Show hud splash"
+msgstr ""
+
+#: triggers.lua:270
+msgid ""
+"Display an image and text\n"
+"<icon name.png>,<text>"
+msgstr ""
+
+#: triggers.lua:364
+msgid "Value:"
+msgstr ""
+
+#: triggers.lua:368
+msgid "False"
+msgstr ""
+
+#: triggers.lua:370
+msgid "True"
+msgstr ""
+
+#: triggers.lua:375 zones.lua:684
+msgid "Unset"
+msgstr ""
+
+#: triggers.lua:422
+msgid "Exile trigger node"
+msgstr ""
+
+#: triggers.lua:498
+msgid "Configured trigger"
+msgstr ""
+
+#: utility/general.lua:386
+msgid "Yes"
+msgstr ""
+
+#: utility/general.lua:387
+msgid "No"
+msgstr ""
+
+#: utility/node.lua:50
+msgid "@1's @2"
+msgstr ""
+
+#: zones.lua:620
+msgid "Error in zone def ranges"
+msgstr ""
+
+#: zones.lua:625
+msgid "Upper corner"
+msgstr ""
+
+#: zones.lua:626
+msgid "( North / Up / East )"
+msgstr ""
+
+#: zones.lua:636 zones.lua:649
+msgid "Here"
+msgstr ""
+
+#: zones.lua:638
+msgid "Lower corner"
+msgstr ""
+
+#: zones.lua:639
+msgid "( South / Down / West )"
+msgstr ""
+
+#: zones.lua:650
+msgid "Range type:"
+msgstr ""
+
+#: zones.lua:651
+msgid "( Absolute is either inside or out. )"
+msgstr ""
+
+#: zones.lua:652
+msgid "( Radial and cubic fade towards the edge. )"
+msgstr ""
+
+#: zones.lua:669
+msgid "Range"
+msgstr ""
+
+#: zones.lua:670
+msgid "Copy"
+msgstr ""
+
+#: zones.lua:670
+msgid "Values"
+msgstr ""
+
+#: zones.lua:797
+msgid "Exile zone trigger node"
+msgstr ""
