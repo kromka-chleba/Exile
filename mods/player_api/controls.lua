@@ -364,6 +364,8 @@ local function controls(dtime)
                         end
                     end
                 end
+            elseif pinfo.animation == "sit" then
+                move_head(player, false, dtime)
             end
             if not csm_players[name] then
                 if p_controls[USE_KEY] then

@@ -59,7 +59,6 @@ local function leave_blanket(player, bed_pos, leave_on_bed)
         -- If we have to leave the blanket on the bed
         if leave_on_bed then
             -- Creates a dedicated inventory
-            local bedInv = bed_meta:get_inventory()
             bedInv:set_size('main',1)
             -- adds blanket to bed's inventory'
             bedInv:set_stack('main',1,blanket)
@@ -93,8 +92,8 @@ local function equip_blanket(player, bed_pos, bed_meta)
     -- get player's inv
     local p_inv = player:get_inventory()
     -- gets bed's meta and inv
-    local bed_meta = minetest.get_meta(bed_pos)
-    local bedInv = bed_meta:get_inventory()
+    local bmeta = bed_meta or minetest.get_meta(bed_pos)
+    local bedInv = bmeta:get_inventory()
 
     local blanket
     if not bedInv:is_empty("main") then
@@ -213,7 +212,7 @@ local function stopmove(player, pos)
 end
 
 -----------------------------------------------------------------
-local function lay_down(player, level, pos, bed_pos, state, skip)
+local function lay_down(player, level, pos, bed_pos, state, skip, seating)
     local name = player:get_player_name()
     local hud_flags = player:hud_get_flags()
 
@@ -273,7 +272,11 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         for nm, other_pos in pairs(bed_rest.bed_position) do
             if vector.distance(bed_pos, other_pos) < 0.1
                 and nm ~= name then
-                minetest.chat_send_player(name, S("This bed is already occupied!"))
+                if not seating then
+                    minetest.chat_send_player(name, S("This bed is already occupied!"))
+                else
+                    minetest.chat_send_player(name, S("This seat is already occupied!"))
+                end
                 local meta = minetest.get_meta(bed_pos)
                 minimal.infotext_set_new(bed_pos, meta,
                                          {status=S('Status: Occupied by @1',nm)})
@@ -282,8 +285,9 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         end
         bed_rest.pos[name] = pos
         bed_rest.bed_position[name] = bed_pos
-        bed_rest.player[name] = 1
+        bed_rest.player[name] = { sit = seating }
         bed_rest.level[name] = level
+
         st:add("resting")
         if not minetest.is_singleplayer() then
             minimal.infotext_set_new(bed_pos, nil,
@@ -295,16 +299,28 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         --check with break taker
         bed_rest.break_taker(name,player:get_meta():get_string("breaktaker"))
 
-        --wear a blanket from inventory or use one in the bed if any
-        wear_blanket(player, bed_pos, true)
+        if not seating then
+            --wear a blanket from inventory or use one in the bed if any
+            wear_blanket(player, bed_pos, true)
+            -- physics, eye_offset, etc
+            player:set_eye_offset(
+                {x = 0, y = -12, z = 0},
+                {x = 0, y = -4.5, z = 0})
+        else
+            player:set_eye_offset(
+                {x = 0, y = -4, z = 0},
+                {x = 0, y = -2, z = 0})
+        end
 
-        -- physics, eye_offset, etc
-        player:set_eye_offset({x = 0, y = -12, z = 0}, {x = 0, y = -4.5, z = 0})
         local yaw, param2 = get_look_yaw(bed_pos)
         player:set_look_horizontal(yaw)
         local dir = minetest.facedir_to_dir(param2)
-        local p = {x = bed_pos.x + dir.x / 2, y = bed_pos.y,
-                   z = bed_pos.z + dir.z / 2}
+
+        local p = bed_pos
+        if not seating then
+            p= {x = bed_pos.x + dir.x / 2, y = bed_pos.y,
+                z = bed_pos.z + dir.z / 2}
+        end
         --clear physics
         player_monoids.speed:del_change(player, "health:physics")
         player_monoids.jump:del_change(player, "health:physics")
@@ -314,9 +330,15 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
         player_monoids.jump:add_change(player, 0, "bed_rest:resting")
         player_monoids.gravity:add_change(player, 0, "bed_rest:resting")
         stopmove(player,p)
+
         player_api.player_attached[name] = true
         hud_flags.wielditem = false
-        player_api.set_animation(player, "lay")
+
+        if not seating then
+            player_api.set_animation(player, "lay")
+        else
+            player_api.set_animation(player, "sit")
+        end
     else -- no valid bed pos? put them back. Cut down version of "stand up"
         local p = bed_rest.pos[name] or nil
         if p then -- better hope it's safe, we don't know where your bed is
@@ -337,15 +359,15 @@ local function lay_down(player, level, pos, bed_pos, state, skip)
 end
 
 --------------------------------------------
-function bed_rest.on_rightclick(pos, player, level)
+function bed_rest.on_rightclick(pos, player, level, seating)
     local name = player:get_player_name()
     local ppos = player:get_pos()
 
     if bed_rest.player[name] then
-        lay_down(player, nil, nil, nil, false)
+        lay_down(player, nil, nil, nil, false, nil, seating)
     else
         -- move to bed
-        lay_down(player, level, ppos, pos)
+        lay_down(player, level, ppos, pos, nil, nil, seating)
     end
 end
 
@@ -432,7 +454,8 @@ minetest.register_on_joinplayer(function(player)
             minetest.settings:get('exile_breaktime') * 60
         if bed_rest.player[name] then
             lay_down(player, bed_rest.level[name], bed_rest.pos[name],
-                     bed_rest.bed_position[name], true)
+                     bed_rest.bed_position[name], true, nil,
+                     bed_rest.player[name].sit)
         end
 end
 )

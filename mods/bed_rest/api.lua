@@ -228,3 +228,99 @@ function bed_rest.register_bed(name, def)
 
     minetest.register_alias(name, name .. "_bottom")
 end
+
+
+----------------------------------------
+function bed_rest.register_seat(name, def)
+    local seat_def = {
+        description = def.description,
+        inventory_image = def.inventory_image,
+        wield_image = def.wield_image,
+        drawtype = "nodebox",
+        tiles = def.tiles,
+        paramtype = "light",
+        paramtype2 = "facedir",
+        use_texture_alpha = c_alpha.clip,
+        is_ground_content = false,
+        stack_max = def.stack_max,
+        groups = def.groups,
+        sounds = def.sounds,
+        node_box = {
+            type = "fixed",
+            fixed = def.nodebox,
+        },
+        selection_box = {
+            type = "fixed",
+            fixed = def.selectionbox,
+        },
+
+        walkable = def.walkable,
+        buildable_to = def.buildable_to or false,
+        floodable = def.floodable or false,
+        on_punch = def.on_punch,
+
+
+        on_place = function(itemstack, placer, pointed_thing)
+            local under = pointed_thing.under
+            local node = minetest.get_node(under)
+            local udef = minimal.get_nodedef(under)
+            if udef and udef.on_rightclick and
+                not (placer and placer:is_player() and
+                     placer:get_player_control().sneak) then
+                return udef.on_rightclick(under, node, placer, itemstack,
+                                          pointed_thing) or itemstack
+            end
+
+            local pos
+            if udef and udef.buildable_to then
+                pos = under
+            else
+                pos = pointed_thing.above
+            end
+
+            local playername = ""
+            if placer and placer:is_player() then
+                playername = placer:get_player_name()
+            end
+
+            if is_invalid_pos(pos, playername) then
+                return itemstack
+            end
+
+            local dir = placer and placer:get_look_dir() and
+                minetest.dir_to_facedir(placer:get_look_dir()) or 0
+            minetest.set_node(pos, {name = name, param2 = dir})
+            -- adds infotext
+            minimal.infotext_set_new(pos)
+
+            if not (minimal.player_in_creative(placer)) then
+                itemstack:take_item()
+            end
+            return itemstack
+        end,
+
+        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+            bed_rest.on_rightclick(pos, clicker, def.bed_level, true)
+            local stack = clicker:get_wielded_item()
+            --Update wielded item, in case it's a moved blanket
+            return stack
+        end,
+
+        can_dig = function(pos, player)
+            return bed_rest.can_dig(pos, player)
+        end,
+        on_timer = function(pos, elapsed)
+            return bed_rest.on_timer(pos, elapsed)
+        end,
+        on_infotext = function(pos, nodedef, meta, params)
+            params.description = def.description
+            params = minimal.infotext_update_params(meta, params)
+            local infotext = minimal.infotext_get_base_string(nil, meta, params)
+            infotext = infotext..
+                (params.blanket and "\n"..params.blanket or "")..
+                (params.status and "\n"..params.status or "")
+            return infotext
+        end
+    }
+    minetest.register_node(name, seat_def)
+end
