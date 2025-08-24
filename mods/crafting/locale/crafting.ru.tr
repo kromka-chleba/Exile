@@ -29,5 +29,6 @@ Use first:=Использовать сначала:
 #gui.lua
 Missing required items!=Отсутствуют необходимые предметы!
 Crafting=Создание
-Use a free hand at a suitable place (v).=
+More crafting options:=
+Use a free hand at a suitable place.=
 Crafted by: @1=

@@ -37,7 +37,8 @@ Use first:=
 
 Missing required items!=
 Crafting=
-Use a free hand at a suitable place (v).=
+More crafting options:=
+Use a free hand at a suitable place.=
 
 You are using a flat clear surface=
 
