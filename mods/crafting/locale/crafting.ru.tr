@@ -29,6 +29,6 @@ Use first:=Использовать сначала:
 #gui.lua
 Missing required items!=Отсутствуют необходимые предметы!
 Crafting=Создание
-More crafting options:=
+Crafting?=Создание?
 @nUse an empty hand on a flat, clear surface,@nor use a placed tool or crafting station.=
 Crafted by: @1=

@@ -50,21 +50,20 @@ sfinv.register_page(
 -- Register help formspec as inv tab
 sfinv.register_page(
     "crafting:help", {
-        title = " ? ",
+        title = S("Crafting?"),
         get = function(self, player, context)
             local fs = {}
-            fs[#fs + 1] = 'label[0.8,1.0;'.. S("More crafting options:") .. ']'
             -- NOTE: The extra 'new line' is to indicate to translators and
             --       coders: There is/needs to be space for 3 lines of text.
             local text = S("@nUse an empty hand on a flat, clear surface,"
                       .. "@nor use a placed tool or crafting station.")
-            fs[#fs + 1] = 'label[0.8,1.5;'.. text .. ']'
-            fs[#fs + 1] = 'image[0.8,2.8;3.1,2.4;crafting_help_surface_good_01.png]'
-            fs[#fs + 1] = 'image[4.15,2.8;3.1,2.4;crafting_help_surface_good_03.png]'
-            fs[#fs + 1] = 'image[7.5,2.8;3.1,2.4;crafting_help_surface_good_04.png]'
-            fs[#fs + 1] = 'image[0.8,5.45;3.1,2.4;crafting_help_surface_good_02.png]'
-            fs[#fs + 1] = 'image[4.15,5.45;3.1,2.4;crafting_help_surface_bad_01.png]'
-            fs[#fs + 1] = 'image[7.5,5.45;3.1,2.4;crafting_help_surface_bad_02.png]'
+            fs[#fs + 1] = 'label[0.8,0.8;'.. text .. ']'
+            fs[#fs + 1] = 'image[0.8,2.3;3.1,2.4;crafting_help_surface_good_01.png]'
+            fs[#fs + 1] = 'image[4.15,2.3;3.1,2.4;crafting_help_surface_good_03.png]'
+            fs[#fs + 1] = 'image[7.5,2.3;3.1,2.4;crafting_help_surface_good_04.png]'
+            fs[#fs + 1] = 'image[0.8,4.95;3.1,2.4;crafting_help_surface_good_02.png]'
+            fs[#fs + 1] = 'image[4.15,4.95;3.1,2.4;crafting_help_surface_bad_01.png]'
+            fs[#fs + 1] = 'image[7.5,4.95;3.1,2.4;crafting_help_surface_bad_02.png]'
             local content = table.concat(fs,"")
 
             return sfinv.make_formspec_for_exile(player, context,
