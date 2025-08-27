@@ -281,6 +281,95 @@ local function get_recipes_lists(cache)
     return result
 end
 
+
+-- Returns items from "input_items" back to "main" inventory list.
+-- Try to add to main inventory
+-- priorities: 1. fill up existing stacks
+--             2. fill empty stacks from right to left
+local function return_inputs_to_main(player)
+    local pInv = player:get_inventory()
+    if pInv:is_empty("input_items") then return end
+
+    -- initial state
+    local main_hash = crafting.get_item_hash(pInv, "main")
+    local main_stacks = pInv:get_list("main")
+    -- next slot in main to check whether it is free
+    local try_next = pInv:get_size("main")
+
+    -- Returns a list of stacks in main_stacks with item name matching
+    -- search_name.
+    local function get_matching_slots(search_name)
+        if not main_stacks then return 0 end
+
+        local slot_matches = {}
+        for i, stack in ipairs(main_stacks) do
+            if stack:get_name() == search_name then
+                slot_matches[#slot_matches + 1] = i
+            end
+        end
+        return slot_matches
+    end
+
+    -- Adds as much as possible from the given stack to an existing ones
+    -- in "main" and returns the remaing part.
+    local function add_to_existing_stacks(stack)
+        local item_name = stack:get_name()
+        if main_hash[item_name] then
+            -- multiple stacks of that item may exist in main (usually not)
+            local slots = get_matching_slots(item_name)
+            for _, idx in ipairs(slots) do
+                -- combine stacks if possible
+                stack = main_stacks[idx]:add_item(stack)
+                if stack:get_count() == 0 then
+                    break
+                end
+            end
+        end
+        return stack
+    end
+
+    local function move_to_last_free_slot(stack)
+        while try_next > 0 do
+            if main_stacks[try_next]:is_empty() then
+                main_stacks[try_next] = stack
+                stack = ItemStack()
+                break
+            end
+            try_next = try_next - 1
+        end
+        return stack
+    end
+
+    -- iterate over "input_items", to move items back to "main"
+    for i = 1, pInv:get_size("input_items") do
+        local stack = pInv:get_stack("input_items", i)
+        if not stack:is_empty() then
+        -- if stack:get_free_space() > 0 and not stack:get_meta() then
+            if stack:get_free_space() > 0 then
+                stack = add_to_existing_stacks(stack)
+            end
+            -- are some left?
+            if not stack:is_empty() then
+                -- move remaining stack to last free slot
+                stack = move_to_last_free_slot(stack)
+            end
+
+            -- not enough room in "main"?
+            if not stack:is_empty() then
+                -- drop item
+                core.item_drop(stack, player, player:get_pos())
+                -- warns the player it went on the ground
+                minimal.warn_inv_full(player)
+            end
+            -- Set stack to empty stack in input_items inventory
+            pInv:set_stack("input_items",i,ItemStack(""))
+        end
+    end
+
+    -- update "main"
+    pInv:set_list("main", main_stacks)
+end
+
 -- FORMSPEC generation ---------------------------------------------------------
 --------------------------------------------------------------------------------
 do
@@ -592,6 +681,17 @@ do
 
         return quantities
     end)
+
+    -- Resets id of selected recipe
+    -- If "clear_input_items" is true, also returns all items from "input_list"
+    -- back to main. In that case player must be given, too.
+    crafting.register_cache_function("reset_selected_recipe",
+                                     function(self, clear_input_items, player)
+        self.selected_id = nil
+        if clear_input_items and player then
+            return_inputs_to_main(player)
+        end
+    end)
 end
 
 -- FORMSPEC ACTIONS ------------------------------------------------------------
@@ -626,93 +726,6 @@ end
 
 crafting.register_cache_function("reset_recipes", reset_recipes)
 
-
--- Returns items from "input_items" back to "main" inventory list.
-local function return_inputs_to_main(player)
-    -- Return Items in input_items list to player
-    -- Try to add to main inventory
-    -- priorities: 1. fill up existing stacks
-    --             2. fill empty stacks from right to left
-    local pInv = player:get_inventory()
-    local main_hash = crafting.get_item_hash(pInv, "main")
-    local main_stacks = pInv:get_list("main")
-    local try_next = pInv:get_size("main")
-
-    -- Returns a list of stacks in main_stacks with item name matching
-    -- search_name.
-    local function get_matching_slots(search_name)
-        if not main_stacks then return 0 end
-
-        local slot_matches = {}
-        for i, stack in ipairs(main_stacks) do
-            if stack:get_name() == search_name then
-                slot_matches[#slot_matches + 1] = i
-            end
-        end
-        return slot_matches
-    end
-
-    -- Adds as much as possible from the given stack to an existing ones
-    -- in "main" and returns the remaing part.
-    local function add_to_existing_stacks(stack)
-        local item_name = stack:get_name()
-        if main_hash[item_name] then
-            -- multiple stacks of that item may exist in main (usually not)
-            local slots = get_matching_slots(item_name)
-            for _, idx in ipairs(slots) do
-                -- combine stacks if possible
-                stack = main_stacks[idx]:add_item(stack)
-                if stack:get_count() == 0 then
-                    break
-                end
-            end
-        end
-        return stack
-    end
-
-    local function move_to_last_free_slot(stack)
-        while try_next > 0 do
-            if main_stacks[try_next]:is_empty() then
-                main_stacks[try_next] = stack
-                stack = ItemStack()
-                break
-            end
-            try_next = try_next - 1
-        end
-        return stack
-    end
-
-    -- iterate over "input_items", to move items back to "main"
-    if not pInv:is_empty("input_items") then
-        for i=1, pInv:get_size("input_items") do
-            local stack = pInv:get_stack("input_items", i)
-            if not stack:is_empty() then
-               -- if stack:get_free_space() > 0 and not stack:get_meta() then
-                if stack:get_free_space() > 0 then
-                    stack = add_to_existing_stacks(stack)
-                end
-                -- are some left?
-                if not stack:is_empty() then
-                     -- move remaining stack to last free slot
-                    stack = move_to_last_free_slot(stack)
-                end
-
-                -- not enough room in "main"?
-                if not stack:is_empty() then
-                    -- drop item
-                    core.item_drop(stack, player, player:get_pos())
-                    -- warns the player it went on the ground
-                    minimal.warn_inv_full(player)
-                end
-                -- Set stack to empty stack in input_items inventory
-                pInv:set_stack('input_items',i,ItemStack(''))
-            end
-        end
-    end
-
-    -- update "main"
-    pInv:set_list("main", main_stacks)
-end
 
 -- Select or deselect player recipe with the given id.
 -- 'id' must be a valid id of a player recipe.
