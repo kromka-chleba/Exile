@@ -696,6 +696,7 @@ local function return_inputs_to_main(player)
                      -- move remaining stack to last free slot
                     stack = move_to_last_free_slot(stack)
                 end
+
                 -- not enough room in "main"?
                 if not stack:is_empty() then
                     -- drop item
@@ -713,98 +714,168 @@ local function return_inputs_to_main(player)
     pInv:set_list("main", main_stacks)
 end
 
-
--- TODO improve checking craft state
--- is more "pressing a button" thing I guess.
-local function push_recipe(cache, btn_id, player, player_name)
-    if type(btn_id) ~= "number" then
-        core.log ("btn_id is not a number in cache:craft_recipe")
+-- Select or deselect player recipe with the given id.
+-- 'id' must be a valid id of a player recipe.
+-- Returns true when inventory lists might have changed, while nil
+-- indicates no change.
+local function push_recipe(cache, id, player, player_name)
+    -- not a valid recipe?
+    if type(id) ~= "number" then
+        core.log ("warning", "id is not a number in cache:push_recipe()")
+        return -- > failure, not a recipe -> no change
     end
-    -- get the recipe we clicked on ---------
-    -- get current craftable recipes table, or if not sorted, full recipes
-    -- TODO better parse
+
+    -- get the selected player recipe
+    -- (could be any in cache.recipes, currently up to ~80)
     local p_recipe
     for _, r in pairs(cache.recipes) do
-        if r.recipe.id == btn_id then
+        if r.recipe.id == id then
             p_recipe = r
             break
         end
     end
 
-    -- not craftable
+    -- invalid recipe? -> no change but log a warning
     if not p_recipe then
-        core.log("error in crafting mod, push_recipe: no recipe matching btn_id ".. tostring(btn_id) .." was found")
+        core.log("warning", "craft_selected(): invalid recipe id " .. tostring(id))
         return
     end
 
-    -- if we can craft, craft
-    if p_recipe.craftable then
-        local ctype = cache.cTabs[cache.sTab]
-        local sLevel = cache.sLevel
-        local count = get_craft_count(cache, p_recipe, cache.item_hash)
+    -- select a recipe or replace current selection?
+    if id ~= cache.selected_id then
+        -- new selection:
+        cache.selected_id = id
 
-        if not crafting.can_craft(player_name, ctype,
-                                  sLevel, p_recipe.recipe) then
-            minetest.log("error", "[inventoryFS] Player clicked a "..
-                         "button they shouldn't have been able to")
-            return false -- don't update formspec
-        -- try to craft
-        -- cache:get_craft_input() is the input list
-        -- 'main' is the output list
-        elseif crafting.perform_craft(
-            player_name, cache.pInv, cache:get_craft_input(), 'main', p_recipe, ctype, count) then
-            -- udpate recipes
-            item_hashes_reset(cache) -- item_hash changed
-            cache.FS_recipes = nil -- force recipes panel redraw
-            -- update of recipe states will be made in get_recipes
-            -- when formspec will be updated
-            return true -- need to refresh formspec
-        end
-    -- else if recipe is possible, transfer
-    elseif p_recipe.possible ~= false then
-        -- indicates we have no possible state (hint button off)
-        if p_recipe.possible == nil then
-            -- lets still transfer it if possible !
-            -- update possible state
+        -- no crafting from main? -> update inputs in input grid(s):
+        -- 1) push current input items back to "main" and
+        -- 2) pull input items for max output into "input_list"
+        if cache:get_craft_mode().no_craft_from_main then
+            return_inputs_to_main(player)
+
+            -- update all states for p_recipe
+            cache.item_hash = cache:get_input_hash()
+            update_recipe_state(cache, p_recipe)
+            cache.possible_hash = cache:get_input_hash("total")
             update_recipe_state(cache, p_recipe, "possible")
-            -- if after that, still not possible -> impossible
-            if p_recipe.possible == false then
-                minimal.warn_message(player, player_name, S("Missing required items!"))
-                return false -- do not refresh recipe_panel
-            end
-            --else continue #TODO make separate function for clarity
-        end
 
-        -- get possible count
-        local count = get_craft_count(cache, p_recipe, cache.possible_hash)
-        local inputs = cache:get_craft_input()
-        local inv = player:get_inventory()
-        -- get what lists to transfer from
-        local from = cache:get_craft_input("possible")
-        --[[ TODO we could improve the way we choose item to move,
-        checking what is already in input panel
-        to take the same items in priority]]
-        local transfer = p_recipe:get_to_move(inv, from,  count)
-        --[[ transfer to input lists, if not everything fits in first one,
-        Then we will try second one with the leftover, etc etc ...]]
-        for _, list in ipairs(inputs) do
-            transfer = crafting.transfer_items(player, inv, list, transfer)
+            -- recipe panel will also require an update, but keep order
+            cache.FS_recipes = nil -- force recipes panel redraw
+            cache.to_sort = false
+
+            -- not enough inputs?
+            if not p_recipe.possible then
+                minimal.warn_message(player, player_name,
+                                     S("Missing required items!"))
+
+                return true -- changes: we pushed things back to main
+            end
+
+            -- get max output count, based on what's in "main", now
+            local inv = player:get_inventory()
+            local item_hash = crafting.get_item_hash(inv, "main")
+            local recipe = p_recipe.recipe
+            local count = recipe:find_max_craftable(item_hash)
+
+            -- all inputs are currently in "main" -> take it from there
+            local from_list = "main"
+            local transfer = p_recipe:get_to_move(inv, from_list, count)
+
+            --[[ transfer to input lists, if not everything fits in first one,
+            then we will try second one with the leftover, etc etc ...]]
+            local input_lists = cache:get_craft_input()
+            for _, list in ipairs(input_lists) do
+                transfer = crafting.transfer_items(player, inv, list, transfer)
+            end
+
+            -- if not everything could be transfered, leftover list is not empty
+            if transfer and #transfer ~= 0 then
+                minimal.warn_message(player, player_name,
+                                     S("Not enough room in to transfer everything"))
+            end
+
+            item_hashes_reset(cache)
+            -- cache.item_hash = cache:get_input_hash()
+            -- cache.possible_hash = cache:get_input_hash("total")
+        else
+            -- not enough inputs?
+            if not p_recipe.craftable then
+                minimal.warn_message(player, player_name,
+                                     S("Missing required items!"))
+            end
+
         end
-        -- if not everythign could be transferd, leftover list is not empty
-        if transfer and #transfer ~= 0 then
-            minimal.warn_message(player, player_name, "Not enough room in to transfer everything")
-        end
-        -- input item_hash changed, update recipe states
-        cache.item_hash = cache:get_input_hash()
-        cache.FS_recipes = nil -- force recipes panel redraw
-        -- update of recipe states will be made in get_recipes
-        -- when formspec will be updated
-        cache.to_sort = false -- to avoid resort when formspec is redrawn
-        return true -- needed to refresh formspec
     else
-        minimal.warn_message(player, player_name, S("Missing required items!"))
-        return false -- do not refresh recipe_panel
+        -- given id matches the one that is currently selected
+        -- -> clear selection
+        cache.selected_id = nil
     end
+
+    -- update of recipe panel required to show new selection, but keep order
+    cache.FS_recipes = nil -- force recipes panel redraw
+    cache.to_sort = false
+    return true -- changes: at least the selected recipe changed
 end
 
 crafting.register_cache_function("push_recipe", push_recipe)
+
+
+-- Checks whether the currently selected recipe can be crafted in the specified
+-- quantity and executes its if possible.
+-- NOTE 'qty' is actually an index to choose from the table returned by
+-- get_output_quantities().
+-- Returns true on success, which means changes in inventory, nil otherwise.
+local function craft_selected(cache, qty)
+    -- no change in unexpected cases
+    if not qty or not cache.selected_id then return end
+
+    -- get the selected player recipe
+    -- (could be any in cache.recipes, currently up to ~80)
+    local p_recipe
+    local id = cache.selected_id
+    for _, r in pairs(cache.recipes) do
+        if r.recipe.id == id then
+            p_recipe = r
+            break
+        end
+    end
+
+    -- invalid selection? -> no change but log a warning
+    if not p_recipe then
+        core.log("warning", "craft_selected(): invalid recipe id " .. tostring(id))
+        return
+    end
+
+    -- craftable? -> do it
+    if p_recipe.craftable then
+        local quantities = cache:get_output_quantities()
+        local count = quantities and quantities[qty] or nil
+        local ctype = cache.cTabs[cache.sTab]
+        local sLevel = cache.sLevel
+
+        if not count or not crafting.can_craft(cache.player_name, ctype,
+                                               sLevel, p_recipe.recipe) then
+
+            core.log("warning", "Recipe should be craftable but is not!")
+            return
+        end
+
+        -- try to craft
+        -- from input list: cache:get_craft_input()
+        -- to output list: "main"
+        if crafting.perform_craft(cache.player_name, cache.pInv,
+                                  cache:get_craft_input(), "main",
+                                  p_recipe, ctype, count) then
+
+            -- -> item_hashes and recipe panel require an update
+            item_hashes_reset(cache)
+            cache.FS_recipes = nil -- force recipes panel redraw
+            -- update of recipe states will be made in get_recipes_panel()
+            -- when formspec will be updated
+            return true -- > success, changes in inventory
+        end
+    end
+
+    -- failure -> return nil
+end
+
+crafting.register_cache_function("craft_selected", craft_selected)
