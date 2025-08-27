@@ -632,29 +632,6 @@ function crafting.set_page(player, selected_tab_number)
     cache:set_craft_tabs(selected_tab_number)
 end
 
--- give back items in input panel to main inventory
-local function get_inputs_back_in_inv(player)
-    -- Return Items in input_items list to player
-    local pInv = player:get_inventory()
-    if not pInv:is_empty('input_items') then
-        for i=1, pInv:get_size('input_items') do
-            local stack = pInv:get_stack('input_items', i)
-            if not stack:is_empty() then
-                -- Try to add to main inventory
-                local left = pInv:add_item('main', stack)
-                if not left:is_empty() then
-                    -- Drop item if no room in inventory
-                    minetest.item_drop(left, player, player:get_pos())
-                    -- warns the player it went on the ground
-                    minimal.warn_inv_full(player)
-                end
-                -- Set stack to empty stack in input_items inventory
-                pInv:set_stack('input_items',i,ItemStack(''))
-            end
-        end
-    end
-end
-
 -- mark the formspec open
 -- `cache` is optional
 function crafting.open_formspec(player, fs_name, cache)
@@ -702,11 +679,9 @@ function crafting.close_crafting_formspec(player, cache)
          -- #TODO we could add a message or other behavior in this case ?
         return nil
     end
-    -- get back items from input_panel
-    get_inputs_back_in_inv(player)
 
-    --various updates
-    cache.selected_id = nil
+    -- reset selection and clear "input_list" inventory into "main" inv
+    cache:reset_selected_recipe(true, player)
     cache.possible_hint = false -- disable "hint"
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
@@ -779,16 +754,17 @@ function crafting.process_receive_fields(player, formname, fields)
     if fields.input_option then
         local option = tonumber(fields.input_option)
         if option ~= cache.craft_input then
-            local meta = player:get_meta()
+            -- some clean up before changing input option
+            cache:reset_selected_recipe(true, player)
+
             -- save in player's settings
+            local meta = player:get_meta()
             meta:set_int("crafting:ingredients", option)-- updates Hint button's state
             set_cache_input_options(cache, option, meta)
             -- refresh input panel
             cache.FS_input_list = nil
             -- reset item_hashes and recipe panel
             cache:reset_recipes()
-            -- also reset selection
-            cache.selected_id = nil
             return cache
         end
     end
@@ -844,7 +820,7 @@ function crafting.process_receive_fields(player, formname, fields)
             if cache.sTab ~=i then
                 cache:set_craft_tabs(i, cache.cTabs)
                 -- prevent accidental crafting of hidden recipes
-                cache.selected_id = nil
+                cache:reset_selected_recipe()
                 return cache -- indicates we need to refresh the form
             end
             -- else do nothing (return nil)
@@ -892,7 +868,7 @@ function crafting.process_receive_fields(player, formname, fields)
             if cache.sTool ~= tool then
                 cache:set_tool(tool)
                 -- prevent accidental crafting of hidden recipes
-                cache.selected_id = nil
+                cache:reset_selected_recipe()
                 return cache
             else
                 return false
