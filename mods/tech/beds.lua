@@ -272,8 +272,8 @@ crafting.register_recipe({
 bed_rest.register_seat(
     "tech:sitting_mat", {
         description = S("Sitting Mat"),
-        inventory_image = "tech_sleeping_mat.png",
-        wield_image = "tech_sleeping_mat.png",
+        -- inventory_image = "tech_sleeping_mat.png",
+        -- wield_image = "tech_sleeping_mat.png",
         stack_max = minimal.stack_max_medium/2,
         tiles = {
                 "tech_thatch.png^[transformR90",
