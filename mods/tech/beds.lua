@@ -294,8 +294,10 @@ bed_rest.register_seat(
 crafting.register_recipe({
         type = "hand",
         output = "tech:sitting_mat",
-        items = {"tech:thatch"},
-        replace = {"stairs:slab_thatch"},
+        -- slab will be used in priority
+        items = {{"stairs:slab_thatch", "tech:thatch" }},
+        -- if we used a full block, give back a slab
+        replace = {["tech:thatch"] = "stairs:slab_thatch"},
         level = 1,
         always_known = true,
 })
