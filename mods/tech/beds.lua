@@ -298,6 +298,8 @@ crafting.register_recipe({
         items = {{"stairs:slab_thatch", "tech:thatch" }},
         -- if we used a full block, give back a slab
         replace = {["tech:thatch"] = "stairs:slab_thatch"},
+        -- no max craft on it
+        no_max = true,
         level = 1,
         always_known = true,
 })
