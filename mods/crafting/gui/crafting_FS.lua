@@ -534,7 +534,7 @@ function crafting.make_crafting_formspec(player, cache)
     -- add one button per quantity
     output[#output + 1] = "container[3.5,6.0,]"
 
-    local pos = 0.6
+    local pos = 0
     for i, q in ipairs(quantities) do
         -- add the button
         local qty_id = "qty_" .. i
@@ -828,7 +828,7 @@ function crafting.process_receive_fields(player, formname, fields)
     end
 
     -- process craft buttons
-    for i, qty_id in ipairs({"qty_1","qty_2","qty_3"}) do
+    for i, qty_id in ipairs({"qty_1", "qty_2", "qty_3", "qty_4"}) do
         -- user clicked nth button to craft and a recipe is selected?
         if fields[qty_id] and cache.selected_id then
             if cache:craft_selected(i) then

@@ -685,6 +685,11 @@ do
         local quantities =  {1}
         -- do we have 3 unique quantities to offer?
         if qty_2 > 1 then
+            -- does even a 4th quantity make sense?
+            if qty_2 >= 12 then
+                quantities[2] = (qty_2 > 12) and math.floor(qty_2 / 6)
+                                or math.floor(qty_2 / 4)
+            end
             quantities[#quantities + 1] = qty_2
         end
         quantities[#quantities + 1] = qty_max
