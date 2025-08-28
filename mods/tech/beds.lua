@@ -295,7 +295,7 @@ crafting.register_recipe({
         type = "hand",
         output = "tech:sitting_mat",
         items = {"tech:thatch"},
-        replacements = {"tech:thatch", "tech:slab_thatch"},
+        replace = {"stairs:slab_thatch"},
         level = 1,
         always_known = true,
 })
