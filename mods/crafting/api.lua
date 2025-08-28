@@ -204,7 +204,7 @@ local function give_replacement(replace, count, give_back)
     give_back = give_back or {}
     -- if no replacement to make, end
     if not replace then
-        return
+        return {}
     -- if replace field is a string, give it back
     -- use count to mulitply replacement by number of craft
     elseif type(replace)== "string" then
@@ -242,7 +242,6 @@ local function get_replacement(replace, took)
     -- use number of item used to get replacement number
     -- stops at the first matching item found in table
     elseif type(replace) == "table" and #replace == 0 then
-        core.log("table")
         for i, o in pairs (replace) do
             i = ItemStack(i)
             if i:get_name() == took:get_name() then
@@ -268,6 +267,12 @@ local function get_replacement(replace, took)
         return nil
     end
 end
+
+-- #TODO simpliy/reunite the functions
+-- regroup the calls
+crafting.give_replacement = give_replacement
+crafting.get_replacement = get_replacement
+
 
 -- TODO make one with simple recipe, generating player_recipe
 local function perform_craft(r, name, inv, listname, outlistname, craft_count, sound)
