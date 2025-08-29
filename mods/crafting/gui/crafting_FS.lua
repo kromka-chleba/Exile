@@ -527,7 +527,7 @@ function crafting.make_crafting_formspec(player, cache)
     if cache.selected_id then
        quantities = cache:get_output_quantities()
        local min = quantities and quantities[1]
-       if min and min > 0 then btnimg = "crafting_slot_craftable.png" end
+       if min and min > 0 then btnimg = "crafting_craft_button_enabled.png" end
     end
     quantities = quantities or {0}
 
@@ -543,7 +543,8 @@ function crafting.make_crafting_formspec(player, cache)
         local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
 
         output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
-        output[#output + 1] = btnimg .. ";" .. qty_id.. ";" .. text .. "]"
+        output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
+        output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
         pos = pos + 1.2
     end
 
