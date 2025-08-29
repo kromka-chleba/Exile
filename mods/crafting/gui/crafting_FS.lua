@@ -534,9 +534,11 @@ function crafting.make_crafting_formspec(player, cache)
     -- add one button per quantity
     output[#output + 1] = "container[3.5,6.0,]"
 
-    local pos = 0
+    -- dynamic positions of the buttons - depending on #quantities
+    local pos = 1.8 - (#quantities - 1) * 0.6
+
+    -- add the buttons
     for i, q in ipairs(quantities) do
-        -- add the button
         local qty_id = "qty_" .. i
         local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
 
