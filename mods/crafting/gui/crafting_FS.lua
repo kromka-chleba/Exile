@@ -649,6 +649,27 @@ function crafting.open_formspec(player, fs_name, cache)
     -- to avoid an other call to crafting.get_FS_cache
     return cache
 end
+
+-- to decide what will be the opening page on next sinfv opening
+local function set_next_sfinv_page(player, to_update)
+    -- if current craft input option trigger the need of recipe refresh system
+    if to_update then
+        -- if clothing page is here
+        if core.global_exists("player_api") then
+            -- set page to clothing formspec
+            sfinv.set_page(player, "clothing:clothing")
+        end
+    else
+        -- else leave sfinv page on crafting
+        -- or set it to crafting if it wasn't (from external station close)
+        if sfinv.get_page(player) ~= "crafting:crafting" then
+            sfinv.set_page(player, "crafting:crafting")
+        else
+            sfinv.set_player_inventory_formspec(player)
+        end
+    end
+end
+
 --[[ Called when the inventory formspec is closed to clear cache
     * get input items back in main
     * returns name of next sfinv opening page
@@ -672,10 +693,15 @@ function crafting.close_crafting_formspec(player, cache)
     -- reset recipes panel and item_hashes for next opening
     cache:reset_recipes() -- needed after getting back the inputs
 
+    -- reset station if leaving a non nil station
+    cache_set_station(cache, nil)
+
     -- set to_update status
     cache.to_update = input_options[cache.craft_input].to_update(cache)
 
     cache.open = nil -- formspec closed
+
+    return cache
 end
 
 -- return the cache to update formspec if something changed, false else
@@ -696,9 +722,17 @@ function crafting.process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        crafting.close_crafting_formspec(player, cache)
-        return cache
+        -- get input items back in main and update player's cache
+        cache = crafting.close_crafting_formspec(player, cache)
+        -- change next opening page in sfinv if needed
+        -- NOTE: only needed if open crafting forsmspec in sfinv is possible
+        if cache then
+            set_next_sfinv_page(player, cache.to_update)
+        end
+
+        return false -- no need to refresh the formspec
     end
+
     -- else mark formspec as open, if not already done (for sfinv needs)
     cache.open = formname
 
@@ -870,8 +904,8 @@ function crafting.refresh_recipes_FS(player)
     local cache = FS_cache[player_name]
     if cache then
         local fs_name = cache.open
-        -- do nothing if cache is closed and doesn't need an update
-        if not fs_name and not cache.to_update then
+        -- do nothing if cache is closed
+        if not fs_name then
             return
         end
         -- reset item_hashes and recipe panel, and reorder

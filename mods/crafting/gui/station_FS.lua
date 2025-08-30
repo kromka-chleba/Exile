@@ -105,35 +105,15 @@ end
 
 crafting.show_station_formspec = show_station_formspec
 
--- used to reset cache to "no station" when we leave a station
--- in order to update sfinv part properly for next inv opening
--- (could be improved, this is in case we left with default tool open)
-local function cache_off_station(player, cache)
-    -- reset station if needed (for next sfinv opening)
-    crafting.set_station(player, nil)
-    -- update sfinv, so we keep current tab if we changed it in {}
-    -- also makes crafting be the default sfinv tab
-    if sfinv.get_page(player) ~= "crafting:crafting" then
-        sfinv.set_page(player, "crafting:crafting")
-    else
-        sfinv.set_player_inventory_formspec(player)
-    end
-end
-
 -- callback for any station crafting formspec
 local function process_station_fields(player, formname, fields)
     local cache = crafting.process_receive_fields(player, formname, fields)
+    -- cache is only present if we need to update the form
     if cache then
-        if fields.quit then
-            -- additionnal reset of station if needed
-            -- Following line could go if no sfinv opening is allowed anymore
-            cache_off_station(player, cache)
-        else
-            -- updates formspec content
-            local fs = make_tool_formspec(player, cache)
-            -- display it
-            core.show_formspec(player:get_player_name(), formname, fs)
-        end
+        -- updates formspec content
+        local fs = make_tool_formspec(player, cache)
+        -- display it
+        core.show_formspec(player:get_player_name(), formname, fs)
     end
 end
 
