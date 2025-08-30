@@ -49,16 +49,18 @@ end
 
 -- return true if something changed, false else
 local function process_receive_fields(player, fields)
-    -- process get recipes button
-    if fields.craft then
-        sfinv.set_page(player, "crafting:crafting")
-        return true
-    elseif fields.craft_clothes then
-        -- TODO a function to link number and name. 5 ois for cloths here
-        -- TODO dependency on crafting, put an "if" on the button display
+    -- open the crafting forsmspec in sfinv (changing tab)
+    -- can be used only in sfinv, if already opened
+    if fields.craft_clothes then
+        -- get the crafting formspec and switch to that tab
+        -- #TODO a function to link number and name. 5 is for cloths here
+        -- #TODO dependency on crafting, put an "if" on the button display
         crafting.set_page(player, 5)
+        -- mark cache open with "" as formspec name
+        crafting.open_formspec(player, "")
+        -- update sfinv to go to crafting tab
         sfinv.set_page(player, "crafting:crafting")
-        return true
+        return true -- stop parsing events
     end
 end
 
