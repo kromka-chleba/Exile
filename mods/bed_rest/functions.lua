@@ -283,9 +283,14 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
                 return false
             end
         end
+        -- if bed/seat is free, lay down/sit
         bed_rest.pos[name] = pos
         bed_rest.bed_position[name] = bed_pos
-        bed_rest.player[name] = { sit = seating }
+        if seating then
+            bed_rest.player[name] = 2
+        else
+            bed_rest.player[name] = 1
+        end
         bed_rest.level[name] = level
 
         st:add("resting")
@@ -299,14 +304,14 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
         --check with break taker
         bed_rest.break_taker(name,player:get_meta():get_string("breaktaker"))
 
-        if not seating then
+        if not seating then -- if I am on a bed
             --wear a blanket from inventory or use one in the bed if any
             wear_blanket(player, bed_pos, true)
             -- physics, eye_offset, etc
             player:set_eye_offset(
                 {x = 0, y = -12, z = 0},
                 {x = 0, y = -4.5, z = 0})
-        else
+        else -- if I am sitting
             player:set_eye_offset(
                 {x = 0, y = -4, z = 0},
                 {x = 0, y = -2, z = 0})
@@ -317,7 +322,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
         local dir = minetest.facedir_to_dir(param2)
 
         local p = bed_pos
-        if not seating then
+        if not seating then -- if I am on a bed
             p= {x = bed_pos.x + dir.x / 2, y = bed_pos.y,
                 z = bed_pos.z + dir.z / 2}
         end
@@ -453,9 +458,14 @@ minetest.register_on_joinplayer(function(player)
         bed_rest.session_limit[name] =
             minetest.settings:get('exile_breaktime') * 60
         if bed_rest.player[name] then
+            -- compatibility for new world using new table system
+            if type(bed_rest.player[name]) == "table" then
+                bed_rest.player[name] = bed_rest.player[name].sit and 2
+                                        or 1
+            end
             lay_down(player, bed_rest.level[name], bed_rest.pos[name],
                      bed_rest.bed_position[name], true, nil,
-                     bed_rest.player[name].sit)
+                     (bed_rest.player[name]==2))
         end
 end
 )

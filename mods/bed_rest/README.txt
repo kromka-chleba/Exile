@@ -4,7 +4,14 @@ Adds api for beds on which player can lie down. Does nothing else beyond this,
 but allows the fact that the player is in bed to be known by other mods
  e.g. for applying rest effect in Health.
 
-bed_level is how effective the bed is (base rest X bed level = rest).
+`bed_level` is how effective the bed is (base rest X bed level = rest).
+
+`bed_rest.player` table stores player's state 
+(even offline, bed/seat remain occupied)
+value of bed_rest.player[player_name] can be:
+    nil = standing
+    1 = laying in a bed
+    2 = sitting on a seat
 
 Example register:
  bed_rest.register_bed("tech:primitive_bed", {
