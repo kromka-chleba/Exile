@@ -104,8 +104,8 @@ local function equip_blanket(player, bed_pos, bed_meta)
         p_inv:set_stack('blanket',1,blanket)
         bedInv:set_stack('main',1,ItemStack(''))
         -- blanket is on me (or no blanket) and not in the bed's inv anymore
-        bed_meta:set_string("blanket","")
-        minimal.infotext_set_new(bed_pos, bed_meta)
+        bmeta:set_string("blanket","")
+        minimal.infotext_set_new(bed_pos, bmeta)
 
     -- else, try to take one from inventory
     else
