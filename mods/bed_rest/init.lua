@@ -28,6 +28,11 @@ local temp = minetest.deserialize(bed_rest.store:get_string("bedrest"), true)
 if temp then
     bed_rest.level = temp["level"]
     bed_rest.player = temp["player"]
+    for name, value in pairs(temp["player"]) do
+        if value == 1 then
+            bed_rest.player[name] = {}
+        end
+    end
     bed_rest.pos = temp["pos"]
     bed_rest.bed_position = temp["bed_position"]
 end

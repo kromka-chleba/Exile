@@ -289,6 +289,7 @@ function bed_rest.register_seat(name, def)
 
             local dir = placer and placer:get_look_dir() and
                 minetest.dir_to_facedir(placer:get_look_dir()) or 0
+
             minetest.set_node(pos, {name = name, param2 = dir})
             -- adds infotext
             minimal.infotext_set_new(pos)
