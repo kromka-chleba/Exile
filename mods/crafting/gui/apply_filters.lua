@@ -77,15 +77,17 @@ local function apply_filters_to_list(cache, r_list)
     return it_changed
 end
 
--- apply filters to given recipe list and updated recipe panel
-local function cache_apply_filters(cache, optional_list)
+-- Apply filters to given recipe list and updated recipe panel.
+-- An actual update of the recipe panel is suppressed unless it would actually
+-- change or force_update is true.
+local function cache_apply_filters(cache, optional_list, force_update)
     if not optional_list then
         optional_list = cache.recipes
     end
 
     local it_changed = apply_filters_to_list(cache, optional_list)
 
-    if it_changed then
+    if it_changed or force_update then
         -- erases recipes panel formspec part
         cache.FS_recipes = nil
         -- reset scroll bar to top
