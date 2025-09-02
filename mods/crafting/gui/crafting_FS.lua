@@ -584,12 +584,6 @@ function crafting.make_crafting_formspec(player, cache)
     )
     end
     output[#output + 1] = cache.FS_search
-    -- #TODO hacky placement to test filter with other options
-    if mode ~= 2 then
-        output[#output + 1] = 'checkbox[4.6,0.3;i_filter;'
-                                .. S(" Automatic\n Filter") .. ';'
-                                .. tostring(cache.input_filter) .. ']'
-    end
 
     -- hint button - attached to search bar
     if cache.hint_btn then
@@ -618,6 +612,7 @@ function crafting.make_crafting_formspec(player, cache)
     -- add one button + tool tip per quantity
     local tool_tips = cache:get_craft_btn_tool_tips(quantities)
 
+    -- arrange buttons depending on input mode
     if mode == 2 then
         output[#output + 1] = "container[3.5,1.4,]"
 
@@ -637,6 +632,28 @@ function crafting.make_crafting_formspec(player, cache)
             output[#output + 1] = "label[-0.3," .. (pos + 0.325) .. ";>]"
             pos = pos + 0.933
         end
+
+    -- filter button for 'Use this' mode -------------------------------------
+        -- hides / unhides uncraftable recipes (and the sleeping spot) based
+        -- on what's in the input grid
+        -- #NOTE: When off the highlighting depends on what's available in
+        --        both inventory lists
+
+        pos = math.max(pos, 3.1 + 0.35 * (#quantities - 2))
+        output[#output + 1] = "label[-0.3," .. (pos + 0.325) .. ";>]"
+
+        local btn_bg
+        if cache.input_filter then
+            btn_bg = "crafting_filter_on_bg.png"
+            btnimg = "crafting_filter_on.png"
+        else
+            btn_bg = "crafting_filter_off_bg.png"
+            btnimg = "crafting_filter_off.png"
+        end
+
+        output[#output + 1] = "image[0," .. pos .. ";1,0.6;" .. btn_bg .. "]"
+        output[#output + 1] = "image_button[0," .. pos .. ";1,0.6;"
+        output[#output + 1] = btnimg .. ";i_filter;]"
 
         output[#output + 1] = "container_end[]"
     else
@@ -658,6 +675,24 @@ function crafting.make_crafting_formspec(player, cache)
             output[#output + 1] = "label[" .. (pos + 0.45) .. ",0.9;^]"
             pos = pos + 1.2
         end
+
+    -- filter button for 'Save this' mode -------------------------------------
+        -- hides / unhides uncraftable recipes (and the sleeping spot)
+        pos = 4.8
+        output[#output + 1] = "label[" .. (pos + 0.45) .. ",0.9;^]"
+
+        local btn_bg
+        if cache.input_filter then
+            btn_bg = "crafting_filter_on_bg.png"
+            btnimg = "crafting_filter_on.png"
+        else
+            btn_bg = "crafting_filter_on_bg.png"
+            btnimg = "crafting_filter_off.png"
+        end
+
+        output[#output + 1] = "image[" .. pos .. ",0;1,0.6;" .. btn_bg .. "]"
+        output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
+        output[#output + 1] = btnimg .. ";i_filter;]"
 
         output[#output + 1] = "container_end[]"
     end
@@ -721,12 +756,6 @@ function crafting.make_crafting_formspec(player, cache)
     end
     output[#output + 1] = cache.FS_input_list
 
-    --#TODO to replace with proper setting/condition
-    if mode == 2 then
-        output[#output + 1] = 'checkbox[0,3.2;i_filter;'
-                            .. S("Automatic Filter") .. ';'
-                            .. tostring(cache.input_filter) .. ']'
-    end
     output[#output + 1] = 'container_end[]'
 
     -- listring between input and main inv ------------------------------------
@@ -868,9 +897,11 @@ function crafting.process_receive_fields(player, formname, fields)
 
     -- process input filter
     if fields.i_filter then
-        cache.input_filter = (fields.i_filter == "true")
+        cache.input_filter = not cache.input_filter
         -- #TODO improve that and the set_text_search to not recalculate all recipes craftable states
-        return cache:apply_filters()
+        -- without forcing an update it only happens if at least one recipe
+        -- gets hidden or becomes visible
+        return cache:apply_filters(nil, true)
     end
 
     -- process "hint" button"
