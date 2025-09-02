@@ -6,6 +6,17 @@
 -- process_max_label(), the corresponding code in FS_display_recipe() with
 -- display_count which was to display the output count in front of all recipes.
 
+-- Remove sort_craftable_recipes()?
+-- When we had crafting by pressing the recipe button, if someone wanted to
+-- craft the same recipe repeatedly and kept pressing the recipe button,
+-- sort_craftable_recipes() made sure, the recipe under the mouse did not
+-- change just due to resorting - avoiding accidentally crafting another
+-- recipe. Now only the selected recipe can be crafted and no longer press the
+-- recipes to craft.
+-- Therefore, the simpler sort_recipes_by_input_state() is used instead of
+-- sort_craftable_recipes(), which also was easier to extended to devide
+-- the recipes into more categories + it is probably faster.
+
 -- GLOBALS --------------------------------------------------------------------
 
 local crafting = crafting
@@ -14,69 +25,95 @@ local tofstring = function(t) return table.concat(t,"") end
 
 -- FUNCTIONS -------------------------------------------------------------------
 
+-- Divide cache.recipes into 4 categories, depending on availability of inputs.
+local function sort_recipes_by_input_state(cache)
+    local craftables = {} -- recipes with full sets of inputs in craftable list
+    local possibles = {} -- all inputs available, but not all in craftable list
+    local some_inputs = {} -- no full set of inputs, but some inputs available
+    local no_inputs = {} -- no inputs at all
+    for _, result in ipairs (cache.recipes) do
+        -- add recipe to list only if it matchs search
+        if result.craftable then
+            craftables[#craftables + 1] = result
+        elseif cache.possible_hint and result.possible then
+            possibles[#possibles + 1] = result
+        elseif result.partial
+            or result.craftable_partial
+            or cache.possible_hint and result.possible_partial then
+            some_inputs[#some_inputs + 1] = result
+        else
+            no_inputs[#no_inputs + 1] = result
+        end
+    end
+    cache.c_recipes = craftables
+    cache.p_recipes = possibles
+    cache.ipa_recipes = some_inputs
+    cache.u_recipes = no_inputs
+end
+
 --[[ take a recipe list with crafting.get_all return format and sort it in 2 lists :
     returns craftable and uncraftable table of results
     format of each table is the one documented for crafting.get_all
     #TODO could be solved using single/max etc buttons
 ]]
-local function sort_craftable_recipes(cache)
-    local c_recipes = cache.c_recipes
-    local p_recipes = cache.p_recipes
-    local u_recipes = cache.u_recipes
-
-    -- if I already had a craftable list, don't change the order to avoid missclick
-    -- #TODO could probably be improved, or solved with craft buttons
-    if c_recipes then
-        -- updates ingredients state and infotext in second list
-        -- and move new craftable recipes to end of first one
-        local new_u={}
-        -- deal with old possible list
-        for i, result in ipairs(p_recipes) do
-            -- move only if cache.possible_hint is disabled
-            if not cache.possible_hint then
-                if result.craftable then
-                    c_recipes[#c_recipes + 1] = result
-                else
-                    new_u[#new_u + 1] = result
-                end
-            end
-        end
-        -- deal with old uncraftable list
-        for i, result in ipairs(u_recipes) do
-            -- if we have a possible list, add it at the end of it so that we don't move the rest
-            if result.craftable then
-                if cache.possible_hint and p_recipes and #p_recipes ~=0 then
-                    p_recipes[#p_recipes + 1] = result
-                else
-                    c_recipes[#c_recipes + 1] = result
-                end
-            elseif cache.possible_hint and result.possible then
-                p_recipes = p_recipes or {}
-                p_recipes[#p_recipes + 1] = result
-            else -- else keep it in uncraftable list
-                new_u[#new_u + 1] = result
-            end
-        end
-        cache.u_recipes = new_u
-    else
-        local new_c = {}
-        local new_p = {}
-        local new_u = {}
-        for _, result in ipairs (cache.recipes) do
-            -- add recipe to list only if it matchs search
-            if result.craftable then
-                new_c[#new_c + 1] = result
-            elseif cache.possible_hint and result.possible then
-                new_p[#new_p + 1] = result
-            else
-                new_u[#new_u + 1] = result
-            end
-        end
-        cache.c_recipes = new_c
-        cache.p_recipes = new_p
-        cache.u_recipes = new_u
-    end
-end
+-- local function sort_craftable_recipes(cache)
+--     local c_recipes = cache.c_recipes
+--     local p_recipes = cache.p_recipes
+--     local u_recipes = cache.u_recipes
+--
+--     -- if I already had a craftable list, don't change the order to avoid missclick
+--     -- #TODO could probably be improved, or solved with craft buttons
+--     if c_recipes then
+--         -- updates ingredients state and infotext in second list
+--         -- and move new craftable recipes to end of first one
+--         local new_u={}
+--         -- deal with old possible list
+--         for i, result in ipairs(p_recipes) do
+--             -- move only if cache.possible_hint is disabled
+--             if not cache.possible_hint then
+--                 if result.craftable then
+--                     c_recipes[#c_recipes + 1] = result
+--                 else
+--                     new_u[#new_u + 1] = result
+--                 end
+--             end
+--         end
+--         -- deal with old uncraftable list
+--         for i, result in ipairs(u_recipes) do
+--             -- if we have a possible list, add it at the end of it so that we don't move the rest
+--             if result.craftable then
+--                 if cache.possible_hint and p_recipes and #p_recipes ~=0 then
+--                     p_recipes[#p_recipes + 1] = result
+--                 else
+--                     c_recipes[#c_recipes + 1] = result
+--                 end
+--             elseif cache.possible_hint and result.possible then
+--                 p_recipes = p_recipes or {}
+--                 p_recipes[#p_recipes + 1] = result
+--             else -- else keep it in uncraftable list
+--                 new_u[#new_u + 1] = result
+--             end
+--         end
+--         cache.u_recipes = new_u
+--     else
+--         local new_c = {}
+--         local new_p = {}
+--         local new_u = {}
+--         for _, result in ipairs (cache.recipes) do
+--             -- add recipe to list only if it matchs search
+--             if result.craftable then
+--                 new_c[#new_c + 1] = result
+--             elseif cache.possible_hint and result.possible then
+--                 new_p[#new_p + 1] = result
+--             else
+--                 new_u[#new_u + 1] = result
+--             end
+--         end
+--         cache.c_recipes = new_c
+--         cache.p_recipes = new_p
+--         cache.u_recipes = new_u
+--     end
+-- end
 
 -- update possible state if `possible` = true, else updates craftable state
 local function update_list_input_state(r_table, item_hash, criteria)
@@ -271,9 +308,10 @@ local function get_recipes_lists(cache)
         if cache.order == true then
             -- if we want re_sort order per craftability and possible
             if cache.to_sort == true then
-                sort_craftable_recipes(cache)
+                sort_recipes_by_input_state(cache)
             end
-            result = {cache.c_recipes, cache.p_recipes, cache.u_recipes}
+            result = {cache.c_recipes, cache.p_recipes,
+                      cache.ipa_recipes, cache.u_recipes}
         else
             result = {cache.recipes}
         end
@@ -576,7 +614,7 @@ do
         --[[this gets the recipes to display
         (some may be hidden in case of search/filter active)]]
         local display_list={}
-        -- ipairs is important to keep the c_recipes/p_recipes/u_recipes order
+        -- ipairs is important to keep the c_recipes/p_recipes/ipa_recipes/u_recipes order
         for _, r_list in ipairs (raw_list) do
             --displays all recipes matchng with search field
             for i, pr in ipairs(r_list) do
@@ -785,6 +823,7 @@ local function reset_recipes (cache, keep_ih)
     -- resets recipes lists
     cache.c_recipes = nil -- list of craftable recipes to display
     cache.p_recipes = nil -- list of possible recipes to display
+    cache.ipa_recipes = nil -- list of recipes with input partially available
     cache.u_recipes = nil -- list of uncraftable recipes to display
     cache.recipes = nil -- list of all 3 above reunited, unsorted
     -- erases recipes panel formspec part

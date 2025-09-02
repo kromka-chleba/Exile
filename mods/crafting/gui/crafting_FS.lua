@@ -53,11 +53,22 @@ local input_options = {
             local suffix = selected and "_selected.png" or ".png"
 
             local status = p_recipe.craftable
-            if status then  -- craftable
+            local hints = cache.possible_hint
+            local filter = cache.input_filter
+            if status then
+                -- craftable
                 return "crafting_slot_craftable" .. suffix
+
             elseif p_recipe.possible then
                 -- possible
                 return "crafting_slot_possible" .. suffix
+
+            elseif p_recipe.craftable_partial
+                or hints and not filter and p_recipe.possible_partial then
+
+                -- some inputs missing
+                return "crafting_slot_partial" .. suffix
+
             elseif status == false then -- uncraftable
             -- replace by following to have black recipes if hint is off
             -- so that uncraftable may be transferred
@@ -102,10 +113,16 @@ local input_options = {
             local status = p_recipe.craftable
             if status then -- craftable
                 return "crafting_slot_craftable" .. suffix
+
+            elseif p_recipe.craftable_partial then -- some inputs missing
+                return "crafting_slot_partial" .. suffix
+
             elseif status == false then -- uncraftable
                 return "crafting_slot_uncraftable" .. suffix
+
             else -- unknows craftable state
                 return 'crafting_slot_empty.png'
+
             end
         end,
         has_hint_btn = function(player_meta) -- is the hint button enabled?
@@ -155,6 +172,7 @@ local default_option_idx = option_to_idx[default_option_name]
         -----------------------------
         `c_recipes` = nil : list of craftable recipes to display
         `p_recipes` = nil : list of possible recipe if everything is used
+        `ipa_recipes` = nil : list of recipes with inputs partially available
         `u_recipes` = nil : list of uncraftable recipes to display
         `recipes` = nil : unsorted list of recipes
         `selected_id` = nil : id of selected recipe
