@@ -437,7 +437,12 @@ do
         -- adds colors if needed
         local need = pr_it.get_needed()
         if have then
-            local color = (have >= need) and "#6f6" or "#f66"
+            local color = "#f66" -- default color if none available
+            if have >= need then -- enough to craft
+                color = "#6f6"
+            elseif have > 0 then -- some available, but not enough to craft
+                color = "#fb6"
+            end
             s[#s +1] = color_esc(color)
             h = have
         else -- replace "have" number by "?" if we don't know
