@@ -888,23 +888,23 @@ local function push_recipe(cache, id, player, player_name)
             cache.FS_recipes = nil -- force recipes panel redraw
             cache.to_sort = false
 
-            -- not enough inputs?
-            if not p_recipe.possible then
-                minimal.warn_message(player, player_name,
-                                     S("Missing required items!"))
-
-                return true -- changes: we pushed things back to main
-            end
-
             -- get max output count, based on what's in "main", now
             local inv = player:get_inventory()
             local item_hash = crafting.get_item_hash(inv, "main")
             local recipe = p_recipe.recipe
             local count = recipe:find_max_craftable(item_hash)
+            -- If not enough to craft, pull what's available to visualize in
+            -- order to visualize what's missing - in input grid and info text.
+            local allow_partial = nil
+            if count < 1 then
+                count = 1
+                allow_partial = true
+            end
 
             -- all inputs are currently in "main" -> take it from there
             local from_list = "main"
-            local transfer = p_recipe:get_to_move(inv, from_list, count)
+            local transfer = p_recipe:get_to_move(inv, from_list, count,
+                                                  allow_partial)
 
             --[[ transfer to input lists, if not everything fits in first one,
             then we will try second one with the leftover, etc etc ...]]
@@ -913,17 +913,23 @@ local function push_recipe(cache, id, player, player_name)
                 transfer = crafting.transfer_items(player, inv, list, transfer)
             end
 
+            item_hashes_reset(cache)
+
             -- if not everything could be transfered, leftover list is not empty
             if transfer and #transfer ~= 0 then
                 minimal.warn_message(player, player_name,
                                      S("Not enough room in to transfer everything"))
             end
 
-            item_hashes_reset(cache)
-            -- cache.item_hash = cache:get_input_hash()
-            -- cache.possible_hash = cache:get_input_hash("total")
-        else
             -- not enough inputs?
+            if not p_recipe.possible then
+                minimal.warn_message(player, player_name,
+                                     S("Missing required items!"))
+
+                return true -- changes: we pushed things back to main
+            end
+        else
+            -- not enough inputs to craft?
             if not p_recipe.craftable then
                 minimal.warn_message(player, player_name,
                                      S("Missing required items!"))
@@ -936,7 +942,7 @@ local function push_recipe(cache, id, player, player_name)
         cache.selected_id = nil
     end
 
-    -- update of recipe panel required to show new selection, but keep order
+    -- update of recipe panel required to show new selection; but keep order
     cache.FS_recipes = nil -- force recipes panel redraw
     cache.to_sort = false
     return true -- changes: at least the selected recipe changed
