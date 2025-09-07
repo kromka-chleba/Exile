@@ -174,7 +174,7 @@ player_recipe.reset_state = function(pr, criteria)
 end
 
 -- required is the number of item/weight we need to make with that item
-local function pick_item(it, inv, lists, required)
+local function pick_item(it, inv, lists, required, allow_partial)
     -- to write to pick item
     local picked_table ={}
     local to_take = ItemStack(it)
@@ -206,7 +206,7 @@ local function pick_item(it, inv, lists, required)
     end
 
     -- if I couldn't find enough, return nil
-    if required > 0 then
+    if required > 0 and not allow_partial then
         core.log("I couldn't find in inventory the ingredient I was supposed to take"
         .. " I was looking for " .. name
         .. ". I needed: " .. to_take:get_count()
@@ -223,14 +223,18 @@ one item in recipe has to only be used once, else the same input can be used mul
 --[[ criteria is "possible" or "craftable"
     if "possible" we will only pick in lists
     what is needed for the recipe
-    but we do'nt have in craftable part yet.]]
-local function pick_input_items(pr, inv, lists, count, criteria)
+    but we do'nt have in craftable part yet.
+    With allow_partial, the function does not fail if items are missing,
+    instead it will pick all available inputs for components (or rows) where
+    there is no single option with enough inputs.]]
+local function pick_input_items(pr, inv, lists, count, criteria, allow_partial)
     if not criteria then criteria = "craftable" end
     if criteria ~= "craftable" and criteria ~= "possible" then
         core.log("incorrect criteria given to pick_input_items" ..
         "it has to be nil, 'craftable' or 'possible'")
         return nil
     end
+
     -- TODO check if useful
     if not count then count = 1 end
 
@@ -243,11 +247,7 @@ local function pick_input_items(pr, inv, lists, count, criteria)
     end
 
     -- to store found items
-    local found_table = {}
-    -- initiate found_table
-    for i, list in ipairs(lists) do
-        found_table[list]={}
-    end
+    local found_table = nil
 
     if criteria == "possible" then -- to move
         -- move tool if needed
@@ -256,9 +256,9 @@ local function pick_input_items(pr, inv, lists, count, criteria)
             local it = tool.def
             local missing = tool.get_needed() - tool.craftable_have
             if missing > 0 then
-                found_table =  pick_item(it, inv, lists, missing)
                 -- if this part is found, add it to found_table
-                if not found_table then
+                found_table = pick_item(it, inv, lists, missing, allow_partial)
+                if not found_table and not allow_partial then
                     core.log("I couldn't find the tool to move")
                     return nil
                 end
@@ -266,53 +266,117 @@ local function pick_input_items(pr, inv, lists, count, criteria)
         end
     end
 
-    -- set input items to values for max_count
-    for i, row in ipairs(pr.pr_items) do
-        local to_take_in_row = count
-        -- use max_count for each row's max
-        for j, pr_it in ipairs(row) do
-            --local can_take = pr_it.craftable_max
-            local can_take = pr_it[criteria .. "_max"]
-            if can_take > 0 then
-                -- dont take more that required
-                if can_take > to_take_in_row then
-                    can_take = to_take_in_row
-                end
-                local it = pr_it.def
+    -- initialze found_table if not already
+    if not found_table then
+        found_table = {}
+        for _, list in ipairs(lists) do
+            found_table[list]={}
+        end
+    end
 
-                local required = it.need * can_take
-                -- only move the one we don't already have if "possible"
-                if criteria == "possible" then
-                    required = required - pr_it.craftable_have
-                end
-
-                if required > 0 then
-                    local pick_table =  pick_item(it, inv, lists, required)
-                    -- if this part is found, add it to found_table
-                    if pick_table then
-                        for list, p_litems in pairs (pick_table) do
-                            for _, p_stack in pairs(p_litems) do
-                                table.insert(found_table[list], p_stack)
-                            end
-                        end
-                    -- if this part is not found, stop
-                    else
-                        core.log("I couldn't find in inventory all the ingredients I was supposed to take"
-                        .. " I was looking for " .. pr_it:get_name()
-                        .. ". I wanted to craft/move " .. tostring(can_take)
-                        .. " times, but couldn't found enough.")
-                        return
-                    end
-                end
-
-                to_take_in_row = to_take_in_row - can_take
-                if to_take_in_row == 0 then
-                    -- I have verything I need in the row
-                    break
-                end
+    -- helper to combine results from pick_item()
+    local function add_to_found_table(per_list_arrays)
+        for list_id, list in pairs (per_list_arrays) do
+            for _, stack in pairs(list) do
+                table.insert(found_table[list_id], stack)
             end
         end
     end
+
+    -- find required input items for each component
+    for i, options in ipairs(pr.pr_items) do
+        -- example:
+        -- For a large wood fire 6 woody plants or 12 sticks are required.
+        -- 13 woody plants and 27 sticks might be available.
+        -- -> enough for 4 large woodfires, 2 from woody plants, 2 from sticks
+        -- -> _count_ could be 3 for example,
+        --    requiring 3 sets of inputs from these options.
+        -- Even with allow_partial we prefer an input option with a full set of
+        -- inputs (e.g. 12 sticks for large wood fire), while if count is 1,
+        -- but not enough is available, we wil take all available for all
+        -- alternative options.
+
+        -- check if we have enough full sets
+        local req_sets = count
+        local available_sets = 0
+        for _, input_info in ipairs(options) do
+            available_sets = available_sets + input_info[criteria .. "_max"]
+            if available_sets >= req_sets then break end
+        end
+
+        -- enough full sets -> take only full sets
+        if available_sets >= req_sets then
+            -- We iterate over alternative input options and take as much full
+            -- sets as available until we reach the required amount of sets.
+            for _, input_info in ipairs(options) do
+
+                -- skip input options without a ful set of inputs
+                local set_count = input_info[criteria .. "_max"]
+                if set_count > 0 then
+                    -- dont take more that required
+                    if set_count > req_sets then
+                        set_count = req_sets
+                    end
+
+                    local def = input_info.def
+                    local to_take = set_count * def.need
+
+                    -- only move those we don't already have if "possible"
+                    if criteria == "possible" then
+                        to_take = to_take - input_info.craftable_have
+                    end
+
+                    if to_take > 0 then
+                        local pick_table = pick_item(def, inv, lists, to_take)
+                        if not pick_table then
+                            -- missing inputs unexpectedly -> return nil
+                            -- input_info[criteria .. "_max"] was inconsistent
+                            core.log("warning", "pick_input_items(): Failed to"
+                            .. " find all matching inputs that should be there"
+                            .. " according to input infos for "
+                            .. input_info:get_name() .. ". expected: "
+                            .. to_take .. " for " .. set_count .. " sets")
+                            return
+                        end
+
+                        add_to_found_table(pick_table)
+
+                        req_sets = req_sets - set_count
+                        if req_sets == 0 then
+                           -- found enough for this component
+                           break
+                        end
+                    end
+                end
+            end
+        elseif allow_partial then
+            -- not enough -> but allowed to take all available
+            for _, input_info in ipairs(options) do
+                local available = input_info[criteria .. "_have"]
+
+                -- only move those we don't already have if "possible"
+                if criteria == "possible" then
+                    available = available - input_info.craftable_have
+                end
+
+                if available > 0 then
+                    local def = input_info.def
+                    local pick_table = pick_item(def, inv, lists, available)
+                    if pick_table then add_to_found_table(pick_table) end
+                end
+            end
+        end
+
+        if req_sets > 0 and not allow_partial then -- failed
+            -- at least one input_info[criteria .. "_max"] was inconsistent
+            core.log("warning", "pick_input_items(): Failed to find all"
+            .. " expected inputs for component " .. i .. " for "
+            .. pr.recipe.output .. ". Expected"
+            .. " to find enough for " .. count .. " sets.")
+            return
+        end
+    end
+
     -- Return found list
     return found_table
 end
@@ -327,11 +391,16 @@ else the same input can be used multiple times.
 player_recipe.pick_input_items = pick_input_items
 
 --transfer for possible recipes
--- move max possible TODO even overriding the max possible or not ?
+-- Returns a list of count sets of inputs to move for a given recipe 'pr' from
+-- inventory lists 'lists' to a 'craftable' list, taking into account what's
+-- already there. With allow_partial, if some component has not enough inputs
+-- required to craft 'count' times, all available inputs for that component
+-- are added to the result. Otherwise nil is returned when inputs are missing.
+-- TODO even overriding the max possible or not ?
 -- like "move all" instead of "move max" ? by double click or button ?
 
-local function get_to_move(pr, inv, lists, count)
-    return pick_input_items(pr, inv, lists, count, 'possible')
+local function get_to_move(pr, inv, lists, count, allow_partial)
+    return pick_input_items(pr, inv, lists, count, 'possible', allow_partial)
 end
 
 player_recipe.get_to_move = get_to_move

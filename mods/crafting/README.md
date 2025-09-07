@@ -261,19 +261,28 @@ This is meant to have a custom recipe object per player, so we can change crafta
     >
     > **WARNING** : only check inputs, do not check new unlocked recipes
 
-* `player_recipe`:**pick_input_items**(`inv`, `lists`, `count`, `criteria`)
+* `player_recipe`:**pick_input_items**(`inv`, `lists`, `count`, `criteria`, `allow_partial`)
 
-    > Send the list of item to take in inv lists to be able to craft the recipe `count` times
-    > * `criteria` can be  `"craftable"` or `"possible"`:   
-    fist one will take all item we need to craft,   
-    second one will only take what we have to move and add to input items.   
-    if nil, it will be considered to be "craftable"
+    > Returns a table of arrays of item stacks per each list in `lists`.    
+    > Basically it  will contain full sets of input items as required to craft a recipe `pr`
+    `count` times, but excluding items that already exists in `craftable` inventory lists
+    if `criteria` is `"possible"`.    
+    > `criteria` can be  `"craftable"` or `"possible"`.    
+    > With `allow_partial`, if some component of a recipe has not enough inputs to
+    craft `pr` `count` times, all available inputs for that component are added to the
+    result, except for those in `craftable` inventory lists, if `criteria` is `"possible"`.    
+    Otherwise nil is returned when there are not enough inputs.
 
-* `player_recipe`:**get_to_move**(`inv`, `lists`,`count`)
-    > Send a list of array of items per list in `lists`,  
-    to be move to input panel to be able to craft the recipe  
-    >* `count` is the number of times we want to be able to craft the recipe  
-    > *NOTE:* equivalent to `pick_input_items(inv, lists, count, "possible")`
+* `player_recipe`:**get_to_move**(`pr`, `inv`, `lists`, `count`, `allow_partial`)
+
+    > Returns a table of arrays of item stacks per each list in `lists`.    
+    > Basically it will contain full sets of input items as required to craft a recipe `pr`
+    `count` times, but excluding items that already exists in `craftable` inventory lists.    
+    > With `allow_partial`, if some component of a recipe has not enough inputs to
+    craft `pr` `count` times, all available inputs for that component are added to the
+    result, except for those in `craftable` inventory lists.    
+    Otherwise nil is returned when there are not enough inputs.
+    > *NOTE:* equivalent to `pick_input_items(inv, lists, count, "possible", allow_partial)`
 
 #### Other functions
 
