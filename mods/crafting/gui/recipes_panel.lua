@@ -1,4 +1,4 @@
--- TODO -----------------------------------------------------------------------
+-- #TODO -----------------------------------------------------------------------
 
 -- The following identifier and related code _may_ be obsolete since
 -- replacement of checkboxes for 'single' 'stack' 'maximum' by craft buttons:
@@ -708,6 +708,20 @@ do
         end
     end)
 
+    -- Returns the selected player recipe.
+    crafting.register_cache_function("get_selected_player_recipe",
+                                      function(self)
+        -- find player recipe among the currently displayed
+        -- (could be any in cache.recipes, currently up to ~80)
+        local id = self.selected_id
+        for _, r in pairs(self.recipes) do
+            if r.recipe.id == id then
+                return r
+            end
+        end
+        -- or return nil
+    end)
+
     -- Returns an array of tool tipos for craft buttons.
     -- One tip per element in "quantities" is generated.
     -- "quantities" must be an array with at least 1 element,
@@ -722,15 +736,7 @@ do
 
         local tool_tips = {} -- array of tooltips per each quantity
         if quantities[1] and quantities[1] > 0 then -- crafting possible
-            -- get player recipe
-            local player_recipe
-            local id = self.selected_id
-            for _, r in pairs(self.recipes) do
-                if r.recipe.id == id then
-                    player_recipe = r
-                    break
-                end
-            end
+            local player_recipe = self:get_selected_player_recipe()
             if not player_recipe then return end
 
             local stack = ItemStack(player_recipe.recipe.output)
@@ -749,15 +755,7 @@ do
                 tool_tips[#tool_tips + 1] = tip
             end
         elseif self.selected_id then -- valid selection but missing inputs
-            -- get player recipe
-            local player_recipe
-            local id = self.selected_id
-            for _, r in pairs(self.recipes) do
-                if r.recipe.id == id then
-                    player_recipe = r
-                    break
-                end
-            end
+            local player_recipe = self:get_selected_player_recipe()
             if not player_recipe then return end
 
             local recipe_tip = generate_tool_tip(player_recipe)
@@ -917,20 +915,12 @@ local function craft_selected(cache, qty)
     -- no change in unexpected cases
     if not qty or not cache.selected_id then return end
 
-    -- get the selected player recipe
-    -- (could be any in cache.recipes, currently up to ~80)
-    local p_recipe
-    local id = cache.selected_id
-    for _, r in pairs(cache.recipes) do
-        if r.recipe.id == id then
-            p_recipe = r
-            break
-        end
-    end
+    local p_recipe = cache:get_selected_player_recipe()
 
     -- invalid selection? -> no change but log a warning
     if not p_recipe then
-        core.log("warning", "craft_selected(): invalid recipe id " .. tostring(id))
+        core.log("warning", "craft_selected(): invalid recipe id "
+                 .. tostring(cache.selected_id))
         return
     end
 
