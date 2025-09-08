@@ -531,7 +531,8 @@ function crafting.make_crafting_formspec(player, cache)
     end
     quantities = quantities or {0}
 
-    -- add one button per quantity
+    local tool_tips = cache:get_craft_btn_tool_tips(quantities)
+    -- add one button + tool tip per quantity
     output[#output + 1] = "container[3.5,6.0,]"
 
     -- dynamic positions of the buttons - depending on #quantities
@@ -545,6 +546,10 @@ function crafting.make_crafting_formspec(player, cache)
         output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
         output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
         output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
+        if tool_tips and tool_tips[i] then
+            output[#output + 1] = "tooltip[" .. qty_id .. ";"
+            output[#output + 1] = tool_tips[i] .. "]"
+        end
         pos = pos + 1.2
     end
 

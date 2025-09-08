@@ -52,6 +52,9 @@ Filter=Filtrer
 Clear=Effacer
 Tool:=Outil :
 will not be consumed:=ne sera pas consommé
+First, select an item to craft.=
+# ex. "Stick: Craft 5 x 2.":
+@1: Craft @2@3.=
 
 #groups
 limestone cobble=caillou calcaire

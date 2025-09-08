@@ -707,6 +707,67 @@ do
             return_inputs_to_main(player)
         end
     end)
+
+    -- Returns an array of tool tipos for craft buttons.
+    -- One tip per element in "quantities" is generated.
+    -- "quantities" must be an array with at least 1 element,
+    -- otherwise nil is returned.
+    crafting.register_cache_function("get_craft_btn_tool_tips",
+                                     function(self, quantities)
+        -- safety checks
+        if not quantities or type(quantities) ~= "table"
+            or not quantities[1] then
+            return
+        end
+
+        local tool_tips = {} -- array of tooltips per each quantity
+        if quantities[1] and quantities[1] > 0 then -- crafting possible
+            -- get player recipe
+            local player_recipe
+            local id = self.selected_id
+            for _, r in pairs(self.recipes) do
+                if r.recipe.id == id then
+                    player_recipe = r
+                    break
+                end
+            end
+            if not player_recipe then return end
+
+            local stack = ItemStack(player_recipe.recipe.output)
+            local item_desc = stack:get_short_description()
+            -- need to remove the color escape for use tips
+            item_desc = core.strip_colors(item_desc)
+
+            -- get output count
+            local count = stack:get_count()
+            -- "Craft N x 2" but "Craft N x" instead of "Craft N x 1"
+            local count_text = count > 1 and " x " .. count or ""
+
+            -- generate all tips
+            for _, qty in ipairs(quantities) do
+                local tip = S("@1: Craft @2@3.", item_desc, qty, count_text)
+                tool_tips[#tool_tips + 1] = tip
+            end
+        elseif self.selected_id then -- valid selection but missing inputs
+            -- get player recipe
+            local player_recipe
+            local id = self.selected_id
+            for _, r in pairs(self.recipes) do
+                if r.recipe.id == id then
+                    player_recipe = r
+                    break
+                end
+            end
+            if not player_recipe then return end
+
+            local recipe_tip = generate_tool_tip(player_recipe)
+            tool_tips[1] = S("Missing required items!") .. "\n" .. recipe_tip
+        else -- no recipe selected
+            tool_tips[1] = S("First, select an item to craft.")
+        end
+
+        return tool_tips
+    end)
 end
 
 -- FORMSPEC ACTIONS ------------------------------------------------------------

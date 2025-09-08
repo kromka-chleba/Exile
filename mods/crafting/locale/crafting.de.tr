@@ -44,3 +44,11 @@ Maximum=Maximum
 Search=
 or=oder
 Crafted by: @1=Gefertigt durch
+You are using: @1=
+Filter=
+Clear=
+Tool:=
+will not be consumed:=
+First, select an item to craft.=Wählen Sie zuerst, was Sie fertigen möchten.
+# ex. "Stick: Craft 5 x 2.":
+@1: Craft @2@3.=@1: Fertige @2@3.
