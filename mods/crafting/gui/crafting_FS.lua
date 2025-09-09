@@ -522,7 +522,8 @@ function crafting.make_crafting_formspec(player, cache)
     output[#output + 1] = 'container_end[]'
 
     -- Recipes List part (Tabs + Recipes list block) ---------------------------
-    output[#output + 1] = 'container[3.5, 0.45]'
+    local recipes_y = 0.45
+    output[#output + 1] = "container[3.5," .. recipes_y .. "]"
 
     -- Craft tabs above the recipes panel
     if not cache.FS_ctabs then
@@ -533,7 +534,9 @@ function crafting.make_crafting_formspec(player, cache)
 
     if not cache.FS_recipes then
         -- in gui/recipes_panel.lua
-        cache.FS_recipes = cache:get_recipes_panel()
+        cache.FS_recipes, cache.recipes_height = cache:get_recipes_panel(0,
+                                                                         0.75)
+        cache.recipes_height = cache.recipes_height + 0.75
     end
     output[#output + 1] = cache.FS_recipes
 
@@ -541,7 +544,8 @@ function crafting.make_crafting_formspec(player, cache)
 
     -- Search field part -------------------------------------------------------
 
-    output[#output + 1] = 'container[3.5, 5.2]'
+    local search_pos = "3.5," .. (recipes_y + cache.recipes_height + 0.15)
+    output[#output + 1] = "container[" .. search_pos .. "]"
     if cache.FS_search == nil then
         -- Build search field to be in container
         cache.FS_search = tofstring({
