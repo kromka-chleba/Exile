@@ -562,6 +562,17 @@ function crafting.make_crafting_formspec(player, cache)
                                 .. S(" Automatic\n Filter") .. ';'
                                 .. tostring(cache.input_filter) .. ']'
     end
+
+    -- hint button - attached to search bar
+    if cache.hint_btn then
+        if cache.possible_hint then
+            output[#output + 1] = "style[hint;bgcolor=white; bgcolor_hovered=white; bgcolor_pressed=white]"
+        else
+            output[#output + 1] = "style[hint;bgimg=;bgcolor=black]"
+        end
+
+        output[#output + 1] = 'button[4.5,0;1.5,0.6;hint;'.. S("Hint") .. ']'
+    end
     output[#output + 1] = 'container_end[]'
 
     -- Craft buttons part ---------------------------------------------------
@@ -650,15 +661,6 @@ function crafting.make_crafting_formspec(player, cache)
     output[#output + 1] = "label[0,0;" .. txt .. ":]"
     output[#output + 1] = cache.FS_input_list
 
-    if cache.hint_btn then
-        if cache.possible_hint then
-            output[#output + 1] = "style[hint;bgcolor=white; bgcolor_hovered=white; bgcolor_pressed=white]"
-        else
-            output[#output + 1] = "style[hint;bgimg=;bgcolor=black]"
-        end
-
-        output[#output + 1] = 'button[0.6,3.6;1.5,0.5;hint;'.. S("Hint") .. ']'
-    end
     --#TODO to replace with proper setting/condition
     if cache.craft_input == 2 then
         output[#output + 1] = 'checkbox[0,3.2;i_filter;'
