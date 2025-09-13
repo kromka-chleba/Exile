@@ -23,6 +23,9 @@ Antiglass=
 Antiblue=
 Legacy Grey=
 New Grey=
+Crafting mode=
+'Save this'=
+'Use this'=
 # protection.lua
 Access List=
 Delete=
