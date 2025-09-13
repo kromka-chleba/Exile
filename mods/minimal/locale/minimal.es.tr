@@ -14,9 +14,19 @@ Show numeric stats=Utilice estadisticas numericas
 Enable Break-taker popup=Activar el aviso de descanso
 Allow digging with a full inventory=
 Recipe hints require pressing a button=
+Keep fixed order for recipes=
+Disable music=
 Temperature scale=Escala de temperatura
 GUI theme=GUI tema
 HUD Opacity=Opacidad del HUD
+Default=
+Antiglass=
+Antiblue=
+Legacy Grey=
+New Grey=
+Crafting mode=
+'Save this'=
+'Use this'=
 
 # protection.lua
 Access List=

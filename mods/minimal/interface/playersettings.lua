@@ -10,10 +10,13 @@ local mtnobreak = minetest.settings:get_bool('exile_nobreaktaker') or false
 local mttempscale = minetest.settings:get('exile_temp_scale') or "Celsius"
 local temp_tonum = { ["Celsius"] = "1", ["Fahrenheit"] = "2", ["Kelvin"] = "3" }
 local temp_fromnum = { "Celsius", "Fahrenheit", "Kelvin" }
+local mtcraftmode = minetest.settings:get("exile_craft_mode") or "Use this"
+local craft_mode_tonum = { ["Save this"] = 1, ["Use this"] = 2 }
+local craft_mode_fromnum = { "Save this", "Use this" }
+local mthintbtn = minetest.settings:get_bool("exile_hint_button") or false
 local mthudopacity = tonumber(minetest.settings:get(
                                   "exile_hud_icon_transparency")) or 127
 local mtinvburst = minetest.settings:get_bool("exile_drop_on_full_inv") or false
-local mthintbtn = minetest.settings:get_bool("exile_hint_button") or false
 local mtnomusic = minetest.settings:get_bool("exile_disable_music") or false
 
 local theme_fromnum = minimal.get_gui_theme_list() -- numeric table of theme names
@@ -35,6 +38,11 @@ if not temp_tonum[mttempscale] then
     mttempscale = "Celsius"
 end
 
+-- invalid craft mode setting? -> set default
+if not craft_mode_tonum[mtcraftmode] then
+    mtcraftmode = "Use this"
+end
+
 -- Generate Player's settings formspec
 -- see (*) comment below on why this is a separate function
 local function get_form(playername, meta)
@@ -48,6 +56,9 @@ local function get_form(playername, meta)
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
+    local craft_mode = meta:get("crafting:mode") or mtcraftmode
+    local craftnum = craft_mode_tonum[craft_mode] or temp_tonum[mtcraftmode]
+    local craft_mode_titles = S("'Save this'") .. "," .. S("'Use this'")
     local hint_btn_plyr = meta:get("crafting:hint_button")
     local recipe_order = meta:get_string("crafting:no_reorder")
     local nomusic = tostring(meta:get("disable_music") or mtnomusic )
@@ -60,6 +71,14 @@ local function get_form(playername, meta)
     end
     -- if not valid -> use server's default
     if not hint_btn_plyr then hint_btn_plyr = tostring(mthintbtn) end
+
+    -- hint button setting only applies with 'Use this'
+    local hint_btn_formspec = ""
+    if craft_mode == "Use this" then
+        hint_btn_formspec = "checkbox[1.5,3.5;hint_button;  "
+        .. S("Recipe hints require pressing a button") .. ";"
+        .. hint_btn_plyr .. "]"
+    end
 
     local spec =
         "formspec_version[6]"..
@@ -78,26 +97,28 @@ local function get_form(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
+        -- Craft mode settings
+        "label[1,3;" .. S("Crafting mode") .. ":]" ..
+        "dropdown[5,2.75;3,0.5;craftmode;" .. craft_mode_titles .. ";" ..
+        craftnum .. ";true]" ..
         -- Show hint button
-        "checkbox[1,3;hint_button;  "..
-        S("Recipe hints require pressing a button") .. ";"
-        .. hint_btn_plyr .. "]" ..
+        hint_btn_formspec ..
         -- Fix order for recipes
-        "checkbox[1,3.5;recipe_order;  "..
+        "checkbox[1,4;recipe_order;  "..
         S("Keep fixed order for recipes")..";".. recipe_order.."]"..
         -- Music setting
-        "checkbox[1,4;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,4.5;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         -- Temperature scale setting
-        "label[1,4.75;"..S("Temperature scale")..":]"..
-        "dropdown[5,4.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "label[1,5.25;"..S("Temperature scale")..":]"..
+        "dropdown[5,5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
         -- GUI theme setting
-        "label[1,5.25;"..S("GUI theme")..":]"..
-        "dropdown[5,5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,5.75;"..S("GUI theme")..":]"..
+        "dropdown[5,5.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
         -- HUD Opacity
-        "label[1,6;"..S("HUD Opacity")..":]"..
+        "label[1,6.5;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[2,6.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,7;5,0.5;horizontal;HudOpac;"..opacity.."]"
     return spec
 end
 
@@ -209,6 +230,20 @@ local function process_receive_fields(player, formname, fields)
     if fields.invburst then
         meta:set_string("drop_on_full_inv", fields.invburst)
         setting_changed(player, "drop_on_full_inv", tobool(fields.invburst), meta)
+    end
+    -- setting craft mode
+    if fields.craftmode then
+        num = tonumber(fields.craftmode)
+        local old_craft_mode = meta:get("crafting:mode") or mtcraftmode
+        local mode = craft_mode_fromnum[num]
+        if mode and mode ~= old_craft_mode then
+            meta:set_string("crafting:mode", mode)
+            setting_changed(player, "crafting:mode", mode, meta)
+            -- update formspec
+            local playername = player:get_player_name()
+            minetest.show_formspec(playername, "player_settings",
+                                   get_form(playername, meta))
+        end
     end
     if fields.hint_button then
         meta:set_string("crafting:hint_button", fields.hint_button)

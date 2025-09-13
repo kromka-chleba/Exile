@@ -22,6 +22,9 @@ Antiglass=Прозрачный
 Antiblue=Темносиний
 Legacy Grey=Устаревший серый
 New Grey=Новый серый
+Crafting mode=
+'Save this'=
+'Use this'=
 # protection.lua
 Access List=Список доступа
 Delete=Удалить
