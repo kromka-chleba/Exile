@@ -1,3 +1,8 @@
+-- #TODO -----------------------------------------------------------------------
+
+-- remove commented get_hint_state() (replaced by init_hint_states())
+
+
 -- Dealing with crafting tab in inventory formspec
 
 local minimal = minimal
@@ -61,7 +66,19 @@ local input_options = {
                 return 'crafting_slot_empty.png'
             end
         end,
-        hint_btn = true, -- is the hint button available ?
+        has_hint_btn = function(player_meta) -- is the hint button enabled?
+            local player_settg = player_meta:get_string("crafting:hint_button")
+            if (player_settg ~= "") then -- > use existing player setting
+                return (player_settg == "true")
+            end
+            -- player setting does not yet exist
+            -- if present, use server setting, otherwise use Exile's default
+            local dflt_exile = false
+            local dflt_srv = minetest.settings:get_bool("exile_hint_button")
+            local result = (dflt_srv ~= nil) and dflt_srv or dflt_exile
+            player_meta:set_string("crafting:hint_button", tostring(result))
+            return result
+        end,
     },
     [1] = {
         label = " Do not use",
@@ -87,7 +104,9 @@ local input_options = {
                 return 'crafting_slot_empty.png'
             end
         end,
-        hint_btn = false,
+        has_hint_btn = function(player_meta) -- is the hint button enabled?
+            return false
+        end,
     },
     -- [3] = {
     --     label = " Use first",
@@ -156,6 +175,7 @@ local default_option = 1
         `lang` = player's lang code for translation
 
         `craft_input` = table of inv to use to craft
+        `hint_btn` = hint button visible?
         `possible_hint` = false --  is the "hint" button activated ?
         `input_filter` = do put items in input panel trigger automatic filter ?
 
@@ -232,7 +252,7 @@ function crafting.register_cache_function (name, func)
     cache_func[name] = func
 end
 
-local function get_hint_state(i_option, player_meta)
+-- local function get_hint_state(i_option, player_meta)
     --[[ option to initiate with player's meta
     if input_options[i_option].hint_btn then
         --  it is on in player_settings (I left with on)
@@ -242,14 +262,28 @@ local function get_hint_state(i_option, player_meta)
         return false
     end]]
     -- option to initiate it with always false
-    return false
+--    return false
+-- end
+
+-- Updates whether the hint button and hints are enabled.
+local function init_hint_states(cache, player_meta)
+    -- hints require pressing a button? (default: false)
+    cache.hint_btn = input_options[cache.craft_input].has_hint_btn(player_meta)
+    -- updates hint's state
+    if cache.hint_btn then
+        -- start with hints disabled
+        cache.possible_hint = false
+    else
+        -- enable hints
+        cache.possible_hint = true
+    end
 end
 
 -- saves input option in cache and updates hint button state accordingly
 local function set_cache_input_options(cache, option, player_meta)
     cache.craft_input = option
-    -- updates Hint button's state
-    cache.possible_hint = get_hint_state(option, player_meta)
+    -- updates hint's state
+    init_hint_states(cache, player_meta)
 end
 
 -- save station's info in cache and update tool list/reset tabs if needed
@@ -366,6 +400,13 @@ minimal.register_on_player_setting_change(
             -- field will be check when cache is generated
             if cache then
                 cache.order =  not value
+            end
+        elseif meta_name == "crafting:hint_button" then
+            local cache = crafting.get_FS_cache(player)
+            -- no need to change if cache does not yet exists
+            -- initialization is done during cache generation
+            if cache then
+                init_hint_states(cache, meta)
             end
         end
     end)
@@ -565,7 +606,7 @@ function crafting.make_crafting_formspec(player, cache)
     output[#output + 1] = 'container[.5,2.5]'
     output[#output + 1] = cache.FS_input_list
 
-    if cache:get_craft_mode().hint_btn  then
+    if cache.hint_btn  then
         if cache.possible_hint then
             output[#output + 1] = "style[hint;bgcolor=white; bgcolor_hovered=white; bgcolor_pressed=white]"
         else
@@ -633,7 +674,8 @@ function crafting.close_crafting_formspec(player, cache)
 
     -- reset selection and clear "input_list" inventory into "main" inv
     cache:reset_selected_recipe(true, player)
-    cache.possible_hint = false -- disable "hint"
+    -- switch recipe hints off if hints' button is enabled
+    cache.possible_hint = cache.hint_btn ~= true
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
     -- reset recipes panel and item_hashes for next opening

@@ -28,6 +28,7 @@ Enable wide HUDbar=Weite HUD-Leiste aktivieren
 Show numeric stats=Zahlenwerte anzeigen
 Enable Break-taker popup=Pausennehmer-Popup-Fenster aktivieren
 Allow digging with a full inventory=Graben mit vollen Inventar erlauben
+Recipe hints require pressing a button=Rezepturhinweise erfordern das Drücken eines Knopfs
 Temperature scale=Temperaturskala
 GUI theme=GUI-Thema
 HUD Opacity=HUD-Undurchsichtigkeit

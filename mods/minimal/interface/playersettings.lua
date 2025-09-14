@@ -13,6 +13,7 @@ local temp_fromnum = { "Celsius", "Fahrenheit", "Kelvin" }
 local mthudopacity = tonumber(minetest.settings:get(
                                   "exile_hud_icon_transparency")) or 127
 local mtinvburst = minetest.settings:get_bool("exile_drop_on_full_inv") or false
+local mthintbtn = minetest.settings:get_bool("exile_hint_button") or false
 local mtnomusic = minetest.settings:get_bool("exile_disable_music") or false
 
 local theme_fromnum = minimal.get_gui_theme_list() -- numeric table of theme names
@@ -47,8 +48,18 @@ local function get_form(playername, meta)
     local themenum = tostring(theme_tonum[theme])
     local opacity = tostring(meta:get("hud_opacity") or mthudopacity)
     local invburst = tostring(meta:get("drop_on_full_inv") or mtinvburst)
+    local hint_btn_plyr = meta:get("crafting:hint_button")
     local recipe_order = meta:get_string("crafting:no_reorder")
     local nomusic = tostring(meta:get("disable_music") or mtnomusic )
+
+    -- is player's hint button setting valid?
+    if hint_btn_plyr then
+        if (hint_btn_plyr ~= "true") and  (hint_btn_plyr ~= "false") then
+            hint_btn_plyr = nil
+        end
+    end
+    -- if not valid -> use server's default
+    if not hint_btn_plyr then hint_btn_plyr = tostring(mthintbtn) end
 
     local spec =
         "formspec_version[6]"..
@@ -67,22 +78,26 @@ local function get_form(playername, meta)
         "checkbox[1,2.5;invburst;  "..
         S("Allow digging with a full inventory")..";"..
         tostring(invburst).."]"..
+        -- Show hint button
+        "checkbox[1,3;hint_button;  "..
+        S("Recipe hints require pressing a button") .. ";"
+        .. hint_btn_plyr .. "]" ..
         -- Fix order for recipes
-        "checkbox[1,3;recipe_order;  "..
+        "checkbox[1,3.5;recipe_order;  "..
         S("Keep fixed order for recipes")..";".. recipe_order.."]"..
         -- Music setting
-        "checkbox[1,3.5;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
+        "checkbox[1,4;nomusic;  "..S("Disable music")..";"..nomusic.."]"..
         -- Temperature scale setting
-        "label[1,4.25;"..S("Temperature scale")..":]"..
-        "dropdown[5,4;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
+        "label[1,4.75;"..S("Temperature scale")..":]"..
+        "dropdown[5,4.5;3,0.5;tempscale;Celsius,Fahrenheit,Kelvin;"..
         tempnum..";true]"..
         -- GUI theme setting
-        "label[1,4.75;"..S("GUI theme")..":]"..
-        "dropdown[5,4.5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
+        "label[1,5.25;"..S("GUI theme")..":]"..
+        "dropdown[5,5;3,0.5;gui_theme;"..themelist..";"..themenum..";true]"..
         -- HUD Opacity
-        "label[1,5.5;"..S("HUD Opacity")..":]"..
+        "label[1,6;"..S("HUD Opacity")..":]"..
         "scrollbaroptions[min=0;max=255;largestep=50]"..
-        "scrollbar[2,6;5,0.5;horizontal;HudOpac;"..opacity.."]"
+        "scrollbar[2,6.5;5,0.5;horizontal;HudOpac;"..opacity.."]"
     return spec
 end
 
@@ -194,6 +209,10 @@ local function process_receive_fields(player, formname, fields)
     if fields.invburst then
         meta:set_string("drop_on_full_inv", fields.invburst)
         setting_changed(player, "drop_on_full_inv", tobool(fields.invburst), meta)
+    end
+    if fields.hint_button then
+        meta:set_string("crafting:hint_button", fields.hint_button)
+        setting_changed(player, "crafting:hint_button", tobool(fields.hint_button), meta)
     end
     if fields.recipe_order then
         meta:set_string("crafting:no_reorder", fields.recipe_order)
