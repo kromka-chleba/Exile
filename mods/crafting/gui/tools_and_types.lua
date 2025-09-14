@@ -110,7 +110,7 @@ local function get_tool_panel(cache)
     local tool_list = cache.tool_list or crafting.generate_tools_list()
     local FS_tool_tabs = {
         'label[0,0;'..S("Tool used")..']',
-        'container[0.1,0.3]',
+        'container[0,0.3]',
         'style_type[item_image_button;border=false;bgimg_middle=]'
     }
 

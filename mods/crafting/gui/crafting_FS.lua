@@ -589,7 +589,7 @@ function crafting.make_crafting_formspec(player, cache)
         -- background color
         local input_color = cache:get_craft_mode().i_color
         -- #TODO put as setting the color of craftable
-        fs[#fs + 1] = "box[-0.07,0.25;2.7,2.6;" .. input_color .. "]"
+        fs[#fs + 1] = "box[0,0.25;2.7,2.6;" .. input_color .. "]"
 
         -- label
         -- fs[#fs + 1] = 'label[0,0;'..S("Ingredients:")..']',
@@ -615,7 +615,7 @@ function crafting.make_crafting_formspec(player, cache)
         end
 
         fs[#fs + 1] = 'style_type[list;size=.7,.7;spacing=.1]'
-        fs[#fs + 1] = 'list[current_player;input_items;0.1,0.4;3,3;0]'
+        fs[#fs + 1] = 'list[current_player;input_items;0.2,0.4;3,3;0]'
 
         return tofstring(fs)
     end
@@ -626,7 +626,7 @@ function crafting.make_crafting_formspec(player, cache)
         cache.FS_input_list = FS_input_list ()
     end
 
-    output[#output + 1] = 'container[.5,2.2]'
+    output[#output + 1] = 'container[.4,2.2]'
     -- label
     local txt = (cache.craft_input == 2) and S("Use this") or S("Save this")
     output[#output + 1] = "label[0,0;" .. txt .. ":]"
