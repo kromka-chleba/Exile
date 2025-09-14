@@ -13,6 +13,7 @@ Enable wide HUDbar=Enciende la barra ancha del HUD
 Show numeric stats=Utilice estadisticas numericas
 Enable Break-taker popup=Activar el aviso de descanso
 Allow digging with a full inventory=
+Recipe hints require pressing a button=
 Temperature scale=Escala de temperatura
 GUI theme=GUI tema
 HUD Opacity=Opacidad del HUD
