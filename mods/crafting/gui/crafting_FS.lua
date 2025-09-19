@@ -476,7 +476,9 @@ function crafting.make_crafting_formspec(player, cache)
         'container[0,0]'
     }
 
-    -- Inventory List part------------------------------------------------------
+    local mode = cache.craft_input
+
+    -- Inventory List part-----------------------------------------------------
 
     output[#output + 1] = 'container[0.8,7.2]'
 
@@ -495,23 +497,30 @@ function crafting.make_crafting_formspec(player, cache)
 
     output[#output + 1] = 'container_end[]'
 
-    -- re-add worldedit gui button if that exists ------------------------------
+    -- re-add worldedit gui button if that exists -----------------------------
+    local we_x = (mode == 2) and "3.5" or "9.75"
+
     if minetest.global_exists("worldedit")
         and minetest.get_modpath("worldedit_gui")
         and minetest.check_player_privs(player, {worldedit=true}) then
         output[#output + 1] = tofstring({
-            "image_button[9.75,0.5;0.75,0.75;inventory_plus_worldedit_gui.png;",
-            "worldedit_gui;]",
+            "image_button[" .. we_x .. ",0.5;0.75,0.75;",
+            "inventory_plus_worldedit_gui.png;worldedit_gui;]",
             "tooltip[worldedit_gui;Edit your World!]"
         })
     end
 
-    -- Trash -------------------------------------------------------------------
+    -- Trash ------------------------------------------------------------------
 
-    output[#output + 1] = 'image[9.6,5.93;0.8,0.8;creative_trash_icon.png]'
-    output[#output + 1] ='list[detached:creative_trash;main;9.52,5.8;1,1;]'
+    if mode == 2 then
+        output[#output + 1] ="image[0.48,5.93;0.8,0.8;creative_trash_icon.png]"
+        output[#output + 1] = "list[detached:creative_trash;main;0.4,5.8;1,1;]"
+    else
+        output[#output + 1] = "image[9.6,5.93;0.8,0.8;creative_trash_icon.png]"
+        output[#output + 1] ="list[detached:creative_trash;main;9.52,5.8;1,1;]"
+    end
 
-    -- Tool types part ---------------------------------------------------------
+    -- Tool types part --------------------------------------------------------
 
     if not cache.FS_tool_panel then
         -- build in gui/tools_and_stations.lua
@@ -521,9 +530,11 @@ function crafting.make_crafting_formspec(player, cache)
     output[#output + 1] = cache.FS_tool_panel
     output[#output + 1] = 'container_end[]'
 
-    -- Recipes List part (Tabs + Recipes list block) ---------------------------
+    -- Recipes List part (Tabs + Recipes list block) --------------------------
     local recipes_y = 0.45
-    output[#output + 1] = "container[3.5," .. recipes_y .. "]"
+    local panel_offset = (mode == 2) and "4.7" or "3.5"
+    output[#output + 1] = "container[" .. panel_offset
+    output[#output + 1] = "," .. recipes_y .. "]"
 
     -- Craft tabs above the recipes panel
     if not cache.FS_ctabs then
@@ -534,18 +545,22 @@ function crafting.make_crafting_formspec(player, cache)
 
     if not cache.FS_recipes then
         -- in gui/recipes_panel.lua
-        cache.FS_recipes, cache.recipes_height = cache:get_recipes_panel(0,
-                                                                         0.75)
-        cache.recipes_height = cache.recipes_height + 0.75
+        local height
+        cache.FS_recipes, height = cache:get_recipes_panel(0, 0.75,
+                                                           mode)
+        cache.recipes_height = height + 0.75
     end
     output[#output + 1] = cache.FS_recipes
 
     output[#output + 1] = 'container_end[]'
 
-    -- Search field part -------------------------------------------------------
+    -- Search field part ------------------------------------------------------
 
-    local search_pos = "3.5," .. (recipes_y + cache.recipes_height + 0.15)
-    output[#output + 1] = "container[" .. search_pos .. "]"
+    local spos_x = (mode == 2) and "4.7," or "3.5,"
+    local spos_y_offset = (mode == 2) and 0 or 0.15
+    local spos = spos_x .. (recipes_y + cache.recipes_height + spos_y_offset)
+
+    output[#output + 1] = "container[" .. spos .. "]"
     if cache.FS_search == nil then
         -- Build search field to be in container
         cache.FS_search = tofstring({
@@ -561,7 +576,7 @@ function crafting.make_crafting_formspec(player, cache)
     end
     output[#output + 1] = cache.FS_search
     -- #TODO hacky placement to test filter with other options
-    if cache.craft_input ~= 2 then
+    if mode ~= 2 then
         output[#output + 1] = 'checkbox[4.6,0.3;i_filter;'
                                 .. S(" Automatic\n Filter") .. ';'
                                 .. tostring(cache.input_filter) .. ']'
@@ -579,7 +594,7 @@ function crafting.make_crafting_formspec(player, cache)
     end
     output[#output + 1] = 'container_end[]'
 
-    -- Craft buttons part ---------------------------------------------------
+    -- Craft buttons part -----------------------------------------------------
 
     -- determine possible quantities and button image
     local quantities = nil
@@ -591,31 +606,53 @@ function crafting.make_crafting_formspec(player, cache)
     end
     quantities = quantities or {0}
 
-    local tool_tips = cache:get_craft_btn_tool_tips(quantities)
     -- add one button + tool tip per quantity
-    output[#output + 1] = "container[3.5,6.0,]"
+    local tool_tips = cache:get_craft_btn_tool_tips(quantities)
 
-    -- dynamic positions of the buttons - depending on #quantities
-    local pos = 1.8 - (#quantities - 1) * 0.6
+    if mode == 2 then
+        output[#output + 1] = "container[3.5,1.4,]"
 
-    -- add the buttons
-    for i, q in ipairs(quantities) do
-        local qty_id = "qty_" .. i
-        local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
+        -- dynamic positions of the buttons - depending on #quantities
+        local pos = 1.4 - (#quantities - 1) * 0.467
 
-        output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
-        output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
-        output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
-        if tool_tips and tool_tips[i] then
-            output[#output + 1] = "tooltip[" .. qty_id .. ";"
-            output[#output + 1] = tool_tips[i] .. "]"
+        for i, q in ipairs(quantities) do
+            local qty_id = "qty_" .. i
+            local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
+            output[#output + 1] = "image_button[0," .. pos .. ";1,0.6;"
+            output[#output + 1] = btnimg .. ';'..qty_id..';' .. text
+            output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
+            if tool_tips and tool_tips[i] then
+                output[#output + 1] = "tooltip[" .. qty_id .. ";"
+                output[#output + 1] = tool_tips[i] .. "]"
+            end
+            pos = pos + 0.933
         end
-        pos = pos + 1.2
+
+        output[#output + 1] = "container_end[]"
+    else
+        output[#output + 1] = "container[3.5,6.0,]"
+
+        -- dynamic positions of the buttons - depending on #quantities
+        local pos = 1.8 - (#quantities - 1) * 0.6
+
+        for i, q in ipairs(quantities) do
+            local qty_id = "qty_" .. i
+            local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
+
+            output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
+            output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
+            output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
+            if tool_tips and tool_tips[i] then
+                output[#output + 1] = "tooltip[" .. qty_id .. ";"
+                output[#output + 1] = tool_tips[i] .. "]"
+            end
+            pos = pos + 1.2
+        end
+
+        output[#output + 1] = "container_end[]"
     end
 
-    output[#output + 1] = "container_end[]"
-
-    -- Input List part----------------------------------------------------------
+    -- Input List part---------------------------------------------------------
 
     local function FS_input_list ()
         local fs = {}
@@ -661,19 +698,19 @@ function crafting.make_crafting_formspec(player, cache)
 
     output[#output + 1] = 'container[.4,2.2]'
     -- label
-    local txt = (cache.craft_input == 2) and S("Use this") or S("Save this")
+    local txt = (mode == 2) and S("Use this") or S("Save this")
     output[#output + 1] = "label[0,0;" .. txt .. ":]"
     output[#output + 1] = cache.FS_input_list
 
     --#TODO to replace with proper setting/condition
-    if cache.craft_input == 2 then
+    if mode == 2 then
         output[#output + 1] = 'checkbox[0,3.2;i_filter;'
                             .. S("Automatic Filter") .. ';'
                             .. tostring(cache.input_filter) .. ']'
     end
     output[#output + 1] = 'container_end[]'
 
-    -- listring between input and main inv -------------------------------------
+    -- listring between input and main inv ------------------------------------
     output[#output + 1] = 'listring[current_player;input_items]'
     output[#output + 1] = 'listring[current_player;main]'
 
