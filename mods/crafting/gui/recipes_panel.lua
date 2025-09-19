@@ -599,8 +599,9 @@ do
     end
 
     -- generates recipe_panel formspec at an offset defined by `x` and `y`
-    crafting.register_cache_function("get_recipes_panel", function(self, x, y)
-
+    -- for input mode `mode`
+    crafting.register_cache_function("get_recipes_panel", function(self, x, y,
+                                                                   mode)
 
         local FS_recipes = {}         -- final fromspec
         -- this is for more clarity, choice of display settings
@@ -628,14 +629,17 @@ do
                 end
             end
         end
+
          -- max dimensions of recipes grid
         local nb_recipes=#display_list
-        local lines_max = 3 -- nb of lines of recipes displayed
-        local columns = 6 -- can show 6 items accross without scrollbar
+        -- max displayed lines and columns
+        local lines_max = (mode ~= 2) and 3 or 4
+        local columns = (mode ~= 2) and 6 or 5
+        -- total lines for all recipes and how many are displayed actually
         local lines_total = math.ceil(nb_recipes / columns)
         local lines_actual = math.max(1, math.min(lines_max, lines_total))
+        -- resulting height of the panel
         local panel_height = lines_actual * (grid_size + 0.05)
-
 
         -- add scrollbar if needed
         -- #TODO don't reset the recipe lists just because of the scrollbar
@@ -655,14 +659,14 @@ do
                     'thumbsize=1]'
                 })
 
+            local scroll_bar_x = columns * grid_size - 0.1
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
-                    'scrollbar[',
-                    '7.1,0.95;', -- position
-                    '0.5,' .. (1.14*lines_actual).. ';', -- width/height
-                    'vertical;', -- orientation
-                    'recipes_scroll;', -- name
-                    sScroll .. ']' -- value
+                    "scrollbar[" .. scroll_bar_x .. ",0.95;", -- position
+                    "0.5," .. (1.14 * lines_actual) .. ";", -- width/height
+                    "vertical;", -- orientation
+                    "recipes_scroll;", -- name
+                    sScroll .. "]" -- value
                 })
         end
 
