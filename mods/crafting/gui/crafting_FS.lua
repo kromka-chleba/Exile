@@ -59,7 +59,7 @@ local input_options = {
                 -- craftable
                 return "crafting_slot_craftable" .. suffix
 
-            elseif p_recipe.possible then
+            elseif not filter and p_recipe.possible then
                 -- possible
                 if cache.hint_btn then
                     return "crafting_slot_possible" .. suffix
@@ -640,19 +640,22 @@ function crafting.make_crafting_formspec(player, cache)
         --        both inventory lists
 
         pos = math.max(pos, 3.1 + 0.35 * (#quantities - 2))
-        output[#output + 1] = "label[-0.3," .. (pos + 0.325) .. ";>]"
-
         local btn_bg
+        local btn_pos
         if cache.input_filter then
             btn_bg = "crafting_filter_on_bg.png"
             btnimg = "crafting_filter_on.png"
+            output[#output + 1] = "label[-0.35," .. (pos + 0.325) .. ";>]"
+            output[#output + 1] = "label[0.95," .. (pos + 0.325) .. ";>]"
+            btn_pos = "-0.13," .. pos
         else
             btn_bg = "crafting_filter_off_bg.png"
-            btnimg = "crafting_filter_off.png"
+            btnimg = "crafting_filter_on.png"
+            btn_pos = "0," .. pos
         end
 
-        output[#output + 1] = "image[0," .. pos .. ";1,0.6;" .. btn_bg .. "]"
-        output[#output + 1] = "image_button[0," .. pos .. ";1,0.6;"
+        output[#output + 1] = "image[" .. btn_pos .. ";1,0.6;" .. btn_bg .. "]"
+        output[#output + 1] = "image_button[" .. btn_pos .. ";1,0.6;"
         output[#output + 1] = btnimg .. ";i_filter;]"
 
         output[#output + 1] = "container_end[]"

@@ -26,20 +26,26 @@ local tofstring = function(t) return table.concat(t,"") end
 -- FUNCTIONS -------------------------------------------------------------------
 
 -- Divide cache.recipes into 4 categories, depending on availability of inputs.
+-- For input mode 'Use this' it depents also on whether hints a re enabled and
+-- whether the filter button binds sorting and highlighting to the input grid.
 local function sort_recipes_by_input_state(cache)
     local craftables = {} -- recipes with full sets of inputs in craftable list
     local possibles = {} -- all inputs available, but not all in craftable list
     local some_inputs = {} -- no full set of inputs, but some inputs available
     local no_inputs = {} -- no inputs at all
+
+    local filtered = cache.input_filter
+    local hints = cache.possible_hint
     for _, result in ipairs (cache.recipes) do
         -- add recipe to list only if it matchs search
         if result.craftable then
             craftables[#craftables + 1] = result
-        elseif cache.possible_hint and result.possible then
+        elseif not filtered and hints and result.possible then
             possibles[#possibles + 1] = result
         elseif result.partial
             or result.craftable_partial
-            or cache.possible_hint and result.possible_partial then
+            or not filtered and hints and result.possible_partial then
+
             some_inputs[#some_inputs + 1] = result
         else
             no_inputs[#no_inputs + 1] = result

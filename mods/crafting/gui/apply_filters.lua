@@ -60,9 +60,9 @@ local function apply_filters_to_list(cache, r_list)
         If we want to make them reapper,
         we need to reset the display before calling current function]]
 
-        -- apply input panel's filter
+        -- apply input panel's filter except for "Use only"
         -- currently using nil as criteria (= "input" panel)
-        if r.displayed and cache.input_filter then
+        if r.displayed and cache.input_filter and cache.craft_input ~=2 then
             -- r.displayed = filter_per_input_list_as_string(cache, r)
             filter_per_input_list(cache, r)
         end
