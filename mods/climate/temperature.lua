@@ -561,12 +561,14 @@ local air_def = {
     use_texture_alpha = c_alpha.blend
 }
 minetest.register_node("climate:air_temp", air_def)
-air_def.description = "Temperature Effect Air (Visible)"
-air_def.drawtype = "allfaces"
-air_def.on_timer = function(pos, elapsed)
+
+local visible_air_def = table.copy(air_def)
+visible_air_def.description = "Temperature Effect Air (Visible)"
+visible_air_def.drawtype = "allfaces"
+visible_air_def.on_timer = function(pos, elapsed)
     return climate.heat_transfer(pos, "climate:air_temp_visible", 'air')
 end
-minetest.register_node("climate:air_temp_visible", air_def)
+minetest.register_node("climate:air_temp_visible", visible_air_def)
 
 
 --Water
