@@ -123,7 +123,10 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
     -- now to split into two!
     minimal.switch_node(pos, split_name)
     wielded_item:replace(itemstack)
-    return true
+    -- must return itemstack to indicate in handle_use_key (player_api) that
+    -- we need to stop running other use functions after that.
+    -- returned itemstack will be set to wielded_item.
+    return wielded_item
 end
 
 function minimal.node_set_int(pos_or_meta, name, value)
