@@ -61,8 +61,13 @@ local input_options = {
 
             elseif p_recipe.possible then
                 -- possible
-                return "crafting_slot_possible" .. suffix
-
+                if cache.hint_btn then
+                    return "crafting_slot_possible" .. suffix
+                else
+                    -- effectively the same as craftable, because pressing
+                    -- the recipe button will result in the same state
+                    return "crafting_slot_craftable" .. suffix
+                end
             elseif p_recipe.craftable_partial
                 or hints and not filter and p_recipe.possible_partial then
 
