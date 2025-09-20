@@ -104,22 +104,38 @@ end
 --[[Shouldn't need to rebuild this more then once per player per restart
     or when player adds to their craft_types
     See adding tools/benches to input_items list]]
--- cache parameter is optional
-local function get_tool_panel(cache)
+-- mode: crafting mode
+local function get_tool_panel(cache, mode)
     local selected = cache.sTool or crafting.default_tool -- default to hand crafting
     local tool_list = cache.tool_list or crafting.generate_tools_list()
-    local FS_tool_tabs = {
-        'label[0,0;'..S("Tool used")..']',
-        'container[0,0.3]',
-        'style_type[item_image_button;border=false;bgimg_middle=]'
-    }
+    local x0 = 1.4
+
+    local FS_tool_tabs
+    if mode == 2 then
+        FS_tool_tabs = {
+            "label[" .. (x0 - 0.15) .. ",1.15;+]",
+            "container[0.0,0.0]",
+            "style_type[item_image_button;border=false;bgimg_middle=]"
+        }
+    else
+        FS_tool_tabs = {
+            "label[0,0;" .. S("Tool used") .. "]",
+            "container[0,0.3]",
+            "style_type[item_image_button;border=false;bgimg_middle=]"
+        }
+    end
 
     local x = 0
     local y = 0
     local coords
     local bg_image
+    local count = #tool_list
     for i,tool in ipairs(tool_list) do
-        coords = tostring(x * 1.0) ..','.. tostring(y * 1.0)
+        if mode == 2 then
+            coords = tostring(x0 - count * 0.5 + x) .. "," .. tostring(y * 1.0)
+        else
+            coords = tostring(x * 1.0) .. "," .. tostring(y * 1.0)
+        end
         if tool == selected then
             bg_image = 'selected.png'
         else

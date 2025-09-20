@@ -524,11 +524,15 @@ function crafting.make_crafting_formspec(player, cache)
 
     if not cache.FS_tool_panel then
         -- build in gui/tools_and_stations.lua
-        cache.FS_tool_panel = cache:get_tool_panel()
+        cache.FS_tool_panel = cache:get_tool_panel(mode)
     end
-    output[#output + 1] = 'container[.4,0.6]'
+    if mode == 2 then
+        output[#output + 1] = "container[.4,0.45]"
+    else
+        output[#output + 1] = "container[.4,0.6]"
+    end
     output[#output + 1] = cache.FS_tool_panel
-    output[#output + 1] = 'container_end[]'
+    output[#output + 1] = "container_end[]"
 
     -- Recipes List part (Tabs + Recipes list block) --------------------------
     local recipes_y = 0.45
@@ -625,6 +629,7 @@ function crafting.make_crafting_formspec(player, cache)
                 output[#output + 1] = "tooltip[" .. qty_id .. ";"
                 output[#output + 1] = tool_tips[i] .. "]"
             end
+            output[#output + 1] = "label[-0.3," .. (pos + 0.325) .. ";>]"
             pos = pos + 0.933
         end
 
@@ -638,7 +643,6 @@ function crafting.make_crafting_formspec(player, cache)
         for i, q in ipairs(quantities) do
             local qty_id = "qty_" .. i
             local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
-
             output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
             output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
             output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
@@ -646,6 +650,7 @@ function crafting.make_crafting_formspec(player, cache)
                 output[#output + 1] = "tooltip[" .. qty_id .. ";"
                 output[#output + 1] = tool_tips[i] .. "]"
             end
+            output[#output + 1] = "label[" .. (pos + 0.45) .. ",0.9;^]"
             pos = pos + 1.2
         end
 
@@ -659,7 +664,11 @@ function crafting.make_crafting_formspec(player, cache)
         -- background color
         local input_color = cache:get_craft_mode().i_color
         -- #TODO put as setting the color of craftable
-        fs[#fs + 1] = "box[0,0.25;2.7,2.6;" .. input_color .. "]"
+        if mode == 2 then
+            fs[#fs + 1] = "box[0,-0.4;2.7,2.6;" .. input_color .. "]"
+        else
+            fs[#fs + 1] = "box[0,0.25;2.7,2.6;" .. input_color .. "]"
+        end
 
         -- label
         -- fs[#fs + 1] = 'label[0,0;'..S("Ingredients:")..']',
@@ -685,7 +694,11 @@ function crafting.make_crafting_formspec(player, cache)
         end
 
         fs[#fs + 1] = 'style_type[list;size=.7,.7;spacing=.1]'
-        fs[#fs + 1] = 'list[current_player;input_items;0.2,0.4;3,3;0]'
+        if mode == 2 then
+            fs[#fs + 1] = "list[current_player;input_items;0.2,-0.25;3,4;0]"
+        else
+            fs[#fs + 1] = "list[current_player;input_items;0.2,0.4;3,3;0]"
+        end
 
         return tofstring(fs)
     end
@@ -698,8 +711,9 @@ function crafting.make_crafting_formspec(player, cache)
 
     output[#output + 1] = 'container[.4,2.2]'
     -- label
-    local txt = (mode == 2) and S("Use this") or S("Save this")
-    output[#output + 1] = "label[0,0;" .. txt .. ":]"
+    if mode ~= 2 then
+        output[#output + 1] = "label[0,0;" .. S("Save this") .. ":]"
+    end
     output[#output + 1] = cache.FS_input_list
 
     --#TODO to replace with proper setting/condition
