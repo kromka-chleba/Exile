@@ -580,8 +580,8 @@ minetest.register_node("climate:air_temp_visible", visible_air_def)
 --if only air around it will create air_temp nodes
 function climate.air_temp_source(pos, temp_effect, temp_max, chance, timer)
     local at_node = 'climate:air_temp'
-    local meta = minetest.get_meta(pos)
-    if meta:get_string("hot_air") ~= "" then
+    local pos_meta = core.get_meta(pos)
+    if pos_meta:get_string("hot_air") ~= "" then
         at_node = "climate:air_temp_visible"
     end
     --get all surrounding air positions, and heatables
@@ -603,9 +603,9 @@ function climate.air_temp_source(pos, temp_effect, temp_max, chance, timer)
                 minetest.set_node(node, {name = at_node })
                 --save temp_effect in meta. This can accumulate over time
                 --and will be added to temp adjust calculations
-                local meta = minetest.get_meta(node)
+                local node_meta = minetest.get_meta(node)
                 local temp = temp_effect
-                meta:set_float("temp", temp)
+                node_meta:set_float("temp", temp)
                 --set air_temp's timer for movement and dissappation
                 --(first timer step based on the source node e.g. fire's burn rate)
                 --so that it matches production
@@ -616,8 +616,8 @@ function climate.air_temp_source(pos, temp_effect, temp_max, chance, timer)
                 --includes air_temp and anything else
                 --accumulate meta temp from temp_effect capped by temp_max
                 --add a diminishing % of effect the closer gets to cap
-                local meta = minetest.get_meta(node)
-                local temp = meta:get_float("temp")
+                local node_meta = minetest.get_meta(node)
+                local temp = node_meta:get_float("temp")
 
                 local temp_apply = temp_effect*(1-(temp/temp_max))
 
@@ -646,7 +646,7 @@ function climate.air_temp_source(pos, temp_effect, temp_max, chance, timer)
                 end
 
                 --update temp
-                meta:set_float("temp", temp)
+                node_meta:set_float("temp", temp)
             end
         end
     end
