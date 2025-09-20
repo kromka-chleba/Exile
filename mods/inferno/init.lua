@@ -209,13 +209,19 @@ local flame_def = {
 }
 
 minetest.register_node("inferno:hungry_flame", flame_def)
+
 if not fire_enabled then
     flame_def.groups = {flames = 1, dig_immediate = 3,
                         not_in_creative_inventory = 1,
                         temp_effect = 1, temp_pass = 1}
 end
 
-minetest.register_node("inferno:basic_flame", flame_def)
+-- #TODO: check with Mantar what he meant to do with the code above
+-- This is a temp fix
+
+-- NOTE: you must pass a clean table that hasn't already been used for another registration to this function,
+-- as it will be modified.
+minetest.register_node("inferno:basic_flame", table.copy(flame_def))
 
 
 --
@@ -506,4 +512,3 @@ crafting.register_recipe({
         level = 1,
         always_known = true,
 })
-
