@@ -708,9 +708,9 @@ function crafting.make_crafting_formspec(player, cache)
         local input_color = cache:get_craft_mode().i_color
         -- #TODO put as setting the color of craftable
         if mode == 2 then
-            fs[#fs + 1] = "box[0,-0.4;2.7,2.6;" .. input_color .. "]"
+            fs[#fs + 1] = "box[0,-0.4;2.7,3.4;" .. input_color .. "]"
         else
-            fs[#fs + 1] = "box[0,0.25;2.7,2.6;" .. input_color .. "]"
+            fs[#fs + 1] = "box[0,0.25;1.9,2.6;" .. input_color .. "]"
         end
 
         -- label
@@ -731,16 +731,19 @@ function crafting.make_crafting_formspec(player, cache)
         -- input inventory
         local pInv = player:get_inventory() -- #TODO could be cache.pInv, not sure which is better
         local inputs = pInv:get_list('input_items')
-        if not inputs or #inputs ~= 9 then
+        -- create or check whether to the size adjust size
+        -- 'Use this': 12   'Save this': 6
+        local input_size = (mode == 2) and 12 or 6
+        if not inputs or #inputs ~= input_size then
             -- create inputs inventory list and draw formspec for input_itmes
-            pInv:set_size('input_items', 9)
+            pInv:set_size('input_items', input_size)
         end
 
         fs[#fs + 1] = 'style_type[list;size=.7,.7;spacing=.1]'
         if mode == 2 then
             fs[#fs + 1] = "list[current_player;input_items;0.2,-0.25;3,4;0]"
         else
-            fs[#fs + 1] = "list[current_player;input_items;0.2,0.4;3,3;0]"
+            fs[#fs + 1] = "list[current_player;input_items;0.2,0.4;2,3;0]"
         end
 
         return tofstring(fs)
