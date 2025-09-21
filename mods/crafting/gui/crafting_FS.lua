@@ -744,6 +744,7 @@ function crafting.make_crafting_formspec(player, cache)
             fs[#fs + 1] = "list[current_player;input_items;0.2,-0.25;3,4;0]"
         else
             fs[#fs + 1] = "list[current_player;input_items;0.2,0.4;2,3;0]"
+            fs[#fs + 1] = "image[0.6,2.6;0.7,0.7;crafting_locked.png]"
         end
 
         return tofstring(fs)
