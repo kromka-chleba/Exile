@@ -269,7 +269,7 @@ files["mods/tgcr"] = {
     }
 }
 
-files["mods/tutorial"] = {
+files["mods/tutorial_exile"] = {
     globals = {"tutorial"},
     read_globals = {
         -- dependencies in mod.conf
