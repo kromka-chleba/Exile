@@ -12,7 +12,7 @@ local newplayer = {}
 local tutorial_available = false
 minetest.register_on_mods_loaded(function()
         for _, name in ipairs(minetest.get_modnames()) do
-            if name == "tutorial_exile" then
+            if name == "tutorial_exile" and tutorial.enable_tutorial then
                 tutorial_available = true
             end
         end
