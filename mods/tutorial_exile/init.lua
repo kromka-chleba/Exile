@@ -5,12 +5,18 @@
 -- zone above y = 9000, which will walk them through the basics of shelter,
 -- fire, food, water, and crafting.
 
-local disable_tutorial = minetest.settings:get("exile_notutorialprompt") or false
+local disable_tutorial = core.settings:get_bool("exile_notutorialprompt",false)
 -- #TODO: Set this to true in minetest.conf if the tutorial is completed in
 --        singleplayer?
 
+
+
 local S = minetest.get_translator("tutorial_exile")
 tutorial = {}
+
+-- NOTE: add global var,
+-- otherwise, even on `true`, lore/login do display the window and calls it !
+tutorial.enable_tutorial = not disable_tutorial
 
 local modpath = minetest.get_modpath("tutorial_exile")
 dofile(modpath..'/nodes.lua')
