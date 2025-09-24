@@ -50,6 +50,12 @@ exile_nobreaktaker (Disable the notice to take a break) bool false
 
 ## Settings for respawning
 
+[Spawn Settings]
+
+#Use this to disable tutorial pop-up on new player join
+#Tutorial can still be launched using /tutorial chat command
+exile_notutorialprompt (Disable the tutorial pop-up) bool false
+
 # Use this to set a safe location for new players to spawn.
 # 
 # This can break intended balance, but can be used to make 
@@ -94,6 +100,7 @@ exile_av_temp (Average Tempurature indoors and underground) int 15 0 20
 exile_av_temp_depth (Depth av_temp is reached underground) int -12 -100 0
 
 ## Settings for HUD
+
 [HUD Settings]
 # Enable 16 slot hotbar
 #
@@ -171,4 +178,3 @@ naturalslopeslib_enable_shape_on_dig_place (Shape update on dig and place) bool 
 # It will show some disconnections at some points 
 # that won't be fixed and may be visually misleading with heights.
 naturalslopeslib_smooth_rendering (Smooth but glitched rendering) bool false
-
