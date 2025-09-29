@@ -18,7 +18,15 @@ minetest.register_on_mods_loaded(function()
                 local usetip = def._use_tip
                 local placetip = def._place_tip
                 if digtip or usetip or placetip then
-                    ttip = ttip.."\n"
+                    -- add dedicated color
+                    -- WARNING: translation + colorize do weird things together
+                    -- that is why I changed the
+                    -- [[
+                    --local esc = core.formspec_escape
+                    --ttip = esc(core.colorize("#ccccff", ttip))
+                    --]]
+
+                    ttip = ttip.."\n" .. color_esc("#ccccff")
                     if digtip then
                         ttip = ttip.."\n  ^ : "..digtip
                     end
@@ -29,20 +37,8 @@ minetest.register_on_mods_loaded(function()
                         ttip = ttip.."\n  v : "..placetip
                     end
 
-                    -- the following gives error if some of the tool_tips had
-                    -- "\n" IN the S(...) translation thing
-                    -- like S("blabla\n thing")
-                    -- while S("blabla") .. "\n" .. "S(thing)" will be fine
-                    -- I changed it in the hammer that was raising it but...
-                    -- in case of some other are left/may happen in the future,
-                    -- I also stopped using colorize here.
-                    ttip = color_esc("#ccccff")
-                            .. ttip
-                            .. color_esc("#ffffff")
-                    -- [[
-                    --local esc = core.formspec_escape
-                    --ttip = esc(core.colorize("#ccccff", ttip))
-                    --]]
+                    -- back to white after the tooltip
+                    ttip =  ttip .. color_esc("#ffffff")
 
                     local orig_desc = def.description
 
