@@ -26,7 +26,7 @@ minetest.register_on_mods_loaded(function()
                     --ttip = esc(core.colorize("#ccccff", ttip))
                     --]]
 
-                    ttip = ttip.."\n" .. color_esc("#ccccff")
+                    ttip = ttip.."\n" .. color_esc(minimal.TOOLTIP_COLOR)
                     if digtip then
                         ttip = ttip.."\n  ^ : "..digtip
                     end

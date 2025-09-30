@@ -6,6 +6,8 @@ local air_hud_mod = minetest.get_modpath("4air")
 local hud_mod = minetest.get_modpath("hud")
 local hudbars_mod = minetest.get_modpath("hudbars")
 local hud_type = minimal.hud_type
+local tool_tip_color = minimal.TOOLTIP_COLOR
+local color_esc = core.get_color_escape_sequence
 
 local function set_hud(player)
     local player_name = player:get_player_name()
@@ -40,8 +42,8 @@ end)
 
 local function get_use_string(def)
     -- Figure out what the item is good for, add UI hints accordingly
-    local desc = ""
     if def.name == "" then return "" end
+    local desc = ""
     if def._dig_tip then
         desc = desc.."^"
     end
@@ -54,7 +56,9 @@ local function get_use_string(def)
         desc = desc.. "v"
     end
     if desc ~= "" then
-        desc = " ( "..desc.." )"
+        desc = color_esc(tool_tip_color)
+               .. " ( "..desc.." )"
+               .. color_esc("#ffffff")
     end
     return desc
 end

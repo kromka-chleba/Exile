@@ -1,7 +1,11 @@
 local modpath=minetest.get_modpath('minimal').."/interface"
 
-minimal = minimal
-dofile(modpath..'/item_names.lua')
+-- color of tooltips in description and display in HUD
+minimal.TOOLTIP_COLOR = "#ccccff"
+-- #TODO make it be a player setting, as some player find it hardly visible
+-- in a general way, a dedicated color tab in player settings could be great.
+
+dofile(modpath..'/item_names.lua') -- display in HUD
 dofile(modpath..'/infotext.lua')
 dofile(modpath..'/themes.lua')
 dofile(modpath..'/hotbar.lua') -- uses themes, keep it below that
