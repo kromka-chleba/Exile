@@ -615,12 +615,14 @@ function tech.register_mortar_pestle(name, def)
         def.after_place_node = station_after_place
     end
     -- grab recipe if provided, and delete if from node's definition
-    local recipe = def.recipe
+    local recipes = def.recipes or {}
+    recipes[#recipes+1] = def.recipe -- maybe just one provided (can be nil)
     def.recipe = nil
+    def.recipes = nil
     -- node's registration
     core.register_node(name,def)
     -- recipe's registration, if provided
-    if recipe then
+    for _,recipe in pairs(recipes) do
         crafting.register_recipe(recipe)
     end
 end
@@ -657,12 +659,21 @@ local function generate_mortar_def(mat)
         def.description = S("Wooden Mortar and Pestle")
         def.tiles = {"tech_primitive_wood.png"}
         def.sounds = nodes_nature.node_sound_wood_defaults()
-        def.recipe = {
-            type = {"axe", "carpentry_bench"},
-            output = "tech:mortar_pestle_wooden",
-            items = {'group:log 2'},
-            level = 1,
-            always_known = true,
+        def.recipes = {
+            {
+                type = {"axe"},
+                output = "tech:mortar_pestle_wooden",
+                items = {'group:log 2'},
+                level = 1,
+                always_known = true,
+            },
+            {
+                type = {"carpentry_bench"},
+                output = "tech:mortar_pestle_wooden",
+                items = {'group:log 1'}, -- cheaper
+                level = 1,
+                always_known = true,
+            },
         }
     else
         local capsmat = mat:gsub("^%l", string.upper)
