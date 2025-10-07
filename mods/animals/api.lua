@@ -3466,8 +3466,8 @@ function animals.register_egg(def, animal)
     -- what to replace old node with upon egg hatch
 
     -- egg functions
-    def.on_construct = def.on_construct or function(pos, data)
-        data = data or minimal.get_nodedef(pos)
+    def.on_construct = def.on_construct or function(pos)
+        local data = minimal.get_nodedef(pos)
         local egg_time = data and data.egg_time
         assert(egg_time,"animal egg couldn't get egg_time: "..(data and data.name
                                                                or "unknown egg"))
