@@ -763,12 +763,12 @@ function liquid_store.register_stored_liquid(name,def)
         --     .. "Registering container with empty groups")
         -- registering with empty groups
         liquid_store.register_container_groups(def.empty)
-    else
-        -- inherit container's group if not already present in def
+    -- inherit container's group if not already present in def
+    elseif container_def.groups then
         for _, g in pairs(container_groups) do
-            -- add container groups if not already present in def.groups
+            -- inherit group from container, if not already present in def.groups
             if not def.groups[g] then -- don't erase if present in def
-                def.groups[g] = 1
+                def.groups[g] = container_def.groups[g]
             end
         end
     end
