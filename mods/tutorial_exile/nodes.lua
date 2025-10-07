@@ -241,7 +241,7 @@ end
 ncrafting.register_switch(
     "tutorial_exile:info_node", {
         description = "An informational node",
-        paramtype2 = "normal",
+        drawtype = "normal",
         tiles={
             "tech_woven.png",
             "tech_woven.png",
