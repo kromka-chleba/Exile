@@ -30,9 +30,13 @@ function liquid_store.register_container_groups(name, groups)
         groups = {}
     end
 
+    -- add falling_node as inherieted from container
+    table.insert(groups, "falling_node")
+
     -- Add container groups to be inherited by filled versions
     -- and used in crafting recipes
     liquid_store.containers[name] = groups
+    return groups
 end
 
 function liquid_store.register_container(name, def, container_groups)
@@ -778,9 +782,10 @@ function liquid_store.register_stored_liquid(name,def)
         --     .. " was not registered.\n"
         --     .. "Registering container with empty groups")
         -- registering with empty groups
-        liquid_store.register_container_groups(def.empty)
+        container_groups = liquid_store.register_container_groups(def.empty)
+    end
     -- inherit container's group if not already present in def
-    elseif container_def.groups then
+    if container_def.groups then
         for _, g in pairs(container_groups) do
             -- inherit group from container, if not already present in def.groups
             if not def.groups[g] then -- don't erase if present in def
