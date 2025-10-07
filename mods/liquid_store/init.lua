@@ -789,6 +789,13 @@ function liquid_store.register_stored_liquid(name,def)
         end
     end
 
+    -- erase "0" groups entry (allowed to cancel inheritance,
+    -- e.g is container is falling, but filled one isn't)
+    -- even if not used yet..
+    for g_name, g_value in pairs(def.groups) do
+        if def.groups[g_name] == 0 then def.groups[g_name] = nil end
+    end
+
     -- Functions ----------------------------------------------------
     def.on_use = def.on_use or function(...)
         return liquid_store.on_use_filled_bucket(...)
