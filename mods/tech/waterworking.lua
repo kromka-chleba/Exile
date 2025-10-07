@@ -189,7 +189,7 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             -- adds pot group for recipes
             def.groups.pot = 1
             -- adds group "pot" in container
-            liquid_store.register_container(name, {"pot"})
+            liquid_store.register_container_groups(name, {"pot"})
             -- #TODO maybe cleaner function to reunite th 2 lines above ?
         end
         minetest.register_node(name, def)
