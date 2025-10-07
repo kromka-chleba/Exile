@@ -24,11 +24,9 @@ end
 -- provides "wet" as a suffix already, so that all that needs to be applied
 -- is either nothing or "salty" to get "wet_salty"
 -- may remove this in the future if different liquids exist
-local function wet_soil(player, pos, ndef, suffix)
+local function wet_soil(player, pos, suffix)
     if not vector.check(pos) then return end
     local node = minetest.get_node(pos)
-    ndef = ndef or minetest.registered_nodes[node.name]
-    ndef = ndef or minimal.get_nodedef(ndef)
     -- set suffix as empty or lowercase if provided
     suffix = type(suffix) ~= "string" and "" or suffix:lower()
     -- we define _wet later on, clear it - otherwise continue as normal
@@ -103,9 +101,9 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
     -- can only water nodes
     if pointed_thing.type == "node"
         and itemstack then
-        local pos, ndef = get_soil_pos(pointed_thing.under)
+        local pos = get_soil_pos(pointed_thing.under)
         -- will only return a pos if a soil is found
-        if pos and wet_soil(user, pos, ndef, node_suffix) then
+        if pos and wet_soil(user, pos, node_suffix) then
             -- if position is good and can wet the soil
             -- check if player is in creative
             if minimal.player_in_creative(user) then
@@ -181,7 +179,7 @@ function ncrafting.fertilize(pos, puncher, itemstack, wet)
             return itemdef._after_fertilize(pos, itemstack, puncher)
         end
         if wet and node_name then
-            wet_soil(puncher, pos, core.registered_nodes[node_name])
+            wet_soil(puncher, pos)
         end
         -- proceed as usual
         if not replace_with then
