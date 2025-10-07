@@ -168,6 +168,7 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             groups = {
                 dig_immediate = 3,
                 temp_pass = 1,
+                falling_node = 1,
             }
         }
         -- list container_groups to be added (=1) and inherited by filled node
@@ -375,6 +376,7 @@ for _, glass in pairs ({"green", "clear"}) do
         groups = {
             dig_immediate = 2,
             temp_pass = 1,
+            falling_node = 1,
         },
         sounds = tech.node_sound_glass_defaults(),
 
