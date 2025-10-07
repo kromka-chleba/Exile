@@ -155,11 +155,8 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             -- max stack
             stack_max = minimal.stack_max_bulky,
             -- behaviors
-            liquids_pointable = true,
             sounds = mats_def[mat].sound,
-            on_use = function(itemstack, user, pointed_thing)
-                return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
-            end,
+
             --collect rain water
             on_construct = function(pos)
                 core.get_node_timer(pos):start(math.random(30,60))
@@ -171,9 +168,10 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             groups = {
                 dig_immediate = 3,
                 temp_pass = 1,
-                empty = 1 -- added for recipes
             }
         }
+        -- list container_groups to be added (=1) and inherited by filled node
+        local container_groups = {}
         -- clay are pottery, wood is flammable
         if mat == "wooden" then
             def.groups["flammable"] = 1
@@ -187,12 +185,10 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
                 return liquid_store.on_place(itemstack, placer, pointed_thing)
             end
             -- adds pot group for recipes
-            def.groups.pot = 1
-            -- adds group "pot" in container
-            liquid_store.register_container_groups(name, {"pot"})
-            -- #TODO maybe cleaner function to reunite th 2 lines above ?
+            table.insert(container_groups, "pot")
         end
-        minetest.register_node(name, def)
+        -- register node and container in liquid_store
+        liquid_store.register_container(name, def, container_groups)
     end
 end
 
@@ -376,18 +372,11 @@ for _, glass in pairs ({"green", "clear"}) do
         tiles = {"tech_bottle_".. glass .. ".png"},
         inventory_image = "tech_bottle_".. glass .. "_icon.png",
         paramtype = "light",
-        liquids_pointable = true,
         groups = {
             dig_immediate = 2,
             temp_pass = 1,
-            empty = 1 -- added for recipes, unused yet
         },
         sounds = tech.node_sound_glass_defaults(),
-
-        on_use = function(itemstack, user, pointed_thing)
-            return liquid_store.on_use_empty_bucket(itemstack, user,
-                                                    pointed_thing)
-        end,
 
         on_place = function(itemstack, placer, pointed_thing)
             return liquid_store.on_place(itemstack, placer, pointed_thing)
@@ -398,8 +387,13 @@ for _, glass in pairs ({"green", "clear"}) do
     for param, value in pairs(bottle_base_properties) do
         empty_def[param] = value
     end
-    -- register empty container node
-    minetest.register_node("tech:glass_bottle_" .. glass, empty_def)
+
+    -- #TODO: add bottle group for future recipes ?
+    -- or use "container" or "unit" group with number (like 1 = pot, 2 = bottle, etc... 2 could be for 2 bottle = 1 pot)
+
+    -- register empty container node and container in liquid_store
+    liquid_store.register_container("tech:glass_bottle_" .. glass, empty_def)
+
     -- Crafting
     -- Blown from glass
     -- For simplicity, crafts use charcoal as an ingredient, assuming its used for fuel somehow
