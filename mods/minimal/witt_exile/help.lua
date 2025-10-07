@@ -31,7 +31,7 @@ minetest.register_on_joinplayer(function(player)
                 position = {x = 0.5, y = yoff},
                 scale = {x = 2, y = 2},
                 text = '',
-                alignment = {x = 1},
+                alignment = {x = 1, y = 0},
                 offset = {x = -37.5, y = 35},
         })
         local background_id_right = player:hud_add({
@@ -53,7 +53,7 @@ minetest.register_on_joinplayer(function(player)
                 position = {x = 0.5, y = yoff},
                 scale = {x = 0.3, y = yoff + 0.3},
                 number = 0xffffff,
-                alignment = {x = 1},
+                alignment = {x = 1, y = 0},
                 offset = {x = 0, y = 22},
                 style = 4
         })
