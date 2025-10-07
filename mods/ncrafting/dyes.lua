@@ -675,7 +675,7 @@ minetest.register_node(
             }
         },
         liquids_pointable = true,
-        groups = {pottery = 1, temp_pass = 1},
+        groups = {pottery = 1, temp_pass = 1, falling_node = 1},
         --sounds = nodes_nature.node_sound_stone_defaults(),
         on_punch = dyepot_punch,
         after_place_node = function(pos, placer, itemstack, pointed_thing)
