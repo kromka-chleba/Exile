@@ -24,7 +24,7 @@ end
 -- provides "wet" as a suffix already, so that all that needs to be applied
 -- is either nothing or "salty" to get "wet_salty"
 -- may remove this in the future if different liquids exist
-local function wet_soil(pos, ndef, suffix)
+local function wet_soil(player, pos, ndef, suffix)
     if not vector.check(pos) then return end
     local node = minetest.get_node(pos)
     ndef = ndef or minetest.registered_nodes[node.name]
@@ -39,8 +39,12 @@ local function wet_soil(pos, ndef, suffix)
 
     -- check if watered block exists
     local wet_node_name = node.name .. suffix
-    -- otherwise do normal checking
-    if not minetest.registered_nodes[wet_node_name] and node.name:match("depleted") then
+
+    -- if no watered version of this block, check if this is because
+    -- depleted variant had different name :
+    if not core.registered_nodes[wet_node_name]
+        and node.name:match("depleted") then
+
         -- depleted nodes with roots have "depleted" behind the "roots", so
         --  I declare this if statement first
         -- IF the provided node is "depleted", look for its proper depleted
@@ -50,15 +54,28 @@ local function wet_soil(pos, ndef, suffix)
         wet_node_name = wet_node_name.."_depleted"
         -- we didn't erase "_wet" from the name
     end
-    if not minetest.registered_nodes[wet_node_name] and node.name:match("roots") then
+    -- if still no match, check roots variant
+    if not minetest.registered_nodes[wet_node_name]
+        and node.name:match("roots") then
+
         -- IF the provided node is "roots", look for its proper roots
         --  wet variant
         wet_node_name = wet_node_name:gsub("_roots","")
         wet_node_name = wet_node_name.."_roots"
         -- we didn't erase "_wet" from the name
     end
-
-    if minetest.registered_nodes[wet_node_name] then
+    -- if still no wet version, display a message
+    if not minetest.registered_nodes[wet_node_name] then
+        local message
+        if suffix == "_wet_salty" then -- #TODO dirty
+            -- #TODO translate
+            message = "You can't water that node with salt water"
+        else
+            -- #TODO translate
+            message = "You can't water that node with this liquid"
+        end
+        minimal.send_message(player, nil, message)
+    else
         -- replace with watered version
         -- keeping the node orientation
         minetest.set_node(pos, {name = wet_node_name, param2 = node.param2})
@@ -88,7 +105,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
         and itemstack then
         local pos, ndef = get_soil_pos(pointed_thing.under)
         -- will only return a pos if a soil is found
-        if pos and wet_soil(pos, ndef, node_suffix) then
+        if pos and wet_soil(user, pos, ndef, node_suffix) then
             -- if position is good and can wet the soil
             -- check if player is in creative
             if minimal.player_in_creative(user) then
@@ -164,7 +181,7 @@ function ncrafting.fertilize(pos, puncher, itemstack, wet)
             return itemdef._after_fertilize(pos, itemstack, puncher)
         end
         if wet and node_name then
-            wet_soil(pos, core.registered_nodes[node_name])
+            wet_soil(puncher, pos, core.registered_nodes[node_name])
         end
         -- proceed as usual
         if not replace_with then
