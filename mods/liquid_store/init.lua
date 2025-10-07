@@ -14,23 +14,69 @@ liquid_store.liquids = {}
 liquid_store.stored_liquids = {}
 
 -- registering containers and their groups to be used in crafting/unit
-function liquid_store.register_container(name, groups)
+-- #TODO make a group "container" with numbers...
+function liquid_store.register_container_groups(name, groups)
     if not name then
-        core.log("in liquid_store.register_container: "
+        core.log("in liquid_store.register_container_groups: "
             .. "missing name, registration cancelled")
         return
     end
     if not groups then
         groups = {}
     elseif type(groups) ~= "table" then
-        core.log("in liquid_store.register_container: "
+        core.log("in liquid_store.register_container_groups: "
             .. "group given doesn't have correct format: "
             .. "Table expected, got: " .. type(groups))
         groups = {}
     end
+
     -- Add container groups to be inherited by filled versions
     -- and used in crafting recipes
     liquid_store.containers[name] = groups
+end
+
+function liquid_store.register_container(name, def, container_groups)
+    -- checks
+    if not name then
+        core.log("in liquid_store.register_container: "
+            .. "missing name, registration cancelled")
+        return
+    end
+    if not def then
+        core.log("in liquid_store.register_container: "
+            .. "missing def, registration cancelled")
+        return
+    end
+    -- init
+    local groups = def.groups or {}
+    container_groups = container_groups or {}
+
+    -- if there is specific container_groups, add them to the groups
+    for _, g in pairs(container_groups) do
+        -- add container groups if not already present in def.groups
+        if not groups[g] then -- don't erase if present in def
+            groups[g] = 1
+        end
+    end
+
+    -- adds container_groups to be inherited
+    liquid_store.register_container_groups(name, container_groups)
+
+    -- adds empty group for recipes
+    groups.empty = 1
+    -- save groups to def
+    def.groups = groups
+
+    -- default on_use function: fill with pointed liquid
+    def.on_use = def.on_use or function(itemstack, user, pointed_thing)
+        return liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
+    end
+
+    --behaviors
+    def.liquids_pointable = true -- able to point at liquids
+
+    -- register node
+    core.register_node(name, def)
 end
 
 --Liquids that it is possible to put in a bucket
@@ -732,8 +778,9 @@ function liquid_store.register_stored_liquid(name,def)
         --     .. " was not registered.\n"
         --     .. "Registering container with empty groups")
         -- registering with empty groups
-        liquid_store.register_container(def.empty)
+        liquid_store.register_container_groups(def.empty)
     else
+        -- inherit container's group if not already present in def
         for _, g in pairs(container_groups) do
             -- add container groups if not already present in def.groups
             if not def.groups[g] then -- don't erase if present in def
@@ -824,4 +871,3 @@ local function replace (input_sl, new_liquid)
 end
 
 liquid_store.replace = replace
-
