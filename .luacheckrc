@@ -188,7 +188,7 @@ files["mods/ncrafting"] = {
     globals = {"ncrafting"},
     read_globals = {
         -- dependencies in mod.conf
-        "climate"
+        "minimal", "climate"
     }
 }
 
