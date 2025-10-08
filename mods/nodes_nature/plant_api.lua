@@ -41,7 +41,7 @@ function plant.place_live_prohibited(itemstack, placer, pointed_thing)
     if not def_under or def_under.buildable_to then return itemstack end
     -- implies: item_place_node() will put the plant below pointed_thing.above
     -- even when pointed_thing.under is not below pointed_thing.above
-    
+
     -- no placing if not on sediment
     local pos_below = minimal.get_pos_under(pointed_thing.above)
     local is_sediment = minimal.pos_group(pos_below, "sediment")
@@ -49,7 +49,7 @@ function plant.place_live_prohibited(itemstack, placer, pointed_thing)
     -- also, no placing if not air above pos_below
     local above = minetest.get_node(pointed_thing.above)
     if not minimal.is_group(above.name, "air") then return itemstack end
-    
+
     -- not prohibited
     return false
 end
@@ -270,7 +270,7 @@ function plant.get_name(basename, var, nr)
         error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
     elseif type(var) ~= "string" then
         error("plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
-    end  
+    end
     -- remove underscore from beginning if found (incase underscore is provided)
     -- underscore is used to check if we got a valid variant
     var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
