@@ -209,9 +209,14 @@ minimal.infotext_set(pos, meta, params, func, nodedef, stack)
 _on_use_node = function(player, pointed_node, pointed_thing, wielded_item)
 	Called when the player presses the "use" key while pointing at the node
 	pointed_node holds the name/param2 of the node at pointed_thing.under
+    must return the new wielded_item if it was modified
+    or we want to stop checking following use function
+
 _on_use_object = function(player, intersection_point, wielded_item)
 	Called when the player presses the "use" key while pointing at an object
 	intersection_point is the absolute pos where the player is pointing
+    must return the new wielded_item if it was modified
+    or we want to stop checking following use function
 
 _on_use_item = function(player, wielded_item, pointed_thing)
 	Called when the player is holding the item and presses "use"
