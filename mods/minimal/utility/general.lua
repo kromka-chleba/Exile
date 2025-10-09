@@ -118,14 +118,18 @@ function minimal.merge_tables(t1,...)
     assert(type(t1) ==
            "table",
            "exile_game.merge_tables: invalid first parameter given, expected table got "..type(t1))
-    local mergeable = {...}
-    assert(#mergeable >= 1,
+
+    local arg_nb = select('#', ...)
+    assert(arg_nb >= 1,
            "exile_game.merge_tables: need a table to merge with")
     local new_table = table.copy(t1)
-    for tind,tbl in pairs(mergeable) do -- table index, table
+
+    local tbl
+    for i=1,arg_nb do -- table index, table
+        tbl = select(i, ...)
         assert(type(tbl) == "table",
-               "exile_game.merge_tables: invalid value given at paramter "..
-               tind..", expected table got "..type(tbl))
+               "exile_game.merge_tables: invalid value given at paramter ".. i
+               ..", expected table got "..type(tbl))
         -- merge tables
         for key,value in pairs(tbl) do
             -- copy merged table values to prevent linking
@@ -411,4 +415,3 @@ minetest.register_on_player_receive_fields(function(player,
         end
         open_yesno[playername] = nil
 end)
-
