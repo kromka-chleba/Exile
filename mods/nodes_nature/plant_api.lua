@@ -471,7 +471,6 @@ function plant.get_base_props(plant_def)
         },
         groups = plant.get_groups(plant_def),
         sounds = plant.get_sounds(plant_def),
-        _seed_name = get_name(plant_def.name,"seed"),
         -- ranges
         plant_temp_range = plant_def.temp_range,
         plant_light_range = plant_def.light_range,
@@ -486,7 +485,9 @@ function plant.get_base_props(plant_def)
             end
         end,
         -- custom parameters
+        _seed_name = get_name(plant_def.name,"seed"),
         _root_name = plant_def.roots and get_name(plant_def.name,"root") or nil,
+        -- function
         on_punch = plant_def.thorns and function(pos, node, puncher, pointed_thing)
             local itemstack = puncher:get_wielded_item()
             local item_name = itemstack:get_name()
