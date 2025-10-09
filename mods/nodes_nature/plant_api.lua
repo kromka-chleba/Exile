@@ -449,7 +449,7 @@ function plant.get_sounds(plant_def)
 end
 
 function plant.get_seasonal_props(plant_def)
-    local name = get_name(plant_def.name)
+    local name = plant_def.name
     local plant_seasons = plant_def.seasons
     if plant_seasons then
         return {
@@ -461,7 +461,7 @@ function plant.get_seasonal_props(plant_def)
             _fall_late = name..plant_seasons._fall_late,
             _winter_early = name..plant_seasons._winter_early,
             _winter_late = name..plant_seasons._winter_late,
-            _dead_name = get_name(plant_def.name, "dead"),
+            _dead_name = get_name(name, "dead"),
         }
     end
     return {}
@@ -556,7 +556,7 @@ function plant.get_canelike_props(plant_def)
         return minimal.dig_up(pos, node, digger)
     end
     base.floodable = false
-    local plant_name = get_name(plant_def.name)
+    local plant_name = plant_def.name
     if plant_def.dye_candidate then
         base.groups.ncrafting_dye_candidate = 1
     end
@@ -589,9 +589,9 @@ function plant.get_canelike_props(plant_def)
     return table.copy(base)
 end
 
+-- register cane plant
 function plant.register_canelike(plant_def)
-    minetest.register_node(
-        get_name(plant_def.name),
+    core.register_node(plant_def.name,
         plant.get_canelike_props(plant_def))
 end
 
@@ -604,12 +604,12 @@ end
 
 function plant.register_bamboolike(plant_def)
     minetest.register_node(
-        get_name(plant_def.name),
+        plant_def.name,
         plant.get_bamboolike_props(plant_def))
 end
 
 function plant.get_seedling_base_props(plant_def)
-    local plantname = get_name(plant_def.name)
+    local plantname = plant_def.name
     local props = {
         description = S("Young @1", plant_def.description),
         groups = plant.get_seedling_groups(plant_def),
@@ -665,7 +665,7 @@ function plant.register_plantlike_seedlings(plant_def)
         add_food_hooks(get_name(plant_def.name,"seedling", nr))
     end
     -- compatibility with old worlds
-    minetest.register_alias(get_name(plant_def.name).."_seedling",
+    minetest.register_alias(plant_def.name.."_seedling",
                             get_name(plant_def.name,"seedling", nr))
 end
 
@@ -890,7 +890,7 @@ function plant.register_3D(plant_def)
         props._ncrafting_dye_dcolor = plant_def.dominant_color
     end
     props.groups.mature_flora = 1
-    minetest.register_node(get_name(plant_def.name),
+    minetest.register_node(plant_def.name,
                            props)
 end
 
@@ -916,7 +916,7 @@ function plant.register_3D_seedling(plant_def)
     minetest.register_node(get_name(plant_def.name,"seedling", 1),
                            plant.get_3D_seedling_props(plant_def))
     -- compatibility with old worlds
-    minetest.register_alias(get_name(plant_def.name).."_seedling",
+    minetest.register_alias(plant_def.name.."_seedling",
                             get_name(plant_def.name,"seedling", 1))
 end
 
@@ -928,7 +928,7 @@ function plant.register_plantlike(plant_def)
         props.groups.ncrafting_dye_candidate = 1
         props._ncrafting_dye_dcolor = plant_def.dominant_color
     end
-    minetest.register_node(get_name(plant_def.name), props)
+    minetest.register_node(plant_def.name, props)
 end
 
 function plant.register_plantlike_seedling(plant_def)
@@ -1064,7 +1064,7 @@ end
 function plant.register_fuel(plant_def)
     minetest.register_craft({
             type = "fuel",
-            recipe = get_name(plant_def.name),
+            recipe = plant_def.name,
             burntime = 1,
     })
 end
@@ -1115,7 +1115,7 @@ function plant.register_threshing_recipes(plant_def)
         reg_recipe(get_name(plant_def.name,"fruit"))
         reg_recipe(get_name(plant_def.name,"fruiting"))
     else
-        reg_recipe(get_name(plant_def.name))
+        reg_recipe(plant_def.name)
     end
     if plant_def.only_dead_fruit then
         reg_recipe(get_name(plant_def.name,"fruit"))
@@ -1124,7 +1124,7 @@ end
 
 function plant.add_food_hooks(plant_def)
     add_food_hooks(get_name(plant_def.name,"seed"))
-    add_food_hooks(get_name(plant_def.name))
+    add_food_hooks(plant_def.name)
 end
 
 function plant.register_all(plant_def_list)
@@ -1153,7 +1153,7 @@ function plant.register_all(plant_def_list)
                 plant.register_plantlike_fruiting(plant_def)
                 plant.register_plantlike_fruitless(plant_def)
                 -- compatibility with old worlds
-                minetest.register_alias(get_name(plant_def.name),
+                minetest.register_alias(plant_def.name,
                                         get_name(plant_def.name,"fruiting"))
             else
                 -- here only Zufani
