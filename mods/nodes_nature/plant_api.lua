@@ -539,7 +539,7 @@ end
 function plant.get_plantlike_mature_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     base.groups.mature_flora = 1
-    return table.copy(base)
+    return base
 end
 
 -- Mature cane plant, seedlings defined elsewhere
