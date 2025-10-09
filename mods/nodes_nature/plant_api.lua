@@ -532,7 +532,6 @@ function plant.get_plantlike_props(plant_def)
         paramtype2 = "meshoptions",
         place_param2 = plant_def.mesh_type,
         waving = plant_def.waving,
-        groups = plant.get_groups(plant_def)
     }
     return merge_tables(plant.get_base_props(plant_def), props)
 end
