@@ -370,18 +370,18 @@ end
 -- NOTE: merge_tables copies base each time
 function plant.get_groups(plant_def)
     -- base plants groups table
-    local base = base_groups.base
+    local base = table.copy(base_groups.base)
     -- adds mushroom groups if needed
     if plant_def.lifeform_type == "mushroom" then
         base = merge_tables(base, base_groups.mushroom)
     end
     -- adds bioluminescent group if needed
     if plant_def.bioluminescence then
-        base = merge_tables(base, {bioluminescent = 1})
+        base.bioluminescent = 1
     end
     -- adds plant_with_roots group if needed
     if plant_def.roots then
-        base = merge_tables(base, {plant_with_roots = plant_def.roots})
+        base.plant_with_roots = plant_def.roots
     end
     -- adds extra_groups group if needed
     if plant_def.extra_groups then
@@ -389,7 +389,7 @@ function plant.get_groups(plant_def)
     end
     -- adds seasonal group if needed
     if plant_def.seasons or plant_def.seasonal_type then
-        base = merge_tables(base, {seasonal = 1})
+        base.seasonal = 1
     end
 
     local type_groups = plant_groups[plant_def.plant_type]
