@@ -155,10 +155,15 @@ end
 
 -- TODO: better system for fermentation + baking mechanics
 -- returns function to set on_timer with
+--[[ WARNING: DON'T add custom paramters to "on_timer" luanti function,
+-- luanti may use it later (like in 5.14, where we pass
+-- from on_timer (pos, elpased)
+-- to on_timer (pos, elapsed, node, timeout))
+--]]
 function ncrafting.dough_get_on_timer(chance)
     chance = chance or 0.01 -- provided chance or 1%
     -- provide function return to run
-    return function(pos, elapsed, ch) -- ch is chance override
+    return function(pos, elapsed)
         local node = core.get_node(pos)
         local meta = core.get_meta(pos)
         -- unleavened bread baking mechanics
@@ -187,7 +192,6 @@ function ncrafting.dough_get_on_timer(chance)
                                  baking_data.cooked, baking_data.burned)
         end
 
-        ch = (ch and ch < 1.01) or chance -- third paramter "timeout" is added to node timers as of around 5.12
         if meta:get_int("ferment") ~= 0 then -- we're fermentin'
             -- we're done fermenting!
             if not ncrafting.ferment_on_timer(pos, elapsed) then
@@ -199,7 +203,7 @@ function ncrafting.dough_get_on_timer(chance)
                 if baking_data then
                   metat.fields.baking = baking_data.time
                 end
-                meta = meta:from_table(metat)
+                meta:from_table(metat)
                 node.param2 = 1 -- set param2 to 1 for "fresh batch"
                 core.swap_node(pos,node)
                 return false
@@ -281,5 +285,3 @@ function ncrafting.dough_fermented_preserve_metadata(pos, oldnode, oldmeta, drop
         end
     end
 end
-
-
