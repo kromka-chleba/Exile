@@ -389,7 +389,7 @@ function plant.get_groups(plant_def)
     -- merges content of type_groups and base into a new table
     -- if they contain identical keys, values from type_groups
     -- are overwritten with values from base
-    return table.copy(merge_tables(type_groups, base))
+    return merge_tables(type_groups, base)
 end
 
 function plant.get_seedling_groups(plant_def)
@@ -405,7 +405,7 @@ function plant.get_seedling_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = merge_tables(base, {seasonal = 1})
     end
-    return table.copy(merge_tables(base, base_groups.seedling))
+    return merge_tables(base, base_groups.seedling)
 end
 
 function plant.get_seed_groups(plant_def)
@@ -420,7 +420,7 @@ function plant.get_seed_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = merge_tables(base, {seasonal = 1})
     end
-    return table.copy(merge_tables(base, base_groups.seed))
+    return merge_tables(base, base_groups.seed)
 end
 
 function plant.get_sounds(plant_def)
@@ -518,8 +518,7 @@ function plant.get_plantlike_props(plant_def)
         waving = plant_def.waving,
         groups = plant.get_groups(plant_def)
     }
-    return table.copy(merge_tables(plant.get_base_props(plant_def),
-                                           props))
+    return merge_tables(plant.get_base_props(plant_def), props)
 end
 
 function plant.get_plantlike_mature_props(plant_def)
