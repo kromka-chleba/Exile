@@ -243,7 +243,7 @@ function plant.new(def)
         move_resistance
         climbable
         dry_fruit, only_dead_fruit
-        roots
+        roots -- a number
         climbable
         seed_type, seed_texture, seed_description
         fruit_description
