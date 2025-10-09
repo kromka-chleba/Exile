@@ -270,7 +270,12 @@ end
 -- plant name, variant, number (for seedlings)
 function plant.get_name(basename, var, nr)
     -- nil or empty string is "base plant"
-    var = var or ""
+    if not var or var == "" then
+        return basename
+    end
+
+    -- if we have a non base variant:
+    ----------------------------------
     -- checks on params
     if type(basename) ~= "string" then
         error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
@@ -280,16 +285,16 @@ function plant.get_name(basename, var, nr)
     end
     -- remove underscore from beginning if found (incase underscore is provided)
     -- underscore is used to check if we got a valid variant
-    if var ~="" and var:sub(1,1) == "_" then
+    if var:sub(1,1) == "_" then
         var = var:sub(2)
     end
     -- seedling, get number
     if var == "seedling" then
         -- set number if not provided
-        nr = type(nr) == "number" and nr or 1
+        nr = (type(nr) == "number") and nr or 1
         var = "_"..var..nr
-    -- check if valid variant
-    elseif var ~= "" then
+    -- otherwise, check if valid variant
+    else
         -- variants list
         local vars = {
             "dead",
@@ -312,8 +317,9 @@ function plant.get_name(basename, var, nr)
         -- error if invalid variant (check if has "_" at beginning)
         -- print valid variants out by concat'ing table
         if var:sub(1,1) ~= "_" then
-            error("plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
-                table.concat(vars,", "))
+            error("plant.get_name: invalid plant variant for "..basename
+            ..", got '"..var.."', needs to be following:\n"
+            .. table.concat(vars,", "))
         end
     end
 
