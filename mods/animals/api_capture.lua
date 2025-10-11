@@ -76,6 +76,13 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
     if not self.capture_interactions then
         return false,false -- creature can't be captured + is not captured
     end
+    -- 1st - select basic chance to apply from capture_interactions
+    -- 3 cases to handle:
+    -- right-click with stunning weapon, e.g. stone club
+    -- right-click with hand item ""
+    -- left-click with tool_capabilities.is_hand and whatever item
+    --    NOTE here for club vs. Gundu the order of club and hand values in
+    --    the Gundu's capture_interactions matters!
     local success_rate
     for group,values in pairs(self.capture_interactions) do
         if (group == "hand" and (item_name == ""
@@ -94,6 +101,8 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
         local itemg = minetest.get_item_group(item_name,group) -- item group
         if itemg ~= 0 then
             -- iterate over table for the best percentage
+            -- NOTE external mods may use more than one percentage, Exile's
+            --      built-in animals do not and built-in tools have itemg = 1
             for value,perc in pairs(values) do
                 if itemg < value then
                     -- no possible way this tool will work
@@ -110,20 +119,39 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
             end
         end
     end
-    if not success_rate then
+    if not success_rate then -- item (or animal) not configured for capturing
         return false,false
     end
-    time_from_last_click = type(time_from_last_click) == "number"
-        and time_from_last_click or 1
-    -- modify success_rate according to tool_capabilities (if not in creative)
-    -- 100% is 100%, you've whacked em good, no need to worry about last click!
+
+    -- 2nd - modify success_rate according to full_punch_interval.
+    -- With a success_rate of 1 - based on selection above - an animal would be
+    -- caught on first attempt. So time_from_last_click does not matter here.
+    -- Also ignore full_punch_interval in creative.
     if success_rate < 1 and not minimal.player_in_creative(clicker) then
+        time_from_last_click = type(time_from_last_click) == "number"
+            and time_from_last_click or 1
         local fpi = tool_capabilities.full_punch_interval or 1.0
+
+        --NOTE If a player did right-click time_from_last_click is not a float,
+        --e.g. hitting 3x/sec, we get 0, 0, 1, 0, 0, 1, .. s. register_animal()
         success_rate = success_rate *
             math_clamp(time_from_last_click / fpi, 0, 1)
     end
+
+    -- 3rd - modify success_rate based on damage
     if self.hp <= self.max_hp*0.75 then -- if less than 3 quarters of full HP
-        -- then calculate damage-based capture success
+        -- then apply a damage-based multiplier
+        -- NOTE damaged_capture_multiplier (dcm) is for modding support.
+
+        -- max_hp/hp: e.g. 50% (or 10%) hp left -> multiplier = 2 x dcm (10x)
+        -- for animals with max_hp == 3 factor 1.5 and 3 may occure
+        -- For an animal with 5 of 200 hp left it will be 40 x dcm!
+        -- damaged_multiplier as function of hp and dcm:
+        -- hp (%)         : 100 | 76 | 75   | 50   | 20   | 10   | 5
+        -- dcm == 0.5     :  1  | 1  | 1    | 1    | 2.5  | 5.0  | 10
+        -- dcm == nil or 1:  1  | 1  | 1.33 | 2.0  | 5.0  | 10.0 | 20
+        -- dcm == 2       :  1  | 1  | 2.66 | 4.0  | 10.0 | 20.0 | 40
+        -- dcm == 5       :  1  | 1  | 6.66 | 10.0 | 25.0 | 50.0 | 100
         local damaged_multiplier = math_clamp(1/(self.hp/self.max_hp)
                                               * (self.damaged_capture_multiplier
                                                  or 1),1,math.huge )
@@ -131,8 +159,10 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
             success_rate = success_rate * damaged_multiplier
         end
     end
-    -- catch chance
+    -- always make a sound
     animals.make_sound(self,'punch')
+
+ -- catch chance
     if success_rate >= math.random() then
         -- successful catch
         animals.make_sound(self,'caught','punch')

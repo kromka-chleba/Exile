@@ -50,7 +50,7 @@ end
 --  returns it subtracted by got time
 
 function animals.get_time(since)
-    local c_time = minetest.get_gametime() -- current_time
+    local c_time = minetest.get_gametime() -- current_time (full seconds)
     return (type(since) == "number" and c_time - since or c_time)
 end
 -- local alias
@@ -3626,6 +3626,9 @@ function animals.register_animal(name,def)
     --default = 0.05 -- fight chance (95% flee chance)
     -- can specify specific predators such as "animals:darkasthaan = 0.5"
     --}
+    -- TODO Move the following example (or old code?) to an API doc for the def
+    --      parameter. capture_interactions have no default and are defined for
+    --      each of Exile's animals.
     --capture_interactions = {
     -- capture chance
     -- uses item group to determine capture possibility
@@ -3892,6 +3895,7 @@ function animals.register_animal(name,def)
         if not minimal.player_in_creative(puncher) then
             fleshdmg = math.floor(fleshdmg * multiplier)
             -- capture override for sea creatures
+            -- (even when punching with a spear, soil, whatever item)
             if def.class == 2 and minetest.is_player(puncher)
                 and node_drawtype(puncher:get_pos()) == "liquid" then
 
@@ -3899,6 +3903,8 @@ function animals.register_animal(name,def)
                 tool_capabilities = w_itemdef.tool_capabilities
                     or tool_capabilities
                 -- player punching does not give custom tool_capabilities
+                -- NOTE  harm_fish is not set with Exile's built-in features
+                -- but could be set in a predator's attack table, a tool, ...
                 if type(def.on_rightclick) == "function" and
                     not tool_capabilities.harm_fish then
 
@@ -3925,6 +3931,9 @@ function animals.register_animal(name,def)
             local tool = clicker:get_wielded_item()
             local tooldef = tool:get_definition()
             tool_capabilities = tool_capabilities or tooldef.tool_capabilities
+            -- Unless called from on_punch(), we emulate Luanti's
+            -- time_from_last_punch. Unfortunately get_time() returns full
+            -- seconds only.
             time_from_last_click = time_from_last_click
                 or get_time(animals.rclick_times[clicker])
             animals.rclick_times[clicker] = get_time()

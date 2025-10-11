@@ -245,7 +245,7 @@ local self_data = {
     predator_interactions = 0,
     capture_interactions = {
         club = 0.15,
-        hand = 0.05,
+        hand = 0.05, -- put after club! - see animals.stun_catch_mob()
     },
     -- logic for mobkit
     logic = brain,

@@ -164,6 +164,13 @@ local self_data = {
     -- prey + rivals automatically defined in registration
     capture_interactions = {
         club = 0.01,
+        -- NOTE Not adding 'hand' here, means a player in the water trying to
+        --   defend by punching (left-click) with any item wielded that does
+        --   not count as a club will get zero effects - no damage, no sound,
+        --   no warning, not even with an iron spear!
+        --   Wielding a club, one will get that tiny chance once per
+        --   full_punch_interval of capturing, while without a mod to indicate
+        --   the opponent's, one would not even know what he is doing.
     },
     player_interaction = 1,
     -- logic for mobkit
