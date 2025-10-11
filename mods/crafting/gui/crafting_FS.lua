@@ -676,26 +676,7 @@ function crafting.close_crafting_formspec(player, cache)
     cache.to_update = input_options[cache.craft_input].to_update(cache)
 
     cache.open = nil -- formspec closed
-
-    -- put below things to do in that case
-    ------------------------------------
-    --[[ to bring clothing page
-    -- if current craft input option trigger the need of recipe refresh system
-    if cache.to_update then
-        -- delete cache
-        FS_cache[player:get_player_name()] = nil
-        -- if clothing page is here
-        if core.global_exists("player_api") then
-            -- set page to clothing formspec
-            return "clothing:clothing"
-        end
-    end
-    ]]
-
-    -- else open directly on crafting page, with or without recipe button
-    return "crafting:crafting"
 end
-
 
 -- return the cache to update formspec if something changed, false else
 function crafting.process_receive_fields(player, formname, fields)
@@ -715,14 +696,6 @@ function crafting.process_receive_fields(player, formname, fields)
     -- Process quit
     -- called when escaping the formspec using inventory key
     if fields.quit then
-        --[[ to bring clothing page, with above closing code
-        -- get input items back in main
-        -- updates/delete player's cache and returns opening page
-        local next_page = crafting.close_crafting_formspec(player, cache)
-        -- updated sfinv page state for next opening
-        sfinv.set_page(player, next_page)
-        return false -- no need to refresh sfinv, it was just done
-        ]]
         crafting.close_crafting_formspec(player, cache)
         return cache
     end
