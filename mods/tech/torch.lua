@@ -304,13 +304,6 @@ register_torch_node("tech:torch", {
                 return on_click or itemstack
             end
         end
-        --local def = minetest.registered_nodes[node.name]
-        --if def and def.on_rightclick and
-        --not (placer and placer:is_player() and
-        --placer:get_player_control().sneak) then
-        --return def.on_rightclick(under, node, placer, itemstack,
-        --pointed_thing) or itemstack
-        --end
         local wdir = minetest.dir_to_wallmounted(
             vector.subtract(under, above))
         local fakestack = itemstack
