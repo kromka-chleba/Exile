@@ -112,7 +112,12 @@ local function cache_off_station(player, cache)
     -- reset station if needed (for next sfinv opening)
     crafting.set_station(player, nil)
     -- update sfinv, so we keep current tab if we changed it in {}
-    sfinv.set_player_inventory_formspec(player)
+    -- also makes crafting be the default sfinv tab
+    if sfinv.get_page(player) ~= "crafting:crafting" then
+        sfinv.set_page(player, "crafting:crafting")
+    else
+        sfinv.set_player_inventory_formspec(player)
+    end
 end
 
 -- callback for any station crafting formspec
