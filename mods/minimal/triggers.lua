@@ -446,7 +446,7 @@ if minetest.is_creative_enabled() then
             tiles = {
                 "tech_paint_gp_x.png",
             },
-            on_construct = function(pos, width, height)
+            on_construct = function(pos)
                 setformspec(pos)
             end,
             on_receive_fields = function(pos, formname, fields, sender)

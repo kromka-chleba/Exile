@@ -3466,16 +3466,19 @@ function animals.register_egg(def, animal)
     -- what to replace old node with upon egg hatch
 
     -- egg functions
-    def.on_construct = def.on_construct or function(pos, data)
-        data = data or minimal.get_nodedef(pos)
+    def.on_construct = def.on_construct or function(pos)
+        local data = minimal.get_nodedef(pos)
         local egg_time = data and data.egg_time
         assert(egg_time,"animal egg couldn't get egg_time: "..(data and data.name
                                                                or "unknown egg"))
         minetest.get_node_timer(pos):start(math.random(egg_time,egg_time*2))
     end
 
-    def.on_timer = def.on_timer or function(pos, elapsed, data)
-        data = data or minimal.get_nodedef(pos)
+    -- WARNING, since Luanti 5.14, node table was added as parameter
+    -- node is (I think) not present before Luanti 5.14
+    def.on_timer = def.on_timer or function(pos, elapsed, node)
+        -- data is nodes's definition
+        local data = node and core.registered_nodes[node.name] or minimal.get_nodedef(pos)
         assert(data,"animal egg couldn't get data of self at "..
                minetest.pos_to_string(pos))
         local egg_time = data.egg_time

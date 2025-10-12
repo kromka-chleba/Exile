@@ -280,7 +280,7 @@ for name, number in pairs(bundlelist) do
     nbdef.color = ncrafting.dye_to_colorstring(number)
     nbdef._ncrafting_dcolor = name
     local tbdef = table.copy(nbdef) -- don't want the nbdef.on_construct in here
-    nbdef.on_construct = function(pos, width, height)
+    nbdef.on_construct = function(pos)
         local meta = minetest.get_meta(pos)
         meta:set_string("soaking", 100) -- 10 minutes @ 6 seconds a pop
         -- any other methods need to have meta strings set in here + timer events
@@ -310,7 +310,7 @@ for name, number in pairs(bundlelist) do
     end
 
     minetest.register_node(":ncrafting:bundle_"..name, nbdef)
-    tbdef.on_construct = function(pos, width, height)
+    tbdef.on_construct = function(pos)
         local meta = minetest.get_meta(pos)
         if meta["ncrafting:bundle_failed"] == "true" then
             return -- this is a failed bundle, don't treat it further
