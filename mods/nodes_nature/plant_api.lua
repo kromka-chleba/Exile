@@ -505,11 +505,7 @@ function plant.get_base_props(plant_def)
         end or plant_def.on_punch,
     }
     if plant_def.fruit and plant_def.winter_fruit then
-        props = merge_tables(
-            props, {
-                _dead_fruitless_name =
-                    get_name(plant_def.name,"dead_fruitless"),
-        })
+        props._dead_fruitless_name = get_name(plant_def.name,"dead_fruitless")
     end
     return merge_tables(props, plant.get_seasonal_props(plant_def))
 end
