@@ -270,15 +270,19 @@ end
 -- plant name, variant, number (for seedlings)
 function plant.get_name(basename, var, nr)
     -- nil or empty string is "base plant"
-    var = not var and "" or var
+    var = var or ""
+    -- checks on params
     if type(basename) ~= "string" then
         error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
     elseif type(var) ~= "string" then
-        error("plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
+        error("plant.get_name: plant variant for '"..basename..
+        "' has to be a string or nil, got type '"..type(var).."'")
     end
     -- remove underscore from beginning if found (incase underscore is provided)
     -- underscore is used to check if we got a valid variant
-    var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
+    if var ~="" and var:sub(1,1) == "_" then
+        var = var:sub(2)
+    end
     -- seedling, get number
     if var == "seedling" then
         -- set number if not provided
