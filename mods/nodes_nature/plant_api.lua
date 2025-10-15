@@ -368,8 +368,7 @@ end
 
 -- define base groups for plants
 function plant.get_groups(plant_def)
-    local plant_type = plant_def.plant_type
-    local groups = plant_groups[plant_type]
+
     local base = base_groups.base
     if plant_def.lifeform_type == "mushroom" then
         base = merge_tables(base, base_groups.mushroom)
@@ -386,6 +385,8 @@ function plant.get_groups(plant_def)
     if plant_def.seasons or plant_def.seasonal_type then
         base = merge_tables(base, {seasonal = 1})
     end
+
+    local type_groups = plant_groups[plant_def.plant_type]
     -- merges content of type_groups and base into a new table
     -- if they contain identical keys, values from type_groups
     -- are overwritten with values from base
