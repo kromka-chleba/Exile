@@ -507,6 +507,9 @@ function plant.get_base_props(plant_def)
     if plant_def.fruit and plant_def.winter_fruit then
         props._dead_fruitless_name = get_name(plant_def.name,"dead_fruitless")
     end
+    -- NOTE: this will override props by seasonal props in case of conflict
+    -- even if we don't have common index anyway, here (for now)
+    -- #TODO: maybe clean that to avoid future unintended behavior
     return merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
