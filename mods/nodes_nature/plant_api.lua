@@ -440,17 +440,17 @@ end
 
 function plant.get_seasonal_props(plant_def)
     local name = get_name(plant_def.name)
-    local seasons = plant_def.seasons
-    if seasons then
+    local plant_seasons = plant_def.seasons
+    if plant_seasons then
         return {
-            _spring_early = name..seasons._spring_early,
-            _spring_late = name..seasons._spring_late,
-            _summer_early = name..seasons._summer_early,
-            _summer_late = name..seasons._summer_late,
-            _fall_early = name..seasons._fall_early,
-            _fall_late = name..seasons._fall_late,
-            _winter_early = name..seasons._winter_early,
-            _winter_late = name..seasons._winter_late,
+            _spring_early = name..plant_seasons._spring_early,
+            _spring_late = name..plant_seasons._spring_late,
+            _summer_early = name..plant_seasons._summer_early,
+            _summer_late = name..plant_seasons._summer_late,
+            _fall_early = name..plant_seasons._fall_early,
+            _fall_late = name..plant_seasons._fall_late,
+            _winter_early = name..plant_seasons._winter_early,
+            _winter_late = name..plant_seasons._winter_late,
             _dead_name = get_name(plant_def.name, "dead"),
         }
     end
