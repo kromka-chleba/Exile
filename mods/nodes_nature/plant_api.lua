@@ -7,6 +7,9 @@
 -- Internationalization
 local S = nodes_nature.S
 
+-- Localization, since it will be used a lot (24 times)
+local merge_tables = minimal.merge_tables
+
 ---------------------------------------------------------
 
 local c_alpha = minimal.compat_alpha
@@ -369,52 +372,55 @@ function plant.get_groups(plant_def)
     local groups = plant_groups[plant_type]
     local base = base_groups.base
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(base, base_groups.mushroom)
+        base = merge_tables(base, base_groups.mushroom)
     end
     if plant_def.bioluminescence then
-        base = minimal.merge_tables(base, {bioluminescent = 1})
+        base = merge_tables(base, {bioluminescent = 1})
     end
     if plant_def.roots then
-        base = minimal.merge_tables(base, {plant_with_roots = plant_def.roots})
+        base = merge_tables(base, {plant_with_roots = plant_def.roots})
     end
     if plant_def.extra_groups then
-        base = minimal.merge_tables(base, plant_def.extra_groups)
+        base = merge_tables(base, plant_def.extra_groups)
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(groups, base))
+    -- merges content of type_groups and base into a new table
+    -- if they contain identical keys, values from type_groups
+    -- are overwritten with values from base
+    return table.copy(merge_tables(type_groups, base))
 end
 
 function plant.get_seedling_groups(plant_def)
     local base = plant.get_groups(plant_def)
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(
+        base = merge_tables(
             plant_groups["mushroom"],
             base_groups.mushroom)
     end
     if plant_def.plant_type == "fibrous_plant" then
-        base = minimal.merge_tables(base, {fibrous_plant = 1})
+        base = merge_tables(base, {fibrous_plant = 1})
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(base, base_groups.seedling))
+    return table.copy(merge_tables(base, base_groups.seedling))
 end
 
 function plant.get_seed_groups(plant_def)
     local base
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(
+        base = merge_tables(
             base_groups.spore,
             base_groups.mushroom)
     else
         base = base_groups.seed
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(base, base_groups.seed))
+    return table.copy(merge_tables(base, base_groups.seed))
 end
 
 function plant.get_sounds(plant_def)
@@ -491,13 +497,13 @@ function plant.get_base_props(plant_def)
         end or plant_def.on_punch,
     }
     if plant_def.fruit and plant_def.winter_fruit then
-        props = minimal.merge_tables(
+        props = merge_tables(
             props, {
                 _dead_fruitless_name =
                     get_name(plant_def.name,"dead_fruitless"),
         })
     end
-    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
+    return merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 -- defines base node definition parameters for plants
@@ -511,7 +517,7 @@ function plant.get_plantlike_props(plant_def)
         waving = plant_def.waving,
         groups = plant.get_groups(plant_def)
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+    return table.copy(merge_tables(plant.get_base_props(plant_def),
                                            props))
 end
 
@@ -602,12 +608,12 @@ function plant.get_seedling_base_props(plant_def)
             plant.start_growing_plant(pos)
         end,
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+    return table.copy(merge_tables(plant.get_base_props(plant_def),
                                            props))
 end
 
 function plant.get_plantlike_seedling_props(plant_def)
-    local base = minimal.merge_tables(
+    local base = merge_tables(
         plant.get_plantlike_props(plant_def),
         plant.get_seedling_base_props(plant_def))
     local texture = get_texture(plant_def.name, "seedling")
@@ -616,7 +622,7 @@ function plant.get_plantlike_seedling_props(plant_def)
         inventory_image = texture,
         wield_image = texture,
     }
-    return table.copy(minimal.merge_tables(base, props))
+    return table.copy(merge_tables(base, props))
 end
 
 function plant.register_plantlike_seedlings(plant_def)
@@ -655,7 +661,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     base._next_life_stage = get_name(plant_def.name,"fruiting")
     base.inventory_image = texture
     base.wield_image = texture
-    base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
+    base.groups = merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
         return plant.grow_plant(pos, elapsed)
     end
@@ -858,7 +864,7 @@ function plant.get_3D_props(plant_def)
             fixed = plant_def.nodebox,
         },
     }
-    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+    return merge_tables(plant.get_base_props(plant_def), props)
 end
 
 function plant.register_3D(plant_def)
@@ -873,7 +879,7 @@ function plant.register_3D(plant_def)
 end
 
 function plant.get_3D_seedling_props(plant_def)
-    local base = minimal.merge_tables(
+    local base = merge_tables(
         plant.get_3D_props(plant_def),
         plant.get_seedling_base_props(plant_def))
     local props = {
@@ -887,7 +893,7 @@ function plant.get_3D_seedling_props(plant_def)
             fixed = plant_def.seedling_nodebox,
         },
     }
-    return table.copy(minimal.merge_tables(base, props))
+    return table.copy(merge_tables(base, props))
 end
 
 function plant.register_3D_seedling(plant_def)
@@ -1011,7 +1017,7 @@ function plant.get_seed_base_props(plant_def)
             plant.set_to_domesticated(pos)
         end,
     }
-    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
+    return merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 function plant.register_seed(plant_def)
