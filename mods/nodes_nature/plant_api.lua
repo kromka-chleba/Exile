@@ -70,6 +70,7 @@ local sounds = {
     ["bamboo"] = nodes_nature.node_sound_wood_defaults(),
 }
 
+-- seems to be the groups for stages
 local base_groups = {
     base = {temp_pass = 1, attached_node = 1, flora = 1},
     mushroom = {mushroom = 1, flora = 1},
@@ -98,6 +99,7 @@ local base_groups = {
     },
 }
 
+-- seems to be the groups for plant_type
 local plant_groups = {
     ["moss"] = {
         crumbly = 3,
@@ -361,6 +363,7 @@ function plant.get_base_image(plant_def)
     end
 end
 
+-- define base groups for plants
 function plant.get_groups(plant_def)
     local plant_type = plant_def.plant_type
     local groups = plant_groups[plant_type]
@@ -497,6 +500,7 @@ function plant.get_base_props(plant_def)
     return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
+-- defines base node definition parameters for plants
 function plant.get_plantlike_props(plant_def)
     local props = {
         inventory_image = get_texture(plant_def.name),
@@ -741,6 +745,7 @@ function plant.register_plantlike_dead_fruitless(plant_def)
     minetest.register_node(get_name(plant_def.name,"dead_fruitless"), props)
 end
 
+-- register dead plants
 function plant.get_plantlike_dead_props(plant_def)
     local base = plant.get_plantlike_props(plant_def)
     if plant_def.plant_type == "cane" then
