@@ -115,21 +115,24 @@ end
 -- if t1 and the other table contain identical keys, values from
 -- t1 are overwritten with values from the other table
 function minimal.merge_tables(t1,...)
-    assert(type(t1) ==
-           "table",
-           "exile_game.merge_tables: invalid first parameter given, expected table got "..type(t1))
+    if type(t1) ~= "table" then
+        error("exile_game.merge_tables: invalid first parameter given, "..
+              "expected table, got "..type(t1))
+    end
 
     local arg_nb = select('#', ...)
-    assert(arg_nb >= 1,
-           "exile_game.merge_tables: need a table to merge with")
+    if arg_nb < 1 then
+        error("exile_game.merge_tables: need a table to merge with")
+    end
     local new_table = table.copy(t1)
 
     local tbl
     for i=1,arg_nb do -- table index, table
         tbl = select(i, ...)
-        assert(type(tbl) == "table",
-               "exile_game.merge_tables: invalid value given at paramter ".. i
-               ..", expected table got "..type(tbl))
+        if type(tbl) ~= "table" then
+            error("exile_game.merge_tables: invalid value given at paramter "..
+                  i ..", expected table got "..type(tbl))
+        end
         -- merge tables
         for key,value in pairs(tbl) do
             -- copy merged table values to prevent linking
@@ -164,12 +167,15 @@ function minimal.math_clamp(num,min,max)
     -- RETURNS: number - 'num' that is clamped (between 'min' and 'max')
     -- FUNCTION: clamps a specified number between a min & max
     ------------------------------------------------------------------------------------------------------------------
-    assert(type(num) == "number",
-           "math.clamp: no number provided to be clamped! got "..type(num))
-    assert(type(min) == "number",
-           "math.clamp: no minimum number provided for clamping, got "..type(num))
-    assert(type(max) == "number",
-           "math.clamp: no maximum number provided for clamping, got "..type(num))
+    if type(num) ~= "number" then
+        error("math.clamp: no number provided to be clamped! got "..type(num))
+    elseif type(min) ~= "number" then
+        error("math.clamp: no minimum number provided for clamping, got "
+              ..type(num))
+    elseif type(max) ~= "number" then
+        error("math.clamp: no maximum number provided for clamping, got "
+              ..type(num))
+    end
 
     -- if num, min, and max are numbers then
     if (min > max) then -- if programmer puts max number in place of minimum number... don't punish them for it
