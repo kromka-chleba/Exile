@@ -3780,15 +3780,17 @@ function animals.register_animal(name,def)
             -- reference a number and use proper index (will be CASE SENSITIVE)
             -- will NOT work with MULTIPLE arguments
             local val, errmsg = calculate_val(defvalue)
-            if val ~= false then
-                def[defname] = val
-                -- got an error, not the end of the world
-            else
-                val = basevalue ~= "nil" and basevalue or nil
+            if val == false then
                 errmsg:gsub("@defname",defname)
                 errmsg:gsub("@name",name)
                 minetest.log("error", errmsg)
+                -- use base value to proceed safely,
+                -- well, mature_age == "nil" still yields a crash for Pegasuns
+                val = basevalue ~= "nil" and basevalue or nil
+            else
+                -- got an error, not the end of the world
             end
+            def[defname] = val
         end
     end
 
