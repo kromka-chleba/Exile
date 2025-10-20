@@ -48,6 +48,7 @@ local function brain(self)
                 animals.fight_or_flight(self, plyr)
             end
 
+            -- avoid or defend territory against predators
             animals.predator_avoid(self)
 
 
@@ -199,6 +200,8 @@ animals.add_interactors("animals:chichasa","friends", "self",
 animals.add_interactors("animals:chichasa","rivals", "self")
 
 -- MALE INTERACTORS
+animals.add_interactors("animals:chichasa_male","predators", "animals:kubwakubwa",
+                        "animals:darkasthaan", "animals:sarkamos")
 animals.add_interactors("animals:chichasa_male","friends", "animals:chichasa")
 animals.add_interactors("animals:chichasa_male","rivals", "self",
                         "animals:pegasun", "animals:pegasun_male")
@@ -313,6 +316,7 @@ local self_data = {
     drops = "animals:carcass_bird_small",
     on_rightclick = function(self, clicker, time_from_last_click,
                              tool_capabilities)
+
         animals.stun_catch_mob(self, clicker, time_from_last_click,
                                tool_capabilities)
         animals.fight_or_flight(self, clicker) -- ewww a human touched me!!!
@@ -334,8 +338,18 @@ local self_data = {
         description = S("Live Female Chichasa")
     }
 }
-self_data = animals.register_animal("animals:chichasa",self_data)
+
+-- Copy self_data for the male version - before(!) registration.
+-- - Otherwise weird things can happen, e.g. male on_punch() calling female
+--   on_punch() or using female interactors.
+-- - Also register_animal() uses def to register an inventory item via
+--   core.register_node(), which modifies def in an unspecified way!
 local self_male = table.copy(self_data)
+
+animals.register_animal("animals:chichasa", self_data)
+-- male uses some of the female's settings evaluated during registration
+local def_female = animals.registered_animals["animals:chichasa"]
+
 self_male.name = "animals:chichasa_male"
 -- don't register egg again for male
 self_male.egg = nil
@@ -349,12 +363,10 @@ animals.sizeify(self_male,1.15) -- sexual dimorphism, male bigger then female (1
 self_male.max_speed = 3  --NotPegasun (faster)
 self_male.jump_height = 1.5
 -- male energy, lifespan, and misc interactive
-self_male.lifespan = self_data.lifespan*1.2
+self_male.lifespan = def_female.lifespan*1.2
 self_male.lung_capacity = 25
 self_male.sex = "male"
--- remove interactive from female to get api to re-register
-self_male.rivals = nil
-self_male.friends = nil
+-- predators + rivals automatically defined in registration
 -- unique predator + player interactions
 self_male.predator_interactions = 0.02 --NotPegasun (run away!)
 self_male.player_interaction = 0.01 --NotPegasun (run away!)
@@ -407,7 +419,9 @@ self_male.sounds = {
     },
 }
 
--- male spawnegg or live animal modifications
+-- use identical spawnegg - on_place(), on_drop(), ... including
+-- inventory_image, but trigger creation of different description
+self_male.spawnegg = table.copy(def_female.spawnegg)
 self_male.spawnegg.description = nil -- handled in spawnegg registration
 self_male._desc = S("Male Chichasa")
 -- registering male

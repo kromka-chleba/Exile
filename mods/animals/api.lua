@@ -3537,9 +3537,12 @@ animals.registered_animals = {}
 
 
 
--- animals.register_animal register_animal
+-- animals.register_animal(): register a type of animal
 -- register an animal with setup values for ease of programming
 -- will be set with the following boolean values: animal (can be false/true, defaults true), mob (will always be true)
+-- WARNING def will be modified. If you want to use the same definition to
+-- register similar animals (e.g. male and female versions) make sure to copy
+-- the table before registering the first version.
 function animals.register_animal(name,def)
     assert(type(name) == "string",
         "animals.register_animal: given name is not a string, got type '"..
@@ -3962,5 +3965,4 @@ function animals.register_animal(name,def)
     minetest.register_entity(name,def)
     -- add to registered animals table
     animals.registered_animals[name] = minetest.registered_entities[name]
-    return minetest.registered_entities[name]
 end
