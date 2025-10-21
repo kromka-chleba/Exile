@@ -3550,6 +3550,9 @@ animals.registered_animals = {}
 -- WARNING def will be modified. If you want to use the same definition to
 -- register similar animals (e.g. male and female versions) make sure to copy
 -- the table before registering the first version.
+-- TODO Define a separate clean table for all fix defaults + doc, to be applied
+--     in a loop during registration. Could be copied for an API doc, too.
+--     Add proper doc for this function referring to doc of table of defaults.
 function animals.register_animal(name,def)
     assert(type(name) == "string",
         "animals.register_animal: given name is not a string, got type '"..
@@ -3593,12 +3596,14 @@ function animals.register_animal(name,def)
 
     -- animal stats
     -- base_vals used for ease of calculation later
+    local lifespan = 500
     local base_vals = {
         energy_egg = 20, -- energy dedicated to the egg
-        lifespan = 500, -- seconds your animal will survive in total
+        lifespan = lifespan, -- seconds your animal will survive in total
+        -- TODO using lung_capacity before its check below seems wrong
         oxygen_min = def.lung_capacity,
         -- custom, minimum amount of oxygen maintained until it tries to resurface
-        mature_age = "nil",
+        mature_age = lifespan * 0.12 -- same factor as in age_mechanics()
         -- custom, seconds until your animal is mature enough to have babies
     }
     -- energy
@@ -3752,8 +3757,8 @@ function animals.register_animal(name,def)
             data.modifier = val:sub(data.modifier,data.modifier)
         else
             return false,
-                "animals.register_animal: could not get 'modifier' for '@defname' "..
-                "calculation for '@name'."
+                "animals.register_animal(): could not get 'modifier' for " ..
+                "'@defname' calculation for '@name'. Using default."
         end
         -- now if we have a number
         if data.number then
@@ -3769,13 +3774,13 @@ function animals.register_animal(name,def)
                        data.modifier == "^" and use_val ^ data.number)
                 return val
             else
-                return false,"animals.register() could not get '"..data.to_index..
-                    "' as number for modification for '@defname' for animal "..
-                    "'@name'. Using default."
+                return false,"animals.register_animal() could not get '" ..
+                    data.to_index .. "' as number for modification for " ..
+                    "'@defname' for animal '@name'. Using default."
             end
         else
             return false,
-                "animals.register_animal: could not parse '@defname' as "..
+                "animals.register_animal(): could not parse '@defname' as " ..
                 "number for '@name'. Using default."
         end
     end
@@ -3795,12 +3800,11 @@ function animals.register_animal(name,def)
             -- will NOT work with MULTIPLE arguments
             local val, errmsg = calculate_val(defvalue)
             if val == false then
-                errmsg:gsub("@defname",defname)
-                errmsg:gsub("@name",name)
-                minetest.log("error", errmsg)
-                -- use base value to proceed safely,
-                -- well, mature_age == "nil" still yields a crash for Pegasuns
-                val = basevalue ~= "nil" and basevalue or nil
+                errmsg = errmsg:gsub("@defname",defname)
+                errmsg = errmsg:gsub("@name",name)
+                core.log("error", errmsg)
+                -- use base value to proceed with a safe fallback
+                val = basevalue
             else
                 -- got an error, not the end of the world
             end
