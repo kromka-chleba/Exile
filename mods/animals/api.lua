@@ -842,14 +842,17 @@ end
 -- self, pos, medium, e_ov (energy_override)
 -- medium can be string or table (if the node that the creature is in, can harbour an egg)
 function animals.place_egg(self, pos, medium, e_ov)
-    if type(self) ~= "table" then
-        error("animals.place_egg: got invalid 'self' (expected table) for placing an egg, got type '"..type(self).."'")
+    if type(self) ~= "table" or not self.egg_name
+        or type(self.egg_name) ~= "string" then
+
+        error("animals.place_egg(): got invalid 'self' (expected table " ..
+               "registered by animals.register_animal() with def.egg ~= nil)," ..
+               " got type '" .. type(self) .. "'")
     end
     -- ensure there exists an egg node to place
-    local egg_data = self.egg_name or self.egg or self.name.."_eggs"
-    egg_data = type(egg_data) == "string" and minetest.registered_nodes[egg_data]
-        or type(egg_data) == "table" and egg_data
+    local egg_data = core.registered_nodes[self.egg_name]
     if not egg_data then return end
+
     -- use first a medium override, otherwise check egg's required medium
     medium = (type(medium) == "string" and medium ~= "" and medium)
         or type(medium) == "table" and medium or nil
@@ -920,7 +923,7 @@ function animals.place_egg(self, pos, medium, e_ov)
         local n = mobkit.nodeatpos(posu)
 
         if n and n.walkable and n.name ~= "nodes_nature:tree_mark" then
-            minetest.set_node(p, {name = egg_data.name})
+            minetest.set_node(p, {name = self.egg_name})
             e_ov = e_ov or self.energy < e_egg and self.energy -- can't lay eggs lower than energy_egg properly
             if type(e_ov) == "number" and e_ov >= 15 then
                 -- energy override noted, jot it down
@@ -3528,9 +3531,7 @@ function animals.register_egg(def, animal)
     -- register egg
     def.name = name
     minetest.register_node(name,def)
-    if animal then
-        animal.egg = def.name
-    end
+    return name
 end
 
 animals.registered_animals = {}
@@ -3798,7 +3799,9 @@ function animals.register_animal(name,def)
         end
     end
 
-    def.egg = (def.egg and animals.register_egg(def.egg, def)) or nil
+    -- register egg and replace def.egg by just the name of the registered egg
+    def.egg_name = (def.egg and animals.register_egg(def.egg, def))
+    def.egg = nil
 
     -- spawnegg
     local spawnegg = def.spawnegg or {}
