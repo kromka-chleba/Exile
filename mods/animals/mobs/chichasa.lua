@@ -419,9 +419,10 @@ self_male.sounds = {
     },
 }
 
--- use identical spawnegg - on_place(), on_drop(), ... including
--- inventory_image, but trigger creation of different description
+-- use identical spawnegg - on_place(), on_drop(), ... except for
+-- inventory_image and description
 self_male.spawnegg = table.copy(def_female.spawnegg)
+self_male.spawnegg.inventory_image = nil
 self_male.spawnegg.description = nil -- handled in spawnegg registration
 self_male._desc = S("Male Chichasa")
 -- registering male
