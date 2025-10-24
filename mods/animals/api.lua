@@ -3595,18 +3595,6 @@ function animals.register_animal(name,def)
 
     def.initial_properties = init_prop
 
-    -- animal stats
-    -- base_vals used for ease of calculation later
-    local lifespan = 500
-    local base_vals = {
-        energy_egg = 20, -- energy dedicated to the egg
-        lifespan = lifespan, -- seconds your animal will survive in total
-        -- TODO using lung_capacity before its check below seems wrong
-        oxygen_min = def.lung_capacity,
-        -- custom, minimum amount of oxygen maintained until it tries to resurface
-        mature_age = lifespan * 0.12 -- same factor as in age_mechanics()
-        -- custom, seconds until your animal is mature enough to have babies
-    }
     -- energy
     def.energy_max = def.energy_max or 100
     -- total units your animal can survive without food
@@ -3745,6 +3733,17 @@ function animals.register_animal(name,def)
     -- _on_death = function(self, pos)
     -- create custom action to occur upon death
 
+    -- animal stats
+    -- base_vals used for ease of calculation later
+    local base_vals = {
+        energy_egg = 20, -- energy dedicated to the egg
+        lifespan = 500, -- seconds your animal will survive in total
+        oxygen_min = def.lung_capacity,
+        -- custom, minimum amount of oxygen maintained until it tries to resurface
+        mature_age = "nil" -- same factor as in age_mechanics()
+        -- custom, seconds until your animal is mature enough to have babies
+    }
+
     -- used by below for loop
     -- calculates command-based values noted in base_vals
     local function calculate_val(val)
@@ -3811,6 +3810,11 @@ function animals.register_animal(name,def)
             end
             def[defname] = val
         end
+    end
+
+    if def.mature_age == "nil" and type(def.lifespan) == "number" then
+        -- apply default relation lifespan -> mature_age
+        def.mature_age = def.lifespan * 0.12
     end
 
     -- register egg and replace def.egg by just the name of the registered egg
