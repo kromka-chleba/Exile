@@ -76,9 +76,13 @@ animals.stun_catch_mob = function(self, clicker, time_from_last_click,
     for group,values in pairs(self.capture_interactions) do
         if (group == "hand" and (item_name == ""
                                  or tool_capabilities.is_hand) ) then
-            success_rate = values[1]
-            -- it's just a hand, why would there be more options than 1?
-            -- empty hand should not have custom capture qualities
+            -- update success_rate
+            if not success_rate or -- define success_rate OR
+                 (success_rate and values[1] > success_rate) then
+                 success_rate = values[1]
+                 -- it's just a hand, why would there be more options than 1?
+                 -- empty hand should not have custom capture qualities
+            end
             if item_name == "" then
                 break
             end
