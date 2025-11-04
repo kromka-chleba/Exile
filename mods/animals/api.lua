@@ -276,6 +276,7 @@ function animals.sizeify(self, perc, base)
         init_props = init_props or base == false and self:get_properties() or nil
         if not init_props then return end
         init_props.collisionbox = add_perc(init_props.collisionbox)
+        init_props.selectionbox = init_props.collisionbox
         init_props.visual_size = add_perc(init_props.visual_size)
         self:set_properties(init_props)
   -- expected self table (before runtime)
