@@ -696,22 +696,7 @@ function animals.core_life(self, pos)
 
     -- size difference mechanics, only call upon startup or nil size_dif
     if not self.size_dif then
-        --[[ "base_size_dif" is a desired size from the usual adult size
-        (say, an adult that grows to be smaller or larger)]]
-        self.base_size_dif = self.base_size_dif or mobkit.recall(self,"base_size_dif") or nil
-        -- current size_dif, modified by age_mechanics system
-        self.size_dif = mobkit.recall(self,"size_dif") or self.base_size_dif
-        -- clear out size_dif if it equals 1, ensure to remember this decision
-        if self.size_dif == 1 then
-            self:set("size_dif",nil,true)
-        -- we're fine with this, custom size_dif
-        elseif self.size_dif then
-            animals.sizeify(self, self.size_dif)
-            -- update stats according to size
-            animals.size_dif_mechanics(self)
-        end
-        -- set to 1 and don't remember it if not specified or was 1
-        self.size_dif = self.size_dif or 1
+        animals.init_size_modifications(self)
     end
 
     if self.age_mechanics then
@@ -3207,6 +3192,27 @@ function animals.age_mechanics(self)
     return true
 end
 
+-- used on activation of an animal or shortly afterwards to set up size and all
+-- dependend parameters according to its age
+function animals.init_size_modifications(self)
+    --[[ "base_size_dif" is a desired size from the usual adult size
+    (say, an adult that grows to be smaller or larger)]]
+    self.base_size_dif = self.base_size_dif or mobkit.recall(self,"base_size_dif") or nil
+    -- current size_dif, modified by age_mechanics system
+    self.size_dif = mobkit.recall(self,"size_dif") or self.base_size_dif
+    -- clear out size_dif if it equals 1, ensure to remember this decision
+    if self.size_dif == 1 then
+        self:set("size_dif",nil,true)
+    -- we're fine with this, custom size_dif
+    elseif self.size_dif then
+        animals.sizeify(self, self.size_dif)
+        -- update stats according to size
+        animals.size_dif_mechanics(self)
+    end
+    -- set to 1 and don't remember it if not specified or was 1
+    self.size_dif = self.size_dif or 1
+end
+
 -- Taken directly from mobkit to properly calculate drowning
 function animals.vitals(self)
 
@@ -3666,7 +3672,14 @@ function animals.register_animal(name,def)
 
     -- mobkit dependency
     def.on_step = def.on_step or mobkit.stepfunc
-    def.on_activate = def.on_activate or mobkit.actfunc
+    local on_activate = def.on_activate or mobkit.actfunc
+    def.on_activate = function(self, staticdata, dtime_s)
+        mobkit.actfunc(self, staticdata, dtime_s)
+        -- make sure animals appear with correct size, ... according to age
+        if not self.size_dif then
+            animals.init_size_modifications(self)
+        end
+    end
     def.get_staticdata = def.get_staticdata or mobkit.statfunc
 
     -- animations
