@@ -1,4 +1,3 @@
-
 # Changelog:
 
 # 2025
@@ -157,7 +156,7 @@
   - cobbles, small loose stones to complement boulders
   - ability to combine small wood fires after burning
   - animal probe can get player stats
-  - options for double-click to eat: /eat2x, and wide hud: /hud16 
+  - options for double-click to eat: /eat2x, and wide hud: /hud16
   - "crafted by" labels for craft stations
   - Folded Minetest 5.3.0 compatibility into mainline
   - More bugfixes than you can shake a digging stick at
@@ -307,8 +306,7 @@
   - Graffiti: glow paint.
   - New building materials: `Rammed Earth`, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
   - Fixed dungeon loot.
-  - Added more artifacts. (`Airboat`, art, transporter, `Wayfinder`,
-  ….)
+  - Added more artifacts. (`Airboat`, art, transporter, `Wayfinder`, ….)
   - Added three artifact species of mushrooms for sustaining fibre, food/water, and sticks, absent sunlight.
   - Split Geomoria mod's biomes into realms (highways, and city structures).
   - Added more `geomorphs`.
@@ -400,5 +398,5 @@
  <!-- Wed Mar 11 13:10:03 2020 UTC+1300 -->
  <!-- 2020-03-11 00:10:03      UTC+0000 -->
  <!-- This was the first commit on GitHub.
-	Presumably the code was developed for more than at least one day.
-	The date Dokimi began working on the code does not appear to have been publicized. -->
+      Presumably the code was developed for more than at least one day.
+      The date Dokimi began working on the code does not appear to have been publicized. -->
