@@ -325,62 +325,62 @@ Hyperlinks to those Git commits indicated by each release.
 [2022-05-28__0.3.7]:()
 [2022-04-16__0.3.6]:()
 [2022-02-25__0.3.5b]:()
-[2022-01-21__0.3.5]: (https://github.com/DokimiCU/Exile/commits/5d3dfb4fc9e8636d57a00cb59df3b6c36edf4d9c)
+[2022-01-21__0.3.5]:(https://github.com/DokimiCU/Exile/commits/5d3dfb4fc9e8636d57a00cb59df3b6c36edf4d9c)
  <!-- Unix time 1642873579 -->
  <!-- Fri Jan 21 16:46:19 2022 UTC-0800 -->
  <!-- 2022-01-22 00:46:19      UTC+0000 -->
  <!-- (https://content.minetest.net/packages/Mantar/exile/releases/10746/download/) -->
-[2021-11-01__0.3.4]: (https://github.com/DokimiCU/Exile/commits/0889b4abd431fd578ea76a5fcc3a70aace7dfcb9)
+[2021-11-01__0.3.4]:(https://github.com/DokimiCU/Exile/commits/0889b4abd431fd578ea76a5fcc3a70aace7dfcb9)
  <!-- Unix time 1635744365 -->
  <!-- Sun Oct 31 18:26:05 2021 UTC-0700 -->
  <!-- 2021-11-01 01:26:05      UTC+0000 -->
  <!-- (https://content.minetest.net/packages/Mantar/exile/releases/9596/download/) -->
-[2021-09-25__0.3.3]: (https://github.com/DokimiCU/Exile/commits/f5fc39c8b8ce7f6d2dec23caecbd6a59977d0520)
+[2021-09-25__0.3.3]:(https://github.com/DokimiCU/Exile/commits/f5fc39c8b8ce7f6d2dec23caecbd6a59977d0520)
  <!-- Unix time 1632604522 -->
  <!-- Sat Sep 25 14:15:22 2021 UTC-0700 -->
  <!-- 2021-09-25 21:15:22      UTC+0000 -->
  <!-- This was the initial release of v0.3.3 but is now deprecated in favor of v0.3.3g -->
-[2021-09-12__0.3.2]: (https://github.com/DokimiCU/Exile/commits/350ed936b3370fae204cd2c31e0491525dc7928d)
+[2021-09-12__0.3.2]:(https://github.com/DokimiCU/Exile/commits/350ed936b3370fae204cd2c31e0491525dc7928d)
  <!-- Unix time 1631484548 -->
  <!-- Sun Sep 12 15:09:08 2021 UTC-0700 -->
  <!-- 2021-09-12 22:09:08      UTC+0000 -->
  <!-- (https://content.minetest.net/packages/Mantar/exile/releases/9282/download/) -->
-[2021-07-18__0.3.1]: (https://github.com/DokimiCU/Exile/commits/d96a3aed6d292b216ec6ed470eece6ff5d2468c6)
+[2021-07-18__0.3.1]:(https://github.com/DokimiCU/Exile/commits/d96a3aed6d292b216ec6ed470eece6ff5d2468c6)
  <!-- Unix time 1625860964 -->
  <!-- Fri Jul  9 13:02:44 2021 UTC-0700 -->
  <!-- 2021-07-09 20:02:44      UTC+0000 -->
  <!-- (https://content.minetest.net/packages/Mantar/exile/releases/8536/download/) -->
-[2021-06-12__0.3.0]: (https://github.com/DokimiCU/Exile/commits/9939187661e50cf06874b8715027ae7b5c4eca8f)
+[2021-06-12__0.3.0]:(https://github.com/DokimiCU/Exile/commits/9939187661e50cf06874b8715027ae7b5c4eca8f)
  <!-- Unix time 1623520818 -->
  <!-- Sat Jun 12 11:00:18 2021 UTC-0700 -->
  <!-- 2021-06-12 18:00:18      UTC+0000 -->
  <!-- (https://content.minetest.net/packages/Mantar/exile/releases/8046/download/) -->
-[2021-02-15_Mantar]: (https://github.com/DokimiCU/Exile/commits/69101fca2bfc9698ade75342b90d78940b7c8f33)
+[2021-02-15_Mantar]:(https://github.com/DokimiCU/Exile/commits/69101fca2bfc9698ade75342b90d78940b7c8f33)
  <!-- Unix time 1613421013 -->
  <!-- Mon Feb 15 12:30:13 2021 UTC-0800 -->
  <!-- 2021-02-15 20:30:13      UTC+0000 -->
  <!-- This was the first commit on GitHub from the new maintainer, Mantar. -->
-[2020-12-29__0.2.2]: (https://github.com/DokimiCU/Exile/commits/dc1e210edc012f41d0cc6fdfeab93aeff9e5e7cd)
+[2020-12-29__0.2.2]:(https://github.com/DokimiCU/Exile/commits/dc1e210edc012f41d0cc6fdfeab93aeff9e5e7cd)
  <!-- Unix time 1609284479 -->
  <!-- Wed Dec 30 12:27:59 2020 UTC+1300 -->
  <!-- 2020-12-29 23:27:59      UTC+0000 -->
  <!-- (https://github.com/DokimiCU/Exile/releases/tag/v0.2.2) -->
-[2020-09-25__0.2.1]: (https://github.com/DokimiCU/Exile/commits/d2c3c557aaf687aae2cabfd1e17117bc9b1dd681)
+[2020-09-25__0.2.1]:(https://github.com/DokimiCU/Exile/commits/d2c3c557aaf687aae2cabfd1e17117bc9b1dd681)
  <!-- Unix time 1601009177 -->
  <!-- Fri Sep 25 16:46:17 2020 UTC+1200 -->
  <!-- 2020-09-25 04:46:17      UTC+0000 -->
  <!-- (https://github.com/DokimiCU/Exile/releases/tag/v0.2.1) -->
-[2020-08-02__0.2.0]: (https://github.com/DokimiCU/Exile/commits/32bad7e2610af17b4155b60cb656bd3695601ae3)
+[2020-08-02__0.2.0]:(https://github.com/DokimiCU/Exile/commits/32bad7e2610af17b4155b60cb656bd3695601ae3)
  <!-- Unix time 1596361238 -->
  <!-- Sun Aug  2 21:40:38 2020 UTC+1200 -->
  <!-- 2020-08-02 09:40:38      UTC+0000 -->
  <!-- (https://github.com/DokimiCU/Exile/releases/tag/v0.2) -->
-[2020-03-11__0.1.0]: (https://github.com/DokimiCU/Exile/commits/06262e7e2eb6e3e974562bc5547f10b2eab9a71c)
+[2020-03-11__0.1.0]:(https://github.com/DokimiCU/Exile/commits/06262e7e2eb6e3e974562bc5547f10b2eab9a71c)
  <!-- Unix time 1583888273 -->
  <!-- Wed Mar 11 13:57:53 2020 UTC+1300 -->
  <!-- 2020-03-11 00:57:53      UTC+0000 -->
  <!-- It appears Dokimi did not tag the initial release. -->
-[2020-03-10_Dokimi]: (https://github.com/DokimiCU/Exile/commits/7f23572163274f9a9d3417e92c3efae31dddd00f)
+[2020-03-10_Dokimi]:(https://github.com/DokimiCU/Exile/commits/7f23572163274f9a9d3417e92c3efae31dddd00f)
  <!-- Unix time 1583885403 -->
  <!-- Wed Mar 11 13:10:03 2020 UTC+1300 -->
  <!-- 2020-03-11 00:10:03      UTC+0000 -->
