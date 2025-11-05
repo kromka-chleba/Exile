@@ -1,9 +1,11 @@
+
 # Changelog:
 
+# 2025
 ## [2025-03-12][2025-03-12__0.3.18h]
    - More graffiti on the stone etcher
    - Bug fixes
-
+# 2024
 ## [2024-11-13][2024-11-13__0.3.18g]
    - Fix moonglass transparency
    - Fix for ucsigns mod
@@ -89,7 +91,7 @@
   - UI improvements
   - Fixed hair colors
   - /restart will fix bugged players who closed the death formspec
-
+# 2023
 ## [2023-12-01][2023-12-01__0.3.14b]
   - Added tile floor block to match roof, with stairs and slabs
   - Added support for Visual Harm 1ndicators mod
@@ -139,7 +141,7 @@
   - Gateway effects for incoming characters, courtesy of Dokimi
   - Better intro screen
   - Bugfixes
-
+# 2022
 ## [2022-12-076][2022-12-07__0.3.9c] — 0.3.9c
   - Misc bugfixes
 
@@ -232,7 +234,7 @@
   - New food system infrastructure.
   - Experimental biomes, enable under settings to test.
   - Miscellaneous bug-fixes and quality of life improvements.
-
+# 2021
 ## [2021-11-01][2021-11-01__0.3.4] — 0.3.4 and 0.2.7
   - New player API: Head tracking, multiplayer skins, male and female characters.
   - Added an introduction screen for new players, and a chat display of the day/season/year with in-universe style.
@@ -271,7 +273,7 @@
   - Many fixes for crashes and bugs.
 
 ## [2021-02-15][2021-02-15_Mantar] — Now maintained by Mantar
-
+# 2020
 ## [2020-12-29][2020-12-29__0.2.2] — 0.2.2
   - New HUD.
   - Character tab.
@@ -326,7 +328,7 @@
   - Initial release.
 
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
-
+# Footnotes
 [2022-01-21__0.3.5]: (https://github.com/DokimiCU/Exile/commits/5d3dfb4fc9e8636d57a00cb59df3b6c36edf4d9c)
  <!-- Unix time 1642873579 -->
  <!-- Fri Jan 21 16:46:19 2022 UTC-0800 -->
