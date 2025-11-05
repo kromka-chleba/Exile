@@ -35,12 +35,14 @@ Highlighting those additions and improvements which may be of interest to the pl
 ## [2024-06-04][2024-06-04__0.3.17f] — 0.3.17f
    - __Balanced__: Potash liquid is caustic
 ## [2024-04-22][2024-04-22__0.3.17e] — 0.3.17e
+  - __Fixed__: bugfixes.
 ## [2024-04-06][2024-04-06__0.3.17d] — 0.3.17d
    - __Fixed__: bugfixes
 ## [2024-03-28][2024-03-28__0.3.17c] — 0.3.17c
    - __Added__: Support for ExchangeClone mod
    - __Fixed__: more bugfixes
 ## [2024-03-24][2024-03-23__0.3.17b] — 0.3.17b
+  - __Fixed__: bugfixes.
 ## [2024-03-23][2024-03-23__0.3.17a] — 0.3.17a
    - __Fixed__: bugfixes
 ## [2024-03-22][2024-03-22__0.3.17] — 0.3.17
@@ -232,6 +234,7 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Fixed__: Fixes for fire and rain.
   - __Fixed__: Many fixes for crashes and bugs.
 ## [2021-02-15][2021-02-15_Mantar] — Now maintained by Mantar
+  - __Notable__: [New page](https://content.minetest.net/packages/Mantar/exile/) on __ContentDB__.
 # 2020
 ## [2020-12-29][2020-12-29__0.2.2] — 0.2.2
   - __Added__: New HUD.
@@ -280,8 +283,9 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Added__: Various minor additions.
   - __Notable__: `Minetest 5.3.0` compatibility.
 ## [2020-03-11][2020-03-11__0.1.0] — 0.1.0
-  - __Notable__: Initial release.
+  - __Notable__: Initial release. [New page](https://content.minetest.net/packages/Dokimi/exile/) on __ContentDB__.
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
+  - __Notable__: Initial commit.
 # Footnotes
 Hyperlinks to those Git commits indicated by each release.  
 (Contents may be hidden by some `markdown` rendering engines.)
