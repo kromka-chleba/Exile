@@ -172,120 +172,120 @@ Highlighting those additions and improvements which may be of interest to the pl
   - `101` 📈 __Improved__: Now some valuable nodes have protection in multiplayer.
   - `100` 💠 __Added__: Beginnings of `i18n` French translation, early translation support.
 ## [2022-04-16][2022-04-16__0.3.6] — 0.3.6 and 0.2.9
-  - `99` 💠 __Added__: Craftable dyes, made from randomly selected plants.
-  - `98` 📈 __Improved__: `wielded_light` replaces `Illumination` mod.
-  - `97` 💠 __Added__: ***Iron Chest***s and basic protection for valuable items.
-  - `96` ⚖️ __Balanced__: Trees regrow after a rainy season, not only during rain.
-  - `95` 💠 __Added__: Transfer water directly between pots and bottles.
-  - `94` 📈 __Improved__: Further ***Cooking Pot*** improvements.
+  - `099` 💠 __Added__: Craftable dyes, made from randomly selected plants.
+  - `098` 📈 __Improved__: `wielded_light` replaces `Illumination` mod.
+  - `097` 💠 __Added__: ***Iron Chest***s and basic protection for valuable items.
+  - `096` ⚖️ __Balanced__: Trees regrow after a rainy season, not only during rain.
+  - `095` 💠 __Added__: Transfer water directly between pots and bottles.
+  - `094` 📈 __Improved__: Further ***Cooking Pot*** improvements.
 ## [2022-02-25][2022-02-25__0.3.5b] — 0.3.5b and 0.2.8b
-  - `93` ⚖️ __Balanced__: Flowing water no longer supports player weight in `MT 5.5.0`.
-  - `92` 💠 __Added__: `/suicide` command for players who are stuck.
-  - `91` 💠 __Added__: Added frost overlay to the `HUD` when you’re dangerously cold.
-  - `90` 💠 __Added__: ***Cooking Pot*** now available, still somewhat WIP.
-  - `89` 🔧 __Fixed__: many minor bugfixes and improvements.
+  - `093` ⚖️ __Balanced__: Flowing water no longer supports player weight in `MT 5.5.0`.
+  - `092` 💠 __Added__: `/suicide` command for players who are stuck.
+  - `091` 💠 __Added__: Added frost overlay to the `HUD` when you’re dangerously cold.
+  - `090` 💠 __Added__: ***Cooking Pot*** now available, still somewhat WIP.
+  - `089` 🔧 __Fixed__: many minor bugfixes and improvements.
 ## [2022-01-21][2022-01-21__0.3.5] — 0.3.5 and 0.2.8
-  - `88` 💠 __Added__: ***Blanket***s to keep warm.
-  - `87` 💠 __Added__: Foods can now burn if left cooking too long.
-  - `86` ⚖️ __Balanced__: Mobs should no longer stun-lock when hit repeatedly.
-  - `85` ⚖️ __Balanced__: Nerf: Increased fall damage.
-  - `84` 💠 __Added__: You can use a ***Stick*** to bar a door, to prevent entry.
-  - `83` 💠 __Added__: New animations, thanks to ***MisterE***.
-  - `82` 💠 __Added__: Track how many incarnations you’ve had in the `Character` tab.
-  - `81` 💠 __Added__: ***Glow Worm***s in caves.
-  - `80` ⚖️ __Balanced__: Nerf: ***Stick***s don’t connect with right-angle corners anymore.
-  - `79` ⚖️ __Balanced__: Nerf: ***Mudbrick*** turns to clay when broken, in the same manner as bricks lose mortar.
-  - `78` 💠 __Added__: Mapgen: `carpathian` is now supported, for a harder game world.
-  - `77` 🔧 __Fixed__: No more beach spiders. (***Darkasthaan***)
-  - `76` 📈 __Improved__: New food-system infrastructure.
-  - `75` 💠 __Added__: Experimental `biomes`, enable under `Settings` to test.
-  - `74` 🔧 __Fixed__: Miscellaneous bug-fixes and quality-of-life improvements.
+  - `088` 💠 __Added__: ***Blanket***s to keep warm.
+  - `087` 💠 __Added__: Foods can now burn if left cooking too long.
+  - `086` ⚖️ __Balanced__: Mobs should no longer stun-lock when hit repeatedly.
+  - `085` ⚖️ __Balanced__: Nerf: Increased fall damage.
+  - `084` 💠 __Added__: You can use a ***Stick*** to bar a door, to prevent entry.
+  - `083` 💠 __Added__: New animations, thanks to ***MisterE***.
+  - `082` 💠 __Added__: Track how many incarnations you’ve had in the `Character` tab.
+  - `081` 💠 __Added__: ***Glow Worm***s in caves.
+  - `080` ⚖️ __Balanced__: Nerf: ***Stick***s don’t connect with right-angle corners anymore.
+  - `079` ⚖️ __Balanced__: Nerf: ***Mudbrick*** turns to clay when broken, in the same manner as bricks lose mortar.
+  - `078` 💠 __Added__: Mapgen: `carpathian` is now supported, for a harder game world.
+  - `077` 🔧 __Fixed__: No more beach spiders. (***Darkasthaan***)
+  - `076` 📈 __Improved__: New food-system infrastructure.
+  - `075` 💠 __Added__: Experimental `biomes`, enable under `Settings` to test.
+  - `074` 🔧 __Fixed__: Miscellaneous bug-fixes and quality-of-life improvements.
 # 2021
 ## [2021-11-01][2021-11-01__0.3.4] — 0.3.4 and 0.2.7
-  - `73` 💠 __Added__: New player API: Head tracking, multiplayer skins, male and female characters.
-  - `72` 💠 __Added__: Added an introduction screen for new players, and a chat display of the day/season/year with in-universe style.
-  - `71` 💠 __Added__: Place snow/ice/water on top of a clay ***Water Pot***, and melting will fill it.
-  - `70` ⚖️ __Balanced__: Buff: Food value of meats.
-  - `69` 📈 __Improved__: Improved ***Torch*** stacking by rounding-off burn times.
-  - `68` 💠 __Added__: New chat commands: `/set_tempscale`, `/date`.
-  - `67` 📈 __Improved__: Better indoors check on `Minetest 5.4.x`.
+  - `073` 💠 __Added__: New player API: Head tracking, multiplayer skins, male and female characters.
+  - `072` 💠 __Added__: Added an introduction screen for new players, and a chat display of the day/season/year with in-universe style.
+  - `071` 💠 __Added__: Place snow/ice/water on top of a clay ***Water Pot***, and melting will fill it.
+  - `070` ⚖️ __Balanced__: Buff: Food value of meats.
+  - `069` 📈 __Improved__: Improved ***Torch*** stacking by rounding-off burn times.
+  - `068` 💠 __Added__: New chat commands: `/set_tempscale`, `/date`.
+  - `067` 📈 __Improved__: Better indoors check on `Minetest 5.4.x`.
 ## [2021-09-25][2021-09-25__0.3.3] — 0.3.3 and 0.2.6
-  - `66` 📈 __Improved__: Plants now grow even when players are away from the area.
-  - `65` ⚖️ __Balanced__: Fireproof: ***Iron Door***s and ***Iron Trapdoor***s.
-  - `64` 💠 __Added__: Ability to mix ***Wet Loam*** and ***Agricultural Soil***s.
-  - `63` 📈 __Improved__: Renamed *Stone Chopper* to ***Stone Knife*** for clarity.
-  - `62` 🔧 __Fixed__: More bug fixes and improvements.
+  - `066` 📈 __Improved__: Plants now grow even when players are away from the area.
+  - `065` ⚖️ __Balanced__: Fireproof: ***Iron Door***s and ***Iron Trapdoor***s.
+  - `064` 💠 __Added__: Ability to mix ***Wet Loam*** and ***Agricultural Soil***s.
+  - `063` 📈 __Improved__: Renamed *Stone Chopper* to ***Stone Knife*** for clarity.
+  - `062` 🔧 __Fixed__: More bug fixes and improvements.
 ## [2021-09-12][2021-09-12__0.3.2] — 0.3.2 and 0.2.5
-  - `61` 💠 __Added__: Glassworking! Make windows, and make ***Glass Bottle***s that can hold water, and which stack.
-  - `60` ⚖️ __Balanced__: ***Agricultural Soil***s erode down to a ***Soil Slab*** instead of vanishing.
-  - `59` 🔧 __Fixed__: Fixed a baking crash.
+  - `061` 💠 __Added__: Glassworking! Make windows, and make ***Glass Bottle***s that can hold water, and which stack.
+  - `060` ⚖️ __Balanced__: ***Agricultural Soil***s erode down to a ***Soil Slab*** instead of vanishing.
+  - `059` 🔧 __Fixed__: Fixed a baking crash.
 ## [2021-07-18][2021-07-18__0.3.1] — 0.3.1 and 0.2.4
-  - `58` 📈 __Improved__: ***Oil Lamp***s can be switched off with right-click, and lit with ***Fire Stick***s.
-  - `57` ⚖️ __Balanced__: ***Oil Lamp***s can hold more oil and now burn oil slower.
-  - `56` 🔧 __Fixed__: Various bug-fixes.
+  - `058` 📈 __Improved__: ***Oil Lamp***s can be switched off with right-click, and lit with ***Fire Stick***s.
+  - `057` ⚖️ __Balanced__: ***Oil Lamp***s can hold more oil and now burn oil slower.
+  - `056` 🔧 __Fixed__: Various bug-fixes.
 ## [2021-06-12][2021-06-12__0.3.0] — 0.3.0 and 0.2.3
-  - `55` 📜 __Notable__: Initial release for `Minetest 5.4.0` — use _Exile_ `0.2` series for `5.3.0` version.
-  - `54` 💠 __Added__: New dependency: `naturalslopeslib` provides better hillsides.
-  - `53` 💠 __Added__: Ability to throw ***Torch***es for light.
-  - `52` 💠 __Added__: Settings for `breaktaker`.
-  - `51` 💠 __Added__: Ability to display `temperature` in _Celsius_, _Fahrenheit_, or _Kelvin_. (Using global `Settings`.)
-  - `50` 📈 __Improved__: Food burns instead of vanishing, thanks to __ts__.
-  - `49` 📈 __Improved__: Farming improvements.
-  - `48` 🔧 __Fixed__: Fixes for fire and rain.
-  - `47` 🔧 __Fixed__: Many fixes for crashes and bugs.
+  - `055` 📜 __Notable__: Initial release for `Minetest 5.4.0` — use _Exile_ `0.2` series for `5.3.0` version.
+  - `054` 💠 __Added__: New dependency: `naturalslopeslib` provides better hillsides.
+  - `053` 💠 __Added__: Ability to throw ***Torch***es for light.
+  - `052` 💠 __Added__: Settings for `breaktaker`.
+  - `051` 💠 __Added__: Ability to display `temperature` in _Celsius_, _Fahrenheit_, or _Kelvin_. (Using global `Settings`.)
+  - `050` 📈 __Improved__: Food burns instead of vanishing, thanks to __ts__.
+  - `049` 📈 __Improved__: Farming improvements.
+  - `048` 🔧 __Fixed__: Fixes for fire and rain.
+  - `047` 🔧 __Fixed__: Many fixes for crashes and bugs.
 ## [2021-02-15][2021-02-15_Mantar] — Now maintained by Mantar
-  - `46` 📜 __Notable__: [New page](https://content.minetest.net/packages/Mantar/exile/) on __ContentDB__.
+  - `046` 📜 __Notable__: [New page](https://content.minetest.net/packages/Mantar/exile/) on __ContentDB__.
 # 2020
 ## [2020-12-29][2020-12-29__0.2.2] — 0.2.2
-  - `45` 💠 __Added__: New `HUD`.
-  - `44` 💠 __Added__: Character tab.
-  - `43` 💠 __Added__: Health effects.
-  - `42` 💠 __Added__: Drugs: ***Tiku***, ***Tang***, ***Metastim***.
-  - `41` 💠 __Added__: Added `megamorph` surface air-shafts.
-  - `40` 🔧 __Fixed__: Fixed clothing infinite tolerance bug.
-  - `39` 💠 __Added__: Added ***Iron Fitting***s for carpentry crafting.
-  - `38` 💠 __Added__: Young vs. old ***Tangkal*** trees.
-  - `37` 💠 __Added__: Added ***Tiken*** woody cane.
-  - `36` 💠 __Added__: Cave sediments and mushrooms.
-  - `35` 💠 __Added__: Defined `puts_out_fire` group (e.g. mud now puts out fire), and `masonry` group.
-  - `34` 💠 __Added__: Created a ***Walkthrough*** document for players who want one.
-  - `33` 💠 __Added__: Added ***Loose Wattle***.
-  - `32` 💠 __Added__: Added ***Mashed Anperla***.
-  - `31` 🔧 __Fixed__: Miscellaneous minor fixes and balancing.
+  - `045` 💠 __Added__: New `HUD`.
+  - `044` 💠 __Added__: Character tab.
+  - `043` 💠 __Added__: Health effects.
+  - `042` 💠 __Added__: Drugs: ***Tiku***, ***Tang***, ***Metastim***.
+  - `041` 💠 __Added__: Added `megamorph` surface air-shafts.
+  - `040` 🔧 __Fixed__: Fixed clothing infinite tolerance bug.
+  - `039` 💠 __Added__: Added ***Iron Fitting***s for carpentry crafting.
+  - `038` 💠 __Added__: Young vs. old ***Tangkal*** trees.
+  - `037` 💠 __Added__: Added ***Tiken*** woody cane.
+  - `036` 💠 __Added__: Cave sediments and mushrooms.
+  - `035` 💠 __Added__: Defined `puts_out_fire` group (e.g. mud now puts out fire), and `masonry` group.
+  - `034` 💠 __Added__: Created a ***Walkthrough*** document for players who want one.
+  - `033` 💠 __Added__: Added ***Loose Wattle***.
+  - `032` 💠 __Added__: Added ***Mashed Anperla***.
+  - `031` 🔧 __Fixed__: Miscellaneous minor fixes and balancing.
 ## [2020-09-25][2020-09-25__0.2.1] — 0.2.1
-  - `30` 🔧 __Fixed__: Fixed exile-letter crash. (***Sentence of Exile***)
-  - `29` 🔧 __Fixed__: Fixed saltwater surface sediment crash.
-  - `28` 🔧 __Fixed__: Fixed multiplayer health-tab crash.
-  - `27` ⚖️ __Balanced__: Animals balanced and bug-fixed.
-  - `26` ⚖️ __Balanced__: Adjusted ***Sea Ice*** freezing and thawing.
+  - `030` 🔧 __Fixed__: Fixed exile-letter crash. (***Sentence of Exile***)
+  - `029` 🔧 __Fixed__: Fixed saltwater surface sediment crash.
+  - `028` 🔧 __Fixed__: Fixed multiplayer health-tab crash.
+  - `027` ⚖️ __Balanced__: Animals balanced and bug-fixed.
+  - `026` ⚖️ __Balanced__: Adjusted ***Sea Ice*** freezing and thawing.
 ## [2020-08-02][2020-08-02__0.2.0] — 0.2.0
-  - `25` 💠 __Added__: Clothing (plus multi-skin model, new player `API`), ***Weaving Frame***, and temperature tolerance via clothing.
-  - `24` 💠 __Added__: Lore: exile letter. (***Sentence of Exile***)
-  - `23` 💠 __Added__: Added ***Sleeping Spot***.
-  - `22` 💠 __Added__: New mobs: ***Darkasthaan***, ***Impethu***, ***Pegasun***, ***Sneachan***.
-  - `21` 💠 __Added__: Cookable animal carcasses.
-  - `20` 💠 __Added__: Graffiti: ***Glow Paint***.
-  - `19` 💠 __Added__: New building materials: ***Rammed Earth***, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
-  - `18` 🔧 __Fixed__: Fixed dungeon loot.
-  - `17` 💠 __Added__: Added more artifacts. (***Airboat***, art, ***Transporter***, ***Wayfinder***, ….)
-  - `16` 💠 __Added__: Added three artifact species of `mushroom`s for sustaining fibre, food/water, and sticks, absent sunlight.
-  - `15` 📈 __Improved__: Split `Geomoria` mod’s biomes into realms (highways, and city structures).
-  - `14` 💠 __Added__: Added more `geomorphs`.
-  - `13` 💠 __Added__: ***Gneiss*** and ***Jade*** for deep-underground `biome`.
-  - `12` 📈 __Improved__: Better-looking ***Bones***.
-  - `11` 📈 __Improved__: Newly-formatted colouring for skies.
-  - `10` 💠 __Added__: Chat commands for controlling climate variables.
-  - `9` 💠 __Added__: `Design Guide`.
-  - `8` 📈 __Improved__: Updated menu-screen backgrounds.
-  - `7` 📈 __Improved__: Updated version of `crafting` mod.
-  - `6` 🔧 __Fixed__: Various minor fixes.
-  - `5` ⚖️ __Balanced__: Various minor balance changes.
-  - `4` 💠 __Added__: Various minor additions.
-  - `3` 📜 __Notable__: `Minetest 5.3.0` compatibility.
+  - `025` 💠 __Added__: Clothing (plus multi-skin model, new player `API`), ***Weaving Frame***, and temperature tolerance via clothing.
+  - `024` 💠 __Added__: Lore: exile letter. (***Sentence of Exile***)
+  - `023` 💠 __Added__: Added ***Sleeping Spot***.
+  - `022` 💠 __Added__: New mobs: ***Darkasthaan***, ***Impethu***, ***Pegasun***, ***Sneachan***.
+  - `021` 💠 __Added__: Cookable animal carcasses.
+  - `020` 💠 __Added__: Graffiti: ***Glow Paint***.
+  - `019` 💠 __Added__: New building materials: ***Rammed Earth***, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
+  - `018` 🔧 __Fixed__: Fixed dungeon loot.
+  - `017` 💠 __Added__: Added more artifacts. (***Airboat***, art, ***Transporter***, ***Wayfinder***, ….)
+  - `016` 💠 __Added__: Added three artifact species of `mushroom`s for sustaining fibre, food/water, and sticks, absent sunlight.
+  - `015` 📈 __Improved__: Split `Geomoria` mod’s biomes into realms (highways, and city structures).
+  - `014` 💠 __Added__: Added more `geomorphs`.
+  - `013` 💠 __Added__: ***Gneiss*** and ***Jade*** for deep-underground `biome`.
+  - `012` 📈 __Improved__: Better-looking ***Bones***.
+  - `011` 📈 __Improved__: Newly-formatted colouring for skies.
+  - `010` 💠 __Added__: Chat commands for controlling climate variables.
+  - `009` 💠 __Added__: `Design Guide`.
+  - `008` 📈 __Improved__: Updated menu-screen backgrounds.
+  - `007` 📈 __Improved__: Updated version of `crafting` mod.
+  - `006` 🔧 __Fixed__: Various minor fixes.
+  - `005` ⚖️ __Balanced__: Various minor balance changes.
+  - `004` 💠 __Added__: Various minor additions.
+  - `003` 📜 __Notable__: `Minetest 5.3.0` compatibility.
 ## [2020-03-11][2020-03-11__0.1.0] — 0.1.0
-  - `2` 📜 __Notable__: Initial release. [New page](https://content.minetest.net/packages/Dokimi/exile/) on __ContentDB__.
+  - `002` 📜 __Notable__: Initial release. [New page](https://content.minetest.net/packages/Dokimi/exile/) on __ContentDB__.
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
-  - `1` 📜 __Notable__: Initial commit.
+  - `001` 📜 __Notable__: Initial commit.
 # Footnotes
 Hyperlinks to those Git commits indicated by each release.  
 (Contents may be hidden by some `markdown` rendering engines.)
