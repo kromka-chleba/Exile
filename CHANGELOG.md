@@ -170,18 +170,18 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Improved__: some valuable nodes have protection in multiplayer
   - __Added__: beginnings of i18n French translation, early translation support
 ## [2022-04-16][2022-04-16__0.3.6] — 0.3.6 and 0.2.9
- - __Added__: Craftable dyes, made from randomly selected plants
- - __Improved__: Wielded_light replaces Illumination mod
- - __Added__: Iron chests and basic protection for valuable items
- - __Balanced__: Trees regrow after a rainy season, not only during rain
- - __Added__: Transfer water directly between pots and bottles
- - __Improved__: Further cooking pot improvements
+  - __Added__: Craftable dyes, made from randomly selected plants
+  - __Improved__: Wielded_light replaces Illumination mod
+  - __Added__: Iron chests and basic protection for valuable items
+  - __Balanced__: Trees regrow after a rainy season, not only during rain
+  - __Added__: Transfer water directly between pots and bottles
+  - __Improved__: Further cooking pot improvements
 ## [2022-02-25][2022-02-25__0.3.5b] — 0.3.5b and 0.2.8b
- - __Balanced__: flowing water no longer supports player weight in MT 5.5.0
- - __Added__: /suicide command for players who are stuck
- - __Added__: Added frost overlay to the HUD when you're dangerously cold
- - __Added__: cooking pot now available, still somewhat WIP
- - __Fixed__: many minor bugfixes and improvements
+  - __Balanced__: flowing water no longer supports player weight in MT 5.5.0
+  - __Added__: /suicide command for players who are stuck
+  - __Added__: Added frost overlay to the HUD when you're dangerously cold
+  - __Added__: cooking pot now available, still somewhat WIP
+  - __Fixed__: many minor bugfixes and improvements
 ## [2022-01-21][2022-01-21__0.3.5] — 0.3.5 and 0.2.8
   - __Added__: Blankets to keep warm.
   - __Added__: Foods can now burn if left cooking too long.
@@ -283,7 +283,7 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Notable__: Initial release.
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
 # Footnotes
-Hyperlinks to those Git commits indicated by each release.
+Hyperlinks to those Git commits indicated by each release.  
 (Contents may be hidden by some `markdown` rendering engines.)
 <!-- Historical details in comments after each commit. -->
 [2025-03-12__0.3.18h]:()
