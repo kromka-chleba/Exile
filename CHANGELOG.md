@@ -1,4 +1,5 @@
 # Changelog:
+Highlighting those additions and improvements which may be of interest to the players.
 # 2025
 ## [2025-03-12][2025-03-12__0.3.18h]
    - More graffiti on the stone etcher
@@ -282,6 +283,9 @@
   - Initial release.
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
 # Footnotes
+Hyperlinks to those Git commits indicated by each release.
+(Contents may be hidden by some `markdown` rendering engines.)
+<!-- Historical details in comments after each commit. -->
 [2022-01-21__0.3.5]: (https://github.com/DokimiCU/Exile/commits/5d3dfb4fc9e8636d57a00cb59df3b6c36edf4d9c)
  <!-- Unix time 1642873579 -->
  <!-- Fri Jan 21 16:46:19 2022 UTC-0800 -->
