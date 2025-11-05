@@ -1,4 +1,4 @@
-# Changelog:
+# *Changelog:*
 Highlighting those additions and improvements which may be of interest to the players.
 # 2025
 ## [2025-03-12][2025-03-12__0.3.18h] — 0.3.18h
