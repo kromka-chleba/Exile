@@ -2,234 +2,234 @@
 Highlighting those additions and improvements which may be of interest to the players.
 # 2025
 ## [2025-03-12][2025-03-12__0.3.18h] — 0.3.18h
-   - __Added__: More graffiti on the stone etcher.
+   - __Added__: More graffiti on the ***Stone Etcher***.
    - __Fixed__: Bug fixes.
 # 2024
 ## [2024-11-13][2024-11-13__0.3.18g] — 0.3.18g
-   - __Fixed__: Fix moonglass transparency.
-   - __Fixed__: Fix for ucsigns mod.
+   - __Fixed__: Fix ***Moonglass*** transparency.
+   - __Fixed__: Fix for `ucsigns` mod.
 ## [2024-11-08][2024-11-08__0.3.18f] — 0.3.18f
-   - __Fixed__: Fix warnings on Luanti 5.10.0.
+   - __Fixed__: Fix warnings on `Luanti 5.10.0`.
 ## [2024-10-25][2024-10-25__0.3.18e] — 0.3.18e
-   - __Balanced__: Wooden potash pots burn up when you cook them.
+   - __Balanced__: ***Wooden Potash Pots*** burn up when you cook them.
    - __Fixed__: A few bugfixes.
 ## [2024-10-12][2024-10-12__0.3.18d] — 0.3.18d
    - __Improved__: Seed images showing the plant.
    - __Fixed__: Remove air pockets around tree roots.
-   - __Improved__: Improvements to airboat, transporter.
+   - __Improved__: Improvements to ***Airboat***, and ***Transporter***.
    - __Fixed__: Minor fixes.
 ## [2024-09-13][2024-09-13__0.3.18c] — 0.3.18c
-   - __Improved__: Improvements to ropes, quicklime/slaked lime, and tile floors.
+   - __Improved__: Improvements to ***rope***s, ***Quicklime***/***Slaked Lime***, and tile floors.
    - __Fixed__: Minor bugfixes.
 ## [2024-08-24][2024-08-24__0.3.18b] — 0.3.18b
-   - __Fixed__: Fix crash on animal capture in MT 5.9.0.
+   - __Fixed__: Fix crash on animal capture in `Minetest 5.9.0`.
 ## [2024-08-23][2024-08-23__0.3.18a] — 0.3.18a
-   - __Improved__: Improved Minetest 5.9.0 support.
-   - __Fixed__: bugfixes.
+   - __Improved__: `Minetest 5.9.0` support.
+   - __Fixed__: More bugfixes.
 ## [2024-07-18][2024-07-18__0.3.18] — 0.3.18
-   - __Added__: Added glass doors and trapdoors.
-   - __Added__: Hang an oil lamp from the ceiling.
-   - __Added__: Support for the Unicode Signs [ucsigns] mod.
+   - __Added__: Added ***Glass Door***s and trapdoors.
+   - __Added__: Hang an ***Oil Lamp*** from the ceiling.
+   - __Added__: Support for the ***Unicode Signs*** (`ucsigns`) mod.
    - __Improved__: Better texture for roof/floor tiles.
-   - __Improved__: Inventory images for coarse & fine fabrics.
+   - __Improved__: Inventory images for ***Coarse*** & ***Fine Fabric***s.
 ## [2024-06-04][2024-06-04__0.3.17f] — 0.3.17f
-   - __Balanced__: Potash liquid is caustic.
+   - __Balanced__: ***Potash*** liquid is caustic.
 ## [2024-04-22][2024-04-22__0.3.17e] — 0.3.17e
-  - __Fixed__: bugfixes.
+  - __Fixed__: More bugfixes.
 ## [2024-04-06][2024-04-06__0.3.17d] — 0.3.17d
-   - __Fixed__: bugfixes.
+  - __Fixed__: More bugfixes.
 ## [2024-03-28][2024-03-28__0.3.17c] — 0.3.17c
-   - __Added__: Support for ExchangeClone mod.
-   - __Fixed__: more bugfixes.
+  - __Added__: Support for `ExchangeClone` mod.
+  - __Fixed__: More bugfixes.
 ## [2024-03-24][2024-03-23__0.3.17b] — 0.3.17b
-  - __Fixed__: bugfixes.
+  - __Fixed__: More bugfixes.
 ## [2024-03-23][2024-03-23__0.3.17a] — 0.3.17a
-   - __Fixed__: bugfixes.
+  - __Fixed__: More bugfixes.
 ## [2024-03-22][2024-03-22__0.3.17] — 0.3.17
-   - __Improved__: Informational states displayed on character tab.
-   - __Added__: Drystack and Rammed earth arches: build a wall, knock out the middle
-   - __Added__: server command: /recover_inv <player> to restore inv lost on restart
+  - __Improved__: Informational states displayed on `Character` tab.
+  - __Added__: ***Drystack*** and ***Rammed Earth*** arches — build a wall, then knock out the middle.
+  - __Added__: Server command: `/recover_inv <player>` to restore inventory lost on restart.
 ## [2024-03-03][2024-03-03__0.3.16] — 0.3.16
-  - __Fixed__: Replaced NC-licensed Gundu, Exile should be fully free now.
-  - __Improved__: WITT for Exile: show the names of things when you press the zoom key
-  - __Improved__: Improved light meter.
-  - __Added__: Added /crouch as alternative to double-tapping shift, in case of lag
-  - __Fixed__: Less trouble with lowering ropes/ladders.
+  - __Fixed__: Replaced `NC`-licensed ***Gundu*** — _Exile_ should be fully free now!
+  - __Improved__: `WiTT` for _Exile_: show the names of things when you press the zoom key.
+  - __Improved__: Improved ***Light Meter***.
+  - __Added__: Added `/crouch` as alternative to double-tapping `Shift`, in case of lag.
+  - __Fixed__: Less trouble with lowering ***Rope***s/***Ladder***s.
 ## [2024-01-16][2024-01-16__0.3.15d] — 0.3.15d
-  - __Improved__: Add a player model to clothing page, too!
-  - __Balanced__: Increase /ping timeout on servers.
+  - __Improved__: Add a player model to `Clothing` page, too!
+  - __Balanced__: Increase `/ping` timeout on servers.
   - __Fixed__: Fix for a mobile issue with bed rest.
 ## [2024-01-09][2024-01-09__0.3.15c] — 0.3.15c
-  - __Fixed__: Fixed a crafting screen bug
-  - __Fixed__: Fixed some positional audio quirks.
+  - __Fixed__: Fixed a `Crafting`-screen bug.
+  - __Fixed__: Fixed some positional-audio quirks.
 ## [2024-01-09][2024-01-09__0.3.15b] — 0.3.15b
-  - __Added__: Added a player model to the character tab.
-  - __Fixed__: Fix for the "disappearing hammer" bug.
+  - __Added__: Added a player model to the `Character` tab.
+  - __Fixed__: Fix for the “disappearing hammer” bug.
 ## [2024-01-08][2024-01-08__0.3.15] — 0.3.15
-  - __Added__: Bones of previous exiles, with various items.
-  - __Added__: Sun hat and sandals.
-  - __Balanced__: Fires more likely to die out than burn forever.
-  - __Added__: SkinsDB support for folks who want that.
-  - __Added__: /ping command to reveal your location to players out of range for nametags.
+  - __Added__: ***Bones*** of previous exiles, with various items.
+  - __Added__: ***Sun Hat*** and ***Sandals***.
+  - __Balanced__: ***Fire***s more likely to die out than burn forever.
+  - __Added__: `SkinsDB` support for folks who want that.
+  - __Added__: `/ping` command to reveal your location to players out of range for nametags.
   - __Improved__: Comfort and rest improvements.
-  - __Improved__: UI improvements.
+  - __Improved__: `UI` improvements.
   - __Fixed__: Fixed hair colors.
-  - __Added__: /restart will fix bugged players who closed the death formspec.
+  - __Added__: `/restart` will fix bugged players who closed the death `formspec`.
 # 2023
 ## [2023-12-01][2023-12-01__0.3.14b] — 0.3.14b
   - __Added__: Added tile floor block to match roof, with stairs and slabs.
-  - __Added__: Added support for Visual Harm 1ndicators mod.
+  - __Added__: Added support for `Visual Harm Indicators` mod.
 ## [2023-11-11][2023-11-11__0.3.14] — 0.3.14
-  - __Added__: Transporters now send all objects that are on the pad.
-  - __Improved__: Improved letter and bones with info on player/lives.
+  - __Added__: ***Transporter***s now send all objects that are on the pad.
+  - __Improved__: Improved ***Sentence of Exile*** letter and ***Bones*** with info on player/lives.
   - __Added__: Sound for pots.
   - __Fixed__: More small bugs fixed.
 ## [2023-10-13][2023-10-13__0.3.13.37] — 0.3.13.37
-  - __Notable__: Commit #1337.
-  - __Fixed__: Bugfixes for v0.3.11
+  - __Notable__: Commit `#1337`.
+  - __Fixed__: Bugfixes for `v0.3.11`.
 ## [2023-09-30][2023-09-30__0.3.11] — 0.3.11
   - __Improved__: Improved animal behavior.
-  - __Balanced__: Increase portion size for meat.
+  - __Balanced__: Increase portion size for meats.
   - __Added__: Quickslot numbers on the HUD.
-  - __Balanced__: Enforced range limits for transporters.
-  - __Added__: Add a stone etching tool.
+  - __Balanced__: Enforced range-limits for ***Transporter***s.
+  - __Added__: Added a stone etching tool.
   - __Added__: New environmental sounds.
-  - __Improved__:Nicer glass sounds.
-  - __Improved__:Spear improvements.
+  - __Improved__: Nicer glass sounds.
+  - __Improved__: Spear improvements.
   - __Balanced__: Clearer glass windows.
-  - __Added__: Added startexile.sh server script with optional /version command.
+  - __Added__: Added `startexile.sh` server Bash script with optional `/version` command.
 ## [2023-05-25][2023-05-25__0.3.10] — 0.3.10
-  - __Improved__: Added a watering can, to turn dry soil wet.
-  - __Balanced__: Ability to crouch/crawl by double-tapping shift.
-  - __Added__: Can now dump a cooking pot's contents out.
-  - __Added__: Can also empty unused dye from a dye pot.
-  - __Balanced__: Antiquorium ladders are solid now.
-  - __Fixed__: Spears are craftable again.
-  - __Improved__: Minor fog improvements.
+  - __Added__: Added a ***Watering Can***, to turn dry soil wet.
+  - __Added__: Ability to `crouch`/crawl by double-tapping shift.
+  - __Added__: Can now dump a ***Cooking Pot***’s contents out.
+  - __Added__: Can also empty unused dye from a ***Dye Pot***.
+  - __Balanced__: ***Antiquorium Ladder***s are solid now.
+  - __Fixed__: ***Spear***s are craftable again.
+  - __Improved__: Minor `fog` improvements.
 ## [2023-04-07][2023-04-07__0.3.9e] — 0.3.9e
-  - __Added__: Add theme song "Earth and Stone" by Kevin Hartnell.
-  - __Improved__: Wattle connects to drystack.
-  - __Balanced__: Keep leftover plant bundles that are not dyes, to see what you've tried.
+  - __Added__: Added theme song ___Earth and Stone___ by __Kevin Hartnell__.
+  - __Improved__: ***Wattle*** connects to ***Drystack***.
+  - __Balanced__: Keep leftover plant bundles that are not dyes, to see what you’ve tried.
   - __Added__: Added a dewaffler utility to fix broken terrain caused by the prior bug.
-  - __Fixed__: Fix for opaque white fog banks.
+  - __Fixed__: Fix for opaque-white fog banks.
   - __Fixed__: Usual round of bugfixes.
 # 2022
 ## [2022-12-31][2022-12-31__0.3.9d] — 0.3.9d
-  - __Added__: Add an alignment tool to complement the lever.
+  - __Added__: Added an ***Alignment Tool*** to complement the ***Lever***.
   - __Fixed__: Fix grass spreading, grass dying in shade, and landscape waffling.
-  - __Added__: Gateway effects for incoming characters, courtesy of Dokimi.
-  - __Improved__: Better intro screen.
+  - __Added__: ***Gateway*** effects for incoming characters, courtesy of __Dokimi__.
+  - __Improved__: Better `Intro` screen.
   - __Fixed__: Bugfixes.
 ## [2022-12-076][2022-12-07__0.3.9c] — 0.3.9c
-  - __Fixed__: Misc bugfixes.
+  - __Fixed__: Misc. bugfixes.
 ## [2022-11-26][2022-11-26__0.3.9b] — 0.3.9b
-  - __Added__: Volcanic ash on volcanoes.
+  - __Improved__: Now has ***Volcanic Ash*** on volcanoes (formerly ***Sand***).
   - __Fixed__: Bugfixes.
 ## [2022-11-04][2022-11-04__0.3.9] — 0.3.9
-  - __Improved__: New HUD design
-  - __Added__: Iron lantern for mid-late game players.
-  - __Added__: iron nails to add protection to nodes.
-  - __Improved__: bed can now store a blanket.
-  - __Added__: cobbles, small loose stones to complement boulders.
-  - __Added__: ability to combine small wood fires after burning.
-  - __Improved__: animal probe can get player stats.
-  - __Added__: options for double-click to eat: /eat2x, and wide hud: /hud16.
-  - __Added__: "crafted by" labels for craft stations.
-  - __Fixed__: Folded Minetest 5.3.0 compatibility into mainline.
-  - __Fixed__: More bugfixes than you can shake a digging stick at.
+  - __Improved__: New `HUD` design.
+  - __Added__: ***Iron Lantern*** for mid-late game players.
+  - __Added__: ***Iron Nail***s to add protection to nodes.
+  - __Improved__: Beds can now store a ***Blanket***.
+  - __Added__: ***Cobble***s — small loose stones to complement ***Boulder***s.
+  - __Added__: ability to combine small ***Wood Fires*** after burning.
+  - __Improved__: ***Animal Probe*** — now can get player stats.
+  - __Added__: options for double-click to eat: `/eat2x`, and ***Wide HUD***: `/hud16`.
+  - __Added__: “crafted by” labels for crafting stations.
+  - __Fixed__: Folded `Minetest 5.3.0` compatibility into mainline.
+  - __Fixed__: More bugfixes than you can shake a ***Digging Stick*** at.
 ## [2022-08-05][2022-08-05__0.3.8d] — 0.3.8d and 0.2.11d
   - __Fixed__: Minor bugfixes.
 ## [2022-08-05][2022-08-05__0.3.8c] — 0.3.8c and 0.2.11c
-  - __Added__: enabled shadows when running on MT 5.6.0+
+  - __Added__: enabled shadows when running on `MT 5.6.0+`.
   - __Added__: Pots fill with rainwater even if the player is away.
   - __Fixed__: Many, many bug fixes.
 ## [2022-07-08][2022-07-08__0.3.8b] — 0.3.8b and 0.2.11b
-  - __Balanced__: Cheaper rammed earth.
-  - __Improved__: Improved Sarkamos life cycle and behavior.
-  - __Improved__: Cooking pot improvements.
-  - __Fixed__: Fixed wooden & iron chests' trashcan icon, dig & replace to reload.
+  - __Balanced__: Cheaper ***Rammed Earth***.
+  - __Improved__: ***Sarkamos*** life cycle and behavior.
+  - __Improved__: ***Cooking Pot*** improvements.
+  - __Fixed__: ***Wooden*** & ***Iron Chest***s’ trashcan icon — dig & replace to reload.
   - __Fixed__: Misc bugfixes.
 ## [2022-06-25][2022-06-25__0.3.8a] — 0.3.8a and 0.2.11a
-  - __Fixed__: Reverted betterfall mod due to problems on some systems.
+  - __Fixed__: Reverted `betterfall` mod due to problems on some systems.
 ## [2022-06-24][2022-06-24__0.3.8] — 0.3.8 and 0.2.11
   - __Balanced__: New tech rebalance, multiple ways up the tech tree.
-  - __Added__: Massive rings left scattered on the surface by the Ancients.
-  - __Added__: Throwable spears for hunting and fighting.
-  - __Improved__: Improved canoe and airboat performance; the airboat strafes with AUX1.
+  - __Added__: Massive ***Rings*** left scattered on the surface by the ***Ancients***.
+  - __Added__: Throwable ***Spear***s for hunting and fighting.
+  - __Improved__: ***Canoe*** and ***Airboat*** performance; the airboat strafes with `AUX1`.
   - __Balanced__: Fire resistance for tree trunks and other nodes.
-  - __Added__: Ability to cut sedimentary rock blocks intact with a chisel.
-  - __Added__: Clump falling for drystack/thatch, build ceilings with supports.
-  - __Balanced__: Better, more survivable gundu fish, enables fish farming.
-  - __Added__: Can eat unmelted snow for thirst, with drawbacks.
+  - __Added__: Ability to cut sedimentary rock blocks intact with a ***Chisel***.
+  - __Added__: Clump falling for ***Drystack***/***Thatch*** — build ceilings with supports.
+  - __Balanced__: Better, more survivable ***Gundu*** fish — enables fish farming.
+  - __Added__: Can eat unmelted ***Snow*** for thirst, with drawbacks.
   - __Added__: Spanish translation.
 ## [2022-05-28][2022-05-28__0.3.7] — 0.3.7 and 0.2.10
-  - __Balanced__: balance: limited fire spread for multiplayer.
-  - __Improved__: many airboat improvements, including strafe movement with AUX1.
+  - __Balanced__: Limited fire spread for multiplayer.
+  - __Improved__: Many ***Airboat*** improvements, including strafe movement with `AUX1`.
   - __Added__: Haze overlay warns of extreme heat.
-  - __Added__: animal probes to watch the health and age of livestock.
-  - __Improved__: underwater plants spread and replenish.
-  - __Balanced__: beds and thatch reduce fall damage.
-  - __Improved__: some valuable nodes have protection in multiplayer.
-  - __Added__: beginnings of i18n French translation, early translation support.
+  - __Added__: ***Animal Probe***s to watch the health and age of livestock.
+  - __Improved__: Now underwater plants spread and replenish.
+  - __Balanced__: Beds and ***Thatch*** reduce fall damage.
+  - __Improved__: Now some valuable nodes have protection in multiplayer.
+  - __Added__: Beginnings of `i18n` French translation, early translation support.
 ## [2022-04-16][2022-04-16__0.3.6] — 0.3.6 and 0.2.9
   - __Added__: Craftable dyes, made from randomly selected plants.
-  - __Improved__: Wielded_light replaces Illumination mod.
-  - __Added__: Iron chests and basic protection for valuable items.
+  - __Improved__: `wielded_light` replaces `Illumination` mod.
+  - __Added__: ***Iron Chest***s and basic protection for valuable items.
   - __Balanced__: Trees regrow after a rainy season, not only during rain.
   - __Added__: Transfer water directly between pots and bottles.
-  - __Improved__: Further cooking pot improvements
+  - __Improved__: Further ***Cooking Pot*** improvements.
 ## [2022-02-25][2022-02-25__0.3.5b] — 0.3.5b and 0.2.8b
-  - __Balanced__: flowing water no longer supports player weight in MT 5.5.0.
-  - __Added__: /suicide command for players who are stuck.
-  - __Added__: Added frost overlay to the HUD when you're dangerously cold.
-  - __Added__: cooking pot now available, still somewhat WIP.
+  - __Balanced__: Flowing water no longer supports player weight in `MT 5.5.0`.
+  - __Added__: `/suicide` command for players who are stuck.
+  - __Added__: Added frost overlay to the HUD when you’re dangerously cold.
+  - __Added__: ***Cooking Pot*** now available, still somewhat WIP.
   - __Fixed__: many minor bugfixes and improvements.
 ## [2022-01-21][2022-01-21__0.3.5] — 0.3.5 and 0.2.8
-  - __Added__: Blankets to keep warm.
+  - __Added__: ***Blanket***s to keep warm.
   - __Added__: Foods can now burn if left cooking too long.
-  - __Balanced__: Mobs should no longer `stun`-lock when hit repeatedly.
+  - __Balanced__: Mobs should no longer stun-lock when hit repeatedly.
   - __Balanced__: Nerf: Increased fall damage.
-  - __Added__: You can use a `Stick` to bar a door, to prevent entry.
+  - __Added__: You can use a ***Stick*** to bar a door, to prevent entry.
   - __Added__: New animations, thanks to ***MisterE***.
   - __Added__: Track how many incarnations you’ve had in the `Character` tab.
-  - __Added__: `Glow Worm`s in caves.
-  - __Balanced__: Nerf: `Stick`s don’t connect with right-angle corners anymore.
-  - __Balanced__: Nerf: `Mudbrick` turns to clay when broken, in the same manner as bricks lose mortar.
+  - __Added__: ***Glow Worm***s in caves.
+  - __Balanced__: Nerf: ***Stick***s don’t connect with right-angle corners anymore.
+  - __Balanced__: Nerf: ***Mudbrick*** turns to clay when broken, in the same manner as bricks lose mortar.
   - __Added__: Mapgen: `carpathian` is now supported, for a harder game world.
-  - __Fixed__: No more beach spiders.
-  - __Improved__: New food system infrastructure.
-  - __Added__: Experimental biomes, enable under settings to test.
-  - __Fixed__: Miscellaneous bug-fixes and quality of life improvements.
+  - __Fixed__: No more beach spiders. (***Darkasthaan***)
+  - __Improved__: New food-system infrastructure.
+  - __Added__: Experimental `biomes`, enable under `Settings` to test.
+  - __Fixed__: Miscellaneous bug-fixes and quality-of-life improvements.
 # 2021
 ## [2021-11-01][2021-11-01__0.3.4] — 0.3.4 and 0.2.7
   - __Added__: New player API: Head tracking, multiplayer skins, male and female characters.
   - __Added__: Added an introduction screen for new players, and a chat display of the day/season/year with in-universe style.
-  - __Added__: Place snow/ice/water on top of a clay `Water Pot`, and melting will fill it.
-  - __Balanced__: Buff: Food value of meat.
-  - __Improved__: Improved `Torch` stacking by rounding-off burn times.
+  - __Added__: Place snow/ice/water on top of a clay ***Water Pot***, and melting will fill it.
+  - __Balanced__: Buff: Food value of meats.
+  - __Improved__: Improved ***Torch*** stacking by rounding-off burn times.
   - __Added__: New chat commands: `/set_tempscale`, `/date`.
   - __Improved__: Better indoors check on `Minetest 5.4.x`.
 ## [2021-09-25][2021-09-25__0.3.3] — 0.3.3 and 0.2.6
   - __Improved__: Plants now grow even when players are away from the area.
-  - __Balanced__: Fireproof: `Iron Doors` and `Iron Trapdoors`.
-  - __Added__: Ability to mix `Wet Loam` and agricultural soil.
-  - __Improved__: Renamed `Stone Chopper` to `Stone Knife` for clarity.
+  - __Balanced__: Fireproof: ***Iron Door***s and ***Iron Trapdoor***s.
+  - __Added__: Ability to mix ***Wet Loam*** and ***Agricultural Soil***s.
+  - __Improved__: Renamed *Stone Chopper* to ***Stone Knife*** for clarity.
   - __Fixed__: More bug fixes and improvements.
 ## [2021-09-12][2021-09-12__0.3.2] — 0.3.2 and 0.2.5
-  - __Added__: Glassworking! Make windows, and make glass bottles that can hold water, and which stack.
-  - __Improved__: Agricultural soils erode down to a soil slab instead of vanishing.
+  - __Added__: Glassworking! Make windows, and make ***Glass Bottle***s that can hold water, and which stack.
+  - __Balanced__: ***Agricultural Soil***s erode down to a ***Soil Slab*** instead of vanishing.
   - __Fixed__: Fixed a baking crash.
 ## [2021-07-18][2021-07-18__0.3.1] — 0.3.1 and 0.2.4
-  - __Improved__: `Oil Lamp`s can be switched off with right-click, and lit with `Fire Stick`s.
-  - __Balanced__: `Oil Lamp`s can hold more oil and now burn oil slower.
+  - __Improved__: ***Oil Lamp***s can be switched off with right-click, and lit with ***Fire Stick***s.
+  - __Balanced__: ***Oil Lamp***s can hold more oil and now burn oil slower.
   - __Fixed__: Various bug-fixes.
 ## [2021-06-12][2021-06-12__0.3.0] — 0.3.0 and 0.2.3
-  - __Notable__: Initial release for `Minetest 5.4.0`, use Exile 0.2 series for 5.3.0 version.
+  - __Notable__: Initial release for `Minetest 5.4.0` — use _Exile_ `0.2` series for `5.3.0` version.
   - __Added__: New dependency: `naturalslopeslib` provides better hillsides.
-  - __Added__: Ability to throw `Torch`es for light.
+  - __Added__: Ability to throw ***Torch***es for light.
   - __Added__: Settings for `breaktaker`.
-  - __Added__: Ability to display temperature in Celsius, Fahrenheit, or Kelvin. (Using global settings.)
-  - __Improved__: Food burns instead of vanishing, thanks to ***ts***.
+  - __Added__: Ability to display `temperature` in _Celsius_, _Fahrenheit_, or _Kelvin_. (Using global `Settings`.)
+  - __Improved__: Food burns instead of vanishing, thanks to __ts__.
   - __Improved__: Farming improvements.
   - __Fixed__: Fixes for fire and rain.
   - __Fixed__: Many fixes for crashes and bugs.
@@ -237,47 +237,47 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Notable__: [New page](https://content.minetest.net/packages/Mantar/exile/) on __ContentDB__.
 # 2020
 ## [2020-12-29][2020-12-29__0.2.2] — 0.2.2
-  - __Added__: New HUD.
+  - __Added__: New `HUD`.
   - __Added__: Character tab.
   - __Added__: Health effects.
-  - __Added__: Drugs: `Tiku`, `Tang`, `Metastim`.
+  - __Added__: Drugs: ***Tiku***, ***Tang***, ***Metastim***.
   - __Added__: Added `megamorph` surface air-shafts.
   - __Fixed__: Fixed clothing infinite tolerance bug.
-  - __Added__: Added `Iron Fittings` for carpentry crafting.
-  - __Added__: Young vs. old `Tangkal` trees.
-  - __Added__: Added `Tiken` woody cane.
+  - __Added__: Added ***Iron Fitting***s for carpentry crafting.
+  - __Added__: Young vs. old ***Tangkal*** trees.
+  - __Added__: Added ***Tiken*** woody cane.
   - __Added__: Cave sediments and mushrooms.
   - __Added__: Defined `puts_out_fire` group (e.g. mud now puts out fire), and `masonry` group.
-  - __Added__: Created a walkthrough document for players who want one.
-  - __Added__: Added `Loose Wattle`.
-  - __Added__: Added `Mashed Anperla`.
+  - __Added__: Created a ***Walkthrough*** document for players who want one.
+  - __Added__: Added ***Loose Wattle***.
+  - __Added__: Added ***Mashed Anperla***.
   - __Fixed__: Miscellaneous minor fixes and balancing.
 ## [2020-09-25][2020-09-25__0.2.1] — 0.2.1
-  - __Fixed__: Fixed exile-letter crash.
+  - __Fixed__: Fixed exile-letter crash. (***Sentence of Exile***)
   - __Fixed__: Fixed saltwater surface sediment crash.
   - __Fixed__: Fixed multiplayer health-tab crash.
   - __Balanced__: Animals balanced and bug-fixed.
-  - __Balanced__: Adjusted ice freezing and thawing.
+  - __Balanced__: Adjusted ***Sea Ice*** freezing and thawing.
 ## [2020-08-02][2020-08-02__0.2.0] — 0.2.0
-  - __Added__: Clothing (plus multi-skin model, new player API), `Weaving Frame`, and temperature tolerance via clothing.
-  - __Added__: Lore: exile letter.
-  - __Added__: Added `Sleeping Spot`.
-  - __Added__: New mobs: `Darkasthaan`, `Impethu`, `Pegasun`, `Sneachan`.
+  - __Added__: Clothing (plus multi-skin model, new player `API`), ***Weaving Frame***, and temperature tolerance via clothing.
+  - __Added__: Lore: exile letter. (***Sentence of Exile***)
+  - __Added__: Added ***Sleeping Spot***.
+  - __Added__: New mobs: ***Darkasthaan***, ***Impethu***, ***Pegasun***, ***Sneachan***.
   - __Added__: Cookable animal carcasses.
-  - __Added__: Graffiti: glow paint.
-  - __Added__: New building materials: `Rammed Earth`, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
+  - __Added__: Graffiti: ***Glow Paint***.
+  - __Added__: New building materials: ***Rammed Earth***, bricks and mortar, roof tiles, wooden doors/floors/stair, mortared masonry.
   - __Fixed__: Fixed dungeon loot.
-  - __Added__: Added more artifacts. (`Airboat`, art, transporter, `Wayfinder`, ….)
-  - __Added__: Added three artifact species of mushrooms for sustaining fibre, food/water, and sticks, absent sunlight.
-  - __Added__: Split Geomoria mod's biomes into realms (highways, and city structures).
+  - __Added__: Added more artifacts. (***Airboat***, art, ***Transporter***, ***Wayfinder***, ….)
+  - __Added__: Added three artifact species of `mushroom`s for sustaining fibre, food/water, and sticks, absent sunlight.
+  - __Improved__: Split `Geomoria` mod’s biomes into realms (highways, and city structures).
   - __Added__: Added more `geomorphs`.
-  - __Added__: `Gneiss` and `Jade` for deep-underground biome.
-  - __Improved__: Better-looking `Bones`.
+  - __Added__: ***Gneiss*** and ***Jade*** for deep-underground biome.
+  - __Improved__: Better-looking ***Bones***.
   - __Improved__: Newly-formatted colouring for skies.
   - __Added__: Chat commands for controlling climate variables.
   - __Added__: `Design Guide`.
   - __Improved__: Updated menu-screen backgrounds.
-  - __Improved__: Updated version of crafting mod.
+  - __Improved__: Updated version of `crafting` mod.
   - __Fixed__: Various minor fixes.
   - __Balanced__: Various minor balance changes.
   - __Added__: Various minor additions.
