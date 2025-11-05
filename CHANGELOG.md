@@ -11,10 +11,10 @@ Highlighting those additions and improvements which may be of interest to the pl
 ## [2024-11-08][2024-11-08__0.3.18f] — 0.3.18f
    - __Fixed__: Fix warnings on `Luanti 5.10.0`.
 ## [2024-10-25][2024-10-25__0.3.18e] — 0.3.18e
-   - __Balanced__: ***Wooden Potash Pots*** burn up when you cook them.
+   - __Balanced__: Wooden ***Potash Pot***s burn up when you cook them.
    - __Fixed__: A few bugfixes.
 ## [2024-10-12][2024-10-12__0.3.18d] — 0.3.18d
-   - __Improved__: Seed images showing the plant.
+   - __Improved__: Seed images now show the plant (in background).
    - __Fixed__: Remove air pockets around tree roots.
    - __Improved__: Improvements to ***Airboat***, and ***Transporter***.
    - __Fixed__: Minor fixes.
@@ -90,7 +90,7 @@ Highlighting those additions and improvements which may be of interest to the pl
 ## [2023-09-30][2023-09-30__0.3.11] — 0.3.11
   - __Improved__: Improved animal behavior.
   - __Balanced__: Increase portion size for meats.
-  - __Added__: Quickslot numbers on the HUD.
+  - __Added__: `Quickslot` numbers on the `HUD`.
   - __Balanced__: Enforced range-limits for ***Transporter***s.
   - __Added__: Added a stone etching tool.
   - __Added__: New environmental sounds.
@@ -181,7 +181,7 @@ Highlighting those additions and improvements which may be of interest to the pl
 ## [2022-02-25][2022-02-25__0.3.5b] — 0.3.5b and 0.2.8b
   - __Balanced__: Flowing water no longer supports player weight in `MT 5.5.0`.
   - __Added__: `/suicide` command for players who are stuck.
-  - __Added__: Added frost overlay to the HUD when you’re dangerously cold.
+  - __Added__: Added frost overlay to the `HUD` when you’re dangerously cold.
   - __Added__: ***Cooking Pot*** now available, still somewhat WIP.
   - __Fixed__: many minor bugfixes and improvements.
 ## [2022-01-21][2022-01-21__0.3.5] — 0.3.5 and 0.2.8
@@ -271,7 +271,7 @@ Highlighting those additions and improvements which may be of interest to the pl
   - __Added__: Added three artifact species of `mushroom`s for sustaining fibre, food/water, and sticks, absent sunlight.
   - __Improved__: Split `Geomoria` mod’s biomes into realms (highways, and city structures).
   - __Added__: Added more `geomorphs`.
-  - __Added__: ***Gneiss*** and ***Jade*** for deep-underground biome.
+  - __Added__: ***Gneiss*** and ***Jade*** for deep-underground `biome`.
   - __Improved__: Better-looking ***Bones***.
   - __Improved__: Newly-formatted colouring for skies.
   - __Added__: Chat commands for controlling climate variables.
