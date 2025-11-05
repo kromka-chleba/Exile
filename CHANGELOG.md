@@ -1,69 +1,69 @@
 # Changelog:
 Highlighting those additions and improvements which may be of interest to the players.
 # 2025
-## [2025-03-12][2025-03-12__0.3.18h]
+## [2025-03-12][2025-03-12__0.3.18h] — 0.3.18h
    - More graffiti on the stone etcher
    - Bug fixes
 # 2024
-## [2024-11-13][2024-11-13__0.3.18g]
+## [2024-11-13][2024-11-13__0.3.18g] — 0.3.18g
    - Fix moonglass transparency
    - Fix for ucsigns mod
-## [2024-11-08][2024-11-08__0.3.18f]
+## [2024-11-08][2024-11-08__0.3.18f] — 0.3.18f
    - Fix warnings on Luanti 5.10.0
-## [2024-10-25][2024-10-25__0.3.18e]
+## [2024-10-25][2024-10-25__0.3.18e] — 0.3.18e
    - Wooden potash pots burn up when you cook them
    - A few bugfixes
-## [2024-10-12][2024-10-12__0.3.18d]
+## [2024-10-12][2024-10-12__0.3.18d] — 0.3.18d
    - Seed images showing the plant
    - Remove air pockets around tree roots
    - Improvements to airboat, transporter
    - Minor fixes
-## [2024-09-13][2024-09-13__0.3.18c]
+## [2024-09-13][2024-09-13__0.3.18c] — 0.3.18c
    - Improvements to ropes, quicklime/slaked lime, and tile floors
    - Minor bugfixes
-## [2024-08-24][2024-08-24__0.3.18b]
+## [2024-08-24][2024-08-24__0.3.18b] — 0.3.18b
    - Fix crash on animal capture in MT 5.9.0
-## [2024-08-23][2024-08-23__0.3.18a]
+## [2024-08-23][2024-08-23__0.3.18a] — 0.3.18a
    - Improved Minetest 5.9.0 support
    - bugfixes
-## [2024-07-18][2024-07-18__0.3.18]
+## [2024-07-18][2024-07-18__0.3.18] — 0.3.18
    - Added glass doors and trapdoors
    - Hang an oil lamp from the ceiling
    - Support for the Unicode Signs [ucsigns] mod
    - Better texture for roof/floor tiles
    - Inventory images for coarse & fine fabrics
-## [2024-06-04][2024-06-04__0.3.17f]
+## [2024-06-04][2024-06-04__0.3.17f] — 0.3.17f
    - Potash liquid is caustic
-## [2024-04-22][2024-04-22__0.3.17e]
-## [2024-04-06][2024-04-06__0.3.17d]
+## [2024-04-22][2024-04-22__0.3.17e] — 0.3.17e
+## [2024-04-06][2024-04-06__0.3.17d] — 0.3.17d
    - bugfixes
-## [2024-03-28][2024-03-28__0.3.17c]
+## [2024-03-28][2024-03-28__0.3.17c] — 0.3.17c
    - Support for ExchangeClone mod
    - more bugfixes
-## [2024-03-24][2024-03-23__0.3.17b]
-## [2024-03-23][2024-03-23__0.3.17a]
+## [2024-03-24][2024-03-23__0.3.17b] — 0.3.17b
+## [2024-03-23][2024-03-23__0.3.17a] — 0.3.17a
    - bugfixes
-## [2024-03-22][2024-03-22__0.3.17]
+## [2024-03-22][2024-03-22__0.3.17] — 0.3.17
    - Informational states displayed on character tab
    - Drystack and Rammed earth arches: build a wall, knock out the middle
    - server command: /recover_inv <player> to restore inv lost on restart
-## [2024-03-03][2024-03-03__0.3.16]
+## [2024-03-03][2024-03-03__0.3.16] — 0.3.16
   - Replaced NC-licensed Gundu, Exile should be fully free now
   - WITT for Exile: show the names of things when you press the zoom key
   - Improved light meter
   - Added /crouch as alternative to double-tapping shift, in case of lag
   - Less trouble with lowering ropes/ladders
-## [2024-01-16][2024-01-16__0.3.15d]
+## [2024-01-16][2024-01-16__0.3.15d] — 0.3.15d
   - Add a player model to clothing page, too!
   - Increase /ping timeout on servers
   - Fix for a mobile issue with bed rest
-## [2024-01-09][2024-01-09__0.3.15c]
+## [2024-01-09][2024-01-09__0.3.15c] — 0.3.15c
   - Fixed a crafting screen bug
   - Fixed some positional audio quirks
-## [2024-01-09][2024-01-09__0.3.15b]
+## [2024-01-09][2024-01-09__0.3.15b] — 0.3.15b
   - Added a player model to the character tab
   - Fix for the "disappearing hammer" bug
-## [2024-01-08][2024-01-08__0.3.15]
+## [2024-01-08][2024-01-08__0.3.15] — 0.3.15
   - Bones of previous exiles, with various items
   - Sun hat and sandals
   - Fires more likely to die out than burn forever
@@ -74,18 +74,18 @@ Highlighting those additions and improvements which may be of interest to the pl
   - Fixed hair colors
   - /restart will fix bugged players who closed the death formspec
 # 2023
-## [2023-12-01][2023-12-01__0.3.14b]
+## [2023-12-01][2023-12-01__0.3.14b] — 0.3.14b
   - Added tile floor block to match roof, with stairs and slabs
   - Added support for Visual Harm 1ndicators mod
-## [2023-11-11][2023-11-11__0.3.14]
+## [2023-11-11][2023-11-11__0.3.14] — 0.3.14
   - Transporters now send all objects that are on the pad
   - Improved letter and bones with info on player/lives
   - Sound for pots
   - More small bugs fixed
-## [2023-10-13][2023-10-13__0.3.13.37]
+## [2023-10-13][2023-10-13__0.3.13.37] — 0.3.13.37
   - Commit #1337
   - Bugfixes for v0.3.11
-## [2023-09-30][2023-09-30__0.3.11]
+## [2023-09-30][2023-09-30__0.3.11] — 0.3.11
   - Improved animal behavior
   - Increase portion size for meat
   - Quickslot numbers on the HUD
