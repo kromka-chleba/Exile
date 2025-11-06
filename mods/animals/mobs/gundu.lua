@@ -287,10 +287,8 @@ local self_data = {
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_fish_small",
-    on_rightclick = function(self, clicker, time_from_last_click,
-                             tool_capabilities)
-        animals.stun_catch_mob(self, clicker, time_from_last_click,
-                               tool_capabilities)
+    on_rightclick = function(self, clicker)
+        -- show some reaction
         animals.fight_or_flight(self, clicker)
     end,
     -- egg

@@ -571,8 +571,8 @@ function animals.hq_die(self)
     -- clear all priorities
     mobkit.clear_queue_high(self)
     mobkit.clear_queue_low(self)
-    -- set no interact
-    self.no_interact = true
+    -- set 'Cannot take it alive anymore!'
+    self.about_to_go = true
     -- fallover
     self.logic = function() end      -- brain dead as well
     animals.handle_drops(self,despawn_time)
@@ -722,8 +722,8 @@ function animals.core_life(self, pos)
         local burn_max_temp = self.burn_max_temp
         local absolute_death_temp = self.absolute_death_temp
 
-        if (self.class ~= 2) then
-            -- only for land creatures
+        -- only for land creatures: flee from bad temps unless stunned
+        if (self.class ~= 2) and not self.stunned then
             if (temp > killer_max_temp or temp < killer_min_temp) then
                 -- clear all queues, you gotta get outta here! We dyin!
                 mobkit.clear_queue_low(self)
@@ -1729,6 +1729,9 @@ function animals.on_punch(self, puncher, time_from_last_punch,
     animals.make_sound(self,'punch')
     animals.modify_hp(self,-dmg)
 
+    -- no scared sounds or fight or flight when stunned
+    if self.stunned then return end
+
     local conserve = mobkit.recall(self,'conserve')
     if (self.hp < self.max_hp/10 or self.hp <= (dmg * 2)
         or conserve == true) then
@@ -1850,6 +1853,9 @@ end
 
 --attack or run vs entity or player
 function animals.fight_or_flight(self, threat, prty, chance)
+    -- can neither fight nor flight when stunned
+    if self.stunned then return end
+
     prty = type(prty) == "number" and prty or 55
     if self.class ~= 2 then
         -- wait! check if we're in water!
@@ -3888,64 +3894,94 @@ function animals.register_animal(name,def)
     def.max_hp = def.initial_properties.max_hp
 
     -- modify functions for event changes or necessary actions
+    -- on_punch(): cause damage, but a player might also stun, then grab it
     local on_punch = def.on_punch
     def.on_punch = function(self, puncher, time_from_last_punch,
                             tool_capabilities, dir)
-        local multiplier = tool_capabilities.full_punch_interval or 0.1
-        multiplier = math_clamp(time_from_last_punch / multiplier, 0, 1)
-        local fleshdmg = tool_capabilities.damage_groups.fleshy or 0
-        -- allow players in creative to infinitely hit
-        if not minimal.player_in_creative(puncher) then
-            fleshdmg = math.floor(fleshdmg * multiplier)
-            -- capture override for sea creatures
+        local tool_caps = tool_capabilities or {} -- safety
+        local dmg = tool_caps.damage_groups and tool_caps.damage_groups.fleshy
+                    or 0   -- -> mostly fleshy value from hand item ""
+
+        if core.is_player(puncher) then
+            -- stunned, but not yet captured or dead and player punches with
+            -- empty hand or other harmless item or is in creative? -> capture
+            if self.stunned and not self.about_to_go
+                and (dmg <= 1 or minimal.player_in_creative(puncher)) then
+
+                animals.capture(self, puncher)
+                return
+            end
+
+            -- stunning override for sea-born creatures
             -- (even when punching with a spear, soil, whatever item)
-            if def.class == 2 and minetest.is_player(puncher)
-                and node_drawtype(puncher:get_pos()) == "liquid" then
+            --  unless in creative or with tool_capabilities.harm_fish
+            local all_items_stun
+            if def.class == 2 and node_drawtype(puncher:get_pos()) == "liquid"
+                and not minimal.player_in_creative(puncher) then
+                -- Check for exception 'tool_capabilities.harm_fish':
+                -- Unfortunately Luanti does not transfer custom tool
+                -- capabilities like 'harm_fish' to on_punch() for players.
+                -- Detect future feature breaking change in Luanti's API:
+                if tool_caps.harm_fish then
+                    core.log("warning", "animals - on_punch(): feature"
+                             .. " breaking change with harm_fish!")
+                end
+                -- NOTE  harm_fish is for external modding
 
+                -- get full item def - including harm_fish, if present
                 local w_itemdef = puncher:get_wielded_item():get_definition()
-                tool_capabilities = w_itemdef.tool_capabilities
-                    or tool_capabilities
-                -- player punching does not give custom tool_capabilities
-                -- NOTE  harm_fish is not set with Exile's built-in features
-                -- but could be set in a predator's attack table, a tool, ...
-                if type(def.on_rightclick) == "function" and
-                    not tool_capabilities.harm_fish then
-
-                    tool_capabilities.is_hand = true
-                    return def.on_rightclick(self, puncher, time_from_last_punch,
-                                             tool_capabilities)
+                tool_caps = w_itemdef.tool_capabilities or tool_caps
+                if not tool_caps.harm_fish then
+                    all_items_stun = true
                 end
             end
-        end
-        if fleshdmg <= 0 then
-            return
-        end
-        self.last_punched = get_time()
-        if type(on_punch) == "function" then
-            return on_punch(self, puncher, time_from_last_punch,
-                            tool_capabilities, dir, fleshdmg)
-        end
-    end
-    if type(def.on_rightclick) == "function" then
-        local on_rightclick = def.on_rightclick
-        def.on_rightclick = function(self, clicker, time_from_last_click,
-                                     tool_capabilities)
-            -- create artificial on_punch functionality for rightclick
-            local tool = clicker:get_wielded_item()
-            local tooldef = tool:get_definition()
-            tool_capabilities = tool_capabilities or tooldef.tool_capabilities
-            -- Unless called from on_punch(), we emulate Luanti's
-            -- time_from_last_punch. Unfortunately get_time() returns full
-            -- seconds only.
-            time_from_last_click = time_from_last_click
-                or get_time(animals.rclick_times[clicker])
-            animals.rclick_times[clicker] = get_time()
-            if type(on_rightclick) == "function" then
-                return on_rightclick(self, clicker, time_from_last_click,
-                                     tool_capabilities)
+
+            -- not stunned? Check if stunning supported by item and animals,
+            -- split dmg into damage and chance of stunning, try to stun
+            local now_stunned
+            if not self.stunned then
+                dmg = animals.try_stun_mob(self, puncher, time_from_last_punch,
+                                           dmg, tool_caps, all_items_stun)
+                now_stunned = self.stunned
+            end
+
+             -- player in liquids can only stun, not hurt fish
+            if all_items_stun then
+                -- make sure there is a sound
+                animals.make_sound(self,'caught','punch')
+                return
+            elseif now_stunned then
+                -- if stunned, still cause some damage, but not deadly to avoid
+                -- being stunned while entirely healthy at the same time,
+                -- + a requirement for duration of recovery
+                dmg = math.min(math.floor(0.5 * self.hp),
+                               math.floor(0.5 * dmg))
             end
         end
+
+        if dmg <= 0 then  -- no damage? -> no effects at all
+            return
+        end
+
+        -- not a player in creative? -> apply fpi
+        if not minimal.player_in_creative(puncher) then
+            local fpi = tool_caps.full_punch_interval or 0.1
+            local fraction = math_clamp(time_from_last_punch / fpi, 0, 1)
+            dmg = math.floor(dmg * fraction)
+            -- TODO randomize the part that gets rounded away to not loose it?
+            -- dmg_floor = math.floor(dmg * fraction)
+            -- reminder = dmg - dmg_floor
+            -- dmg = dmg_floor + (math.random() < reminder and 1 or 0)
+        end
+
+        self.last_punched = get_time() -- to block recovery for some time
+        -- apply damage
+        if type(on_punch) == "function" then
+            return on_punch(self, puncher, time_from_last_punch,
+                            tool_caps, dir, dmg)
+        end
     end
+
     -- entity functions
     -- set and modify
     function def.set(self,vname,value,memorize)
@@ -3959,6 +3995,7 @@ function animals.register_animal(name,def)
         end
         return value
     end
+
     function def.modify(self,vname,value,memorize)
         -- modify a value
         if type(vname) ~= "string" or type(value) ~= "number"
