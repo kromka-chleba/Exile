@@ -235,12 +235,15 @@ function animals.temp_comfy(self,temp)
     return false
 end
 
--- "sizeify" function
+-- `sizeify` function
 -- meant to scale an animal's collision box and visual size
--- "perc" is how much percentage to modify by
--- "base" boolean used for determining whether to calculate from defined stats (true) or local ones (false)
--- without "base", changes will be accumulative
--- with "base", will do percentage from registered_entities's index of initial_properties
+-- supports individual animals and def tables of a species before registration
+-- `perc`: how much percentage to modify by (e.g. 0.89 for -11%, 1.2 for +20%)
+-- `base`: boolean, determines whether to calculate from defined stats (true)
+--         or from individual ones (false, default), use `false` or nil if
+--         `self` is a def table of a species before registration
+-- without `base`, changes will be accumulative
+-- with `base`, will do percentage from registered_entities's index of initial_properties
 function animals.sizeify(self, perc, base)
     if not (type(self) == "table" or type(self) == "userdata") then return end
     base = type(base) == "boolean" and base or false
