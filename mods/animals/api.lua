@@ -3903,14 +3903,6 @@ function animals.register_animal(name,def)
                     or 0   -- -> mostly fleshy value from hand item ""
 
         if core.is_player(puncher) then
-            -- stunned, but not yet captured or dead and player punches with
-            -- empty hand or other harmless item or is in creative? -> capture
-            if self.stunned and not self.about_to_go
-                and (dmg <= 1 or minimal.player_in_creative(puncher)) then
-
-                animals.capture(self, puncher)
-                return
-            end
 
             -- stunning override for sea-born creatures
             -- (even when punching with a spear, soil, whatever item)
@@ -3934,6 +3926,18 @@ function animals.register_animal(name,def)
                 if not tool_caps.harm_fish then
                     all_items_stun = true
                 end
+            end
+
+            -- stunned, but not yet captured and player punches with hand or an
+            -- item that causes little or no harm or player is in creative
+            --- and animal is already captured or dead? -> capture
+            if self.stunned
+                and (dmg <= 1 or all_items_stun
+                              or minimal.player_in_creative(puncher))
+                and not self.about_to_go then
+
+                animals.capture(self, puncher)
+                return
             end
 
             -- not stunned? Check if stunning supported by item and animals,
