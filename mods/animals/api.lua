@@ -30,7 +30,10 @@ if use_vh1 then
 end
 
 -- table to emulate time_from_last_punch for rightclick
-animals.rclick_times = {}
+-- NOTE currently not used; pattern was:  per clicker store time of last
+--      on_rightclick() on any animal, next time pass elapsed seconds as
+--      additional parameter to on_rightclick()
+-- animals.rclick_times = {}
 
 --------------------------------------------------------------------------
 --basic
