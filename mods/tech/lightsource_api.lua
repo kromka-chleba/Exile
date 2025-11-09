@@ -111,13 +111,16 @@ end
 function lightsource.burn_fuel(desc, pos, meta)
     meta = meta or minetest.get_meta(pos)
     local fuel = meta:get_int("fuel")
-    if ( fuel < 1 or not check_for_air(pos) or
+
+    if ( fuel == 0 or not check_for_air(pos) or
          desc.put_out_by_moisture and check_for_moisture(pos) )then
         lightsource.extinguish(desc, pos)
         return false -- stop timer
-    else
+    else -- we're not extinguished yet, burn fuel and do next tick
+        fuel = fuel - math.random(-1, 3)
+        if fuel < 1 then fuel = 0 end
+        meta:set_int("fuel", fuel)
         -- lightsource.spawn_particles(desc, pos)
-        meta:set_int("fuel", fuel - math.random(-1, 3))
         lightsource.update_fuel_infotext(desc, pos, meta)
         return true -- next iteration
     end
