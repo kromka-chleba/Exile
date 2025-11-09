@@ -105,12 +105,11 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
         else
             return ccuf(name, nil) -- remove from updating for list
         end
-        -- creative menu, or regular!!!
-        if in_creative then
-            sfinv.set_page(plr, sfinv.get_homepage_name(plr))
-        else
-            sfinv.set_player_inventory_formspec(plr)
-        end
+        -- creative menu, or regular?
+        -- clear player's current context
+        sfinv.set_context(plr)
+        -- set new context based on sfinv.get_homepage_name(plr)
+        sfinv.set_player_inventory_formspec(plr)
         -- powerful hands handling
         -- let us get what we most desire
         if in_creative then

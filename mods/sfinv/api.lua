@@ -36,9 +36,25 @@ sfinv = {
 }
 
 local homepage_name = "sfinv:crafting"
+-- per player homepages
+local homepage_names = {}
 
-function sfinv.set_homepage_name(new_name)
-	homepage_name = new_name
+-- Sets the name of the page to be set initially when a player joins as well as
+-- after set_context() was called with a nil context.
+-- `new_name`: name of the page to set for `player`
+-- WARNING: Make sure to not set a page as homepage before every prerequisites
+--          of that page are set up for `player`. E.g. if some player-specific
+--          pre-reqs are initialized in a callback registered with
+--          register_on_joinplayer() then you could set the page safely in the
+--          same function or any time later. Otherwise you might see crashes
+--          due to sfinv setting the page too early.
+function sfinv.set_homepage_name(player, new_name)
+    local name = player:get_player_name()
+    if name then
+        homepage_names[name] = new_name
+    else
+        homepage_names[name] = nil
+    end
 end
 
 -- default tab_order will be order of registration
@@ -170,7 +186,10 @@ end
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
-	return homepage_name
+    local page_name = homepage_names[player:get_player_name()]
+    if sfinv.pages[page_name] then return page_name end
+
+    return homepage_name
 end
 
 -- in order to be able to set custom tab order
