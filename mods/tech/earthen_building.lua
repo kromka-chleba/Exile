@@ -162,15 +162,22 @@ for i = 1, #soiltable do
     wdef._wet_salty_name = bn..soiltable[i]..wtable[3]
     for j = 1, #wtable do
         local wdef2 = table.copy(wdef)
+
+        -- Copy groups, minus falling_node
+        local sedname = "nodes_nature:"..soiltable[i]..wtable[j]
+        wdef2.groups = core.registered_nodes[sedname].groups
+        wdef2.groups["falling_node"] = nil
+
         wdef2.description = wwdesc[j]
-        wdef2.groups.wet_sediment = j - 1
-        if j == 1 then wdef2.groups.dry_sediment = 1 end
+
+        -- Arrange tiles
         local tile = "nodes_nature_"..soiltable[i]..".png"
         if j > 1 then tile = tile.."^nodes_nature_mud.png" end
         if j == 3 then tile = tile.."^nodes_nature_mud_salt.png" end
         local wicker = "tech_wattle.png"
         if j > 1 then wicker = wicker.."^nodes_nature_mud.png" end
         wdef2.tiles = {wicker, tile, tile, tile, tile, tile }
+
         minetest.register_node(bn..soiltable[i]..wtable[j],
                                wdef2)
     end

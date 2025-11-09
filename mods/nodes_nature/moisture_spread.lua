@@ -21,7 +21,8 @@ local function water_erode(pos, node)
     --take the sediment under it and move it to the side
     local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
     local under_name = minetest.get_node(pos_under).name
-    if minetest.get_item_group(under_name, "sediment") > 0 then
+    if core.get_item_group(under_name, "sediment") > 0 and
+        core.get_item_group(under_name, "falling_node") > 0 then
 
         --move it to another part of water, so long as it is grounded
         local pos_flow = minetest.find_nodes_in_area(
