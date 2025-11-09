@@ -233,7 +233,7 @@ function sfinv.get_or_create_context(player)
 		}
 		sfinv.contexts[name] = context
 	end
-	return context
+	return context -- return reference to sfinv.contexts[name]
 end
 
 function sfinv.set_context(player, context)
@@ -247,16 +247,18 @@ function sfinv.set_player_inventory_formspec(player, context)
 end
 
 function sfinv.set_page(player, pagename)
+    -- get reference to sfinv.context[player name]
 	local context = sfinv.get_or_create_context(player)
 	local oldpage = sfinv.pages[context.page]
 	if oldpage and oldpage.on_leave then
 		oldpage:on_leave(player, context)
 	end
-	context.page = pagename
+	context.page = pagename -- updates sfinv.context[player name], YES THIS LINE!!!
 	local page = sfinv.pages[pagename]
 	if page.on_enter then
 		page:on_enter(player, context)
 	end
+	-- pass the reference to sfinv.context[player name] to actually set the page
 	sfinv.set_player_inventory_formspec(player, context)
 end
 
