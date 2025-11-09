@@ -1,3 +1,33 @@
+-- he mod sfinv provides basic means to coordinate which  formspec is displayed
+-- as inventory formspec at what time.
+-- `sfinv`: A global table to manage fromspecs used as inventory GUI, i.e.
+--          formspecs passed as parameter to set_inventoy_formspec() at certain
+--          points to have them displayed when a player triggers the inventory
+--          key.
+-- elements:
+-- `context`: one context object for inventory formspecs per player
+-- `context.page`: used to track the name of the registered formspec that is
+--            currently set as the player's inventory formspec, i.e. the
+--            formspec that will open next time the player triggers the
+--            inventory key
+--            NOTE Due to limitiations of the engine, `sfinv` cannot track the
+--                 current formspec automatically. Therefore it provides a
+--                 wrapper to be called instead of `set_inventory_formspec()`,
+--                 see `set_player_inventory_formspec()`.
+--                 Calling `set_inventory_formspec()` directly means there
+--                 has to be other mechanisms in order to synchonize with
+--                 `sfinv`.
+--                 Also it is not possible to use formspecs with `sfinv`
+--                 without prior registration via `sfinv.register_page()`.
+--       `...`: incomplete
+-- `pages`: table of registered formspecs (name -> page),
+--          see `register_page()`, `override_page()`, `remove_page()`
+-- `pages_unordered`: ...
+-- `enabled`: switch to disable `sfinv's` callback to set a default `homepage`
+--            inventory formspec when a player joins; enabled by default
+--            NOTE It is also possible to replace the `homepage` by providing a
+--                 a different name, see `set_homepage_name()` or to override
+--                 elements of a registered page, see , `override_page()`.
 sfinv = {
 	pages = {},
 	pages_unordered = {},
@@ -236,16 +266,41 @@ function sfinv.get_or_create_context(player)
 	return context -- return reference to sfinv.contexts[name]
 end
 
+-- Sets the current context of `player` to `context`.
+-- - Unless further changes follow, this will make `context.page` the next page
+--   to be set as the current inventory formspec when
+--   sfinv.set_player_inventory_formspec() is called without parameter
+--   `context`. Basically this means you are proposing a certain page to be the
+--   next one to appear when a player opens the inventory GUI, but it will only
+--   appear if another part of the code decides to actually set 'whatever was
+--   proposed' to become the current page.
+--   `context` including any custom elements in it will be available in the
+--   page's on_player_receive_fields() through its 2nd parameter `context`.
+-- Another potential use case of this function is to clear the player's current
+--   context by passing nil as `context` followed by calling
+--   `sfinv.set_player_inventory_formspec()` also with nil as `context` to
+--   create a new context based on the return value of `get_homepage_name()`.
+-- WARNING This function does not check anything. The caller is responsible for
+--         providing the name of a registered page in `context.page`, otherwise
+--         a fallback will be used instead.
 function sfinv.set_context(player, context)
 	sfinv.contexts[player:get_player_name()] = context
 end
 
+-- Sets context.page as the current inventory formspec or updates its content.
+-- If `context` is omitted (or nil) the current page is set, i.e. it is updated
+-- to what its get() callback returns.
+-- If `context` is not nil, `context.page` must be the name of a registered
+-- page.
 function sfinv.set_player_inventory_formspec(player, context)
 	local fs = sfinv.get_formspec(player,
 			context or sfinv.get_or_create_context(player))
 	player:set_inventory_formspec(fs)
 end
 
+-- Sets the current inventory page by name or sets the player's homepage.
+-- `player`: the player to set the page for
+-- `pagename`: page to set (must not be nil)
 function sfinv.set_page(player, pagename)
     -- get reference to sfinv.context[player name]
 	local context = sfinv.get_or_create_context(player)
@@ -262,6 +317,7 @@ function sfinv.set_page(player, pagename)
 	sfinv.set_player_inventory_formspec(player, context)
 end
 
+-- Returns the name of the page currently set for `player`.
 function sfinv.get_page(player)
 	local context = sfinv.contexts[player:get_player_name()]
 	return context and context.page or sfinv.get_homepage_name(player)
