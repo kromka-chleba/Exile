@@ -295,10 +295,11 @@ end
 --   proposed' to become the current page.
 --   `context` including any custom elements in it will be available in the
 --   page's on_player_receive_fields() through its 2nd parameter `context`.
--- Another potential use case of this function is to clear the player's current
+-- Another possible use case of this function is to clear the player's current
 --   context by passing nil as `context` followed by calling
 --   `sfinv.set_player_inventory_formspec()` also with nil as `context` to
 --   create a new context based on the return value of `get_homepage_name()`.
+--   However, the same is achieved simply by `set_page(player)`.
 -- WARNING This function does not check anything. The caller is responsible for
 --         providing the name of a registered page in `context.page`, otherwise
 --         a fallback will be used instead.
@@ -319,8 +320,10 @@ end
 
 -- Sets the current inventory page by name or sets the player's homepage.
 -- `player`: the player to set the page for
--- `pagename`: page to set (must not be nil)
+-- `pagename`: page to set; if nil the player's homepage will be set
 function sfinv.set_page(player, pagename)
+    pagename = pagename or sfinv.get_homepage_name(player)
+
     -- get reference to sfinv.context[player name]
 	local context = sfinv.get_or_create_context(player)
 	local oldpage = sfinv.pages[context.page]

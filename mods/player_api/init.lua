@@ -114,5 +114,6 @@ minetest.register_on_joinplayer(function(player)
     (the formspec needs the texture to display the model)
         ]]
     sfinv.set_homepage_name(player, "clothing:clothing")
-    sfinv.set_page(player, "clothing:clothing")
+    -- switch to homepage
+    sfinv.set_page(player)
 end)
