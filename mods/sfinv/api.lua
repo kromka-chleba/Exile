@@ -38,6 +38,48 @@ sfinv = {
 local homepage_name = "sfinv:crafting"
 -- per player homepages
 local homepage_names = {}
+-- list of page names or callbacks in decreasing priority,
+-- callbacks shal return a name of a page or nil to 'miss a turn'
+local homepage_overrides = {}
+
+
+-- Adds an override for player's homepages.
+-- `override`: must be a name of a registered page or a callback,
+--             Callbacks will be called with the player as parameter.
+--             That way a mod has control per player or for all players.
+-- The override added last gets highest priority, but if it is a callback it
+-- may leave the decision to the next one, by returning nil.
+-- Callbacks must return the name of a registered page or nil. Invalid return
+-- values will be treated like nil.
+function sfinv.add_homepage_override(override)
+    local t = type(override)
+    if t ~= "string" and t ~= "function" then
+        -- error handling to support modding
+        local str = (t == "string") and override or ""
+        core.log("warning", "sfinv.remove_homepage_override(): cannot add an"
+                  .. " override of type " .. t .. " " .. str)
+        return
+    end
+    table.insert(homepage_overrides, 1, override)
+end
+
+-- Removes an override for the current homepage
+function sfinv.remove_homepage_override(override)
+    local t = type(override)
+    if t ~= "string" and t ~= "function" then
+        return
+    end
+    for idx, val in ipairs(homepage_overrides) do
+        if val == override then
+            table.remove(homepage_overrides, idx)
+            return
+        end
+    end
+    -- error handling to support modding
+    local str = (t == "string") and override or ""
+    core.log("warning", "sfinv.remove_homepage_override(): could not find"
+             .. " given override of type " .. t .. " " .. str)
+end
 
 -- Sets the name of the page to be set initially when a player joins as well as
 -- after set_context() was called with a nil context.
@@ -186,6 +228,16 @@ end
 --------------------------------------------------------------------------------
 
 function sfinv.get_homepage_name(player)
+    for _, value in pairs(homepage_overrides) do
+        local page_name = value
+        if type(value) == "function" then
+            page_name = value(player)
+        end
+        -- is this a name of a known page?
+        if page_name and sfinv.pages[page_name] then
+            return page_name
+        end
+    end
     local page_name = homepage_names[player:get_player_name()]
     if sfinv.pages[page_name] then return page_name end
 
