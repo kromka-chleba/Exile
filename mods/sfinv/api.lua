@@ -12,7 +12,7 @@ function sfinv.set_homepage_name(new_name)
 end
 
 -- default tab_order will be order of registration
-local tab_order = {homepage_name}
+local tab_order = {}
 
 function sfinv.register_page(name, def)
 	assert(name, "Invalid sfinv page. Requires a name")
@@ -145,14 +145,34 @@ end
 
 -- in order to be able to set custom tab order
 function sfinv.set_tabs(tab_list)
+    local pages_left = {}
+    -- save original tab order to keep missed pages in original order
+    for i, page_name in ipairs(tab_order) do
+        pages_left[page_name] = i
+    end
     tab_order = {}
     for _, page_name in ipairs(tab_list) do
         -- if page is registered
         if sfinv.pages[page_name] then
             table.insert(tab_order, page_name)
+            pages_left[page_name] = nil
         else
             core.log("in sfinv.set_tabs: we are trying to register a tab with undefined page")
         end
+    end
+    local missed_pages = {}
+    for page_name, _ in pairs(pages_left) do
+        table.insert(missed_pages, page_name)
+    end
+    -- sort to return missed_pages to original tab order
+    table.sort(missed_pages, function(l, r)
+        return pages_left[l] < pages_left[r]
+    end)
+    if #missed_pages > 0 then
+        core.log("info", "sfinv.set_tabs: appending missed pages: "..dump(missed_pages))
+    end
+    for _, page_name in ipairs(missed_pages) do
+        table.insert(tab_order, page_name)
     end
 end
 
