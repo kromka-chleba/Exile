@@ -45,3 +45,9 @@ sfinv.register_page(
             crafting.close_crafting_formspec(player)
         end
 })
+
+-- disable sfinv:crafting without removing it, it's kept for compatibility with 3rd-party mods
+-- and so we don't have to change the home page here
+-- (we explicitly set the default page to clothing:clothing
+-- in mods/player_api/init.lua after that page's per-player stuff is initialized).
+sfinv.override_page("sfinv:crafting", {is_in_nav=function(...) return false end})
