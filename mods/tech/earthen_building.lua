@@ -165,7 +165,7 @@ for i = 1, #soiltable do
 
         -- Copy groups, minus falling_node
         local sedname = "nodes_nature:"..soiltable[i]..wtable[j]
-        wdef2.groups = core.registered_nodes[sedname].groups
+        wdef2.groups = table.copy(core.registered_nodes[sedname].groups)
         wdef2.groups["falling_node"] = nil
 
         wdef2.description = wwdesc[j]
