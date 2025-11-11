@@ -82,20 +82,29 @@ function sfinv.remove_homepage_override(override)
 end
 
 -- Sets the name of the page to be set initially when a player joins as well as
--- after set_context() was called with a nil context.
--- `new_name`: name of the page to set for `player`
+-- after set_context() was called with a nil context or when set_page() is
+-- called without a page name.
+-- `new_name`: name of the page to set for `player` or to replace the global
+-- default page
+-- `player`: if nil new_name will replace the global default homepage;
+--           otherwise it must be a player object and new_name becomes the
+--           indiviual homepage of `player`
 -- WARNING: Make sure to not set a page as homepage before every prerequisites
 --          of that page are set up for `player`. E.g. if some player-specific
 --          pre-reqs are initialized in a callback registered with
 --          register_on_joinplayer() then you could set the page safely in the
 --          same function or any time later. Otherwise you might see crashes
 --          due to sfinv setting the page too early.
-function sfinv.set_homepage_name(player, new_name)
-    local name = player:get_player_name()
-    if name then
-        homepage_names[name] = new_name
+function sfinv.set_homepage_name(new_name, player)
+    if player then
+        local name = player:get_player_name()
+        if name then
+            homepage_names[name] = new_name
+        else
+            homepage_names[name] = nil
+        end
     else
-        homepage_names[name] = nil
+        homepage_name = new_name
     end
 end
 
@@ -227,20 +236,23 @@ end
 
 --------------------------------------------------------------------------------
 
+-- get the name of a player's current homepage or the of the global default
+-- `player`: must be a player object, or nil to get the global default
 function sfinv.get_homepage_name(player)
-    for _, value in pairs(homepage_overrides) do
-        local page_name = value
-        if type(value) == "function" then
-            page_name = value(player)
+    if player then
+        for _, value in pairs(homepage_overrides) do
+            local page_name = value
+            if type(value) == "function" then
+                page_name = value(player)
+            end
+            -- is this a name of a known page?
+            if page_name and sfinv.pages[page_name] then
+                return page_name
+            end
         end
-        -- is this a name of a known page?
-        if page_name and sfinv.pages[page_name] then
-            return page_name
-        end
+        local page_name = homepage_names[player:get_player_name()]
+        if sfinv.pages[page_name] then return page_name end
     end
-    local page_name = homepage_names[player:get_player_name()]
-    if sfinv.pages[page_name] then return page_name end
-
     return homepage_name
 end
 
