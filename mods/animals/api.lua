@@ -293,7 +293,7 @@ end
 --------------------------------------------------------------------------
 
 local function node_drawtype(pos)
-    if not (type(pos) == "table") then
+    if type(pos) ~= "table" then
         return {}
     end
     -- if pos is a pos, get node, otherwise assume pos is a node table
@@ -359,7 +359,7 @@ end
 
 -- modify health of oneself
 function animals.modify_hp(self,hp)
-    if not (type(hp) == "number") then
+    if type(hp) ~= "number" then
         return
     end
     hp = math.ceil(hp) -- no decimals
@@ -574,7 +574,7 @@ function animals.hq_die(self)
     -- set no interact
     self.no_interact = true
     -- fallover
-    self.logic = function(self) end      -- brain dead as well
+    self.logic = function() end      -- brain dead as well
     animals.handle_drops(self,despawn_time)
     mobkit.lq_fallover(self)
     minetest.after(despawn_time,function()
@@ -1435,7 +1435,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
         iggroups = {}
     end
 
-    local func=function(self)
+    local func=function()
 
         if time() > timer then
             return true
@@ -1762,7 +1762,7 @@ function animals.hq_warn(self, threat, prty)
     local tgttime=0
     local init = true
     local warn_timer = self.warning_timer or 12
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(threat) then return true end
         if init then
             animals.animate(self,'stand')
@@ -1820,7 +1820,7 @@ function animals.hq_runfrom(self,prty,tgtobj,scared)
         return true
     end
 
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return end_func() end
         run_timer = run_timer - self.dtime
         if scared then
@@ -2301,7 +2301,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
         return true
     end
 
-    local func = function(self)
+    local func = function()
         local c_time = time() -- current_time
         if c_time > timer then
             return end_func()
@@ -2418,7 +2418,6 @@ end
 
 
 function animals.hq_attack_eat(self,prty,tgt,eat)
-    local t = time()
     local timer = time() + (type(self.aggression_timer) == "number"
                             and self.aggression_timer or 12)
     local attack_range = self.attack.range or 0.5
@@ -2446,7 +2445,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             or self.consume_rivals ~= false and self.consume_non_prey ~= false
         -- will be true if consume_non_prey is not specified
     end
-    local func = function(self)
+    local func = function()
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
                 -- we've done enough, get away from them now (false so that we aren't scared)
@@ -3291,7 +3290,7 @@ function animals.hq_liquid_recovery(self,prty)
     local n_s -- no surface (could not find a surface)
     --local goto_pos
     local old_pos
-    local func = function(self)
+    local func = function()
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
         local vec = minetest.yaw_to_dir(yaw)
@@ -3317,9 +3316,9 @@ function animals.hq_liquid_recovery(self,prty)
             -- random chance
             if m_c and m_c > random() then
                 --pos2 = minimal.pos_shift(pos2,{y=-1})
-                local height, liquidflag = mobkit.get_terrain_height(pos2)
+                local _, my_liquidflag = mobkit.get_terrain_height(pos2)
                 -- isn't water, let's wing it!
-                if not liquidflag then
+                if not my_liquidflag then
                     mobkit.lq_turn2pos(self, pos2)
                     mobkit.lq_dumbwalk(self, pos2, 2)
                     radius = 1 -- reset search radius
