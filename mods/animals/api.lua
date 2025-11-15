@@ -3668,7 +3668,7 @@ function animals.register_animal(name,def)
     def.on_step = def.on_step or mobkit.stepfunc
     local on_activate = def.on_activate or mobkit.actfunc
     def.on_activate = function(self, staticdata, dtime_s)
-        mobkit.actfunc(self, staticdata, dtime_s)
+        on_activate(self, staticdata, dtime_s)
         -- make sure animals appear with correct size, ... according to age
         if not self.size_dif then
             animals.init_size_modifications(self)
