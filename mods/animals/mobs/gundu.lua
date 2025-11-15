@@ -38,31 +38,35 @@ end
 --      The flying Gundus phenomenon also depended on high frequencies of the
 --      brain() function, but did not appear with low frequencies.
 local function brain(self)
-    -- Make sure the block in front is liquid.
+    -- Make sure the block in front is liquid (collission avoidance)
+    -- if not and not already in air -> rise up
     local pos = mobkit.get_stand_pos(self)
     local inair = animals.node_drawtype(pos) == "airlike"
-    local yaw = self.object:get_yaw()
-    local vel = self.object:get_velocity()
+    if not inair then
+        local yaw = self.object:get_yaw()
+        local vel = self.object:get_velocity()
 
-    local fpos = mobkit.pos_translate2d(pos,yaw,1) --front position
-    local fu_pos = mobkit.pos_shift(fpos,{y=-1}) -- under front position
-    local u_pos = mobkit.pos_shift(pos,{y=-1})  -- under possition
+        local fpos = mobkit.pos_translate2d(pos,yaw,1) --front position
+        local fu_pos = mobkit.pos_shift(fpos,{y=-1}) -- under front position
+        local u_pos = mobkit.pos_shift(pos,{y=-1})  -- under possition
 
-    if not inair
-        and (not pos_is_liquid(u_pos) or not pos_is_liquid(fu_pos)) then
+        if not pos_is_liquid(u_pos)
+            or not pos_is_liquid(fu_pos) then
 
-        -- not in air and no water below rise up
-        vel.y = vel.y+0.2
-        self.object:set_velocity(vel)
+            -- not in air and no water below -> rise up
+            vel.y = vel.y + 0.2
+            self.object:set_velocity(vel)
+        end
+
+        if not pos_is_liquid(fpos) then
+            -- rise a little faster and turn
+            vel.y = vel.y + 0.2
+            self.object:set_velocity(vel)
+            mobkit.clear_queue_high(self)
+            mobkit.hq_aqua_turn(self, 68, yaw + 2, 2)
+        end
     end
 
-    if not inair and not pos_is_liquid(fpos) then
-        -- rise a little faster and turn if not in air
-        vel.y = vel.y+0.2
-        self.object:set_velocity(vel)
-        mobkit.clear_queue_high(self)
-        mobkit.hq_aqua_turn(self,68,yaw+2,2)
-    end
     -- calculate instantanious effects
     animals.core_hp(self)
 
