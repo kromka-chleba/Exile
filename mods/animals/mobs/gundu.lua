@@ -25,6 +25,18 @@ local function pos_is_liquid(pos)
 end
 
 -----------------------------------
+-- TODO Throttle this brain function, because:
+--      Depending on which Luanti builts Exile runs on and the number of active
+--      animals and the cpu power the frequency of this function being called
+--      ranges widely from < 10x/sec to > 60x/sec! This means, almost all
+--      aspects around animals and their behaviour, stability of populations,
+--      frequency of decisions and attacks against players, relations of
+--      predators vs. prey, ... none of that can actually work reliably.
+--      While applies for all animals, in the case of Gundus the lines with
+--      vertical accelleration `vel.y = vel.y+0.2` may make them jump out
+--      of the water and die or it may work quite well.
+--      The flying Gundus phenomenon also depended on high frequencies of the
+--      brain() function, but did not appear with low frequencies.
 local function brain(self)
     -- Make sure the block in front is liquid.
     local pos = mobkit.get_stand_pos(self)
@@ -36,8 +48,10 @@ local function brain(self)
     local fu_pos = mobkit.pos_shift(fpos,{y=-1}) -- under front position
     local u_pos = mobkit.pos_shift(pos,{y=-1})  -- under possition
 
-    if not inair and not pos_is_liquid(u_pos) or not pos_is_liquid(fu_pos) then
-        -- not in air and no water below risie up
+    if not inair
+        and (not pos_is_liquid(u_pos) or not pos_is_liquid(fu_pos)) then
+
+        -- not in air and no water below rise up
         vel.y = vel.y+0.2
         self.object:set_velocity(vel)
     end
