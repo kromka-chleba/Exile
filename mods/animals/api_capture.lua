@@ -34,6 +34,10 @@ local create_mob = function(placer, itemstack, name, pos)
     if not (minimal.player_in_creative(placer)) then
         itemstack:take_item() -- since mob is unique we remove egg once spawned
     end
+    -- make sure young animals do not start with properties of fully grown ones
+    if animals.init_size_modifications then -- should be true at runtime
+        animals.init_size_modifications(ent)
+    end
     return ent
 end
 
