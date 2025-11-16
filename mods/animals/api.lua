@@ -2912,9 +2912,9 @@ function animals.add_interactors(creature, itype, ...)
         end
     end
     -- will override entity's interaction type with the provided animals
-    if entity then -- #TODO: luacheck warning:
-        -- Indirectly setting read-only field 'registered_entities.?.?' of global 'minetest'
-        entity[itype] = itable
+    if entity then
+        -- silence luacheck, see lua_api.md on core.registered_entities
+        entity[itype] = itable  -- luacheck: ignore
     end
 
     return true
