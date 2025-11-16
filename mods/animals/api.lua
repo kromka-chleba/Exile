@@ -402,18 +402,15 @@ end
 -- gets a list of entities in a distance to self
 -- returns tables correlating to:
 --  players, predators, prey, rivals, friends, or none
-function animals.get_entities_in_distance(self,override)
+function animals.get_entities_in_distance(self)
     local entities = {
         predators = {},
         prey = {},
         rivals = {},
         friends = {},
     }
-    local range = self.view_range or 1
-    range = (type(override) == "number" and override or range)
     local players = {}
     local objs = self.nearby_objects
-    --minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
     for _,obj in pairs(objs) do
         -- must be alive
         if mobkit.is_alive(obj) then
@@ -1493,18 +1490,6 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
 end
 
 
-local function aqua_path_safe(start_pos,p)
-    local path=minetest.raycast(start_pos,p,false,true)
-    for pointed_thing in path do
-        local node=mobkit.nodeatpos(pointed_thing.intersection_point)
-        if node and node.drawtype ~= 'liquid' then
-            return false
-        end
-    end
-    return true
-end
-
-
 ---------------------------------------------------
 --(currently duplicated in mobkit, but only as a local function)
 local function aqua_radar_dumb(pos,yaw,range,reverse)
@@ -2242,7 +2227,6 @@ function animals.target_in_range(self,tgt)
     local pos = self.object:get_pos()
     local tpos = tgt.object:get_pos()
     local selfbox = self.object:get_properties().collisionbox
-    local tgtbox = tgt.object:get_properties().collisionbox
     if tpos.y >= (pos.y + (selfbox[2] - range))
         and tpos.y <= (pos.y + selfbox[5] + range) then
 
@@ -2290,7 +2274,6 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local tyaw = 0
     local prvscanpos = {x=0,y=0,z=0}
-    local tgtbox = tgtobj:get_properties().collisionbox
 
     animals.animate(self,'fast')
     animals.make_sound(self,'attack','bite')
@@ -2365,7 +2348,6 @@ end
 --to hit is to catch... for predators, where the chewing does the killing
 local function lq_jumpattack_eat(self,height,target,consume)
     local phase=1
-    local tgtbox = target:get_properties().collisionbox
 
     local func=function()
         if not mobkit.is_alive(target) then return true end
@@ -2385,15 +2367,9 @@ local function lq_jumpattack_eat(self,height,target,consume)
             self.object:set_velocity(dir)
             phase=3
         elseif phase==3 then      -- in air
-            local tgtpos = target:get_pos()
-            local pos = self.object:get_pos()
-
-            local dist = vector.distance(tgtpos,pos)
-
             -- calculate attack spot
             local yaw = self.object:get_yaw()
             local dir = minetest.yaw_to_dir(yaw)
-            local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
             if animals.target_in_range(self,target) then -- bite
                 -- bounce off
@@ -3804,8 +3780,7 @@ function animals.register_animal(name,def)
                 core.log("error", errmsg)
                 -- use base value to proceed with a safe fallback
                 val = basevalue
-            else
-                -- got an error, not the end of the world
+            -- else: got a result that we can use (ignore errmsg if any)
             end
             def[defname] = val
         end

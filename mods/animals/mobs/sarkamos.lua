@@ -12,8 +12,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
-
 
 
 -----------------------------------
@@ -81,8 +79,7 @@ local function brain(self)
             --reproduction
             --asexual parthogenesis, eggs
             --when in prime condition
-            --in dark
-            local light = minetest.get_node_light(pos, 0.5) or 0
+            --at night
             local tod = animals.timeofday()
 
             local pregnant = self.age >= self.mature_age

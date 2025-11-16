@@ -17,7 +17,7 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
+
 
 -----------------------------------
 local function brain(self)
@@ -31,7 +31,6 @@ local function brain(self)
         if not animals.core_life(self, pos) then
             return
         end
-        local age = self.age
 
         ------------------
         --Emergency actions
