@@ -1,3 +1,33 @@
+-- he mod sfinv provides basic means to coordinate which  formspec is displayed
+-- as inventory formspec at what time.
+-- `sfinv`: A global table to manage fromspecs used as inventory GUI, i.e.
+--          formspecs passed as parameter to set_inventoy_formspec() at certain
+--          points to have them displayed when a player triggers the inventory
+--          key.
+-- elements:
+-- `context`: one context object for inventory formspecs per player
+-- `context.page`: used to track the name of the registered formspec that is
+--            currently set as the player's inventory formspec, i.e. the
+--            formspec that will open next time the player triggers the
+--            inventory key
+--            NOTE Due to limitiations of the engine, `sfinv` cannot track the
+--                 current formspec automatically. Therefore it provides a
+--                 wrapper to be called instead of `set_inventory_formspec()`,
+--                 see `set_player_inventory_formspec()`.
+--                 Calling `set_inventory_formspec()` directly means there
+--                 has to be other mechanisms in order to synchonize with
+--                 `sfinv`.
+--                 Also it is not possible to use formspecs with `sfinv`
+--                 without prior registration via `sfinv.register_page()`.
+--       `...`: incomplete
+-- `pages`: table of registered formspecs (name -> page),
+--          see `register_page()`, `override_page()`, `remove_page()`
+-- `pages_unordered`: ...
+-- `enabled`: switch to disable `sfinv's` callback to set a default `homepage`
+--            inventory formspec when a player joins; enabled by default
+--            NOTE It is also possible to replace the `homepage` by providing a
+--                 a different name, see `set_homepage_name()` or to override
+--                 elements of a registered page, see , `override_page()`.
 sfinv = {
 	pages = {},
 	pages_unordered = {},
@@ -6,9 +36,76 @@ sfinv = {
 }
 
 local homepage_name = "sfinv:crafting"
+-- per player homepages
+local homepage_names = {}
+-- list of page names or callbacks in decreasing priority,
+-- callbacks shal return a name of a page or nil to 'miss a turn'
+local homepage_overrides = {}
 
-function sfinv.set_homepage_name(new_name)
-	homepage_name = new_name
+
+-- Adds an override for player's homepages.
+-- `override`: must be a name of a registered page or a callback,
+--             Callbacks will be called with the player as parameter.
+--             That way a mod has control per player or for all players.
+-- The override added last gets highest priority, but if it is a callback it
+-- may leave the decision to the next one, by returning nil.
+-- Callbacks must return the name of a registered page or nil. Invalid return
+-- values will be treated like nil.
+function sfinv.add_homepage_override(override)
+    local t = type(override)
+    if t ~= "string" and t ~= "function" then
+        -- error handling to support modding
+        local str = (t == "string") and override or ""
+        core.log("warning", "sfinv.remove_homepage_override(): cannot add an"
+                  .. " override of type " .. t .. " " .. str)
+        return
+    end
+    table.insert(homepage_overrides, 1, override)
+end
+
+-- Removes an override for the current homepage
+function sfinv.remove_homepage_override(override)
+    local t = type(override)
+    if t ~= "string" and t ~= "function" then
+        return
+    end
+    for idx, val in ipairs(homepage_overrides) do
+        if val == override then
+            table.remove(homepage_overrides, idx)
+            return
+        end
+    end
+    -- error handling to support modding
+    local str = (t == "string") and override or ""
+    core.log("warning", "sfinv.remove_homepage_override(): could not find"
+             .. " given override of type " .. t .. " " .. str)
+end
+
+-- Sets the name of the page to be set initially when a player joins as well as
+-- after set_context() was called with a nil context or when set_page() is
+-- called without a page name.
+-- `new_name`: name of the page to set for `player` or to replace the global
+-- default page
+-- `player`: if nil new_name will replace the global default homepage;
+--           otherwise it must be a player object and new_name becomes the
+--           indiviual homepage of `player`
+-- WARNING: Make sure to not set a page as homepage before every prerequisites
+--          of that page are set up for `player`. E.g. if some player-specific
+--          pre-reqs are initialized in a callback registered with
+--          register_on_joinplayer() then you could set the page safely in the
+--          same function or any time later. Otherwise you might see crashes
+--          due to sfinv setting the page too early.
+function sfinv.set_homepage_name(new_name, player)
+    if player then
+        local name = player:get_player_name()
+        if name then
+            homepage_names[name] = new_name
+        else
+            homepage_names[name] = nil
+        end
+    else
+        homepage_name = new_name
+    end
 end
 
 -- default tab_order will be order of registration
@@ -139,8 +236,24 @@ end
 
 --------------------------------------------------------------------------------
 
+-- get the name of a player's current homepage or the of the global default
+-- `player`: must be a player object, or nil to get the global default
 function sfinv.get_homepage_name(player)
-	return homepage_name
+    if player then
+        for _, value in pairs(homepage_overrides) do
+            local page_name = value
+            if type(value) == "function" then
+                page_name = value(player)
+            end
+            -- is this a name of a known page?
+            if page_name and sfinv.pages[page_name] then
+                return page_name
+            end
+        end
+        local page_name = homepage_names[player:get_player_name()]
+        if sfinv.pages[page_name] then return page_name end
+    end
+    return homepage_name
 end
 
 -- in order to be able to set custom tab order
@@ -233,33 +346,64 @@ function sfinv.get_or_create_context(player)
 		}
 		sfinv.contexts[name] = context
 	end
-	return context
+	return context -- return reference to sfinv.contexts[name]
 end
 
+-- Sets the current context of `player` to `context`.
+-- - Unless further changes follow, this will make `context.page` the next page
+--   to be set as the current inventory formspec when
+--   sfinv.set_player_inventory_formspec() is called without parameter
+--   `context`. Basically this means you are proposing a certain page to be the
+--   next one to appear when a player opens the inventory GUI, but it will only
+--   appear if another part of the code decides to actually set 'whatever was
+--   proposed' to become the current page.
+--   `context` including any custom elements in it will be available in the
+--   page's on_player_receive_fields() through its 2nd parameter `context`.
+-- Another possible use case of this function is to clear the player's current
+--   context by passing nil as `context` followed by calling
+--   `sfinv.set_player_inventory_formspec()` also with nil as `context` to
+--   create a new context based on the return value of `get_homepage_name()`.
+--   However, the same is achieved simply by `set_page(player)`.
+-- WARNING This function does not check anything. The caller is responsible for
+--         providing the name of a registered page in `context.page`, otherwise
+--         a fallback will be used instead.
 function sfinv.set_context(player, context)
 	sfinv.contexts[player:get_player_name()] = context
 end
 
+-- Sets context.page as the current inventory formspec or updates its content.
+-- If `context` is omitted (or nil) the current page is set, i.e. it is updated
+-- to what its get() callback returns.
+-- If `context` is not nil, `context.page` must be the name of a registered
+-- page.
 function sfinv.set_player_inventory_formspec(player, context)
 	local fs = sfinv.get_formspec(player,
 			context or sfinv.get_or_create_context(player))
 	player:set_inventory_formspec(fs)
 end
 
+-- Sets the current inventory page by name or sets the player's homepage.
+-- `player`: the player to set the page for
+-- `pagename`: page to set; if nil the player's homepage will be set
 function sfinv.set_page(player, pagename)
+    pagename = pagename or sfinv.get_homepage_name(player)
+
+    -- get reference to sfinv.context[player name]
 	local context = sfinv.get_or_create_context(player)
 	local oldpage = sfinv.pages[context.page]
 	if oldpage and oldpage.on_leave then
 		oldpage:on_leave(player, context)
 	end
-	context.page = pagename
+	context.page = pagename -- updates sfinv.context[player name], YES THIS LINE!!!
 	local page = sfinv.pages[pagename]
 	if page.on_enter then
 		page:on_enter(player, context)
 	end
+	-- pass the reference to sfinv.context[player name] to actually set the page
 	sfinv.set_player_inventory_formspec(player, context)
 end
 
+-- Returns the name of the page currently set for `player`.
 function sfinv.get_page(player)
 	local context = sfinv.contexts[player:get_player_name()]
 	return context and context.page or sfinv.get_homepage_name(player)
