@@ -9,6 +9,7 @@ read_globals = { -- Read only, writing to them generates a warning
 	"VoxelManip", "VoxelArea",
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
+	"math.round",
 }
 
 exclude_files = {".luacheckrc"}
