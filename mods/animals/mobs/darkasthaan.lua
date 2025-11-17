@@ -14,7 +14,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
 
 
 -----------------------------------
@@ -143,16 +142,8 @@ local self_data = {
     breathing_rate = 8,
     -- comfort temps
     min_temp = 14,
-    max_temp = 70,
-    -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
-    class = 1,
-    -- animal stats
-    lung_capacity = 40,
-    breathing_rate = 8,
-    -- comfort temps
-    min_temp = 14,
     max_temp = 80,
-    -- is it land-borne (1), sea-borne (2), or amphibious (3)?
+    -- is it land-borne (1), sea-borne (2), amphibious (3), or flying (4)?
     class = 1,
     -- energy
     energy_max = 12000,--secs it can survive without food

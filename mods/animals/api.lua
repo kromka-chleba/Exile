@@ -293,7 +293,7 @@ end
 --------------------------------------------------------------------------
 
 local function node_drawtype(pos)
-    if not (type(pos) == "table") then
+    if type(pos) ~= "table" then
         return {}
     end
     -- if pos is a pos, get node, otherwise assume pos is a node table
@@ -359,7 +359,7 @@ end
 
 -- modify health of oneself
 function animals.modify_hp(self,hp)
-    if not (type(hp) == "number") then
+    if type(hp) ~= "number" then
         return
     end
     hp = math.ceil(hp) -- no decimals
@@ -402,18 +402,15 @@ end
 -- gets a list of entities in a distance to self
 -- returns tables correlating to:
 --  players, predators, prey, rivals, friends, or none
-function animals.get_entities_in_distance(self,override)
+function animals.get_entities_in_distance(self)
     local entities = {
         predators = {},
         prey = {},
         rivals = {},
         friends = {},
     }
-    local range = self.view_range or 1
-    range = (type(override) == "number" and override or range)
     local players = {}
     local objs = self.nearby_objects
-    --minetest.get_objects_inside_radius(mobkit.get_stand_pos(self),range)
     for _,obj in pairs(objs) do
         -- must be alive
         if mobkit.is_alive(obj) then
@@ -574,7 +571,7 @@ function animals.hq_die(self)
     -- set no interact
     self.no_interact = true
     -- fallover
-    self.logic = function(self) end      -- brain dead as well
+    self.logic = function() end      -- brain dead as well
     animals.handle_drops(self,despawn_time)
     mobkit.lq_fallover(self)
     minetest.after(despawn_time,function()
@@ -1435,7 +1432,7 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
         iggroups = {}
     end
 
-    local func=function(self)
+    local func=function()
 
         if time() > timer then
             return true
@@ -1490,18 +1487,6 @@ function animals.hq_roam_walkable_group(self, groups, iggroups, prty)
         end
     end
     mobkit.queue_high(self,func,prty)
-end
-
-
-local function aqua_path_safe(start_pos,p)
-    local path=minetest.raycast(start_pos,p,false,true)
-    for pointed_thing in path do
-        local node=mobkit.nodeatpos(pointed_thing.intersection_point)
-        if node and node.drawtype ~= 'liquid' then
-            return false
-        end
-    end
-    return true
 end
 
 
@@ -1762,7 +1747,7 @@ function animals.hq_warn(self, threat, prty)
     local tgttime=0
     local init = true
     local warn_timer = self.warning_timer or 12
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(threat) then return true end
         if init then
             animals.animate(self,'stand')
@@ -1820,7 +1805,7 @@ function animals.hq_runfrom(self,prty,tgtobj,scared)
         return true
     end
 
-    local func = function(self)
+    local func = function()
         if not mobkit.is_alive(tgtobj) then return end_func() end
         run_timer = run_timer - self.dtime
         if scared then
@@ -2242,7 +2227,6 @@ function animals.target_in_range(self,tgt)
     local pos = self.object:get_pos()
     local tpos = tgt.object:get_pos()
     local selfbox = self.object:get_properties().collisionbox
-    local tgtbox = tgt.object:get_properties().collisionbox
     if tpos.y >= (pos.y + (selfbox[2] - range))
         and tpos.y <= (pos.y + selfbox[5] + range) then
 
@@ -2290,7 +2274,6 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
 
     local tyaw = 0
     local prvscanpos = {x=0,y=0,z=0}
-    local tgtbox = tgtobj:get_properties().collisionbox
 
     animals.animate(self,'fast')
     animals.make_sound(self,'attack','bite')
@@ -2301,7 +2284,7 @@ function animals.hq_aqua_attack_eat(self,prty,tgtobj,speed,eat)
         return true
     end
 
-    local func = function(self)
+    local func = function()
         local c_time = time() -- current_time
         if c_time > timer then
             return end_func()
@@ -2365,7 +2348,6 @@ end
 --to hit is to catch... for predators, where the chewing does the killing
 local function lq_jumpattack_eat(self,height,target,consume)
     local phase=1
-    local tgtbox = target:get_properties().collisionbox
 
     local func=function()
         if not mobkit.is_alive(target) then return true end
@@ -2385,15 +2367,9 @@ local function lq_jumpattack_eat(self,height,target,consume)
             self.object:set_velocity(dir)
             phase=3
         elseif phase==3 then      -- in air
-            local tgtpos = target:get_pos()
-            local pos = self.object:get_pos()
-
-            local dist = vector.distance(tgtpos,pos)
-
             -- calculate attack spot
             local yaw = self.object:get_yaw()
             local dir = minetest.yaw_to_dir(yaw)
-            local apos = mobkit.pos_translate2d(pos,yaw,self.attack.range)
 
             if animals.target_in_range(self,target) then -- bite
                 -- bounce off
@@ -2418,7 +2394,6 @@ end
 
 
 function animals.hq_attack_eat(self,prty,tgt,eat)
-    local t = time()
     local timer = time() + (type(self.aggression_timer) == "number"
                             and self.aggression_timer or 12)
     local attack_range = self.attack.range or 0.5
@@ -2446,7 +2421,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             or self.consume_rivals ~= false and self.consume_non_prey ~= false
         -- will be true if consume_non_prey is not specified
     end
-    local func = function(self)
+    local func = function()
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
                 -- we've done enough, get away from them now (false so that we aren't scared)
@@ -2853,7 +2828,6 @@ function animals.add_interactors(creature, itype, ...)
     -- finds the creature's table provided within animals.interactors
     if (type(interactable) ~= "table") then -- creates new one if not found
         animals.interactors[creature] = {}
-        interactable = animals.interactors[creature]
     end
 
     -- interaction table
@@ -2938,9 +2912,9 @@ function animals.add_interactors(creature, itype, ...)
         end
     end
     -- will override entity's interaction type with the provided animals
-    if entity then -- #TODO: luacheck warning:
-        -- Indirectly setting read-only field 'registered_entities.?.?' of global 'minetest'
-        entity[itype] = itable
+    if entity then
+        -- silence luacheck, see lua_api.md on core.registered_entities
+        entity[itype] = itable  -- luacheck: ignore
     end
 
     return true
@@ -3291,7 +3265,7 @@ function animals.hq_liquid_recovery(self,prty)
     local n_s -- no surface (could not find a surface)
     --local goto_pos
     local old_pos
-    local func = function(self)
+    local func = function()
         if not self.isinliquid then return true end
         local pos=self.object:get_pos()
         local vec = minetest.yaw_to_dir(yaw)
@@ -3317,9 +3291,9 @@ function animals.hq_liquid_recovery(self,prty)
             -- random chance
             if m_c and m_c > random() then
                 --pos2 = minimal.pos_shift(pos2,{y=-1})
-                local height, liquidflag = mobkit.get_terrain_height(pos2)
+                local _, my_liquidflag = mobkit.get_terrain_height(pos2)
                 -- isn't water, let's wing it!
-                if not liquidflag then
+                if not my_liquidflag then
                     mobkit.lq_turn2pos(self, pos2)
                     mobkit.lq_dumbwalk(self, pos2, 2)
                     radius = 1 -- reset search radius
@@ -3496,6 +3470,7 @@ function animals.register_egg(def, animal)
         -- if custom egg_conditions_correct function then prioritize that
         local hatch,new_time = (data.egg_conditions_correct
                                 and data.egg_conditions_correct(pos, data))
+                                or nil, nil
         -- you tell the egg to never hatch
         if type(new_time) == true then return false end
         -- figure out whether we should hatch or not
@@ -3505,7 +3480,7 @@ function animals.register_egg(def, animal)
             hatch = random() <= hatch
         end
         --  otherwise hatch is true and new_time is nil unless otherwise specified
-        hatch = type(hatch) ~= "boolean" and true or hatch
+        hatch = type(hatch) ~= "boolean" and true or hatch -- now true or false
         -- now for actual hatching (or other options)
         if hatch then
             -- try to hatch as according to hatch_egg
@@ -3805,8 +3780,7 @@ function animals.register_animal(name,def)
                 core.log("error", errmsg)
                 -- use base value to proceed with a safe fallback
                 val = basevalue
-            else
-                -- got an error, not the end of the world
+            -- else: got a result that we can use (ignore errmsg if any)
             end
             def[defname] = val
         end

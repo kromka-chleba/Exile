@@ -13,8 +13,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
-
 
 
 -----------------------------------
@@ -37,10 +35,7 @@ local function brain(self)
         local prty = mobkit.get_queue_priority(self)
         -------------------
         --High priority actions
-        local pred
-
         if prty < 50 then
-
 
             --Threats
             local plyr = animals.get_nearby_player(self)
@@ -48,7 +43,7 @@ local function brain(self)
                 animals.fight_or_flight(self, plyr)
             end
 
-            pred = animals.predator_avoid(self)
+            animals.predator_avoid(self)
 
         end
 

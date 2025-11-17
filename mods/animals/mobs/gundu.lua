@@ -13,7 +13,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
 
 local function pos_is_liquid(pos)
     local node=mobkit.nodeatpos(pos)

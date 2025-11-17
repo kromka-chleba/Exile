@@ -14,7 +14,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
 
 
 -----------------------------------
@@ -30,7 +29,6 @@ local function brain(self)
         if not animals.core_life(self, pos) then
             return
         end
-        local age = self.age
 
         ------------------
         --Emergency actions
@@ -91,7 +89,9 @@ local function brain(self)
                 if self.energy >= self.energy_egg + 100 and random() < 0.05 then
                     animals.place_egg(self, pos)
                 -- if very old and on 80% chance, lay egg and die, we were gon die soon anyways
-                elseif self.age >= (self.lifespan * 0.9) and random() < 0.8 and not (self.energy < 25) then
+                elseif self.age >= (self.lifespan * 0.9) and random() < 0.8
+                    and self.energy >= 25 then
+
                     animals.emergency_egg(self, pos, nil, 0.8)
                     return
                 end

@@ -13,8 +13,6 @@ mobkit = mobkit
 local S = animals.S
 
 local random = math.random
-local floor = math.floor
-
 
 
 -----------------------------------
@@ -30,7 +28,6 @@ local function brain(self)
         if not animals.core_life(self, pos) then
             return
         end
-        local age = self.age
 
         ------------------
         --Emergency actions
@@ -107,19 +104,21 @@ local function brain(self)
             --asexual parthogenesis, eggs
             -- full health, no rival or pred
             if self.hp >= self.max_hp and not (rival or pred) then
+                local age = self.age
                 -- energy over 140% of energy_max and on 0.8% chance
                 if self.energy >= self.energy_egg * 1.4 and random() < 0.008 then
                     animals.place_egg(self, pos)
                 -- higher chance of laying eggs near death
-                elseif self.energy > self.energy_egg * 1.05 and self.age >= self.lifespan * 0.8 and
-                    random() < 0.05 then
+                elseif self.energy > self.energy_egg * 1.05
+                    and age >= self.lifespan * 0.8 and random() < 0.05 then
+
                     animals.place_egg(self, pos)
                 -- don't even depend on checking own energy
-                elseif self.energy > 25 and self.age >= self.lifespan * 0.935 then
+                elseif self.energy > 25 and age >= self.lifespan * 0.935 then
                   -- 15% for over 93.5% lifespan, 35% for over 96% lifespan,
                   -- 80% for over 98% lifespan
-                  local lay_chance = self.age > self.lifespan * 0.98 and 0.8
-                      or self.age > self.lifespan * 0.96 and 0.35 or 0.15
+                  local lay_chance = age > self.lifespan * 0.98 and 0.8
+                      or age > self.lifespan * 0.96 and 0.35 or 0.15
                       animals.emergency_egg(self, pos, nil, lay_chance)
                 end
             end
