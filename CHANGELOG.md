@@ -1,13 +1,13 @@
 # *Changelog:*
 Highlighting those additions and improvements which may be of interest to the players.  
 Events are categorized according to the following key:
-| Icon | Name         |
-|:----:|:------------:| 
-|  💠  | __Added__    |
-|  🔧  | __Fixed__    |
-|  ⚖️  | __Balanced__ |
-|  📈  | __Improved__ |
-|  📜  | __Notable__  |
+|    Icon     |     Name     |
+|:-----------:|:------------:| 
+|  &#x1F4A0;  | __Added__    |
+|  &#x1F527;  | __Fixed__    |
+|  &#x2696;   | __Balanced__ |
+|  &#x1F4C8;  | __Improved__ |
+|  &#x1F4DC;  | __Notable__  |
 # 2025
 ## [2025-03-12][2025-03-12__0.3.18h] — 0.3.18h
   - `229` __💠 :__ More graffiti on the ***Stone Etcher***.
