@@ -1,5 +1,13 @@
 # *Changelog:*
-Highlighting those additions and improvements which may be of interest to the players.
+Highlighting those additions and improvements which may be of interest to the players.  
+Events are categorized according to the following key:
+| Icon | Name         |
+|:----:|:------------:| 
+|  💠  | __Added__    |
+|  🔧  | __Fixed__    |
+|  ⚖️  | __Balanced__ |
+|  📈  | __Improved__ |
+|  📜  | __Notable__  |
 # 2025
 ## [2025-03-12][2025-03-12__0.3.18h] — 0.3.18h
   - `229` 💠 __Added__: More graffiti on the ***Stone Etcher***.
