@@ -30,9 +30,9 @@ Events are categorized according to the following key:
   - `218` __📈 :__ Improvements to ***Rope***s, ***Quicklime***/***Slaked Lime***, and tile floors.
   - `217` __🔧 :__ Minor bugfixes.
 ## [2024-08-24][2024-08-24__0.3.18b] — 0.3.18b
-  - `216` __🔧 :__ Fix crash on animal capture in `Minetest 5.9.0`.
+  - `216` __🔧 :__ Fix crash on animal capture in __Minetest__ `5.9.0`.
 ## [2024-08-23][2024-08-23__0.3.18a] — 0.3.18a
-  - `215` __📈 :__ `Minetest 5.9.0` support.
+  - `215` __📈 :__ __Minetest__ `5.9.0` support.
   - `214` __🔧 :__ More bugfixes.
 ## [2024-07-18][2024-07-18__0.3.18] — 0.3.18
   - `213` __💠 :__ Added ***Glass Door***s and trapdoors.
@@ -58,8 +58,8 @@ Events are categorized according to the following key:
   - `200` __💠 :__ ***Drystack*** and ***Rammed Earth*** arches — build a wall, then knock out the middle.
   - `199` __💠 :__ Server command: `/recover_inv <player>` to restore inventory lost on restart.
 ## [2024-03-03][2024-03-03__0.3.16] — 0.3.16
-  - `198` __🔧 :__ Replaced `NC`-licensed ***Gundu*** — _Exile_ should be fully free now!
-  - `197` __📈 :__ `WiTT` for _Exile_: show the names of things when you press the zoom key.
+  - `198` __🔧 :__ Replaced `NC`-licensed ***Gundu*** — __Exile__ should be fully free now!
+  - `197` __📈 :__ `WiTT` for __Exile__: show the names of things when you press the zoom key.
   - `196` __📈 :__ Improved ***Light Meter***.
   - `195` __💠 :__ Added `/crouch` as alternative to double-tapping `Shift`, in case of lag.
   - `194` __🔧 :__ Less trouble with lowering ***Rope***s/***Ladder***s.
@@ -105,7 +105,7 @@ Events are categorized according to the following key:
   - `163` __📈 :__ Nicer glass sounds.
   - `162` __📈 :__ Spear improvements.
   - `161` __⚖️ :__ Clearer glass windows.
-  - `160` __💠 :__ Added `startexile.sh` server Bash script with optional `/version` command.
+  - `160` __💠 :__ Added `startexile.sh` server __Bash__ script with optional `/version` command.
 ## [2023-05-25][2023-05-25__0.3.10] — 0.3.10
   - `159` __💠 :__ Added a ***Watering Can***, to turn dry soil wet.
   - `158` __💠 :__ Ability to `crouch`/crawl by double-tapping shift.
@@ -143,7 +143,7 @@ Events are categorized according to the following key:
   - `132` __📈 :__ ***Animal Probe*** — now can get player stats.
   - `131` __💠 :__ options for double-click to eat: `/eat2x`, and ***Wide HUD***: `/hud16`.
   - `130` __💠 :__ “crafted by” labels for crafting stations.
-  - `129` __🔧 :__ Folded `Minetest 5.3.0` compatibility into mainline.
+  - `129` __🔧 :__ Folded __Minetest__ `5.3.0` compatibility into mainline.
   - `128` __🔧 :__ More bugfixes than you can shake a ***Digging Stick*** at.
 ## [2022-08-05][2022-08-05__0.3.8d] — 0.3.8d and 0.2.11d
   - `127` __🔧 :__ Minor bugfixes.
@@ -216,7 +216,7 @@ Events are categorized according to the following key:
   - `070` __⚖️ :__ Buff: Food value of meats.
   - `069` __📈 :__ Improved ***Torch*** stacking by rounding-off burn times.
   - `068` __💠 :__ New chat commands: `/set_tempscale`, `/date`.
-  - `067` __📈 :__ Better indoors check on `Minetest 5.4.x`.
+  - `067` __📈 :__ Better indoors check on __Minetest__ `5.4.x`.
 ## [2021-09-25][2021-09-25__0.3.3] — 0.3.3 and 0.2.6
   - `066` __📈 :__ Plants now grow even when players are away from the area.
   - `065` __⚖️ :__ Fireproof: ***Iron Door***s and ***Iron Trapdoor***s.
@@ -232,7 +232,7 @@ Events are categorized according to the following key:
   - `057` __⚖️ :__ ***Oil Lamp***s can hold more oil and now burn oil slower.
   - `056` __🔧 :__ Various bug-fixes.
 ## [2021-06-12][2021-06-12__0.3.0] — 0.3.0 and 0.2.3
-  - `055` __📜 :__ Initial release for `Minetest 5.4.0` — use _Exile_ `0.2` series for `5.3.0` version.
+  - `055` __📜 :__ Initial release for __Minetest__ `5.4.0` — use __Exile__ `0.2` series for `5.3.0` version.
   - `054` __💠 :__ New dependency: `naturalslopeslib` provides better hillsides.
   - `053` __💠 :__ Ability to throw ***Torch***es for light.
   - `052` __💠 :__ Settings for `breaktaker`.
@@ -289,7 +289,7 @@ Events are categorized according to the following key:
   - `006` __🔧 :__ Various minor fixes.
   - `005` __⚖️ :__ Various minor balance changes.
   - `004` __💠 :__ Various minor additions.
-  - `003` __📜 :__ `Minetest 5.3.0` compatibility.
+  - `003` __📜 :__ __Minetest__ `5.3.0` compatibility.
 ## [2020-03-11][2020-03-11__0.1.0] — 0.1.0
   - `002` __📜 :__ Initial release. [New page](https://content.minetest.net/packages/Dokimi/exile/) on __ContentDB__.
 ## [2020-03-10][2020-03-10_Dokimi] — Founded by Dokimi
