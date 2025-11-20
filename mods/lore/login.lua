@@ -27,7 +27,14 @@ local queue_clear -- forward definition
 local function loginspec(player)
     local name = player:get_player_name()
     local logintext = S("login_text")
-    local lang_code = core.get_player_information(name).lang_code
+    local playerinfo = core.get_player_information(name)
+
+    if not playerinfo then
+        core.log("warning", "Player "..name.." did not provide a correct player_information table. Suspicious client")
+        core.kick_player(name, "Client sent invalid data")
+    end
+
+    local lang_code = playerinfo.lang_code
     -- Untranslated? Use default
     if string.match(core.get_translated_string(lang_code, logintext),
                                                             "login_text") then
