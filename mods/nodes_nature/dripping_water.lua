@@ -167,22 +167,28 @@ minetest.register_entity("nodes_nature:drop_water", drop_entity)
 minetest.register_abm({
         label = "Dripping Water",
         nodenames = {"group:stone", "group:soft_stone"},
-        neighbors = {"air"}, -- only check if we air around
+        --neighbors = {"group:water"},
         interval = 27,
         chance = 120,
         action = function(pos)
-            if pos.y < 200 and pos.y > -1000 then
-                -- check below twice to ensure this is a good place to show our drip
-                pos.y = pos.y - 1
-                local nb = minimal.get_nodedef(pos)
-                if nb.name ~= 'air' and nb.drawtype ~= 'airlike' then return end
-                pos.y = pos.y - 1
-                local nb2 = minimal.get_nodedef(pos)
-                if nb2.name ~= 'air' and nb.drawtype ~= 'airlike' then return end
-                -- we can drip!
-                local i = {random(-40, 40)/100, random(-40, 40)/100} -- randomize X and Z
-                pos = vector.new(pos.x + i[1], pos.y + 1.499, pos.z + i[2]) -- (was original Y subtracted by 0.501, before)
-                core.add_entity(pos, "nodes_nature:drop_water")
+
+            if pos.y < 200
+                and pos.y > -1000 then
+                local nb = minetest.get_node({x=pos.x,
+                                              y=pos.y-1,
+                                              z=pos.z}).name
+                if nb == 'air' then
+                    local nb2 = minetest.get_node({x=pos.x,
+                                                   y=pos.y-2,
+                                                   z=pos.z}).name
+                    if nb2 == 'air' then
+                        local i = math.random(-35,35) / 100
+                        minetest.add_entity({x=pos.x + i,
+                                             y=pos.y-0.501,
+                                             z=pos.z + i},
+                            "nodes_nature:drop_water")
+                    end
+                end
             end
         end,
 })
