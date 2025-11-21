@@ -100,10 +100,80 @@ local hand_on_rightclick = function(clicker, pointed_thing)
     return true
 end
 
+
+-- `multi_input_action` defines a class to recognize a series of consecutive
+-- interactions of the same type, that repeat with roughly the same intervals
+-- in between, as being its own type of interaction. E.g. a player may be
+-- placing all items of some larger stack in quick succession. Further clicks,
+-- e.g. when a stack runs empty, can then be attributed to the former placing
+-- action instead of processing it as an independent different kind of
+-- interaction, avoiding unintended and unexpected effects or even accidents
+-- for the player.
+local multi_input_action = {}
+
+-- `multi_input_action:recog(exception)`: To recognize the beginning and
+--      progress of a multi input action, call this function whenever a player
+--      does the single action that could be a series to be recognized as being
+--      a specific multi input action.
+-- `exception`: optional; must be a boolean if given; if true, this time no
+--              start of a repetitive action will be recognized, but time
+--              of last event is updated
+function multi_input_action:recog(exception)
+    local t = core.get_us_time()
+    if t - self.max_dt < (self.last_time or 0) then
+        if not exception then
+            self.active = true
+        -- else  no change
+        end
+    else  -- delay too long -> reset
+        self.active = false
+    end
+    self.last_time = t
+end
+
+-- `multi_input_action:has_ended`: Call this function wherever you want
+--      further interaction with circumstances changed (e.g. wielded item is
+--      now an empty hand) being recognized as unintended continuation of the
+--      initial series that formed a multi input action, rather than being an
+--      independent different kind of interaction.
+function multi_input_action:has_ended()
+    if not self.active then return true end
+    -- self.active implies last_time ~= nil
+
+    local t = core.get_us_time()
+    -- sill attempting to repeat?
+    if t - self.max_dt < self.last_time then
+        self.last_time = t
+    else
+        self.active = false  -- not nil, used frequently
+        return true
+    end
+end
+
+-- Constructor to create a new object for multi input action recognition.
+-- `max_interval`: Individual action must follow on each other within that
+--      interval in order to recognize the beginning or continuation of the
+--      a multi input event. Must be a positive number.
+function multi_input_action:new(max_interval)
+    -- no lua-style inheritance -> expecting less runtime overhead
+    local instance = {
+        recog = self.recog,
+        has_ended = self.has_ended,
+        max_dt = max_interval
+        -- `active`: boolean; active or not; default: nil
+        -- `last_time`: luanti time of last action in micros secs; default: nil
+    }
+    return instance
+end
+
+ -- per player add a multi_input_action for placing on demand
+local multi_placing = {}
+
+
 --A new item_place that allows disabling sneak-rightclick behavior for nodes.
 --Needed for tech:stick. Also on_place() for empty hand is handled specially
 --to open crafting.
---As an additional option it enables to supports replacements for on_rightclick()
+--As an additional option it enables to support replacements for on_rightclick()
 --whose return value could indicate whether it does also permit item_place_node()
 --(unless the wielded item does override on_place() to not call item_place()).
 function minetest.item_place(itemstack, placer, pointed_thing, param2)
@@ -117,14 +187,38 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
 
     -- item is a type of an empty hand?
     -- -> try to open crafting (default behaviour for external mods, too)
-    if itemstack:is_empty() then
-        if hand_on_rightclick(placer, pointed_thing) then
-            return itemstack, nil
+    if itemstack:is_empty() and core.is_player(placer) then
+        local mp = multi_placing[placer:get_player_name()]
+        if not mp or mp:has_ended() then
+            if hand_on_rightclick(placer, pointed_thing) then
+                return itemstack, nil
+            end
         end
     end
 
     -- no interaction with pointed thing -> just place a node
     if itemstack:get_definition( ).type == "node" then
+        -- recognize placing repetitively at high pace to suppress the crafting
+        -- formspec from opening unintendedly when the stack is emptied.
+        if core.is_player(placer) then
+            local player_name = placer:get_player_name()
+            local mp = multi_placing[player_name]
+            if not mp then
+                mp = multi_input_action:new(500000) -- 0.5 secs max. delta t
+                multi_placing[player_name] = mp
+            end
+            -- The trick:
+            -- Let mp get the current time. If less than mp's max_interval
+            -- has elapsed since last time and stack size is not less than 3
+            -- recognize any further placing and item_place with emptied
+            -- stack as being part of the same 'multi-click' action as long a
+            -- they follow on each other within mp's max_interval.
+            -- We can assume that it is very likely that the player is not
+            -- counting his 'clicks' to 0 to then open crafting intentionally
+            -- in one go. (With smaller stacks or longer intervals we would
+            -- risk to prevent a player from opening crafting intentionally!
+            mp:recog(itemstack:get_count() < 3) -- no start if stack was small
+        end
         return minetest.item_place_node( itemstack, placer,
                                          pointed_thing, param2 )
     end
