@@ -95,6 +95,9 @@ end
 --          register_on_joinplayer() then you could set the page safely in the
 --          same function or any time later. Otherwise you might see crashes
 --          due to sfinv setting the page too early.
+--          For the same reason never set such a page as the global homepage
+--          for all players.
+--          Otherwise you will see crashes on login or re-login of players.
 function sfinv.set_homepage_name(new_name, player)
     if player then
         local name = player:get_player_name()
@@ -409,14 +412,23 @@ function sfinv.get_page(player)
 	return context and context.page or sfinv.get_homepage_name(player)
 end
 
+-- Sets a default page for each player. (for demo, debugging, fallback)
+-- Mods preferring a different one should set it in another on_join_player()
+-- after all prerequisites for their page are being set up.
 minetest.register_on_joinplayer(function(player)
-	if sfinv.enabled then
-		sfinv.set_player_inventory_formspec(player)
-	end
+    if sfinv.enabled then
+        -- always start with a safe homepage (not one of homepage_overrides)
+        local context = {page = homepage_name}
+        sfinv.set_player_inventory_formspec(player, context)
+    end
 end)
 
 minetest.register_on_leaveplayer(function(player)
-	sfinv.contexts[player:get_player_name()] = nil
+    -- prevent custom pages to be set before per player initialization is done
+    -- otherwise some data required for the page might be nil
+    local player_name = player:get_player_name()
+    sfinv.contexts[player_name] = nil
+    homepage_names[player_name] = nil
 end)
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
