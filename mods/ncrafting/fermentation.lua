@@ -72,7 +72,9 @@ function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nm
     end
     sdata = sdata.fields or sdata -- prefer fields
     -- create ferment if none, update node meta
-    sdata.ferment = sdata.ferment or ncrafting.get_or_create_ferment(itemstack)
+    if not sdata.ferment then
+        sdata.ferment = tostring(ncrafting.get_or_create_ferment(itemstack))
+    end
     nmeta:from_table({fields=sdata})
 end
 
@@ -98,7 +100,9 @@ function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta,
         oldmeta = oldmeta or {} -- create an empty table on failure
     end
     oldmeta = oldmeta.fields or oldmeta -- prefer fields
-    oldmeta.ferment = oldmeta.ferment or ncrafting.get_or_create_ferment(transferred_stack)
+    if not oldmeta.ferment then
+        oldmeta.ferment = tostring( ncrafting.get_or_create_ferment(transferred_stack))
+    end
     imeta:from_table({fields=oldmeta})
 end
 
