@@ -96,8 +96,35 @@ end
 function g.register_grafitti(name, def)
     def = init_def_values(def)
 
+    -- for compatibility reason, old paint nodes
     core.register_node(
         name, {
+            inventory_image = def.image,
+            drawtype = "nodebox",
+            tiles = { def.image },
+            sunlight_propagates = true,
+            light_source = def.light or 0,
+            floodable = true,
+            use_texture_alpha = c_alpha.clip,
+            paramtype = "light",
+            paramtype2 = "wallmounted",
+            groups = {attached_node=1, not_in_creative_inventory=1,
+                      grafitti=1, temp_pass = 1},
+            buildable_to = true,
+            walkable = false,
+            node_box = {
+                type = "wallmounted",
+                wall_top    = {-0.5, 0.49, -0.5, 0.5, 0.5, 0.5},
+                wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
+                wall_side   = {-0.5, -0.5, -0.5, -0.49, 0.5, 0.5},
+            },
+            pointable = def.pointable,
+            drop = {},
+    })
+
+    -- new system
+    core.register_node(
+        name.."_facedir", {
             inventory_image = def.image,
             drawtype = "nodebox",
             tiles = { def.image },
@@ -220,7 +247,7 @@ function g.paint(itemstack, user, pointed_thing, palette)
 
     minetest.add_node(pointed_thing.above,
                       {
-                        name = meta:get_string("grafitti"),
+                        name = meta:get_string("grafitti") .. "_facedir",
                         param2 = get_facedir(pointed_thing, user)
                       })
 
