@@ -41,6 +41,8 @@ local function get_horizontal_direction(player, mirror)
     end
 end
 
+-- gives the correct facedir to put in param2
+-- from the direction of the node we are attached to
 local function get_facedir(pointed_thing, player)
     local dir = vector.direction(pointed_thing.above, pointed_thing.under)
     -- bottom
@@ -67,6 +69,30 @@ local function get_facedir(pointed_thing, player)
     end
 end
 
+-- gives the direction of the node we are attached to
+-- according to the facedir param2
+local function facedir_to_attached(node)
+    local param = node.param2
+    local d = vector.zero()
+    if param < 4 then -- 0, 1, 2, or 3 is attached to bottom
+        d.y = -1
+    elseif param >= 20 then -- 20, 21, 22, 23 is attached to ceiling
+        d.y = 1
+    elseif param == 6 then
+        d.z = -1
+    elseif param == 8 then
+        d.z = 1
+    elseif param == 15 then
+        d.x = -1
+    elseif param == 17 then
+        d.x = 1
+    else
+        error("invalid param2 for graffiti node ".. node.name)
+    end
+    return d
+end
+
+-- #TODO: having the graffiti moving with the node it is attached to could be great !
 function g.register_grafitti(name, def)
     def = init_def_values(def)
 
@@ -81,7 +107,8 @@ function g.register_grafitti(name, def)
             use_texture_alpha = c_alpha.clip,
             paramtype = "light",
             paramtype2 = "facedir",
-            groups = {attached_node=1, not_in_creative_inventory=1,
+            -- #TODO check the other impacts of change or attached_node..
+            groups = {attached_node=2, not_in_creative_inventory=1,
                       grafitti=1, temp_pass = 1},
             buildable_to = true,
             walkable = false,
@@ -91,6 +118,8 @@ function g.register_grafitti(name, def)
             },
             pointable = def.pointable,
             drop = {},
+            -- function to get the direction of the node it is attached to
+            _attached_to = facedir_to_attached
     })
 
     table.insert(_palette.items, { name = name, image = def.image })
