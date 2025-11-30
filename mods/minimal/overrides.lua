@@ -101,6 +101,56 @@ local hand_on_rightclick = function(clicker, pointed_thing)
 end
 
 
+----- Running mean -----
+
+-- `running_mean`: Defines a class to work with running means based on up to
+--     `base_count` values (see new(base_count))
+local running_mean = {}
+
+-- `running_mean:include(value)`: Includes `value` into the calculation,
+--     replacing the oldest value, if there were already `base_count` values
+--     included.
+function running_mean:include(value)
+    if self.count then
+        local drop_value = self.values[self.next_store]
+        if drop_Value then
+            self.total = self.total - self.values[self.next_store]
+            self.count = self.count - 1
+        end
+    end
+    self.values[self.next_store] = value
+    self.next_store = self.next_store % self.base_count + 1
+    self.total = self.total + value
+    self.count = self.count + 1
+end
+
+-- `running_mean:mean()`: Returns the average of all currently included values
+--     or 0 if there are no values.
+function running_mean:mean()
+    if self.count == 0 then return 0 end
+    return self.total / self.count;
+end
+
+-- `running_mean:mean`: Constructs a new object to calculate the running mean
+--     of up to `base_count` included values.
+-- `base_count`: max. number of values to consider; must be a number or nil;
+--     default: 5
+function running_mean:new(base_count)
+    local instance = {
+        include = self.include,
+        mean = self.mean,
+        values ={},
+        next_store = 1,
+        total = 0,
+        count = 0,
+        base_count = base_count or 5
+    }
+    return instance;
+end
+
+
+----- Multi input action -----
+
 -- `multi_input_action` defines a class to recognize a series of consecutive
 -- interactions of the same type, that repeat with roughly the same intervals
 -- in between, as being its own type of interaction. E.g. a player may be
@@ -125,6 +175,9 @@ function multi_input_action:recog(exception)
             self.active = true
         -- else  no change
         end
+        if self.active and self.adjust_max_dt then
+            self:adjust_max_dt(t)
+        end
     else  -- delay too long -> reset
         self.active = false
     end
@@ -143,6 +196,9 @@ function multi_input_action:has_ended()
     local t = core.get_us_time()
     -- sill attempting to repeat?
     if t - self.max_dt < self.last_time then
+        if self.adjust_max_dt then
+            self:adjust_max_dt(t)
+        end
         self.last_time = t
     else
         self.active = false  -- not nil, used frequently
@@ -150,16 +206,52 @@ function multi_input_action:has_ended()
     end
 end
 
+-- clamp_fast():
+-- Clamps `number` to the range [`min`; `max`] without any safety checks.
+-- The caller is responsible for all three parameters being numbers.
+local function clamped_fast(number, min, max)
+    if number < min then
+        number = min
+    elseif number > max then
+        number = max
+    end
+    return number
+end
+
+-- `multi_input_action:adjust_max_dt(t)`: Adjusts the max interval to recognize
+--      an input event as part of a multi input action based on the latest
+--      actual interval `t` and up to 4 other, former intervals.
+function multi_input_action:adjust_max_dt(t)
+    self.running_mean:include(t - self.last_time)
+    local mean = self.running_mean:mean()
+    self.max_dt = mean + self.offset
+    self.max_dt = clamped_fast(self.max_dt, self.min, self.max)
+end
+
 -- Constructor to create a new object for multi input action recognition.
 -- `max_interval`: Individual action must follow on each other within that
 --      interval in order to recognize the beginning or continuation of the
 --      a multi input event. Must be a positive number.
-function multi_input_action:new(max_interval)
+-- `auto_adjust`: optional; if true, max_interval is only taken as an initial
+--      while auto-adjusted limit within the range [`min`; `max`]
+-- `offset`: ignored unless `auto_adjust` is true; the auto adjusted limit will
+--      be kept at that `offset` above the average interval between the last 5
+--      calls to regoc() (or has_ended()), unless it would exceed `max`.
+--      default: 100000us
+-- `min`, `max`: absolute limits for auto-adjustment;
+--               defaults: max_interval +/- 100000us
+function multi_input_action:new(max_interval, auto_adjust,
+                                offset, min, max)
     -- no lua-style inheritance -> expecting less runtime overhead
     local instance = {
         recog = self.recog,
         has_ended = self.has_ended,
-        max_dt = max_interval
+        max_dt = max_interval,
+        adjust_max_dt = auto_adjust and self.adjust_max_dt,
+        offset = auto_adjust and (offset or 100000),  -- default: 0.1 sec
+        min = auto_adjust and (min or max_interval - 100000),
+        max = auto_adjust and (max or max_interval + 100000),
+        running_mean = auto_adjust and running_mean:new(4)
         -- `active`: boolean; active or not; default: nil
         -- `last_time`: luanti time of last action in micros secs; default: nil
     }
@@ -169,6 +261,8 @@ end
  -- per player add a multi_input_action for placing on demand
 local multi_placing = {}
 
+
+----- overriding minetest.item_place, ... -----
 
 --A new item_place that allows disabling sneak-rightclick behavior for nodes.
 --Needed for tech:stick. Also on_place() for empty hand is handled specially
@@ -204,7 +298,10 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
             local player_name = placer:get_player_name()
             local mp = multi_placing[player_name]
             if not mp then
-                mp = multi_input_action:new(500000) -- 0.5 secs max. delta t
+                -- Start with max_interval of 0.5s. If a player clicks slower,
+                --  allow up to 0.7s, but not less than 0.5s, see below.
+                mp = multi_input_action:new(500000,
+                                           true, 250000, 500000, 700000)
                 multi_placing[player_name] = mp
             end
             -- The trick:
@@ -212,11 +309,17 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
             -- has elapsed since last time and stack size is not less than 3
             -- recognize any further placing and item_place with emptied
             -- stack as being part of the same 'multi-click' action as long a
-            -- they follow on each other within mp's max_interval.
+            -- they follow on each other within mp's adaptive max_interval.
             -- We can assume that it is very likely that the player is not
             -- counting his 'clicks' to 0 to then open crafting intentionally
             -- in one go. (With smaller stacks or longer intervals we would
             -- risk to prevent a player from opening crafting intentionally!
+            -- However, processing of input events is subject to lag,
+            -- especially to lag caused by Luanti blocking the server's main
+            -- thread when writing changes of the map every 5 secs, by default.
+            -- Therefore, recognition will fail sometimes for fast clickers
+            -- with slow disks and the max interval should not go below 0.5s.
+            -- (see Luanti issues 15151 and 15125)
             mp:recog(itemstack:get_count() < 3) -- no start if stack was small
         end
         return minetest.item_place_node( itemstack, placer,
