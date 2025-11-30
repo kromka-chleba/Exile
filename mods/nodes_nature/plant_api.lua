@@ -61,6 +61,7 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
         return on_prohibited or itemstack
     end
     -- not prohibited -> do place
+    minimal.recognize_rapid_placing(itemstack, placer)
     return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
@@ -553,6 +554,7 @@ function plant.get_canelike_props(plant_def)
         local face = vector.direction(pointed_thing.above,
                                       pointed_thing.under)
         if face.y == -1 then
+            minimal.recognize_rapid_placing(itemstack, placer)
             minetest.item_place_node(itemstack, placer,
                                      pointed_thing)
             return itemstack

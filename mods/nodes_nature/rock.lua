@@ -13,6 +13,7 @@ function cobble_on_place(itemstack, placer, pointed_thing, name)
     if on_click ~= false then
         return on_click
     end
+    minimal.recognize_rapid_placing(itemstack, placer)
     local cobble_nr = math.random(1,3)
     local param2 = math.random(0,3)
     local place_item = ItemStack("nodes_nature:"..name.."_cobble"..cobble_nr)

@@ -262,6 +262,43 @@ end
 local multi_placing = {}
 
 
+-- `minimal.recognize_rapid_placing()`:
+-- recognize placing repetitively at high pace to suppress the crafting
+-- formspec from opening unintendedly when the stack is emptied.
+function minimal.recognize_rapid_placing(itemstack, placer)
+    if core.is_player(placer) then
+        local player_name = placer:get_player_name()
+        local mp = multi_placing[player_name]
+        if not mp then
+            -- Start with max_interval of 0.5s. If a player clicks slower,
+            -- allow up to 0.7s, but not less than 0.5s, see below.
+            mp = multi_input_action:new(500000, true, 250000, 500000, 700000)
+            multi_placing[player_name] = mp
+        end
+        -- The trick:
+        -- Let mp get the current time. If less than mp's max_interval has
+        -- elapsed since last time and stack size is not less than 3, recognize
+        -- any further placing and item_place with emptied stack as being part
+        -- of the same 'multi-click' action as long a they follow on each other
+        -- within mp's adaptive max_interval.
+        -- We can assume that it is very likely that the player is not counting
+        -- his 'clicks' to 0 to then open crafting intentionally in one go.
+        -- With smaller stacks or longer intervals we would risk to prevent a
+        -- player from opening crafting intentionally!
+        --
+        -- However, processing of input events is subject to lag, especially to
+        -- lag caused by Luanti blocking the server's main thread when writing
+        -- changes of the map every 5 secs, by default. Therefore, recognition
+        -- will fail sometimes for fast clickers with slow disks and the max
+        -- interval should not go below 0.5s.
+        -- (see Luanti issues 15151 and 15125)
+        mp:recog(itemstack:get_count() < 3) -- no start if stack was small
+        -- NOTE It makes no difference if the player switches among stacks
+        --      or not, as long as he keeps placing rapidly in one go.
+    end
+end
+
+
 ----- overriding minetest.item_place, ... -----
 
 --A new item_place that allows disabling sneak-rightclick behavior for nodes.
@@ -292,36 +329,7 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
 
     -- no interaction with pointed thing -> just place a node
     if itemstack:get_definition( ).type == "node" then
-        -- recognize placing repetitively at high pace to suppress the crafting
-        -- formspec from opening unintendedly when the stack is emptied.
-        if core.is_player(placer) then
-            local player_name = placer:get_player_name()
-            local mp = multi_placing[player_name]
-            if not mp then
-                -- Start with max_interval of 0.5s. If a player clicks slower,
-                --  allow up to 0.7s, but not less than 0.5s, see below.
-                mp = multi_input_action:new(500000,
-                                           true, 250000, 500000, 700000)
-                multi_placing[player_name] = mp
-            end
-            -- The trick:
-            -- Let mp get the current time. If less than mp's max_interval
-            -- has elapsed since last time and stack size is not less than 3
-            -- recognize any further placing and item_place with emptied
-            -- stack as being part of the same 'multi-click' action as long a
-            -- they follow on each other within mp's adaptive max_interval.
-            -- We can assume that it is very likely that the player is not
-            -- counting his 'clicks' to 0 to then open crafting intentionally
-            -- in one go. (With smaller stacks or longer intervals we would
-            -- risk to prevent a player from opening crafting intentionally!
-            -- However, processing of input events is subject to lag,
-            -- especially to lag caused by Luanti blocking the server's main
-            -- thread when writing changes of the map every 5 secs, by default.
-            -- Therefore, recognition will fail sometimes for fast clickers
-            -- with slow disks and the max interval should not go below 0.5s.
-            -- (see Luanti issues 15151 and 15125)
-            mp:recog(itemstack:get_count() < 3) -- no start if stack was small
-        end
+        minimal.recognize_rapid_placing(itemstack, placer)
         return minetest.item_place_node( itemstack, placer,
                                          pointed_thing, param2 )
     end
