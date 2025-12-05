@@ -40,12 +40,12 @@ bed_rest.register_bed(
         },
         selectionbox = {-0.5, -0.5, -0.5, 0.5, -0.45, 1.5},
         sounds =  nodes_nature.node_sound_wood_defaults(),
-        groups = {snappy = 3, dig_immediate = 3, falling_node = 1, bed = 1,
+        groups = {snappy = 3, dig_immediate = 3, bed = 1,
                   temp_pass = 1, nobones = 1},
         bed_level = 0.5,
 
 
-        walkable = false,
+        walkable = true,
         buildable_to = true,
         floodable = true,
         on_punch = function(pos, node, player)
