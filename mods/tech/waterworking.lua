@@ -343,7 +343,7 @@ for mat, _ in pairs (mats_def) do
         def.dumpable = false
         --make watering can able to water a block on click
         def.on_use = function(itemstack, user, pointed_thing)
-            local salty = (liquid == "salt_water")
+            local salty = (liquid == "salt_water") and "salty"
             return ncrafting.water_soil(itemstack, user, pointed_thing, salty)
         end
         -- register filled storage
