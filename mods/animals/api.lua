@@ -58,6 +58,20 @@ local function get_time(...)
     return animals.get_time(...)
 end
 
+-- `animals.timer()`: like mobkit.timer(), but with sub-second resolution
+-- Returns true up to every `s` seconds.
+-- Limitation: The actual resolution depends on how often on_step() for an
+-- entity is called by the engine (up to 60x/sec with Luanti 5.13, but < 10x if
+-- there are many entities or due to lag. Expect regular lag of > 0.5s due to
+-- updates of the map database every 5s, even if rendering shows good fps).
+function animals.timer(self, s)
+    if self.dtime < s then
+        local t2 = self.time_total + self.dtime
+        if (t2 % s) < (self.time_total % s) then return true end
+    else  -- self.dtime >= s (on lag or with small s)
+        return true
+    end
+end
 
 --flee sound (has to be in water!)
 local function flee_sound(self)
