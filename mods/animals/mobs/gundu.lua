@@ -14,56 +14,85 @@ local S = animals.S
 
 local random = math.random
 
-local function pos_is_liquid(pos)
+
+local function drawtype(pos)
     local node=mobkit.nodeatpos(pos)
-    if node and node.drawtype ~= 'liquid' then
-        return false
-    else
-        return true
+    return node and node.drawtype or ''
+end
+
+-- If `self` is descending according to its current velocity `vel` `pull_up()`.
+-- `vel_inc_y` will be added anyways, but the result will be limited to a max.
+-- of vel.y = +1m/s. Finally the result is set as new velocity of `self`.
+-- use cases: e.g. avoid diving into nodes with air
+function pull_up(self, vel, vel_inc_y)
+    -- just adding increments to vel.y sometimes is not enough
+    if vel.y < 0 then vel.y = 0.5 * vel.y end  -- vel.y < -1.5 is possible
+    vel.y = vel.y + vel_inc_y                -- accelerate vertically
+    if vel.y > 1 then vel.y = 1 end  -- do not kick them out of the water
+    self.object:set_velocity(vel)
+end
+
+-- `avoid_bad_nodes()`: Apply a strategy for Gundus to avoid swimming into non-
+-- liquid nodes, especially air nodes and nodes with air pockets. Also to avoid
+-- collisions with solid nodes. NOTE: Success rate depends on their speed and
+-- on how this function gets called. But calling it every step is expensive and
+-- causes Gundus to hover above the water.
+local function avoid_bad_nodes(self)
+    -- check entity's state first, before accessing the map
+    local vel = self.object:get_velocity()
+    local check_ground = vel.y < 0.2  -- potentially sinking before next check
+    -- hor. speed > 0.1 m/s? (usually 0.0 at night)
+    local hor_speed_sqr = vel.x * vel.x + vel.z * vel.z
+    local check_obstacle = hor_speed_sqr > 0.01
+    if not (check_obstacle or check_ground) then return end
+    -- Otherwise and if not already in air -> rise up.
+    local pos = mobkit.get_stand_pos(self)
+    local in_air = (drawtype(pos) == 'airlike')
+    if in_air then return end  -- above water level or too late to avoid
+
+    local yaw = self.object:get_yaw()
+    local fpos = mobkit.pos_translate2d(pos, yaw, 1) --front position
+
+    if check_obstacle then
+        -- NOTE: Gundus almost always move forward.
+        if (drawtype(fpos) ~= 'liquid') then
+            -- obstacle ahead -> rise a little faster and turn
+            pull_up(self, vel, 0.4)
+            mobkit.clear_queue_high(self)
+            local hor_speed = math.min(math.sqrt(hor_speed_sqr), 1)
+            mobkit.hq_aqua_turn(self, 68, yaw + 2, hor_speed)
+            return  -- no need to check the ground, too
+        end
+    end
+
+    -- in general: keep a safe distance from the ground ahead
+    if check_ground then
+        if check_obstacle then
+            local under_front = vector.new(fpos.x, fpos.y - 1, fpos.z)
+            if drawtype(under_front) ~= 'liquid' then
+                pull_up(self, vel, 0.2)
+                return
+            end
+        end
+        local under_pos = vector.new(pos.x, pos.y - 1, pos.z)
+        if drawtype(under_pos) ~= 'liquid' then
+            pull_up(self, vel, 0.2)
+        end
     end
 end
 
 -----------------------------------
--- TODO Throttle this brain function, because:
---      Depending on which Luanti builts Exile runs on and the number of active
---      animals and the cpu power the frequency of this function being called
---      ranges widely from < 10x/sec to > 60x/sec! This means, almost all
---      aspects around animals and their behaviour, stability of populations,
---      frequency of decisions and attacks against players, relations of
---      predators vs. prey, ... none of that can actually work reliably.
---      While applies for all animals, in the case of Gundus the lines with
---      vertical accelleration `vel.y = vel.y+0.2` may make them jump out
---      of the water and die or it may work quite well.
---      The flying Gundus phenomenon also depended on high frequencies of the
---      brain() function, but did not appear with low frequencies.
 local function brain(self)
-    -- Make sure the block in front is liquid (collission avoidance)
-    -- if not and not already in air -> rise up
-    local pos = mobkit.get_stand_pos(self)
-    local inair = animals.node_drawtype(pos) == "airlike"
-    if not inair then
-        local yaw = self.object:get_yaw()
-        local vel = self.object:get_velocity()
-
-        local fpos = mobkit.pos_translate2d(pos,yaw,1) --front position
-        local fu_pos = mobkit.pos_shift(fpos,{y=-1}) -- under front position
-        local u_pos = mobkit.pos_shift(pos,{y=-1})  -- under possition
-
-        if not pos_is_liquid(u_pos)
-            or not pos_is_liquid(fu_pos) then
-
-            -- not in air and no water below -> rise up
-            vel.y = vel.y + 0.2
-            self.object:set_velocity(vel)
-        end
-
-        if not pos_is_liquid(fpos) then
-            -- rise a little faster and turn
-            vel.y = vel.y + 0.2
-            self.object:set_velocity(vel)
-            mobkit.clear_queue_high(self)
-            mobkit.hq_aqua_turn(self, 68, yaw + 2, 2)
-        end
+    -- Make sure the block in front is liquid (not air, glass, flowing liquid,
+    -- ...). Checking every step cannot make it 100% failsafe if the server
+    -- thread hangs for too long and the fish passes more than 1 node in one
+    -- step. max_speed is 5 nodes/s but checking 5 times/sec is not enough,
+    -- since then a Gundu might already have passed 100% of the node since last
+    -- check and hq_turn_aqua() will not make it turn on the spot.
+    local speed = self.object:get_velocity():length()
+    local dt = math.min(0.5, 0.2 / speed) -- at 5m/s 25 checks/s must be enough
+    if animals.timer(self, dt) then
+        avoid_bad_nodes(self)
     end
 
     -- calculate instantanious effects
@@ -72,6 +101,7 @@ local function brain(self)
     if mobkit.timer(self,1) then
         -- Also recharges health from energy
         --die from exhaustion or age
+        local pos = mobkit.get_stand_pos(self)
         if not animals.core_life(self, pos) then
             return
         end
