@@ -59,6 +59,9 @@ core.register_on_mods_loaded( function ()
     if core.global_exists("lore") then
         tab_list[#tab_list +1] = "lore:char_tab"
     end
+    if core.global_exists("crafting") then
+        tab_list[#tab_list +1] = "crafting:help"
+    end
     sfinv.set_tabs(tab_list)
 end)
 
