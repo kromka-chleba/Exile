@@ -22,6 +22,11 @@ local themes = {
         "bgcolor[#080808BB;false]"..
         "background9[5,5;1,1;gui_formbg.png;true;10]"..
         "listcolors[#00000069;#5A5A5A;#141318;#30434C;#FFF]",
+    ["Hi Contrast"] =
+        "bgcolor[#00000000;false]"..
+        "background9[5,5;1,1;gui_formbg.png;true;10]"..
+        "background9[5,5;1,1;gui_formbg.png\\^\\[colorize:\\#131313;true;10]"..
+        "listcolors[#000000FF;#AAAAAA;#DDDDDD;#12181A;#FFF]",
 }
 
 themes.default = themes[minetest.settings:get("exile_default_gui_theme")] or
@@ -36,7 +41,8 @@ local themes_by_id = {
     {name = "Antiglass" , title = S('Antiglass'), description = ""},
     {name = "Antiblue", title = S('Antiblue'), description = ""},
     {name = "Legacy Grey", title = S('Legacy Grey'), description = ""},
-    {name = "Legacy Grey 2", title = S('New Grey'), description = ""}
+    {name = "Legacy Grey 2", title = S('New Grey'), description = ""},
+    {name = "Hi Contrast", title = S('Coal Black'), description = ""},
 }
 
 --return list of theme's names (translated version to display)
@@ -68,6 +74,8 @@ function minimal.apply_gui_theme(player, meta, name)
     if not themes[name] then
         name = "default"
     end
+    print("Setting theme to ",name)
+    print(dump(themes[name]))
     player:set_formspec_prepend(themes[name])
 end
 
