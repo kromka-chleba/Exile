@@ -13,9 +13,11 @@
 * crafting.**process_receive_fields**(`player`, `formname`, `fields`)
     >* Processes fields in crafting formspec
     >* Returns `true` if something changed, `false` else
-
-* crafting.**refresh_recipes_FS**(`player`)
-    > Let other mods update recipes states to be displayed on re-opening of inv formspec
+    
+* crafting.**open_formspec**(`player`, `fs_name`, *(optional)* `cache`)
+    >* Mark the formspec as open
+    >* `fs_name` is name of the opened formspec
+    >* `cache` is optional and will be get for `player` if not given
 
 * crafting.**close_crafting_formspec**(`player`, *(optional)* `cache`)
     >* Gives back items from input panel and updates [cache](#crafting-cache)
@@ -31,17 +33,24 @@
 * crafting.**generate_tools_list**(`station_name`)
     > Generates tool list available in `station_name`
 
-* crafting.**make_tool_formspec**(`player`, `station`, (optional)`cache`)
-    > Generates current station's formspec on `station`
-    > where `fs_name` will be the name given to the formspec
-    >* `station` = nil will give default station
+* crafting.**make_tool_formspec**(`player`, (optional)`cache`)
+    > Generates current station's formspec for `player`
+    > If no station was set, using "nil" as station
     >* `cache` is player's crafting cache and will be get from player if not given.
     > Returns that formspec
+    
+* crafting.set_station(`player`, `station`, `cache`)
+    > Set crafting station to given station
+    >* `cache` is optional, will be get from player if missing
+    >* `station` is a table with following fields:
+    >
+    >     * `name`: the name(string) of the station (has to be a valid station)
+    >     * `title`: string to be displayed above the formspec    
 
-* crafting.**show_station_formspec**(`player`, `station`, `fs_name`)
-    > Shows crafting formspec for `player` on `station`
-    >* `station` = nil will give default station
-    > where `fs_name` will be the name given to the formspec
+* crafting.**show_station_formspec**(`player`,  (optional)`cache`)
+    > Shows current station's formspec for `player`
+    > If no station was set, using "nil" as station
+    >* `cache` is player's crafting cache and will be get from player if not given.
 
 * crafting.**crafting_item_on_rightclick**(`pos`,`node`,`clicker`, `itemstack`,`pointed_thing`)
     > Opens crafting for spec matching the node's name

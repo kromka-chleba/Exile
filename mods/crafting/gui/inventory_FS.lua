@@ -16,7 +16,7 @@ sfinv.register_page(
 
             -- flag formspec as open if we changed tab in sfinv
             if context.open_inv then
-                cache.open = ""
+                cache = crafting.open_formspec(player, "", cache)
             end
 
             -- last parameter is to indicate if inv fs is open for sure
@@ -34,8 +34,9 @@ sfinv.register_page(
         end,
         -- selecting the tab from an other tab or seting to crafting tab
         on_enter = function(self, player, context)
-            -- WARNING: is called even if sfinv is closed, this is why I don't update the cache here
-
+            -- WARNING: is called even if sfinv is closed, this is why I don't update the cache as "open" here
+            -- reset station if needed (for next sfinv opening)
+            crafting.set_station(player, nil)
             -- it is called before `get` function so formspec will be generated AFTER on_enter call
         end,
         -- triggered when leaving tab or by calling sfinv.set_page

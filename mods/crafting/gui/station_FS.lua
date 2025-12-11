@@ -56,18 +56,13 @@ local function get_station_info(station_name, pos)
     return {name = station_name, title = title}
 end
 
--- Generate the formspec outside sfinv
+-- Generate the station crafting formspec with current cache.
+-- if cache is not created yet, station will be "nil"
 --[[
     * `fs_name` is the name of the formspec. nil if not open
-    * `station` is a table with following fields:
-    {
-    `name`: the name of the station (has to be a valid station)
-    `title`: string to be displayed above the formspec
-    }
-    it is optional, if not provided, we will use the default bare hands
     * `cache` is optional and will be get from player if not given
 -- ]]
-local function make_tool_formspec(player, station, cache)
+local function make_tool_formspec(player, cache)
 
     -- set formspec size
     local fs = {"formspec_version[5]",
@@ -75,69 +70,50 @@ local function make_tool_formspec(player, station, cache)
                 "size[11.4,10]",
                 "position[0.5,0.5]"}
 
+    -- initiates FS_cache[player_name] if non existant
+    -- using station = nil
+    -- use `crafting.get_FS_cache(player, true, station)` to use a different one
+    cache = cache or crafting.get_FS_cache(player, true)
+
     -- displaying station's descritpion and creator above formspec
+    local station = cache.station
     if station and station.title then
         fs[#fs + 1] = "tabheader[0,0;station_tab;" .. station.title .. ";1;;]"
     end
 
-    -- initiates FS_cache[player_name] if non existant
-    cache = cache or crafting.get_FS_cache(player, true, station)
-
-    -- updates station info if we changed station
-    if cache.station ~= station then
-        cache:set_station(station)
-    end
-
     -- generates the inside of the formspec
-    fs[#fs + 1] = crafting.make_crafting_formspec(player, cache)
+    fs[#fs + 1] = crafting.make_crafting_formspec(player)
     -- returns the full formspec string
     return tofstring(fs)
 end
 
 crafting.make_tool_formspec = make_tool_formspec
 
--- generates/refreshes and shows the station crafting formspec
--- `fs_name` is the name of the formspec ("exile:crafting" by default)
-local function show_station_formspec(player, station, fs_name)
-    -- open it with "exile:crafting" name by default
-    fs_name = fs_name or "exile:crafting"
-    -- initiates FS_cache[player_name] if non existant
-    local cache = crafting.get_FS_cache(player, true, station)
 
-    -- flag formspec as open (or not if fs_name = nil)
-    cache.open = fs_name
+-- generates/refreshes and shows the station crafting formspec
+-- `cache` is optional : we will get it from player if not provided
+-- if cache is not created yet, station will be "nil"
+local function show_station_formspec(player, cache)
+    -- mark cache open with exile:crafting" formspec name
+    cache = crafting.open_formspec(player, "exile:crafting", cache)
 
     -- updates formspec content
-    local fs = make_tool_formspec(player, station, cache)
+    local fs = make_tool_formspec(player, cache)
     -- display it
-    core.show_formspec(player:get_player_name(), fs_name, fs)
+    core.show_formspec(player:get_player_name(), "exile:crafting", fs)
 end
 
 crafting.show_station_formspec = show_station_formspec
 
--- used to reset cache to "no station" when we leave a station
--- in order to update sfinv part properly for next inv opening
--- (could be improved, this is in case we left with default tool open)
-local function cache_off_station(player, cache)
-    cache:set_station(nil)
-    -- update sfinv, so we keep current tab if we changed it in {}
-    sfinv.set_player_inventory_formspec(player)
-end
-
 -- callback for any station crafting formspec
 local function process_station_fields(player, formname, fields)
     local cache = crafting.process_receive_fields(player, formname, fields)
+    -- cache is only present if we need to update the form
     if cache then
-        if fields.quit then
-            -- additionnal reset of station if needed
-            -- Following line could go if no sfinv opening is allowed anymore
-            cache_off_station(player, cache)
-        else
-            -- updates formspec content
-            local fs = make_tool_formspec(player, cache.station, cache)
-            -- display it
-            core.show_formspec(player:get_player_name(), formname, fs)
-        end
+        -- updates formspec content
+        local fs = make_tool_formspec(player, cache)
+        -- display it
+        core.show_formspec(player:get_player_name(), formname, fs)
     end
 end
 
@@ -179,8 +155,10 @@ function crafting.crafting_item_on_rightclick(pos,node,clicker,
     end
     -- updates station's name and title (table)
     local station = get_station_info(station_name, pos)
+    -- set station
+    local cache = crafting.set_station(clicker, station)
     -- generates and shows station's formspec
-    show_station_formspec(clicker, station, 'exile:crafting')
+    show_station_formspec(clicker, cache)
 
     return itemstack
 end

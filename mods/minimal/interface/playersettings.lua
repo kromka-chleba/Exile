@@ -131,8 +131,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     if fields.player_settings then
         -- leave current page (= run the function to close them)
         local oldpage = sfinv.pages[context.page]
-        if oldpage and oldpage.on_leave then
-            oldpage:on_leave(player, context)
+        -- run quit function of the old page
+        if oldpage and oldpage.on_player_receive_fields then
+            oldpage:on_player_receive_fields(player, context, {quit = true})
         end
         --sfinv.set_page(player, "minimal:player_settings")
         minimal.show_player_settings(name, player:get_meta())
@@ -163,19 +164,6 @@ local function process_receive_fields(player, formname, fields)
     if temp_fromnum[num] and temp_fromnum[num] ~= oldtempscale then
         meta:set_string("tempscale", temp_fromnum[num])
         setting_changed(player, "tempscale", temp_fromnum[num], meta)
-    end
-
-    -- close crafting formspec on quit (if not already done)
-    --[[This is because opening player setting only leaves the tab, but doesn't run closing crafting function,
-    and I can't trigger come back to the tab in current luanti engin
-    (I would need to trigger inventory formspec from outside and I can't)
-    Else, ideal would be to come back to "oldpage"]]
-    if fields.quit then
-        -- returns nil if no cache (already closed)
-        -- #TODO that could probably be improved t depend less on what we do on crafting side.
-        if crafting.close_crafting_formspec(player) then
-            sfinv.set_player_inventory_formspec(player)
-        end
     end
 
     -- setting HUD Opacity
