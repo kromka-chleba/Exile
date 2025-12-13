@@ -94,7 +94,7 @@ local function calculate_stack_input(item)
     local output_name = item:get_name()
     local per_input = item:get_count()
     local stack_size = core.registered_items[output_name].stack_max
-    return stack_size / per_input
+    return math.floor(stack_size / per_input)
 end
 
  -- TODO maybe improve dealing with cache.item_hash
