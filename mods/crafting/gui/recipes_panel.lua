@@ -1,3 +1,13 @@
+-- TODO -----------------------------------------------------------------------
+
+-- The following identifier and related code _may_ be obsolete since
+-- replacement of checkboxes for 'single' 'stack' 'maximum' by craft buttons:
+-- p_recipe.count, cache.qty, get_craft_count(), recipe.no_max,
+-- process_max_label(), the corresponding code in FS_display_recipe() with
+-- display_count which was to display the output count in front of all recipes.
+
+-- GLOBALS --------------------------------------------------------------------
+
 local crafting = crafting
 local S = core.get_translator("crafting")
 local tofstring = function(t) return table.concat(t,"") end
