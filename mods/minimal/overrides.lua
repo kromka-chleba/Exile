@@ -9,8 +9,6 @@ core = core
 
 local fall_damage_multiplier = 1.5
 
-local S = minimal.S
-
 minetest.override_item("air", { groups = { air = 1,
                                            not_in_creative_inventory = 1} })
 
@@ -46,7 +44,7 @@ end
 -- Helper for minetest.item_place
 -- Opens crafting when the player pointed on top of a node of group
 -- 'craft_ground' (while excluding stairs and slopes), if air is above that
--- node and the node is within a range of 2.8.
+-- node.
 -- returns: false if conditions are not met or true otherwise
 local hand_on_rightclick = function(clicker, pointed_thing)
     if not minetest.is_player(clicker) or not pointed_thing
@@ -83,14 +81,6 @@ local hand_on_rightclick = function(clicker, pointed_thing)
 
     -- not pointed onto top of a node?
     if vector.direction(above, under).y ~= -1 then return false end
-
-    -- to far? (allow from within beds but not on other side of a canyon)
-    if vector.distance(clicker:get_pos(), under) > 2.8 then
-        local player_name = clicker:get_player_name()
-        minimal.send_message(clicker, player_name, S("Too far away!"), 1)
-        core.sound_play("failure", {to_player = player_name}, true)
-        return false
-    end
 
     -- ground supports crafting? -> open station with nil as tool name
     if not craft_ground_on_rightclick then return false end
