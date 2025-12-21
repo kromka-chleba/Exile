@@ -562,6 +562,27 @@ function animals.handle_drops(self,despawn_time)
     mobkit.queue_high(self,update_pos,200)
 end
 
+-- our version of mobkit.fallover() on death to be applied when an animal is
+-- not in liquid. Purpose: avoid visual issues with animations when
+-- collisionbox[2] has significant deviation from 0.
+function animals.lq_fallover(self)
+    local zrot = 0
+    local init = true
+    local func=function(self)
+        if init then
+            local vel = self.object:get_velocity()
+            self.object:set_velocity(mobkit.pos_shift(vel,{y=1}))
+            mobkit.animate(self,'dead')
+            init = false
+        end
+        zrot=zrot+pi*0.05
+        local rot = self.object:get_rotation()
+        self.object:set_rotation({x=rot.x,y=rot.y,z=zrot})
+        if zrot >= pi*0.5 then return true end
+    end
+    mobkit.queue_low(self,func)
+end
+
 -- animal death
 function animals.hq_die(self)
     local despawn_time = self.despawn_time or dsp_time
@@ -573,7 +594,11 @@ function animals.hq_die(self)
     -- fallover
     self.logic = function() end      -- brain dead as well
     animals.handle_drops(self,despawn_time)
-    mobkit.lq_fallover(self)
+    if self.isinliquid then
+        mobkit.lq_fallover(self)
+    else
+        animals.lq_fallover(self)
+    end
     minetest.after(despawn_time,function()
                        self.object:remove()
     end)
