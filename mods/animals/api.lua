@@ -568,16 +568,49 @@ end
 function animals.lq_fallover(self)
     local zrot = 0
     local init = true
+    local fall_height  -- controls whether position needs correction
     local func = function()
         if init then
             local vel = self.object:get_velocity()
             self.object:set_velocity(mobkit.pos_shift(vel, {y = 1}))
             mobkit.animate(self, 'dead')
+
+            -- determin fall_height, if any
+            local props = self.object:get_properties()
+            local box = props and props.collisionbox
+            if box then
+                local height = - box[2]
+                -- final height: slighly less then the width;
+                --               not more than inital height
+                local height_final = math.min(height, 0.4 * (box[4] - box[1]))
+                if height_final ~= height then
+                    fall_height = height - height_final
+                end
+            end
             init = false
         end
+
+        local zrot_old = zrot
         zrot = zrot + pi * 0.05
         local rot = self.object:get_rotation()
         self.object:set_rotation({x = rot.x, y = rot.y, z = zrot})
+
+        -- Do we have a high pivot point? -> adjust position and collisionbox
+        if fall_height then
+            local props = self.object:get_properties()
+            if props and props.collisionbox then
+                props.collisionbox[2] = - fall_height * math.cos(zrot)
+                self.object:set_properties(props)
+            end
+            -- lateral compensation relative to the model
+            local dx_m = fall_height * (math.sin(zrot) - math.sin(zrot_old))
+            -- map dx_m to world coord sys according to yaw
+            local yaw_z = self.object:get_yaw() -- dir of the model's z(!) axis
+            local yaw_x = yaw_z - 0.5 * pi
+            local dir_vec = core.yaw_to_dir(yaw_x)
+            local d_w = dx_m * dir_vec
+            self.object:add_pos({x = d_w.x, y = 0, z = d_w.z})
+        end
         if zrot >= pi * 0.5 then return true end
     end
     mobkit.queue_low(self,func)
