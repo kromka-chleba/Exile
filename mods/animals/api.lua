@@ -568,17 +568,17 @@ end
 function animals.lq_fallover(self)
     local zrot = 0
     local init = true
-    local func=function(self)
+    local func = function()
         if init then
             local vel = self.object:get_velocity()
-            self.object:set_velocity(mobkit.pos_shift(vel,{y=1}))
-            mobkit.animate(self,'dead')
+            self.object:set_velocity(mobkit.pos_shift(vel, {y = 1}))
+            mobkit.animate(self, 'dead')
             init = false
         end
-        zrot=zrot+pi*0.05
+        zrot = zrot + pi * 0.05
         local rot = self.object:get_rotation()
-        self.object:set_rotation({x=rot.x,y=rot.y,z=zrot})
-        if zrot >= pi*0.5 then return true end
+        self.object:set_rotation({x = rot.x, y = rot.y, z = zrot})
+        if zrot >= pi * 0.5 then return true end
     end
     mobkit.queue_low(self,func)
 end
