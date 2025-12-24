@@ -164,6 +164,12 @@ local self_data = {
     -- prey + rivals automatically defined in registration
     capture_interactions = {
         club = 0.01,
+        -- NOTE Not adding 'hand' here, means a player in the water trying to
+        --   defend by punching (left-click) with any item wielded that does
+        --   not count as a club will get zero effects - no damage, no sound,
+        --   no warning, not even with an iron spear!
+        --   Wielding a club, one will get a chance to stun once per
+        --   full_punch_interval.
     },
     player_interaction = 1,
     -- logic for mobkit
@@ -200,11 +206,9 @@ local self_data = {
     },
     --on actions
     drops = "animals:carcass_fish_large",
-    on_rightclick = function(self, clicker, time_from_last_click, tool_capabilities)
-        if animals.stun_catch_mob(self, clicker, time_from_last_click,
-                                  tool_capabilities) then -- attack kidnapper
-            animals.fight_or_flight(self, clicker, nil, 1)
-        end
+    on_rightclick = function(self, clicker)
+        -- zero tolerance -> show some reaction
+        animals.fight_or_flight(self, clicker, nil, 1)
     end,
     -- egg
     egg = {

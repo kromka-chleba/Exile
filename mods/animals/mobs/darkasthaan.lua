@@ -190,12 +190,9 @@ local self_data = {
     },
     --on actions
     drops = "animals:carcass_invert_large",
-    on_rightclick = function(self, clicker, time_from_last_click,
-                             tool_capabilities)
-        if animals.stun_catch_mob(self, clicker, time_from_last_click,
-                                  tool_capabilities) then -- attack kidnapper
-            animals.fight_or_flight(self, clicker, nil, 1)
-        end
+    on_rightclick = function(self, clicker)
+        -- zero tolerance -> show some reaction
+        animals.fight_or_flight(self, clicker, nil, 1)
     end,
     -- eggs
     egg = {

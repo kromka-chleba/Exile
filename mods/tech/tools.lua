@@ -609,6 +609,7 @@ register_adze("granite", {
 -- Hammers -------------------------------------------------
 -- suffix/material, description
 -- registers tool, placed, and recipe
+-- can act as a weak weapon and stun animals
 local function register_hammer(suffix, desc)
     -- register tool
     local name = "tech:hammer_"..suffix -- used in tool registration, placed, and recipe
@@ -629,6 +630,7 @@ local function register_hammer(suffix, desc)
             damage_groups = {fleshy=stone_dmg + 1},
             -- +1 was added in new default hammer, legacy one had only stone_dmg
         },
+        _dig_tip = S("Strike") .. " / " .. S("Stun animals"),
         -- NOTE: don't put "\n" in the translation here,
         -- because then, it will fail once inside a "core.colorize" function.
         -- it works with core.get_color_escape_sequence(color)
@@ -642,8 +644,7 @@ local function register_hammer(suffix, desc)
         _place_tip = S("Stun animals\n"..
         " or Place on solid surface for hammering crafts"),
         --]]
-        _place_tip = S("Stun animals") .. "\n "..
-        S("or Place on solid surface for hammering crafts"),
+        _place_tip = S("Place on solid surface for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
@@ -710,7 +711,7 @@ register_hammer("granite", S("Granite"))
 
 --Stone club -----------------------------------------------
 -- A weapon. Not very good for anything else
--- can stun catch animals
+-- can stun animals
 minetest.register_tool("tech:stone_club",
         {
         description = S("Stone Club"),
@@ -727,8 +728,7 @@ minetest.register_tool("tech:stone_club",
             },
             damage_groups = {fleshy=stone_dmg*2},
         },
-        _dig_tip = S("Strike"),
-        _place_tip = S("Stun animals"),
+        _dig_tip = S("Strike") .. " / " .. S("Stun animals"),
         groups = {club = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         }
@@ -930,7 +930,7 @@ crafting.register_recipe({
 
 -- Mace ---------------------------------------------------
 -- A weapon. Not very good for anything else
--- can stun catch animals
+-- can stun animals
 
 minetest.register_tool("tech:mace_iron",
         {
@@ -950,8 +950,7 @@ minetest.register_tool("tech:mace_iron",
         },
         groups = {club = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
-        _dig_tip = S("Strike"),
-        _place_tip = S("Stun animals"),
+        _dig_tip = S("Strike") .. " / " .. S("Stun animals"),
         }
     )
 

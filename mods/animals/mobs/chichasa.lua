@@ -267,6 +267,8 @@ local self_data = {
             {range={x=61, y=89}, speed=45, loop=true},
         },
         dead = { range = {x=91, y=99}, speed = 70, loop=false},
+        stunned = { range = {x=58, y=74}, speed = 60, loop=false},
+        unstunned = { range = {x=75, y=89}, speed = 20, loop=false},
     },
     sounds = {
         warn = {
@@ -313,11 +315,9 @@ local self_data = {
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_bird_small",
-    on_rightclick = function(self, clicker, time_from_last_click,
-                             tool_capabilities)
+    on_rightclick = function(self, clicker)
+        -- show some reaction
 
-        animals.stun_catch_mob(self, clicker, time_from_last_click,
-                               tool_capabilities)
         animals.fight_or_flight(self, clicker) -- ewww a human touched me!!!
     end,
     -- egg
@@ -370,12 +370,9 @@ self_male.sex = "male"
 self_male.predator_interactions = 0.02 --NotPegasun (run away!)
 self_male.player_interaction = 0.01 --NotPegasun (run away!)
 -- male functions
-self_male.on_rightclick = function(self, clicker, time_from_last_click,
-                                   tool_capabilities)
-    if animals.stun_catch_mob(self, clicker, time_from_last_click,
-                              tool_capabilities) then -- attack kidnapper
-        animals.fight_or_flight(self, clicker, nil, 1)
-    end
+self_male.on_rightclick = function(self, clicker)
+    -- zero tolerance -> show some reaction
+    animals.fight_or_flight(self, clicker, nil, 1)
 end
 -- sounds
 self_male.sounds = {
