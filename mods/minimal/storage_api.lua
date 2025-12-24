@@ -236,7 +236,9 @@ function storage.register_storage(name,def)
             if not can_interact(pos, player) then return 0 end
             local count = stack:get_count()
             local nodedef = minimal.get_nodedef(pos)
-            count = nodedef.storage_inventory_dump_into and nodedef.storage_inventory_dump_into(stack, count) or count
+            count = (nodedef and nodedef.storage_inventory_dump_into
+                    and nodedef.storage_inventory_dump_into(stack, count))
+                    or count
             return count
         end
 

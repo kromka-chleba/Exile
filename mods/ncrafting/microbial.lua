@@ -10,7 +10,8 @@ local function microbial_infection(player, pos, nodedef, itemstack, idef)
     nodedef = type(nodedef) == "table" and nodedef or
       type(nodedef) == "string" and core.registered_nodes[nodedef] or minimal.get_nodedef(pos)
     -- can't ferment or no infection function
-    if not (nodedef._ferment_to and nodedef.on_microbial_infection) then return end
+    if not (nodedef and nodedef._ferment_to
+            and nodedef.on_microbial_infection) then return end
     -- figure out itemstack and get its definition
     itemstack = itemstack or player:get_wielded_item()
     idef = idef or itemstack:get_definition()

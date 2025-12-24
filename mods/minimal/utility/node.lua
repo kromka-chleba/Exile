@@ -261,18 +261,18 @@ function minimal.safe_landing_spot(pos)
     local def_top = minimal.get_nodedef(minimal.shift_pos(pos,{y = 1}))
     local def_bot = minimal.get_nodedef(pos)
     local def_flr = minimal.get_nodedef(floor)
-    if def_top.name ~= "ignore" and ( def_top and
-                                      def_top.walkable == true ) then
-        return false -- loaded a solid node
+    if not (def_top and def_bot and def_flr) then return false end
+
+    if (def_top.name ~= "ignore") and (def_top.walkable == true) then
+        return false -- loaded and solid node
     end
-    if def_bot.name ~= "ignore" and ( def_bot and
-                                      def_bot.walkable == true ) then
+    if (def_bot.name ~= "ignore") and (def_bot.walkable == true) then
         return false
     end
-    if def_flr.name == "ignore" or ( def_flr and
-                                     def_flr.walkable == true ) then
+    if (def_flr.name == "ignore") or (def_flr.walkable == true) then
         return true
     end
+
     -- floor is not walkable, search below it for a walkable floor
     for i = 0, 20 do
         floor = minimal.shift_pos(floor,{y = -1})
