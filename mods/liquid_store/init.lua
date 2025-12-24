@@ -503,12 +503,12 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
         ppos = pointed_thing.under
         ndef = minimal.get_nodedef(ppos)
         -- prioritize liquid_store_pourin function
-        if ndef.ls_pourin then
+        if ndef and ndef.ls_pourin then
             local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
             if new_wield then return new_wield end
         end
         -- don't remove liquid source nodes
-        buildable_to = ndef.drawtype ~= "liquid" and ndef.buildable_to
+        buildable_to = ndef and ndef.drawtype ~= "liquid" and ndef.buildable_to
             or false
         -- finishing touches if ndef found (verify with the found node!)
         click_result = can_rightclick()

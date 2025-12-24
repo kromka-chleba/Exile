@@ -145,6 +145,7 @@ end
 local function soup_on_bowl_empty(pos, user, itemstack, p_inv, nodemeta)
     -- used for getting soup_no_meta_transfer
     local nodedef = minimal.get_nodedef(pos)
+    if not nodedef then return end
     -- get empty of soup at pos, become of empty bowl itemstack
     local empty, become = get_empty_become(itemstack, nodedef.name)
     if not (empty and become) then return end
@@ -601,7 +602,8 @@ end
 local function spawn_steam(pos,def)
     local ndef = minimal.get_nodedef(pos)
     -- utilize collision box for proper node interactions
-    local collbox = ndef.collision_box or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
+    local collbox = (ndef and ndef.collision_box)
+                    or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
     def = def or {}
     def.amount = def.amount or def.amt or random(6,10)
     if type(def.amount) == "table" then -- randomize
@@ -732,7 +734,7 @@ local function pot_receive_fs_closed(pos, formname, fields, sender)
     remove_watcher(pos, sender)
     if #get_watchers(pos) == 0 then
         -- get or create sound for pot close
-        local sound = ndef.sounds and ndef.sounds.pot_close
+        local sound = ndef and ndef.sounds and ndef.sounds.pot_close
         sound = sound and table.copy(sound) or {
             name = "tech_clay_storage_close",
             gain = 0.4,
@@ -815,6 +817,7 @@ local function pot_cook(pos, elapsed)
     local meta = minetest.get_meta(pos)
     -- node definition used to get name, sounds, and determine portions
     local ndef = minimal.get_nodedef(pos)
+    if not ndef then return end
     -- commit heat transfer
     climate.heat_transfer(pos, ndef.name)
     local temp = climate.get_point_temp(pos)

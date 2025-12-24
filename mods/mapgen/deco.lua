@@ -88,7 +88,8 @@ end
 
 local function add_roots(pos, minp, maxp, blockseed, extra_args)
     local plant_nodedef = minimal.get_nodedef(pos)
-    if not plant_nodedef.groups.plant_with_roots
+    if not plant_nodedef
+        or not plant_nodedef.groups.plant_with_roots
         or plant_nodedef.groups.plant_with_roots == 0 then
         return
     end

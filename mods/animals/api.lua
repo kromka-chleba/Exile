@@ -1935,7 +1935,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
     if self.class ~= 2 then
         -- wait! check if we're in water!
         local nodeat = minimal.get_nodedef(mobkit.get_stand_pos(self))
-        if nodeat.drawtype == "liquid" then
+        if nodeat and nodeat.drawtype == "liquid" then
             -- GOTTA GET OUT
             animals.hq_liquid_recovery(self, 70)
             return
@@ -3195,7 +3195,7 @@ function animals.size_dif_mechanics(self)
         local pos = self.object:get_pos()
         local nodeat = minimal.get_nodedef(pos)
         -- stuck in a node that we can walk on
-        if nodeat.walkable then
+        if nodeat and nodeat.walkable then
             pos.y = pos.y + 1 + (abs(data.initial_properties.collisionbox[2]) +
                 abs(data.initial_properties.collisionbox[5]))
             self.object:set_pos(pos)

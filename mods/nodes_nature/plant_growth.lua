@@ -151,10 +151,13 @@ soil_preferences.plant_basic_prefs = soil_preferences.new()
 -- permits carrying of plant + soil definition
 function nn.plant.soil_response(pos, pdef, sdef)
     pdef = pdef or minimal.get_nodedef(pos)
+    if not pdef then return 0 end
+
     sdef = sdef or minimal.get_nodedef(minimal.get_pos_under(pos))
     local sgroups = sdef and sdef.groups or {}
     -- not a sediment, 0!!! (could be a nil node or have no groups either)
     if not sgroups.sediment then return 0 end
+
     -- get and clone soil_prefs as we modify it
     local soil_prefs = pdef.plant_soil_preferences or soil_preferences.plant_basic_prefs
     soil_prefs = table.copy(soil_prefs)
@@ -246,6 +249,7 @@ end
 
 local function is_temperature_extreme(pos, pdef, temp)
     pdef = pdef or minimal.get_nodedef(pos)
+    if not pdef then return false end
     temp = temp or climate.get_point_temp(pos)
     -- -30C to 60C
     return temp < (pdef.plant_temp_range.min - 35) or temp > (pdef.plant_temp_range.max + 20)
@@ -258,6 +262,8 @@ end
 
 local function is_soil_and_temp_good(pos, pdef, temp)
     pdef = pdef or minimal.get_nodedef(pos)
+    if not pdef then return true end
+
     --if not on sediment abort
     if not is_on_sediment(pos, pdef) then
         return false
@@ -283,7 +289,7 @@ end
 -- pos and meta should be the soil pos and meta
 local function set_roots(pos, meta, pdef, nr)
     local sdef = minimal.get_nodedef(pos) -- soil def
-    if not sdef.groups then return end -- can't even check groups!
+    if not (sdef and sdef.groups) then return end -- can't even check groups!
     -- salty wet sediment or not a sediment at all
     if sdef.groups.wet_sediment == 2 or not sdef.groups.sediment then return end
     -- not a rooted soil (let's root it!)
@@ -321,7 +327,7 @@ end
 
 local function deplete_soil(pos)
     local sdef = minimal.get_nodedef(pos)
-    if sdef._depleted_name then
+    if sdef and sdef._depleted_name then
         minetest.swap_node(pos, {name = sdef._depleted_name})
     end
 end
@@ -543,6 +549,7 @@ end
 -- optional pdef argument
 local function add_to_param2(pos, nr, pdef)
     pdef = pdef or minimal.get_nodedef(pos)
+    if not pdef then return end
     -- get place_param2
     local place_param2 = pdef.place_param2
     -- doesn't have a place_param2, get one from seedling
@@ -602,7 +609,10 @@ end
 function nn.plant.death_chance_on_replant(pos, pdef)
     nn.plant.set_to_domesticated(pos)
     pdef = pdef or minimal.get_nodedef(pos)
-    if pdef.groups and pdef.groups.seedling then return end -- do not run for seedlings to prevent autogrowth
+     -- do not run for seedlings to prevent autogrowth
+    if not pdef
+        or (pdef.groups and pdef.groups.seedling) then return end
+
     -- random chance to kill the plant when replanting (1 in 4, 25% chance)
     if math.random() < .25 then
         local timer = minetest.get_node_timer(pos)
