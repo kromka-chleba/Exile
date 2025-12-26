@@ -106,7 +106,7 @@ end
 
 local setup_hud = function(player)
 
-    player:hud_set_flags({healthbar = false})
+    player:hud_set_flags({healthbar = false, breathbar = false})
     local playername = player:get_player_name()
 
     local hud_data = {}
