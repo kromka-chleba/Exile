@@ -47,6 +47,7 @@ local hud_hunger_x      = -300
 local hud_thirst_x      = -64
 local hud_energy_x      = 0
 local hud_air_temp_x    = 64
+local hud_oxygen_x      = 192
 local hud_sick_x        = 300
 local hud_body_temp_x   = 300
 
@@ -168,6 +169,15 @@ local setup_hud = function(player)
             "hud_temp_normal.png" ),
         text = make_text_hud(player,
             {x = hud_body_temp_x,
+            y = hud_vert_pos + hud_text_y} )
+    }
+
+    hud_data.oxygen = {
+        image = make_image_hud(player,
+            {x = hud_oxygen_x, y = hud_vert_pos},
+            "hud_oxygen.png" ),
+        text = make_text_hud(player,
+            {x = hud_oxygen_x,
             y = hud_vert_pos + hud_text_y} )
     }
 
@@ -387,6 +397,27 @@ local stat_funcs = {
             player:hud_change(hudtext, "text", t)
         else
             player:hud_change(hudtext, "text", "")
+        end
+    end,
+    oxygen = function(player, hud_data, meta, v)
+        -- get value percentage
+        v = v or player:get_breath()
+        v = v * 10  -- 10 is max (Luanti's default), 100%
+        -- only update if < 100% or to hide it when 100% is reached
+        local is_full = (v == 100)
+        local data = hud_data.oxygen
+        if not data then return end
+        local hide = is_full and not data.switched_off
+        if not is_full or hide then
+            local t = concat_text(v, " %") or nil
+            local stat_col = color(v)
+            -- update oxygen hud
+            -- overwrite data.hidden, to use health_hud_change()
+            local reset_hidden = data.hidden
+            data.switched_off = is_full or nil
+            data.hidden = data.hidden or data.switched_off
+            health_hud_change(player, hud_data, "oxygen", stat_col, t)
+            data.hidden = reset_hidden
         end
     end,
     enviro_temp = function(player, hud_data, meta, v, forceupdate)
@@ -668,6 +699,7 @@ minetest.register_globalstep(function(dtime)
                 -- otherwise update health and enviro_temp normally
                 else
                     stat_funcs["health"](player, hud_data)
+                    stat_funcs["oxygen"](player, hud_data)
                     stat_funcs["enviro_temp"](player, hud_data)
                 end
                 local wi = player:get_wielded_item():get_name()
