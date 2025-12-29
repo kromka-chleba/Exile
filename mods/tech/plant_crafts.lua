@@ -48,7 +48,8 @@ minetest.register_node(
         end,
         sunlight_propagates = true,
         groups = {choppy=2, dig_immediate=2, flammable=1,
-                  attached_node=1, temp_pass = 1, temp_flow = 100},
+                  attached_node=1, temp_pass = 1, temp_flow = 100,
+                  on_place_proxy = 1},  -- the role of our on_rightclick()
         override_sneak = true,
         drop = "tech:stick",
         sounds = nodes_nature.node_sound_wood_defaults(),

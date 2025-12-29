@@ -21,6 +21,14 @@ function minimal.pointed_thing_on_rightclick(itemstack, placer, pointed_thing)
 
         if ndef and (ndef.override_sneak == true
                      or not placer:get_player_control().sneak) then
+
+            -- the node overwrites on_righclick() only to handles placing of
+            -- any other nodes against it, but here the stack is empty?
+            if itemstack:is_empty() and ndef.groups
+                and ndef.groups.on_place_proxy then
+                return false
+            end
+
             local on_click = minimal.on_rightclick(itemstack, placer,
                                                    pointed_thing)
             if on_click ~= false then
@@ -43,12 +51,13 @@ function minimal.set_craft_station_on_rightclick(func)
     end
 end
 
--- Helper for minetest.item_place
+-- Helper for minetest.item_place, a general on_place() for empty stacks i.e.
+-- for hand items (creative, non-creative, ...).
 -- Opens crafting when the player pointed on top of a node of group
 -- 'craft_ground' (while excluding stairs and slopes), if air is above that
 -- node.
 -- returns: false if conditions are not met or true otherwise
-local hand_on_rightclick = function(clicker, pointed_thing)
+local hand_on_place = function(clicker, pointed_thing)
     if not minetest.is_player(clicker) or not pointed_thing
         or pointed_thing.type ~= "node" then
 
@@ -315,7 +324,7 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
 
         local mp = multi_placing[placer:get_player_name()]
         if not mp or mp:has_ended() then
-            if hand_on_rightclick(placer, pointed_thing) then
+            if hand_on_place(placer, pointed_thing) then
                 return itemstack, nil
             end
 

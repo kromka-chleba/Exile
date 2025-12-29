@@ -51,7 +51,8 @@ minetest.register_node(
         climbable = true,
         sunlight_propagates = true,
         groups = {choppy=2, dig_immediate=2, flammable=2,
-                  attached_node=1, temp_pass = 1, ladder = 1},
+                  attached_node=1, temp_pass = 1, ladder = 1,
+                  on_place_proxy = 1},  -- the role of our on_rightclick()
         drop = "tech:wooden_ladder",
         sounds = nodes_nature.node_sound_wood_defaults(),
 
@@ -64,6 +65,7 @@ minetest.register_node(
                                          param2 = under.param2})
             end
         end,
+        -- to handle other nodes being placed against us via item_place()
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             local itemname = itemstack:get_name()
             if minetest.get_item_group(itemname, "ladder") > 0 then
