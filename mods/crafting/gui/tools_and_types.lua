@@ -80,11 +80,13 @@ end
 --[[#TODO right now, only one tool can be used at the same time (placed tool)
 but we could imagine using tool in inventory like knifes too
 In that case, this could be modified to have "craft_item" being a list]]
-function crafting.generate_tools_list(station_name)
+function crafting.generate_tools_list(station_name, no_default)
     -- #TODO this could be improved to check if station is a valid tool/
     -- to make custom possbile tools per station
     if not station_name or station_name == crafting.default_tool then
         return {crafting.default_tool}
+    elseif no_default then
+        return {station_name}
     else
         return {crafting.default_tool, station_name}
     end

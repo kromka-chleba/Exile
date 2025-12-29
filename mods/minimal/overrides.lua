@@ -33,11 +33,13 @@ function minimal.pointed_thing_on_rightclick(itemstack, placer, pointed_thing)
 end
 
 -- fool-proof approach to avoid circular dependency with crafting
-local craft_ground_on_rightclick = nil
-function minimal.set_crafting_ground_on_rightclick(func)
-    craft_ground_on_rightclick = function (pos, tool_node, clicker,
-                                           empty_stack, pointed_thing)
-        func(pos, tool_node, clicker, empty_stack, pointed_thing)
+local craft_station_on_rightclick = nil
+function minimal.set_craft_station_on_rightclick(func)
+    craft_station_on_rightclick = function (pos, tool_node, clicker,
+                                            empty_stack, pointed_thing,
+                                            no_default_tool)
+        func(pos, tool_node, clicker, empty_stack, pointed_thing,
+             no_default_tool)
     end
 end
 
@@ -83,10 +85,10 @@ local hand_on_rightclick = function(clicker, pointed_thing)
     if vector.direction(above, under).y ~= -1 then return false end
 
     -- ground supports crafting? -> open station with nil as tool name
-    if not craft_ground_on_rightclick then return false end
+    if not craft_station_on_rightclick then return false end
     local tool_node = {}
-    craft_ground_on_rightclick(under, tool_node, clicker,
-                               ItemStack(), pointed_thing)
+    craft_station_on_rightclick(under, tool_node, clicker,
+                                ItemStack(), pointed_thing)
     return true
 end
 
@@ -316,6 +318,14 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
             if hand_on_rightclick(placer, pointed_thing) then
                 return itemstack, nil
             end
+
+            -- open `freehand crafting station`; suppress default hand tool,
+            -- if position is valid
+            local under = pointed_thing.under
+            if not vector.check(under) then return itemstack, nil end
+            local tool_node = {name = "tech:bare_hands"}
+            craft_station_on_rightclick(under, tool_node, placer, ItemStack(),
+                                        pointed_thing, true)
         end
     end
 
