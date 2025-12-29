@@ -727,7 +727,9 @@ function crafting.process_receive_fields(player, formname, fields)
         -- change next opening page in sfinv if needed
         -- NOTE: only needed if open crafting forsmspec in sfinv is possible
         if cache then
-            set_next_sfinv_page(player, cache.to_update)
+            -- commented for PR 1299 (-> no more crafting in inventory),
+            -- clean-up postponed until a later commit
+            -- set_next_sfinv_page(player, cache.to_update)
         end
 
         return false -- no need to refresh the formspec

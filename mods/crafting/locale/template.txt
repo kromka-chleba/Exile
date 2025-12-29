@@ -37,7 +37,7 @@ Use first:=
 
 Missing required items!=
 Crafting=
-More crafting options:=
+Crafting?=
 @nUse an empty hand on a flat, clear surface,@nor use a placed tool or crafting station.=
 
 You are using a flat clear surface=
