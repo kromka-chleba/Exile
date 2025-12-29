@@ -15,6 +15,7 @@ local p_color = "#5a553c"-- possible color
     `id` = index in dropdown
     label` = label in formspec
     `inputs` = table of inv lists to use for inputs
+    `no_craft_from_main` = set true if "main" is not in craftable_list
     `i_color` = color of input list's background
     `get_m_color` = returns color of main list's background
     `get_r_bg` = returns background image(color) of a recipe
@@ -27,6 +28,7 @@ local input_options = {
         craftable_lists = {"input_items"}, -- inv list used for craft
         possible_lists = {"main"}, -- used to check what could be transferred
         total_lists = {"input_items", "main"},
+        no_craft_from_main = true,
         i_color = c_color, -- bgcolor behind input inventory
         get_m_color = function(cache) -- bgcolor behind main inventory
             if cache.possible_hint then -- hint btn activated
@@ -38,12 +40,15 @@ local input_options = {
             end
         end,
         get_r_cbg = function(cache, p_recipe)
+            local selected = (cache.selected_id == p_recipe.recipe.id)
+            local suffix = selected and "_selected.png" or ".png"
+
             local status = p_recipe.craftable
-            if status then -- craftable
-                return 'crafting_slot_craftable.png'
+            if status then  -- craftable
+                return "crafting_slot_craftable" .. suffix
             elseif p_recipe.possible then
                 -- possible
-                return 'crafting_slot_possible.png'
+                return "crafting_slot_possible" .. suffix
             elseif status == false then -- uncraftable
             -- replace by following to have black recipes if hint is off
             -- so that uncraftable may be transferred
@@ -51,7 +56,7 @@ local input_options = {
             elseif status == false and cache.possible_hint then
                 uncraftable and hint is ON
             --]]
-                return 'crafting_slot_uncraftable.png'
+                return "crafting_slot_uncraftable" .. suffix
             else -- uncraftable but hint OFF, or unknows craftable state
                 return 'crafting_slot_empty.png'
             end
@@ -72,11 +77,14 @@ local input_options = {
             -- return nil -- no color if "hint" disabled.
         end,
         get_r_cbg = function(cache, p_recipe)
+            local selected = (cache.selected_id == p_recipe.recipe.id)
+            local suffix = selected and "_selected.png" or ".png"
+
             local status = p_recipe.craftable
             if status then -- craftable
-                return 'crafting_slot_craftable.png'
+                return "crafting_slot_craftable" .. suffix
             elseif status == false then -- uncraftable
-                return 'crafting_slot_uncraftable.png'
+                return "crafting_slot_uncraftable" .. suffix
             else -- unknows craftable state
                 return 'crafting_slot_empty.png'
             end
@@ -127,6 +135,7 @@ local default_option = 1
         `p_recipes` = nil : list of possible recipe if everything is used
         `u_recipes` = nil : list of uncraftable recipes to display
         `recipes` = nil : unsorted list of recipes
+        `selected_id` = nil : id of selected recipe
         `to_update` = true if forsmpec was closed
             and recipes crafting state may not remain updated for next sfinv opening
             This is because there is currently no callback for "I opened the inventory"
@@ -510,23 +519,33 @@ function crafting.make_crafting_formspec(player, cache)
     end
     output[#output + 1] = 'container_end[]'
 
-    -- Quantity buttons part ---------------------------------------------------
+    -- Craft buttons part ---------------------------------------------------
 
-    cache.qty = cache.qty or 1 --remember what box was checked
-    local qtytab = { 'false', 'false', 'false' }
-    local qtylab = { S("Single"), S("Stack"), S("Maximum") }
-    qtytab[cache.qty] = 'true'
-    qtylab[cache.qty] = minetest.colorize("cyan", qtylab[cache.qty])
+    -- determine possible quantities and button image
+    local quantities = nil
+    local btnimg = "selected.png"
+    if cache.selected_id then
+       quantities = cache:get_output_quantities()
+       local min = quantities and quantities[1]
+       if min and min > 0 then btnimg = "crafting_slot_craftable.png" end
+    end
+    quantities = quantities or {0}
 
-    output[#output + 1] = table.concat({'container[3.5,',6.4,']'})
-    output[#output + 1] = tofstring({
-            --'label[0,0;'..S("Quantity")..':]',
-            'checkbox[0,0;qty1;'..qtylab[1]..';'..qtytab[1]..']',
-            'checkbox[1.6,0;qty2;'..qtylab[2]..';'..qtytab[2]..']' ,
-            'checkbox[3.6,0;qty3;'..qtylab[3]..';'..qtytab[3]..']'
-        }
-    )
-    output[#output + 1] = 'container_end[]'
+    -- add one button per quantity
+    output[#output + 1] = "container[3.5,6.0,]"
+
+    local pos = 0.6
+    for i, q in ipairs(quantities) do
+        -- add the button
+        local qty_id = "qty_" .. i
+        local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
+
+        output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
+        output[#output + 1] = btnimg .. ";" .. qty_id.. ";" .. text .. "]"
+        pos = pos + 1.2
+    end
+
+    output[#output + 1] = "container_end[]"
 
     -- Input List part----------------------------------------------------------
 
@@ -613,29 +632,6 @@ function crafting.set_page(player, selected_tab_number)
     cache:set_craft_tabs(selected_tab_number)
 end
 
--- give back items in input panel to main inventory
-local function get_inputs_back_in_inv(player)
-    -- Return Items in input_items list to player
-    local pInv = player:get_inventory()
-    if not pInv:is_empty('input_items') then
-        for i=1, pInv:get_size('input_items') do
-            local stack = pInv:get_stack('input_items', i)
-            if not stack:is_empty() then
-                -- Try to add to main inventory
-                local left = pInv:add_item('main', stack)
-                if not left:is_empty() then
-                    -- Drop item if no room in inventory
-                    minetest.item_drop(left, player, player:get_pos())
-                    -- warns the player it went on the ground
-                    minimal.warn_inv_full(player)
-                end
-                -- Set stack to empty stack in input_items inventory
-                pInv:set_stack('input_items',i,ItemStack(''))
-            end
-        end
-    end
-end
-
 -- mark the formspec open
 -- `cache` is optional
 function crafting.open_formspec(player, fs_name, cache)
@@ -683,10 +679,9 @@ function crafting.close_crafting_formspec(player, cache)
          -- #TODO we could add a message or other behavior in this case ?
         return nil
     end
-    -- get back items from input_panel
-    get_inputs_back_in_inv(player)
 
-    --various updates
+    -- reset selection and clear "input_list" inventory into "main" inv
+    cache:reset_selected_recipe(true, player)
     cache.possible_hint = false -- disable "hint"
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
@@ -759,8 +754,11 @@ function crafting.process_receive_fields(player, formname, fields)
     if fields.input_option then
         local option = tonumber(fields.input_option)
         if option ~= cache.craft_input then
-            local meta = player:get_meta()
+            -- some clean up before changing input option
+            cache:reset_selected_recipe(true, player)
+
             -- save in player's settings
+            local meta = player:get_meta()
             meta:set_int("crafting:ingredients", option)-- updates Hint button's state
             set_cache_input_options(cache, option, meta)
             -- refresh input panel
@@ -821,30 +819,21 @@ function crafting.process_receive_fields(player, formname, fields)
         if fields['sCraftTab_'..i] then
             if cache.sTab ~=i then
                 cache:set_craft_tabs(i, cache.cTabs)
+                -- prevent accidental crafting of hidden recipes
+                cache:reset_selected_recipe()
                 return cache -- indicates we need to refresh the form
             end
             -- else do nothing (return nil)
         end
     end
 
-    -- processing quantity buttons
-    -- if user checks something to true, register that in cache
-    for i, ibtn in ipairs({'qty1','qty2','qty3'}) do
-        -- if we check the box, change the quantity
-        if fields[ibtn] then
-            local j -- new value to put in
-            -- if I activate an other qty
-            if fields[ibtn] == 'true' and cache.qty ~= i then
-                j= i
-            -- if I desactivate selected qty, pass back to "Single"
-            elseif fields[ibtn] == 'false' then
-                j =1
+    -- process craft buttons
+    for i, qty_id in ipairs({"qty_1","qty_2","qty_3"}) do
+        -- user clicked nth button to craft and a recipe is selected?
+        if fields[qty_id] and cache.selected_id then
+            if cache:craft_selected(i) then
+                return cache
             end
-            if j then -- if change is needed
-                cache.qty = j
-                cache:process_max_label () -- updates label on ecipes
-                return cache -- force redraw of formspec
-            end -- else do nothing (return nil)
         end
     end
 
@@ -878,6 +867,8 @@ function crafting.process_receive_fields(player, formname, fields)
             -- don't update if we clicked on the already selected tool
             if cache.sTool ~= tool then
                 cache:set_tool(tool)
+                -- prevent accidental crafting of hidden recipes
+                cache:reset_selected_recipe()
                 return cache
             else
                 return false
