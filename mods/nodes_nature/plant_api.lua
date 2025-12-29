@@ -1075,7 +1075,7 @@ function plant.register_threshing_recipes(plant_def)
                 output = get_name(plant_def.name,"seed").." "..
                     plant_def.seed_number,
                 items = {source},
-                level = 1,
+                level = 0,
                 always_known = true,
                 _display=get_seed_recipe_display(plant_def, source)
         })

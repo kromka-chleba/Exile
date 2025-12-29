@@ -124,7 +124,7 @@ crafting.register_recipe({
         type = {"crafting_spot","chopping_block","hand","knife"},
         output = "tech:stick 2",
         items = {{"group:woody_plant","tech:wattle_loose"}},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 --Grass fibers from fibrous plants
@@ -132,7 +132,7 @@ crafting.register_recipe({
         type = {"hand","knife"},
         output = "tech:grass_fibre",
         items = {"group:bundleable_fiber"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 

@@ -1051,7 +1051,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing","knife_mixing"},
         output = "tech:wood_ash 2",
         items = {"tech:wood_ash_block"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -1059,7 +1059,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing","knife_mixing"},
         output = "tech:wood_ash_block",
         items = {"tech:wood_ash 2"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -1069,7 +1069,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing","knife_mixing"},
         output = "tech:charcoal 2",
         items = {"tech:charcoal_block"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -1077,7 +1077,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing","knife_mixing"},
         output = "tech:charcoal_block",
         items = {"tech:charcoal 2"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 

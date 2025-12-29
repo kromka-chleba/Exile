@@ -333,7 +333,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:snow_block",
         items = {"nodes_nature:snow 2"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -341,7 +341,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_mixing"},
         output = "nodes_nature:snow 2",
         items = {"nodes_nature:snow_block"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
