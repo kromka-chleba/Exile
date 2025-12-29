@@ -52,7 +52,7 @@ local function get_craft_types(tool)
 end
 
 local tools_level = {}
--- return level for that tool (#TODO I think this is unused, not sure yet)
+-- return level for that tool, evaluated in conjunction with levels of recipes,
 -- set by def.exile_crafting.craft_level of registered tool/item/node
 function crafting.get_tool_level(tool)
     if not tool then
