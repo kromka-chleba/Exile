@@ -10,157 +10,146 @@ local _palette = {
     items = {}
 }
 
-local _placers = {}
-
-local function get_part_pos(i, size)
-    local row = (math.floor((i-1) / size.x))
-    local col = i-1 - math.floor((i-1)/size.x)*size.x
-    return {row=row, col=col}
-end
-
-local function get_relative_node_pos(part_pos, center)
-    return {x=part_pos.col-center.col, y=part_pos.row-center.row}
-end
-
-local function is_main_node(node_pos)
-    return node_pos.x == 0 and node_pos.y == 0
-end
-
-local function get_node_name(name, node_pos)
-    if is_main_node(node_pos) then return name end
-
-    local x = node_pos.x < 0 and "m"..math.abs(node_pos.x) or node_pos.x
-    local y = node_pos.y < 0 and "m"..math.abs(node_pos.y) or node_pos.y
-    return name .."_".. x .."_".. y
-end
-
-local function get_image_name(name, part_pos, part_size)
-    return name .."^[sheet:"..
-        part_size.x .."x".. part_size.y ..":"..
-        part_pos.col ..",".. part_pos.row
-end
-
-local function get_node_pos(pos, node_pos, param2)
-    if param2 == 0 then
-        return {x=pos.x+node_pos.x, y=pos.y, z=pos.z+node_pos.y}
-    end
-
-    if param2 == 1 then
-        return {x=pos.x+node_pos.x, y=pos.y, z=pos.z-node_pos.y}
-    end
-
-    if param2 == 2 then
-        return {x=pos.x, y=pos.y-node_pos.y, z=pos.z-node_pos.x}
-    end
-
-    if param2 == 3 then
-        return {x=pos.x, y=pos.y-node_pos.y, z=pos.z+node_pos.x}
-    end
-
-    if param2 == 4 then
-        return {x=pos.x+node_pos.x, y=pos.y-node_pos.y, z=pos.z}
-    end
-
-    if param2 == 5 then
-        return {x=pos.x-node_pos.x, y=pos.y-node_pos.y, z=pos.z}
-    end
-end
-
 local function init_def_values(def)
     def = def or {}
-    def.size = def.size or {x=1, y=1}
-    def.center = def.center or {row=0, col=0}
     def.pointable = def.pointable or false
     return def
 end
 
+-- #TODO a minimmal function could be made to get this direction thing ?
+-- check if not alreayd in core.
+-- lef_handed rotation from the +z direction
+-- 0 is front, 1 is -90° counter-clock rotation, etc...
+-- to be used with facedir.
+-- mirror = `true` is to be used if under ceiling
+local function get_horizontal_direction(player, mirror)
+    local yaw = player:get_look_horizontal()
+    if yaw >= 5.5 or yaw < 0.785 then -- about 7Pi/4 and Pi/4
+        -- front
+         return mirror and 2 or 0
+    elseif yaw < 2.356 then -- about 3Pi/4
+        -- left
+        return 3
+         -- return mirror and 1 or 3
+    elseif yaw < 3.927 then -- about 5Pi/4
+        -- behind
+         return mirror and 0 or 2
+    else
+        -- right
+        return 1
+        -- return mirror and 3 or 1
+    end
+end
+
+-- gives the correct facedir to put in param2
+-- from the direction of the node we are attached to
+local function get_facedir(pointed_thing, player)
+    local dir = vector.direction(pointed_thing.above, pointed_thing.under)
+    -- bottom
+    if dir.y == -1 then
+        -- 0 (y+ face) + horizontal rotation counter_clock from z+
+        return get_horizontal_direction(player)
+    -- ceiling
+    elseif dir.y == 1 then
+        -- 20 (y- face) + horizontal rotation from z+ with mirror effect
+        return 20 + get_horizontal_direction(player, true)
+    -- sides
+    elseif dir.x == 1 then -- need to have top facing x-
+        -- 16 (x- face) + 3 (rotation to the right)
+        return 17
+    elseif dir.x == -1 then -- need to have top facing x+
+        -- 12 (x+ face) + 1 (rotation to the left)
+        return 15
+    elseif dir.z == 1 then -- need to have top facing z-
+        -- 8 (z- face)
+        return 8
+    elseif dir.z == -1 then -- need to have top facing z+
+        -- 4 (z+ face) + 2 (180° rotation)
+        return 6
+    end
+end
+
+-- gives the direction of the node we are attached to
+-- according to the facedir param2
+local function facedir_to_attached(node)
+    local param = node.param2
+    local d = vector.zero()
+    if param < 4 then -- 0, 1, 2, or 3 is attached to bottom
+        d.y = -1
+    elseif param >= 20 then -- 20, 21, 22, 23 is attached to ceiling
+        d.y = 1
+    elseif param == 6 then
+        d.z = -1
+    elseif param == 8 then
+        d.z = 1
+    elseif param == 15 then
+        d.x = -1
+    elseif param == 17 then
+        d.x = 1
+    else
+        error("invalid param2 for graffiti node ".. node.name)
+    end
+    return d
+end
+
+-- #TODO: having the graffiti moving with the node it is attached to could be great !
 function g.register_grafitti(name, def)
     def = init_def_values(def)
-    local parts_count = def.size and def.size.x*def.size.y or 1
 
-    for i=1, parts_count, 1 do
-        local part_pos = get_part_pos(i, def.size)
-        local rel_node_pos = get_relative_node_pos(part_pos, def.center)
-        local node_name = get_node_name(name, rel_node_pos)
-        local image_name = parts_count == 1 and def.image
-            or get_image_name(def.image, part_pos, def.size)
+    -- for compatibility reason, old paint nodes
+    core.register_node(
+        name, {
+            inventory_image = def.image,
+            drawtype = "nodebox",
+            tiles = { def.image },
+            sunlight_propagates = true,
+            light_source = def.light or 0,
+            floodable = true,
+            use_texture_alpha = c_alpha.clip,
+            paramtype = "light",
+            paramtype2 = "wallmounted",
+            groups = {attached_node=1, not_in_creative_inventory=1,
+                      grafitti=1, temp_pass = 1},
+            buildable_to = true,
+            walkable = false,
+            node_box = {
+                type = "wallmounted",
+                wall_top    = {-0.5, 0.49, -0.5, 0.5, 0.5, 0.5},
+                wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
+                wall_side   = {-0.5, -0.5, -0.5, -0.49, 0.5, 0.5},
+            },
+            pointable = def.pointable,
+            drop = {},
+    })
 
-        minetest.register_node(
-            node_name, {
-                inventory_image = def.image,
-                drawtype = "nodebox",
-                tiles = { image_name },
-                sunlight_propagates = true,
-                light_source = def.light or 0,
-                floodable = true,
-                use_texture_alpha = c_alpha.clip,
-                paramtype = "light",
-                paramtype2 = "wallmounted",
-                groups = {attached_node=1, not_in_creative_inventory=1,
-                          grafitti=1, temp_pass = 1},
-                buildable_to = true,
-                walkable = false,
-                node_box = {
-                    type = "wallmounted",
-                    wall_top    = {-0.5, 0.49, -0.5, 0.5, 0.5, 0.5},
-                    wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
-                    wall_side   = {-0.5, -0.5, -0.5, -0.49, 0.5, 0.5},
-                },
-                pointable = def.pointable,
-                legacy_wallmounted = true,
-                drop = {},
-                on_construct = function(pos)
-                    if parts_count == 1 or not is_main_node(rel_node_pos) then
-                        return
-                    end
+    -- new system
+    core.register_node(
+        name.."_facedir", {
+            inventory_image = def.image,
+            drawtype = "nodebox",
+            tiles = { def.image },
+            sunlight_propagates = true,
+            light_source = def.light or 0,
+            floodable = true,
+            use_texture_alpha = c_alpha.clip,
+            paramtype = "light",
+            paramtype2 = "facedir",
+            -- #TODO check the other impacts of change or attached_node..
+            groups = {attached_node=2, not_in_creative_inventory=1,
+                      grafitti=1, temp_pass = 1},
+            buildable_to = true,
+            walkable = false,
+            node_box = {
+                type = "fixed",
+                fixed = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
+            },
+            pointable = def.pointable,
+            drop = {},
+            -- function to get the direction of the node it is attached to
+            _attached_to = facedir_to_attached
+    })
 
-                    local player_name = _placers[minetest.pos_to_string(pos)]
-                    local wallmounted = minetest.get_node(pos).param2
-
-                    for j=1, parts_count, 1 do
-                        local _part_pos = get_part_pos(j, def.size)
-                        local _rel_node_pos = get_relative_node_pos(_part_pos,
-                                                                    def.center)
-
-                        if not is_main_node(_rel_node_pos) then
-                            local node_pos = get_node_pos(pos, _rel_node_pos,
-                                                          wallmounted)
-                            local pos_under = vector.add(
-                                node_pos, minetest.wallmounted_to_dir(wallmounted))
-
-                            if not minetest.is_protected(node_pos, player_name)
-                                and not minetest.is_protected(pos_under, player_name)
-                            then
-                                local node_under = minetest.get_node(pos_under)
-                                local node_under_def =
-                                    core.registered_items[node_under.name]
-
-                                if node_under_def and not node_under_def.buildable_to then
-                                    local _node_name = get_node_name(name, _rel_node_pos)
-                                    minetest.swap_node(
-                                        vector.new(get_node_pos(pos,
-                                                                _rel_node_pos,
-                                                                wallmounted)),
-                                        {
-                                            name = _node_name,
-                                            param2 = wallmounted
-                                    })
-                                end
-                            end
-                        end
-                    end
-                end,
-                on_destruct = function(pos)
-                    if parts_count == 1 or not is_main_node(rel_node_pos) then
-                        return
-                    end
-
-                    _placers[minetest.pos_to_string(pos)] = nil
-                end
-        })
-    end
-
-    table.insert(_palette.items, { name=name, image=def.image })
+    table.insert(_palette.items, { name = name, image = def.image })
 end
 
 function g.set_palette_width(width)
@@ -256,11 +245,12 @@ function g.paint(itemstack, user, pointed_thing, palette)
         return nil
     end
 
-    _placers[minetest.pos_to_string(pointed_thing.above)] = player_name
-    local dir = vector.direction(pointed_thing.above, pointed_thing.under)
-    local wallmounted = minetest.dir_to_wallmounted(dir)
     minetest.add_node(pointed_thing.above,
-                      {name = meta:get_string("grafitti"), param2=wallmounted})
+                      {
+                        name = meta:get_string("grafitti") .. "_facedir",
+                        param2 = get_facedir(pointed_thing, user)
+                      })
+
     minetest.sound_play("grafitti_paint",
                         {pos = pointed_thing.above,
                          max_hear_distance = 4, gain = 1})
@@ -271,7 +261,6 @@ function g.paint(itemstack, user, pointed_thing, palette)
 
     return itemstack
 end
-
 
 function g.register_brush(brush_name, def)
     minetest.register_tool(
