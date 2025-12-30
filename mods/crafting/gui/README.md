@@ -30,8 +30,11 @@
 * crafting.**get_tool_level**(`tool`)
     >Returns level for that tool
 
-* crafting.**generate_tools_list**(`station_name`)
-    > Generates tool list available in `station_name`
+* crafting.**generate_tools_list**(`station`, `no_default`)
+    > Generates tool list available in `station`. By default a tool is added,
+    > to represent crafting with bare hands on a solid flat surface.
+    >* `no_default`: if `true`, the default tool will not be added
+    >* Returns a list of tool names.
 
 * crafting.**make_tool_formspec**(`player`, (optional)`cache`)
     > Generates current station's formspec for `player`
@@ -39,21 +42,25 @@
     >* `cache` is player's crafting cache and will be get from player if not given.
     > Returns that formspec
     
-* crafting.set_station(`player`, `station`, `cache`)
+* crafting.**set_station**(`player`, `station`, `cache`)
     > Set crafting station to given station
     >* `cache` is optional, will be get from player if missing
     >* `station` is a table with following fields:
     >
     >     * `name`: the name(string) of the station (has to be a valid station)
-    >     * `title`: string to be displayed above the formspec    
+    >     * `title`: string to be displayed above the formspec
+    >* `no_default` is to suppress adding the default tool to the tool list
 
 * crafting.**show_station_formspec**(`player`,  (optional)`cache`)
     > Shows current station's formspec for `player`
     > If no station was set, using "nil" as station
     >* `cache` is player's crafting cache and will be get from player if not given.
 
-* crafting.**crafting_item_on_rightclick**(`pos`,`node`,`clicker`, `itemstack`,`pointed_thing`)
-    > Opens crafting for spec matching the node's name
+* crafting.**crafting_item_on_rightclick**(`pos`, `item`, `clicker`, `itemstack`, `pointed_thing`, `no_default_tool`)
+    > Opens crafting for spec matching the item's. Usually `item` is a node at position `pos`.
+    Except for a few cases crafting should be restricted to be available through nodes.
+    > Also adds a default tool to the list of available tools for recipes that only require bare hands and a solid surface.
+    >* `no_default_tool`: Set to true to suppress the default tool being added. This makes sense, e.g. if a tool station does not provide a solid flat surface.
 
 <a id="crafting-cache"></a>
 #### Player's crafting cache
