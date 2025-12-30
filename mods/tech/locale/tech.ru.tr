@@ -334,6 +334,8 @@ Woven Storage Basket=Вязаная корзина для хранения
 Wooden Chest=Деревянный сундук
 Iron Chest=Железный сундук
 # tools.lua
+Bare Hands=Голые руки
+Flat Surface=Плоская поверхность
 Stone Knife=Каменный нож
 Cut plants faster than bare hands=Срезайте растения быстрее, чем голыми руками
 Flip to stone etcher=Перевернуть на каменный резчик

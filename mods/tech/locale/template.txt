@@ -351,6 +351,8 @@ Woven Storage Basket=
 Wooden Chest=
 Iron Chest=
 # tools.lua
+Bare Hands=
+Flat Surface=
 Stone Knife=
 Cut plants faster than bare hands=
 Flip to stone etcher=

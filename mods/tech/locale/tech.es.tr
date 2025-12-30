@@ -330,6 +330,8 @@ Woven Storage Basket=Cesto de Mimbre
 Wooden Chest=Cofre de Madera
 Iron Chest=Cofre de Hierro
 # tools.lua
+Bare Hands=
+Flat Surface=
 Stone Knife=Piedra Afilada
 Cut plants faster than bare hands=
 Flip to stone etcher=
