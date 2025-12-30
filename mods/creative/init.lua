@@ -43,6 +43,20 @@ do
         },
         tiles = {"creative_hand.png"},
         wield_scale = {x=0.5,y=0.9,z=0.5},
+        on_secondary_use = function(itemstack, user, pointed_thing)
+            -- must be a player not pointing at an object)
+            if not core.is_player(user) or not pointed_thing
+                or (pointed_thing.type ~= "nothing") then
+
+                return
+            end
+
+            -- open `freehand crafting station`,
+            -- suppress default hand tool
+            local tool_node = {name = "tech:bare_hands"}
+            crafting.crafting_item_on_rightclick(nil, tool_node, user,
+                                              ItemStack(), pointed_thing, true)
+        end,
     })
 end
 

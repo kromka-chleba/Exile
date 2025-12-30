@@ -12,7 +12,21 @@ core.override_item("", {
                        tool_capabilities =
                            {damage_groups = {fleshy=minimal.hand_dmg}},
                        liquids_pointable = true,
-                       groups = table.copy(hand_groups)
+                       groups = table.copy(hand_groups),
+                       on_secondary_use = function(itemstack, user, pointed_thing)
+                           -- must be a player not pointing at an object)
+                           if not core.is_player(user) or not pointed_thing
+                               or (pointed_thing.type ~= "nothing") then
+
+                               return
+                           end
+
+                           -- open `freehand crafting station`,
+                           -- suppress default hand tool
+                           local tool_node = {name = "tech:bare_hands"}
+                           crafting.crafting_item_on_rightclick(nil, tool_node,
+                                        user, ItemStack(), pointed_thing, true)
+                       end,
                        }
 )
 -- The hand
