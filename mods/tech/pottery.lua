@@ -373,6 +373,9 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
 	 lightsource.update_fuel_infotext(oil_lamp_data, pos)
       end,
       on_dig = function(pos, node, digger)
+	    if core.is_player(digger) then
+	       minimal.protection_on_dig(pos,node,digger)
+	    end
 	 lightsource.save_to_inventory(oil_lamp_data, pos, digger, false)
       end,
       on_ignite = function(pos, user)
