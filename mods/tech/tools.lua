@@ -206,7 +206,8 @@ minetest.register_tool("tech:bare_hands",
             craft_types  = {'hand', 'hand_tools', 'hand_pottery',
                              'hand_mixing', 'threshing_spot'},
             craft_level  = 0,
-            }
+            },
+        groups = {not_in_creative_inventory = 1}
         })
 
 -- crafting with bare hands on a solid base
@@ -219,7 +220,8 @@ minetest.register_tool("tech:hand",
             craft_types  = {'hand', 'hand_tools', 'hand_pottery',
                             'hand_mixing', 'weaving_frame', 'threshing_spot'},
             craft_level  = 2,
-            }
+            },
+        groups = {not_in_creative_inventory = 1}
         })
 
 --1st level -- Crude emergency tools ------------------------------------------
