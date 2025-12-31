@@ -103,7 +103,7 @@ local running_mean = {}
 function running_mean:include(value)
     if self.count then
         local drop_value = self.values[self.next_store]
-        if drop_Value then
+        if drop_value then
             self.total = self.total - self.values[self.next_store]
             self.count = self.count - 1
         end
