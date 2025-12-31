@@ -1,4 +1,4 @@
--- TODO -----------------------------------------------------------------------
+-- #TODO -----------------------------------------------------------------------
 
 -- The following identifier and related code _may_ be obsolete since
 -- replacement of checkboxes for 'single' 'stack' 'maximum' by craft buttons:
@@ -685,6 +685,11 @@ do
         local quantities =  {1}
         -- do we have 3 unique quantities to offer?
         if qty_2 > 1 then
+            -- does even a 4th quantity make sense?
+            if qty_2 >= 12 then
+                quantities[2] = (qty_2 > 12) and math.floor(qty_2 / 6)
+                                or math.floor(qty_2 / 4)
+            end
             quantities[#quantities + 1] = qty_2
         end
         quantities[#quantities + 1] = qty_max
@@ -701,6 +706,65 @@ do
         if clear_input_items and player then
             return_inputs_to_main(player)
         end
+    end)
+
+    -- Returns the selected player recipe.
+    crafting.register_cache_function("get_selected_player_recipe",
+                                      function(self)
+        -- find player recipe among the currently displayed
+        -- (could be any in cache.recipes, currently up to ~80)
+        local id = self.selected_id
+        for _, r in pairs(self.recipes) do
+            if r.recipe.id == id then
+                return r
+            end
+        end
+        -- or return nil
+    end)
+
+    -- Returns an array of tool tipos for craft buttons.
+    -- One tip per element in "quantities" is generated.
+    -- "quantities" must be an array with at least 1 element,
+    -- otherwise nil is returned.
+    crafting.register_cache_function("get_craft_btn_tool_tips",
+                                     function(self, quantities)
+        -- safety checks
+        if not quantities or type(quantities) ~= "table"
+            or not quantities[1] then
+            return
+        end
+
+        local tool_tips = {} -- array of tooltips per each quantity
+        if quantities[1] and quantities[1] > 0 then -- crafting possible
+            local player_recipe = self:get_selected_player_recipe()
+            if not player_recipe then return end
+
+            local stack = ItemStack(player_recipe.recipe.output)
+            local item_desc = stack:get_short_description()
+            -- need to remove the color escape for use tips
+            item_desc = core.strip_colors(item_desc)
+
+            -- get output count
+            local count = stack:get_count()
+            -- "Craft N x 2" but "Craft N x" instead of "Craft N x 1"
+            local count_text = count > 1 and " x " .. count or ""
+
+            -- generate all tips
+            for _, qty in ipairs(quantities) do
+                local tip = S("@1: Craft @2@3.", item_desc, qty, count_text)
+                tool_tips[#tool_tips + 1] = tip
+            end
+        elseif self.selected_id then -- valid selection but missing inputs
+            local player_recipe = self:get_selected_player_recipe()
+            if not player_recipe then return end
+
+            local recipe_tip = generate_tool_tip(player_recipe)
+            tool_tips[1] = S("Missing required items!") .. "\n" .. recipe_tip
+        else -- no recipe selected
+            tool_tips[1] = S("First, select an item to craft.")
+        end
+
+        return tool_tips
     end)
 end
 
@@ -851,20 +915,12 @@ local function craft_selected(cache, qty)
     -- no change in unexpected cases
     if not qty or not cache.selected_id then return end
 
-    -- get the selected player recipe
-    -- (could be any in cache.recipes, currently up to ~80)
-    local p_recipe
-    local id = cache.selected_id
-    for _, r in pairs(cache.recipes) do
-        if r.recipe.id == id then
-            p_recipe = r
-            break
-        end
-    end
+    local p_recipe = cache:get_selected_player_recipe()
 
     -- invalid selection? -> no change but log a warning
     if not p_recipe then
-        core.log("warning", "craft_selected(): invalid recipe id " .. tostring(id))
+        core.log("warning", "craft_selected(): invalid recipe id "
+                 .. tostring(cache.selected_id))
         return
     end
 

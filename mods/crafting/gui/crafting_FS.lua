@@ -527,21 +527,29 @@ function crafting.make_crafting_formspec(player, cache)
     if cache.selected_id then
        quantities = cache:get_output_quantities()
        local min = quantities and quantities[1]
-       if min and min > 0 then btnimg = "crafting_slot_craftable.png" end
+       if min and min > 0 then btnimg = "crafting_craft_button_enabled.png" end
     end
     quantities = quantities or {0}
 
-    -- add one button per quantity
+    local tool_tips = cache:get_craft_btn_tool_tips(quantities)
+    -- add one button + tool tip per quantity
     output[#output + 1] = "container[3.5,6.0,]"
 
-    local pos = 0.6
+    -- dynamic positions of the buttons - depending on #quantities
+    local pos = 1.8 - (#quantities - 1) * 0.6
+
+    -- add the buttons
     for i, q in ipairs(quantities) do
-        -- add the button
         local qty_id = "qty_" .. i
         local text = q > 0 and q .. "x" or core.colorize("#000", q .. "x")
 
         output[#output + 1] = "image_button[" .. pos .. ",0;1,0.6;"
-        output[#output + 1] = btnimg .. ";" .. qty_id.. ";" .. text .. "]"
+        output[#output + 1] = btnimg .. ";" .. qty_id .. ";" .. text
+        output[#output + 1] = ";;;" .. btnimg .. "^[transformFY]"
+        if tool_tips and tool_tips[i] then
+            output[#output + 1] = "tooltip[" .. qty_id .. ";"
+            output[#output + 1] = tool_tips[i] .. "]"
+        end
         pos = pos + 1.2
     end
 
@@ -828,7 +836,7 @@ function crafting.process_receive_fields(player, formname, fields)
     end
 
     -- process craft buttons
-    for i, qty_id in ipairs({"qty_1","qty_2","qty_3"}) do
+    for i, qty_id in ipairs({"qty_1", "qty_2", "qty_3", "qty_4"}) do
         -- user clicked nth button to craft and a recipe is selected?
         if fields[qty_id] and cache.selected_id then
             if cache:craft_selected(i) then
