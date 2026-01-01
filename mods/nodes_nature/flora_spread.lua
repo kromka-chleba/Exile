@@ -315,31 +315,28 @@ minetest.register_abm({
                 local soil_pos = positions[i]
                 local soil_name = minetest.get_node(soil_pos).name
                 local soil_nodedef = minetest.registered_nodes[soil_name]
-                local drop = string.gsub(soil_nodedef.drop, "_wet", "")
-                if drop == string.gsub(sed_nodedef.drop, "_wet", "") then
-                    if light_above and light_above >= 13 then
-                        local replace_with
-                        if minetest.get_item_group(node.name,
-                                                   "wet_sediment") == 1 then
-                            replace_with = soil_nodedef._wet_name
-                        else
-                            replace_with = soil_nodedef._dry_name
-                        end
-                        if sed_nodedef.groups.roots then
-                            replace_with = replace_with.."_roots"
-                        end
-                        local id = sed_nodedef.groups.natural_slope
-                        if id then -- We're a slope, preserve that
-                            replace_with = nsl.get_all_slopes(replace_with)[id]
-                        end
-                        minetest.set_node(pos, {name = replace_with,
-                                                param2 = node.param2})
-                        ms.labels_to_position(pos,
-                                              {"spring_soil"},
-                                              {"no_spring_soil", "no_soil",
-                                               "bare_soil"})
-                        break
+                if light_above and light_above >= 13 then
+                    local replace_with
+                    if minetest.get_item_group(node.name,
+                                               "wet_sediment") == 1 then
+                        replace_with = soil_nodedef._wet_name
+                    else
+                        replace_with = soil_nodedef._dry_name
                     end
+                    if sed_nodedef.groups.roots then
+                        replace_with = replace_with.."_roots"
+                    end
+                    local id = sed_nodedef.groups.natural_slope
+                    if id then -- We're a slope, preserve that
+                        replace_with = nsl.get_all_slopes(replace_with)[id]
+                    end
+                    minetest.set_node(pos, {name = replace_with,
+                                            param2 = node.param2})
+                    ms.labels_to_position(pos,
+                                          {"spring_soil"},
+                                          {"no_spring_soil", "no_soil",
+                                           "bare_soil"})
+                    break
                 end
             end
         end

@@ -53,7 +53,17 @@ local function water_erode(pos, node)
                 if not nodedef then
                     return
                 end
-                minetest.set_node(pos2, {name = nodedef.drop})
+                local drop = nodedef.drop
+                if type(drop) == "table" then
+                    -- #TODO: Make this better
+
+                    -- This prevents a crash on drop tables for now, but assumes
+                    --  the first item in the first table is going to be the
+                    --  soil node, could fail if somebody mods in new nodes
+
+                    drop = drop.items[1].items[1]
+                end
+                minetest.set_node(pos2, {name = drop})
             end
         end
 
@@ -96,7 +106,11 @@ local function water_erode(pos, node)
                     return
                 end
                 minetest.remove_node(pos2)
-                minetest.set_node(pos_under, {name = nodedef.drop})
+                local drop = nodedef.drop
+                if type(drop) == "table" then
+                    drop = drop.items[1].items[1]
+                end
+                minetest.set_node(pos_under, {name = drop})
             end
         end
 

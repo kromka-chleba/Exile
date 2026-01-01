@@ -198,6 +198,10 @@ local function wellmaker(user,itemstack, pointed_thing)
     if minetest.get_item_group(node.name, "sediment") == 0 then return end
     local def = minetest.registered_nodes[node.name]
     if not def then return end
+    if type(def.drop) == "table" then
+        -- #TODO: Handle tables in soil def, or replace with a better system
+        return
+    end
     local soil = string.gsub(def.drop or def.name, def.mod_origin..":", "")
     local look = minetest.yaw_to_dir(user:get_look_horizontal())
     local p2 = minetest.dir_to_wallmounted(look)
