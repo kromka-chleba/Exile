@@ -43,6 +43,7 @@ local hud_hunger_x	= -300
 local hud_thirst_x	= -64
 local hud_energy_x	= 0
 local hud_air_temp_x 	= 64
+local hud_oxygen_x      = 192
 local hud_sick_x 	= 300
 local hud_body_temp_x	= 300
 
@@ -85,7 +86,7 @@ end
 
 local setup_hud = function(player)
 
-	player:hud_set_flags({healthbar = false})
+	player:hud_set_flags({healthbar = false, breathbar = false})
 	local playername = player:get_player_name()
 
 	local hud_data = {}
@@ -129,6 +130,10 @@ local setup_hud = function(player)
 	   {x = hud_air_temp_x, y = hud_vert_pos},
 	   "hud_air_temp.png" )
 
+	hud_data.p_oxygen = make_image_hud(player,
+	   {x = hud_oxygen_x, y = hud_vert_pos},
+	   "hud_oxygen.png" )
+
 	hud_data.p_air_temp_type = make_image_hud(player,
 	   {x = hud_air_temp_x, y = hud_vert_pos + hud_extra_y},
 	   "hud_temp_normal.png" )
@@ -156,6 +161,9 @@ local setup_hud = function(player)
 
 	hud_data.p_air_temp_text = make_text_hud(player,
 	   {x = hud_air_temp_x, y = hud_vert_pos + hud_text_y} )
+
+	hud_data.p_oxygen_text = make_text_hud(player,
+	   {x = hud_oxygen_x, y = hud_vert_pos + hud_text_y} )
 
 	hud_data.p_sick_text = make_text_hud(player,
 	   {x = hud_sick_x, y = hud_vert_pos + hud_text_y + longbarpos[lb].y} )
@@ -327,6 +335,40 @@ local function temp(player, hud_data, meta)
    end
 end
 
+local function oxygen(player, hud_data)
+	-- get value percentage
+	local v = player:get_breath()
+	v = v * 10  -- 10 is max (Luanti's default), 100%
+	-- only update if < 100% or to hide it when 100% is reached
+	local is_full = (v == 100)
+	local hudimg = hud_data.p_oxygen
+
+	-- update if not 100%, otherwise run once again if filled up, to hide it,
+	-- note it in switched_off
+	if not is_full or not hud_data.switched_off then
+		hud_data.switched_off = is_full
+		local stat_col = color(v)  -- for image and text
+		local hidden = is_full
+
+		-- update image
+        -- get opacity (use opacity of 0 to hide it)
+		local opac = hidden and 0 or hud_data.opacity or mthudopacity
+		opac = tonumber(opac) or 127 -- tonumber opac for comparison
+		local image = "hud_oxygen.png^[colorize:#" .. stat_col
+						.. "^[opacity:" .. opac
+		player:hud_change(hudimg, "text", image)
+
+		-- update numbered percentages if text is not hidden and stats visible
+		local hudtext = hud_data.p_oxygen_text
+		if not hidden and are_stats_visible(hud_data) then
+			player:hud_change(hudtext, "number", tonumber("0x"..stat_col))
+			player:hud_change(hudtext, "text", v .." %")
+		else  -- otherwise hide
+			player:hud_change(hudtext, "text", "")
+		end
+	end
+end
+
 local function do_overlay(player, pname, pos, overlay)
    local handle = player:hud_add({
 	 name = overlay,
@@ -421,6 +463,7 @@ minetest.register_globalstep(function(dtime)
 		thirst(player, hud_data, meta)
 		hunger(player, hud_data, meta)
 		temp(player, hud_data, meta)
+		oxygen(player, hud_data, meta)
 		enviro_temp(player, hud_data, meta)
 		effects(player, hud_data, meta)
 		local wi = player:get_wielded_item():get_name()
