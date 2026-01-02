@@ -9,20 +9,43 @@ sfinv.register_page(
     "crafting:help", {
         title = S("Crafting?"),
         get = function(self, player, context)
-            local fs = {}
+            local fs = {'container[0.8,0.8]'}
             -- NOTE: The extra 'new line' is to indicate to translators and
             --       coders: There is/needs to be space for 3 lines of text.
-            local text = S("@nUse an empty hand on a flat, clear surface,"
-                      .. "@nor use a placed tool or crafting station.")
-            fs[#fs + 1] = 'label[0.8,0.8;'.. text .. ']'
-            fs[#fs + 1] = 'image[0.8,2.3;3.1,2.4;crafting_help_surface_good_01.png]'
-            fs[#fs + 1] = 'image[4.15,2.3;3.1,2.4;crafting_help_surface_good_03.png]'
-            fs[#fs + 1] = 'image[7.5,2.3;3.1,2.4;crafting_help_surface_good_04.png]'
-            fs[#fs + 1] = 'image[0.8,4.95;3.1,2.4;crafting_help_surface_good_02.png]'
-            fs[#fs + 1] = 'image[4.15,4.95;3.1,2.4;crafting_help_surface_bad_01.png]'
-            fs[#fs + 1] = 'image[7.5,4.95;3.1,2.4;crafting_help_surface_bad_02.png]'
-            local content = table.concat(fs,"")
+            local text = S("Use an empty hand anywhere for simple manual "
+                    .. "tasks,@nor on a flat, clear surface for more "
+                    .. "options.@nOr use placed tools or crafting stations.")
+            fs[#fs + 1] = 'label[0,0;'.. text .. ']'
 
+            -- leave space for a 4th line of translations!
+            fs[#fs + 1] = 'container[0,1.8]'
+            fs[#fs + 1] = 'image[0,0;3.1,2.4;crafting_help_01.png]'
+            fs[#fs + 1] = 'image[2.15,1.45;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[2.15,1.45;0.9,0.9;tech_bare_hands.png]'
+
+            fs[#fs + 1] = 'image[0,2.65;3.1,2.4;crafting_help_02.png]'
+            fs[#fs + 1] = 'image[2.15,4.1;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[2.15,4.1;0.9,0.9;tech_bare_hands.png]'
+
+            fs[#fs + 1] = 'image[3.35,0;3.1,2.4;crafting_help_03.png]'
+            fs[#fs + 1] = 'image[5.5,1.45;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[5.5,1.45;0.9,0.9;tech_flat_clear_surface.png]'
+
+            fs[#fs + 1] = 'image[3.35,2.65;3.1,2.4;crafting_help_04.png]'
+            fs[#fs + 1] = 'image[5.5,4.1;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[5.5,4.1;0.9,0.9;tech_flat_clear_surface.png]'
+
+            fs[#fs + 1] = 'image[6.7,0;3.1,2.4;crafting_help_05.png]'
+            fs[#fs + 1] = 'image[8.85,1.45;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[8.85,1.45;0.9,0.9;crafting_digging_stick.png]'
+
+            fs[#fs + 1] = 'image[6.7,2.65;3.1,2.4;crafting_help_06.png]'
+            fs[#fs + 1] = 'image[8.85,4.1;0.9,0.9;not_selected.png]'
+            fs[#fs + 1] = 'image[8.85,4.1;0.9,0.9;crafting_mortar_pestle.png]'
+            fs[#fs + 1] = 'container_end[]'
+            fs[#fs + 1] = 'container_end[]'
+
+            local content = table.concat(fs,"")
             return sfinv.make_formspec_for_exile(player, context,
                                                  content, false)
         end
