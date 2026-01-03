@@ -227,8 +227,8 @@ crafting.register_cache_function("set_craft_tabs",
     self.FS_ctabs = nil
     -- reset qty to 1
     self.qty = 1 -- single by default on opening
-    -- reset recipes but keep current cache's item_hashes if already updated
-    self:reset_recipes(not self.to_update)
+    -- reset recipes but keep current cache's item_hashes
+    self:reset_recipes(true)
     -- set scrollbar to top
     self.sScroll = 0 -- reset scrollbar to top
 end)
