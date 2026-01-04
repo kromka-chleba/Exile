@@ -445,11 +445,17 @@ local function step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
     minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
     -- as mentioned above, clear meta of plants without nodetimer functionality
     if finished then return clear_meta(meta, data) end
-    -- if not fruiting, set growing_left otherwise do NOT set growing
-    -- round growing_left
-    data.fields.growth = not (pdef.groups and pdef.groups.fruiting_plant) and math.floor(growing_left + 0.5) or nil
-    data.fields.elapsed = nil -- erase catchup value (as we're done with it for now)
-    meta:from_table(data) -- save data
+    -- if not fruiting, set growing_left (round growing_left)
+    -- otherwise do NOT set growing
+    if not (pdef.groups and pdef.groups.fruiting_plant) then
+        data.fields.growth = tostring(math.floor(growing_left + 0.5))
+    else
+        data.fields.growth = nil
+    end
+     -- erase catchup value (as we're done with it for now)
+    data.fields.elapsed = nil
+     -- save data
+    meta:from_table(data)
     -- after we're done with growth we can check for season
     kill_climate_history(pos, elapsed, pdef, meta)
 end

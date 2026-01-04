@@ -63,16 +63,22 @@ local function place_tool(itemstack, placer, pointed_thing)
         local imeta = itemstack:get_meta()
         idata = imeta:to_table() or idata -- convert meta into table, otherwise go to premade table on failure
     end
+
     -- adds wear to meta
-    idata.fields.wear = itemstack:get_wear()
-    idata.fields.wear = idata.fields.wear ~= 0 and idata.fields.wear or nil -- remove if no wear at all
+    local wear = itemstack:get_wear()
+    -- remove if no wear at all (if it was present)
+    -- NOTE: we need to convert to string before using meta:from_table, in newest luanti versions (5.13 + I think)
+    idata.fields.wear = (wear ~= 0 and tostring(wear)) or nil
+
     -- take and place tool
     itemstack:take_item(1)
     local ppos = pointed_thing.above
     minetest.item_place_node(place_item, placer, pointed_thing)
+
     -- save to node meta
     local meta = minetest.get_meta(pointed_thing.above)
     meta:from_table(idata)
+
     -- name for debugging
     local pname = minetest.is_player(placer) and placer:get_player_name() or "non-player"
     minetest.log("action", pname.." placed "..placed_name.." at "..
