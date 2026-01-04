@@ -13,9 +13,20 @@ Enable wide HUDbar=
 Show numeric stats=
 Enable Break-taker popup=
 Allow digging with a full inventory=
+Recipe hints require pressing a button=
+Keep fixed order for recipes=
+Disable music=
 Temperature scale=
 GUI theme=
 HUD Opacity=
+Default=
+Antiglass=
+Antiblue=
+Legacy Grey=
+New Grey=
+Crafting mode=
+'Save this'=
+'Use this'=
 
 # protection.lua
 Access List=

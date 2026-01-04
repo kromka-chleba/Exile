@@ -12,6 +12,7 @@ Enable wide HUDbar=Включить широкую панель HUDbar
 Show numeric stats=Показывать числовую статистику
 Enable Break-taker popup=Включить всплывающее окно брейктейкера
 Allow digging with a full inventory=Разрешить копать с полным инвентарем
+Recipe hints require pressing a button=
 Disable music=Отключить музыку
 Temperature scale=Шкала температуры
 GUI theme=Тема графического интерфейса
@@ -21,6 +22,9 @@ Antiglass=Прозрачный
 Antiblue=Темносиний
 Legacy Grey=Устаревший серый
 New Grey=Новый серый
+Crafting mode=
+'Save this'=
+'Use this'=
 # protection.lua
 Access List=Список доступа
 Delete=Удалить

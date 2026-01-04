@@ -28,10 +28,20 @@ Enable wide HUDbar=Weite HUD-Leiste aktivieren
 Show numeric stats=Zahlenwerte anzeigen
 Enable Break-taker popup=Pausennehmer-Popup-Fenster aktivieren
 Allow digging with a full inventory=Graben mit vollen Inventar erlauben
+Recipe hints require pressing a button=Rezepturhinweise erfordern das Drücken eines Knopfs
+Keep fixed order for recipes=
+Disable music=
 Temperature scale=Temperaturskala
 GUI theme=GUI-Thema
 HUD Opacity=HUD-Undurchsichtigkeit
-
+Default=
+Antiglass=
+Antiblue=
+Legacy Grey=
+New Grey=
+Crafting mode=Fertigungsmodus
+'Save this'="Nicht nutzen"
+'Use this'="Dies nutzen"
 # protection.lua
 Access List=Zugriffsliste
 Delete=Löschen

@@ -1,3 +1,12 @@
+-- #TODO -----------------------------------------------------------------------
+
+-- - remove commented get_hint_state() (replaced by init_hint_states())
+
+-- The following should be obsolete since 'Use this' or 'Save this' is to be
+-- switched by a setting instead of a dropdown in the crafting formspec:
+-- - commented code for the dropbox 'input_option' in FS_input_list() and
+-- - process_receive_fields()
+
 -- Dealing with crafting tab in inventory formspec
 
 local minimal = minimal
@@ -61,7 +70,19 @@ local input_options = {
                 return 'crafting_slot_empty.png'
             end
         end,
-        hint_btn = true, -- is the hint button available ?
+        has_hint_btn = function(player_meta) -- is the hint button enabled?
+            local player_settg = player_meta:get_string("crafting:hint_button")
+            if (player_settg ~= "") then -- > use existing player setting
+                return (player_settg == "true")
+            end
+            -- player setting does not yet exist
+            -- if present, use server setting, otherwise use Exile's default
+            local dflt_exile = false
+            local dflt_srv = minetest.settings:get_bool("exile_hint_button")
+            local result = (dflt_srv ~= nil) and dflt_srv or dflt_exile
+            player_meta:set_string("crafting:hint_button", tostring(result))
+            return result
+        end,
     },
     [1] = {
         label = " Do not use",
@@ -87,7 +108,9 @@ local input_options = {
                 return 'crafting_slot_empty.png'
             end
         end,
-        hint_btn = false,
+        has_hint_btn = function(player_meta) -- is the hint button enabled?
+            return false
+        end,
     },
     -- [3] = {
     --     label = " Use first",
@@ -97,8 +120,12 @@ local input_options = {
     -- }
 }
 
--- option "Do not use" by default
-local default_option = 1
+-- option "Use this" for new player by default, but setting has precedence
+local default_option_exile = "Use this"
+local option_to_idx = { ["Save this"] = 1, ["Use this"] = 2 }
+local default_option_server = minetest.settings:get("exile_craft_mode")
+local default_option_name = default_option_server or default_option_exile
+local default_option_idx = option_to_idx[default_option_name]
 
 -- Cache initialisations -------------------------------------------------------
 
@@ -156,6 +183,7 @@ local default_option = 1
         `lang` = player's lang code for translation
 
         `craft_input` = table of inv to use to craft
+        `hint_btn` = hint button visible?
         `possible_hint` = false --  is the "hint" button activated ?
         `input_filter` = do put items in input panel trigger automatic filter ?
 
@@ -196,10 +224,10 @@ function cache_func:get_craft_input(criteria)
         return option[criteria .. "_lists"]
     else
         core.log("warning", "invalid 'craft_input' setting in crafting cache,"
-        .. "  using default setting "
-        .. input_options[default_option].label )
-        self.craft_input = default_option
-        return input_options[default_option][criteria .. "_lists"]
+                 .. "  using default setting "
+                 .. default_option_name)
+        self.craft_input = default_option_idx
+        return input_options[default_option_idx][criteria .. "_lists"]
     end
 end
 
@@ -212,10 +240,10 @@ function cache_func:get_craft_mode()
         return option
     else
         core.log("warning", "invalid 'craft_input' setting in crafting cache,"
-        .. "  using default setting "
-        .. input_options[default_option].label )
-        self.craft_input = default_option
-        return input_options[default_option]
+                 .. "  using default setting "
+                 .. default_option_name)
+        self.craft_input = default_option_idx
+        return input_options[default_option_idx]
     end
 end
 
@@ -232,7 +260,7 @@ function crafting.register_cache_function (name, func)
     cache_func[name] = func
 end
 
-local function get_hint_state(i_option, player_meta)
+-- local function get_hint_state(i_option, player_meta)
     --[[ option to initiate with player's meta
     if input_options[i_option].hint_btn then
         --  it is on in player_settings (I left with on)
@@ -242,14 +270,38 @@ local function get_hint_state(i_option, player_meta)
         return false
     end]]
     -- option to initiate it with always false
-    return false
+--    return false
+-- end
+
+-- Updates whether the hint button and hints are enabled.
+local function init_hint_states(cache, player_meta)
+    -- hints require pressing a button? (default: false)
+    cache.hint_btn = input_options[cache.craft_input].has_hint_btn(player_meta)
+    -- updates hint's state
+    if cache.hint_btn then
+        -- start with hints disabled
+        cache.possible_hint = false
+    else
+        -- enable hints
+        cache.possible_hint = true
+    end
 end
 
--- saves input option in cache and updates hint button state accordingly
-local function set_cache_input_options(cache, option, player_meta)
-    cache.craft_input = option
-    -- updates Hint button's state
-    cache.possible_hint = get_hint_state(option, player_meta)
+-- saves input option in cache and updates hints state accordingly
+local function set_cache_input_options(cache, option_name, player_meta)
+    local idx = option_to_idx[option_name]
+    if not idx then -- invalid -> replace by default option
+        idx = default_option_idx
+        player_meta:set_string("crafting:mode", default_option_name)
+    end
+
+    if idx ~= cache.craft_input then
+        cache.craft_input = idx
+        -- updates hint button's state
+        init_hint_states(cache, player_meta)
+        -- assure refresh for input panel (background)
+        cache.FS_input_list = nil
+    end
 end
 
 -- save station's info in cache and update tool list/reset tabs if needed
@@ -287,12 +339,10 @@ local function new_cache(player, station)
     -- do we want recipes to be reordered by crafting state ?
     -- order, unless explicity specifiate not too (no_order == "false")
     cache.order = (meta:get_string("crafting:no_reorder") ~= "true")
-    local option = meta:get_int("crafting:ingredients")
-    if option == 0 then -- if field was not present in meta
-        option = default_option
-        meta:set_int("crafting:ingredients", option) -- set meta
-    end
+
+    local option = meta:get("crafting:mode")
     set_cache_input_options(cache, option, meta)
+
     -- Automatic filter checkbox --
     cache.input_filter = false -- never active on opening.
 
@@ -360,7 +410,21 @@ end
 -- register action in case order field is changed in player_setting
 minimal.register_on_player_setting_change(
     function(player, meta_name, value, meta)
-        if meta_name == "crafting:no_reorder" then
+        if meta_name == "crafting:mode" then
+            local cache = crafting.get_FS_cache(player)
+            -- no need to change if cache does not yet exists
+            -- initialization is done during cache generation
+            if cache then
+                set_cache_input_options(cache, value, meta)
+            end
+        elseif meta_name == "crafting:hint_button" then
+            local cache = crafting.get_FS_cache(player)
+            -- no need to change if cache does not yet exists
+            -- initialization is done during cache generation
+            if cache then
+                init_hint_states(cache, meta)
+            end
+        elseif meta_name == "crafting:no_reorder" then
             local cache = crafting.get_FS_cache(player)
             -- no need to change if no cache
             -- field will be check when cache is generated
@@ -525,7 +589,7 @@ function crafting.make_crafting_formspec(player, cache)
         -- background color
         local input_color = cache:get_craft_mode().i_color
         -- #TODO put as setting the color of craftable
-        fs[#fs + 1] = "box[-0.07,-0.4;2.7,3.24;" .. input_color .. "]"
+        fs[#fs + 1] = "box[0,0.25;2.7,2.6;" .. input_color .. "]"
 
         -- label
         -- fs[#fs + 1] = 'label[0,0;'..S("Ingredients:")..']',
@@ -533,14 +597,14 @@ function crafting.make_crafting_formspec(player, cache)
             if we don't want the option visible
             #TODO remove when test are finished ?
             ]]
-        fs[#fs + 1] = 'dropdown[0.1,-0.25;2.35,0.5;input_option;'
-        for i, mode in ipairs (input_options) do
-            if i>1 then fs[#fs + 1] = ',' end
-            fs[#fs + 1] = mode.label
-        end
-        fs[#fs + 1] = ';'
-        fs[#fs + 1] = cache.craft_input
-        fs[#fs + 1] = ';true]'
+        --fs[#fs + 1] = 'dropdown[0.1,-0.25;2.35,0.5;input_option;'
+        --for i, mode in ipairs (input_options) do
+        --    if i>1 then fs[#fs + 1] = ',' end
+        --    fs[#fs + 1] = mode.label
+        --end
+        --fs[#fs + 1] = ';'
+        --fs[#fs + 1] = cache.craft_input
+        --fs[#fs + 1] = ';true]'
 
         -- input inventory
         local pInv = player:get_inventory() -- #TODO could be cache.pInv, not sure which is better
@@ -551,7 +615,7 @@ function crafting.make_crafting_formspec(player, cache)
         end
 
         fs[#fs + 1] = 'style_type[list;size=.7,.7;spacing=.1]'
-        fs[#fs + 1] = 'list[current_player;input_items;0.1,0.4;3,3;0]'
+        fs[#fs + 1] = 'list[current_player;input_items;0.2,0.4;3,3;0]'
 
         return tofstring(fs)
     end
@@ -562,10 +626,13 @@ function crafting.make_crafting_formspec(player, cache)
         cache.FS_input_list = FS_input_list ()
     end
 
-    output[#output + 1] = 'container[.5,2.5]'
+    output[#output + 1] = 'container[.4,2.2]'
+    -- label
+    local txt = (cache.craft_input == 2) and S("Use this") or S("Save this")
+    output[#output + 1] = "label[0,0;" .. txt .. ":]"
     output[#output + 1] = cache.FS_input_list
 
-    if cache:get_craft_mode().hint_btn  then
+    if cache.hint_btn then
         if cache.possible_hint then
             output[#output + 1] = "style[hint;bgcolor=white; bgcolor_hovered=white; bgcolor_pressed=white]"
         else
@@ -633,7 +700,8 @@ function crafting.close_crafting_formspec(player, cache)
 
     -- reset selection and clear "input_list" inventory into "main" inv
     cache:reset_selected_recipe(true, player)
-    cache.possible_hint = false -- disable "hint"
+    -- switch recipe hints off if hints' button is enabled
+    cache.possible_hint = cache.hint_btn ~= true
     cache.input_filter = false -- disable filter
     cache.qty = 1 -- back to "Single" craft
     -- reset recipes panel and item_hashes for next opening
@@ -687,23 +755,23 @@ function crafting.process_receive_fields(player, formname, fields)
     end
 
     --process input setting
-    if fields.input_option then
-        local option = tonumber(fields.input_option)
-        if option ~= cache.craft_input then
-            -- some clean up before changing input option
-            cache:reset_selected_recipe(true, player)
+    --if fields.input_option then
+    --    local option = tonumber(fields.input_option)
+    --    if option ~= cache.craft_input then
+    --        -- some clean up before changing input option
+    --        cache:reset_selected_recipe(true, player)
 
-            -- save in player's settings
-            local meta = player:get_meta()
-            meta:set_int("crafting:ingredients", option)-- updates Hint button's state
-            set_cache_input_options(cache, option, meta)
-            -- refresh input panel
-            cache.FS_input_list = nil
-            -- reset item_hashes and recipe panel
-            cache:reset_recipes()
-            return cache
-        end
-    end
+    --        -- save in player's settings
+    --        local meta = player:get_meta()
+    --        meta:set_int("crafting:ingredients", option)-- updates Hint button's state
+    --        set_cache_input_options(cache, option, meta)
+    --        -- refresh input panel
+    --        cache.FS_input_list = nil
+    --        -- reset item_hashes and recipe panel
+    --        cache:reset_recipes()
+    --        return cache
+    --    end
+    --end
 
     -- process search buttons
     -- clear search
