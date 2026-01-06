@@ -298,7 +298,7 @@ local function perform_craft(r, name, inv, listname, outlistname, craft_count, s
     end
 
     -- Removes item present in founditems from inventories ---------------------
-    -- And add outpute and replacement (if needed) in `items_to_add` table
+    -- And add output and replacement (if needed) in `items_to_add` table
     local items_to_add = {} -- item to add in inventory later
 
     -- create outputs items and add them to `items_to_add` table
@@ -352,7 +352,7 @@ local function perform_craft(r, name, inv, listname, outlistname, craft_count, s
     local warn = false  -- will tell us if inventory is full
     -- Note: not sure the "ipairs" matters (to have output given first in case of full inventory)
     for _, stack in ipairs(items_to_add) do
-        split_and_add (stack, inv, outlistname, pos)
+        warn = split_and_add (stack, inv, outlistname, pos) or warn
     end
     if warn then minimal.warn_inv_full(player) end
 
