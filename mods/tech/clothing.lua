@@ -29,7 +29,7 @@ crafting.register_recipe({
         type = "weaving_frame",
         output = "tech:woven_hat",
         items = {'group:fibrous_plant 24'},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -49,7 +49,7 @@ crafting.register_recipe({
         type = "weaving_frame",
         output = "tech:sun_hat",
         items = {'group:fibrous_plant 24'},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 
@@ -70,7 +70,7 @@ crafting.register_recipe({
         type = "weaving_frame",
         output = "tech:woven_sandals",
         items = {'group:fibrous_plant 24'},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 

@@ -204,7 +204,7 @@ minetest.register_tool("tech:bare_hands",
         inventory_image = "tech_bare_hands.png",
         exile_crafting = {
             craft_types  = {'hand', 'hand_tools', 'hand_pottery',
-                             'hand_mixing', 'threshing_spot'},
+                             'hand_mixing', 'weaving_frame', 'threshing_spot'},
             craft_level  = 0,
             },
         groups = {not_in_creative_inventory = 1}
