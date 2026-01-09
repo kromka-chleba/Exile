@@ -26,20 +26,26 @@ local tofstring = function(t) return table.concat(t,"") end
 -- FUNCTIONS -------------------------------------------------------------------
 
 -- Divide cache.recipes into 4 categories, depending on availability of inputs.
+-- For input mode 'Use this' it depents also on whether hints a re enabled and
+-- whether the filter button binds sorting and highlighting to the input grid.
 local function sort_recipes_by_input_state(cache)
     local craftables = {} -- recipes with full sets of inputs in craftable list
     local possibles = {} -- all inputs available, but not all in craftable list
     local some_inputs = {} -- no full set of inputs, but some inputs available
     local no_inputs = {} -- no inputs at all
+
+    local filtered = cache.input_filter
+    local hints = cache.possible_hint
     for _, result in ipairs (cache.recipes) do
         -- add recipe to list only if it matchs search
         if result.craftable then
             craftables[#craftables + 1] = result
-        elseif cache.possible_hint and result.possible then
+        elseif not filtered and hints and result.possible then
             possibles[#possibles + 1] = result
         elseif result.partial
             or result.craftable_partial
-            or cache.possible_hint and result.possible_partial then
+            or not filtered and hints and result.possible_partial then
+
             some_inputs[#some_inputs + 1] = result
         else
             no_inputs[#no_inputs + 1] = result
@@ -437,7 +443,12 @@ do
         -- adds colors if needed
         local need = pr_it.get_needed()
         if have then
-            local color = (have >= need) and "#6f6" or "#f66"
+            local color = "#f66" -- default color if none available
+            if have >= need then -- enough to craft
+                color = "#6f6"
+            elseif have > 0 then -- some available, but not enough to craft
+                color = "#fb6"
+            end
             s[#s +1] = color_esc(color)
             h = have
         else -- replace "have" number by "?" if we don't know
@@ -593,15 +604,15 @@ do
         return  tofstring(form_table)
     end
 
-    -- `player_name` and `pInv` are optional and would be rebuild from player
-    -- generates recipe_panel formspec.
-    crafting.register_cache_function("get_recipes_panel", function(self)
+    -- generates recipe_panel formspec at an offset defined by `x` and `y`
+    -- for input mode `mode`
+    crafting.register_cache_function("get_recipes_panel", function(self, x, y,
+                                                                   mode)
 
         local FS_recipes = {}         -- final fromspec
         -- this is for more clarity, choice of display settings
         --[[size of a square of recipe : 1*1 of image + 0.1 margins around,
         used to place them on a grid, including tabs]]
-        local line_number = 3 -- nb of lines of recipes displayed
         local grid_size = 1.2 -- size of a tile of the grid
 
         -- Add recipes list -------------------------------------------------
@@ -624,70 +635,78 @@ do
                 end
             end
         end
-        local nb_recipes=#display_list
 
-        local columns = 6 -- can show 6 items accross without scrollbar
+         -- max dimensions of recipes grid
+        local nb_recipes=#display_list
+        -- max displayed lines and columns
+        local lines_max = (mode ~= 2) and 3 or 4
+        local columns = (mode ~= 2) and 6 or 5
+        -- total lines for all recipes and how many are displayed actually
+        local lines_total = math.ceil(nb_recipes / columns)
+        local lines_actual = math.max(1, math.min(lines_max, lines_total))
+        -- resulting height of the panel
+        local panel_height = lines_actual * (grid_size + 0.05)
 
         -- add scrollbar if needed
         -- #TODO don't reset the recipe lists just because of the scrollbar
         local sScroll = self.sScroll or 0 -- default to 0 for top of scroll
-        if nb_recipes > columns * line_number then
+        if lines_total > lines_actual then
             -- columns = columns -1 -- discard a line to make room for scrollbar
-            local scroll_max = math.ceil(nb_recipes / columns)-line_number
+            local scroll_max = lines_total - lines_actual
 
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
                     'scrollbaroptions[',
                     'max=' .. tonumber(scroll_max) .. ';', -- max
                     -- move with click/mouse scroll
-                    'smallstep=' .. line_number .. ';',
+                    'smallstep=' .. lines_actual .. ';',
                     -- move with page up/down key
-                    'largestep=' .. line_number .. ';',
+                    'largestep=' .. lines_actual .. ';',
                     'thumbsize=1]'
                 })
 
+            local scroll_bar_x = columns * grid_size - 0.1
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
-                    'scrollbar[',
-                    '7.1,0.95;', -- position
-                    '0.5,' .. (1.14*line_number).. ';', -- width/height
-                    'vertical;', -- orientation
-                    'recipes_scroll;', -- name
-                    sScroll .. ']' -- value
+                    "scrollbar[" .. scroll_bar_x .. ",0.95;", -- position
+                    "0.5," .. (1.14 * lines_actual) .. ";", -- width/height
+                    "vertical;", -- orientation
+                    "recipes_scroll;", -- name
+                    sScroll .. "]" -- value
                 })
         end
 
         -- create scroll container
         FS_recipes[#FS_recipes + 1] = tofstring(
             {
-                'scroll_container[0,0.75;', --X,Y position
+                "scroll_container[" .. x .. "," .. y .. ";",
                 tostring(columns + 1),',', -- Width
-                (1.25 * line_number), -- Height
+                panel_height, -- Height
                 ';recipes_scroll;vertical;', -- scrollbar name and orientation
                 grid_size , --optional scrollfactor
                 ']'
             })
 
         -- Add recipe buttons in container  ------------------------------
-        local x = 0
-        local y = 0
+        local x1 = 0
+        local y1 = 0
 
         --#TODO make a version with unique list for non ordered list as asked by Meniptah
         -- display the recipes, using defined order.
         for i, pr in ipairs (display_list) do
             FS_recipes[#FS_recipes + 1] =
-                FS_display_recipe(self, pr, x * grid_size, y * grid_size)
+                FS_display_recipe(self, pr, x1 * grid_size, y1 * grid_size)
 
-            x = x + 1
-            if x >= columns  then
-                x = 0
-                y = y + 1
+            x1 = x1 + 1
+            if x1 >= columns  then
+                x1 = 0
+                y1 = y1 + 1
             end
         end
 
         FS_recipes[#FS_recipes + 1] = 'scroll_container_end[]'
 
-        return  tofstring(FS_recipes)
+        return  tofstring(FS_recipes), panel_height
     end)
 
     -- For the currently selected recipe, returns a table to offer up
