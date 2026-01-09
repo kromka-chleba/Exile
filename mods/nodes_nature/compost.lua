@@ -186,7 +186,7 @@ for i = 1, 4 do
         minetest.register_node(reg_compost.name,reg_compost)
     else
         reg_compost._fertilize_replace_with = ""
-        stairs.register_slab(
+        stairs.register_slab({
             name,
             reg_compost.name,
             {"mixing_spot","soil_mixing"},
@@ -194,10 +194,11 @@ for i = 1, 4 do
             {"mixing_spot","soil_mixing"},
             reg_compost.groups,
             reg_compost.tiles,
+            S("@1 Stair",reg_compost.description),
             S("@1 Slab",reg_compost.description),
             minimal.stack_max_bulky * 2,
             reg_compost.sounds
-        )
+        })
         minetest.override_item("stairs:slab_"..name,{
                                    _dig_tip = reg_compost._dig_tip,
                                    on_use = reg_compost.on_use,
@@ -224,7 +225,7 @@ for i = 1, 4 do
     if i <= 2 then
         minetest.register_node(reg_compost.name, reg_compost)
     else
-        stairs.register_slab(
+        stairs.register_slab({
             name,
             reg_compost.name,
             {"mixing_spot","soil_mixing"},
@@ -232,10 +233,11 @@ for i = 1, 4 do
             {"mixing_spot","soil_mixing"},
             reg_compost.groups,
             reg_compost.tiles,
+            S("@1 Stair",reg_compost.description),
             S("@1 Slab",reg_compost.description),
             minimal.stack_max_bulky * 2,
             reg_compost.sounds
-        )
+        })
         minetest.override_item(
             "stairs:slab_"..name,{
                 _place_tip = reg_compost._place_tip,

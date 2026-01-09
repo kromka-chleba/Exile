@@ -303,7 +303,7 @@ function sediment.register_wet_salty(sed)
 end
 
 function sediment.register_stair_and_slab(sed)
-    stairs.register_stair_and_slab(
+    stairs.register_stair_and_slab({
         sed.name,
         sediment.get_dry_name(sed.name),
         {"mixing_spot","soil_mixing"},
@@ -315,11 +315,11 @@ function sediment.register_stair_and_slab(sed)
         S("@1 Slab", sed.description),
         minimal.stack_max_bulky * 2,
         sed.sound
-    )
+    })
 end
 
 function sediment.register_slab(sed)
-    stairs.register_slab(
+    stairs.register_slab({
         sed.name,
         sediment.get_dry_name(sed.name),
         {"mixing_spot","soil_mixing"},
@@ -330,7 +330,7 @@ function sediment.register_slab(sed)
         S("@1 Slab", sed.description),
         minimal.stack_max_bulky * 2,
         sed.sound
-    )
+    })
 end
 
 sediment.do_slopes = do_slopes_for_node_name

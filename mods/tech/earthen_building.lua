@@ -28,7 +28,7 @@ minetest.register_node(
 ncrafting.register_arch("tech:drystack")
 
 -- Stairs and slab for drystack
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "drystack",
     "tech:drystack",
     {"hand_mixing","mixing_spot"},
@@ -41,7 +41,7 @@ stairs.register_stair_and_slab(
     S("Drystack Slab"),
     minimal.stack_max_bulky *3,
     nodes_nature.node_sound_stone_defaults()
-)
+})
 
 
 ------------------------------------------
@@ -58,7 +58,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
 })
 
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "mudbrick",
     "tech:mudbrick",
     {"brick_makers_bench_mixing","mixing_spot"},
@@ -72,7 +72,7 @@ stairs.register_stair_and_slab(
     nodes_nature.node_sound_dirt_defaults(),
     nil,
     "nodes_nature:clay"
-)
+})
 
 ------------------------------------------
 --RAMMED EARTH
@@ -95,7 +95,7 @@ minetest.register_node('tech:rammed_earth', {
 
 ncrafting.register_arch("tech:rammed_earth")
 
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "rammed_earth",
     "tech:rammed_earth",
     {"brick_makers_bench_mixing","mixing_spot"},
@@ -114,7 +114,7 @@ stairs.register_stair_and_slab(
     S("Rammed Earth Slab"),
     minimal.stack_max_bulky *3,
     nodes_nature.node_sound_dirt_defaults()
-)
+})
 
 ------------------------------------------
 --Wicker well lining
@@ -394,7 +394,7 @@ minetest.register_node(
         end,
 })
 
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "thatch",
     "tech:thatch",
     "hand_mixing",
@@ -406,7 +406,7 @@ stairs.register_stair_and_slab(
     S("Thatch Slab"),
     minimal.stack_max_bulky * 8,
     nodes_nature.node_sound_leaves_defaults()
-)
+})
 
 minetest.override_item(
     "stairs:slab_thatch", {

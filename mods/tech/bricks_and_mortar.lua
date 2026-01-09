@@ -410,7 +410,7 @@ minetest.register_node("tech:bricks_and_mortar", {
 })
 
 
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "bricks_and_mortar",
     "tech:bricks_and_mortar",
     "brick_makers_bench",
@@ -424,7 +424,7 @@ stairs.register_stair_and_slab(
     nodes_nature.node_sound_stone_defaults(),
     nil,
     "tech:loose_brick"
-)
+})
 
 
 -----------------------------------------------------
@@ -834,7 +834,7 @@ crafting.register_recipe({
 
 -- register slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
 -- before non-loose versions! Otherwise it cannot be registered as drop type of non-loose ones.
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "tile_loose",
     "tech:tile_block_loose",
     "brick_makers_bench_mixing",
@@ -846,7 +846,7 @@ stairs.register_stair_and_slab(
     S("Tile Slab (Loose)"),
     minimal.stack_max_medium,
     nodes_nature.node_sound_stone_defaults()
-)
+})
 
 -- add callbacks for slab_tile_loose, stair_tile_loose, stair_inner_tile_loose and stair_outer_tile_loose
 local stairs_type = {"slab", "stair", "stair_inner", "stair_outer"}
@@ -870,7 +870,7 @@ end
 
 -- non-loose tile slabs and stairs
 -- dropping loose versions registered above
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "tile",
     "tech:tile_block",
     "brick_makers_bench_mixing",
@@ -884,7 +884,7 @@ stairs.register_stair_and_slab(
     nodes_nature.node_sound_stone_defaults(),
     nil,
     "tech:tile_loose"
-)
+})
 
 
 --------------------------------------------------------------------
@@ -952,7 +952,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
 
         --stairs and slabs
         --brick
-        stairs.register_stair_and_slab(
+        stairs.register_stair_and_slab({
             name.."_brick_mortar",
             "tech:"..name.."_brick_mortar",
             brick_mortar_type,
@@ -964,13 +964,13 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
             S("@1 Brick with Mortar Slab", desc),
             minimal.stack_max_bulky * 6,
             nodes_nature.node_sound_stone_defaults()
-        )
+        })
 
         --block
         if sediment ~= true then
             -- masonry table's cluttered bad, so let's say you can't easily make
             --  block stairs and slabs from the four crumbly sedimentary rocks
-            stairs.register_stair_and_slab(
+            stairs.register_stair_and_slab({
                 name.."_block_mortar",
                 "tech:"..name.."_block_mortar",
                 block_mortar_type,
@@ -982,7 +982,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 S("@1 Block with Mortar Slab", desc),
                 minimal.stack_max_bulky * 4,
                 nodes_nature.node_sound_stone_defaults()
-            )
+            })
         end
     end
 end

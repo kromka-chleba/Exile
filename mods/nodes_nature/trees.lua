@@ -684,7 +684,7 @@ function trees.register_tree(name,def)
     end
     -- slabs, stairs
     -- only functional difference between hard and soft woods is the crafting
-    stairs.register_stair_and_slab(
+    stairs.register_stair_and_slab({
         log_def.name:gsub(def.mod_origin..":",""), -- remove mod_origin from name
         log_def.name, -- used for crafting
         {"chopping_block","axe_mixing"},--..(def.groups.hard_tree and " 2" or "")},
@@ -698,7 +698,7 @@ function trees.register_tree(name,def)
         S("@1 Log Slab", def.description),
         log_def.stack_max * 2, -- twice log_def stackmax
         log_def.sounds
-    )
+    })
     -- add to register list
     -- tree will have different leaves and fruits mentioned
     trees.list[name] = {

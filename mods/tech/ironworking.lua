@@ -377,7 +377,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_stone_defaults(),
 })
 
-stairs.register_stair_and_slab(
+stairs.register_stair_and_slab({
     "slag",
     "tech:slag",
     "anvil_mixing",
@@ -389,7 +389,7 @@ stairs.register_stair_and_slab(
     S("Slag Slab"),
     minimal.stack_max_bulky * 8,
     nodes_nature.node_sound_stone_defaults()
-)
+})
 
 --molten slag
 local lava_light = 6
@@ -624,4 +624,3 @@ if not minetest.is_singleplayer() then
             always_known = true,
     })
 end
-
