@@ -12,7 +12,7 @@ core.override_item("", {
 minetest.register_item(
     "player_api:hand", {
         type = "none",
-        wield_image = "wieldhand.png",
+        wield_image = "player_hand.png",
         wield_scale = {x=1,y=1,z=2.5},
         tool_capabilities = {
             full_punch_interval = minimal.hand_punch_int,
