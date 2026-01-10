@@ -12,12 +12,11 @@ end
 local round = math.round
 local abs = math.abs
 
-local function set_force(dir)
+local function set_force(dir, adjust)
     local function fixed(axis)
-        local force = 1 -- can't get as far in on the positive side
-        if axis < 0 then force = 4 end -- as you can on the negative
-
-        return abs(axis) / axis * force -- set it in the selected direction
+        local force = 6
+        -- set it in the selected direction
+        return abs(axis) / axis * force * adjust
     end
 
     local vec = vector.new()
@@ -36,16 +35,27 @@ local function set_force(dir)
     return vec
 end
 
-local function check_for_build_clip(pos, _, placer)
+local function check_for_build_clip(pos, newnode, placer)
     if not core.is_player(placer) then return end
+
+    -- adjust effect based on what we're placing
+    local adj = 1
+    if core.get_item_group(newnode.name, "ladder") > 0 then adj = 0.25 end
+    if newnode.name == "tech:stick" then adj = 0.25 end
+
+    local def = core.registered_nodes[newnode.name]
+    if def then
+        if def.walkable == false then return end -- Ignore this one
+    end
 
     local ppos = placer:get_pos()
     ppos.y = ppos.y + .5 -- Player y offset
 
     local distance = pos:distance(ppos)
+
     if distance < 1 then
         local dir = pos:direction(ppos)
-        placer:add_velocity(set_force(dir))
+        placer:add_velocity(set_force(dir, adj))
     end
 end
 
