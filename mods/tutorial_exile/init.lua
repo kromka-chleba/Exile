@@ -98,6 +98,10 @@ end
 
 local function restore_player(player)
     local name = player:get_player_name()
+
+    HEALTH.show_hud_elements(player, nil, "all")
+    player_api.set_invisible(player, false)
+
     local ps = pstore[name]
 
     if not ps then return end
@@ -121,7 +125,6 @@ local function restore_player(player)
     core.set_player_privs(name, pstore[name].privs)
     pstore[name].privs = nil
 
-    player_api.set_invisible(player, false)
     pstore[name].invis = nil
 
     meta:set_string("playtime_suspended", "")
