@@ -150,7 +150,7 @@ ncrafting.register_switch(
             "nodes_nature_basalt.png",
             "nodes_nature_basalt.png",
         },
-        groups = { switch = 1 },
+        groups = { switch = 1, not_in_creative_inventory = 1 },
         _switch_sound = "exile_switch_ancient",
         _switch_sound_params = { gain = 0.5, max_hear_distance = 8 },
 })
@@ -178,7 +178,7 @@ minetest.register_node(
             { name = "metal_plasma.png", backface_culling = true }
         },
         drawtype = "glasslike",
-        groups = { frobbable = 1 },
+        groups = { frobbable = 1, not_in_creative_inventory = 1 },
         light_source = 6,
         use_texture_alpha = "blend",
         _on_frob = function(pos)
@@ -250,7 +250,7 @@ ncrafting.register_switch(
             "tut_info_box.png",
             "tut_info_box.png",
         },
-        groups = { },
+        groups = { not_in_creative_inventory = 1 },
         _switch_sound = "",
         _on_use_node = function(player, _, pointed_thing)
             local pos = pointed_thing.under
@@ -292,7 +292,7 @@ ncrafting.register_switch(
         tiles={
             "tut_exit.png",
         },
-        groups = { },
+        groups = { not_in_creative_inventory = 1 },
         _switch_sound = "",
         _on_use_node = function(player, _, _)
             exit_prompt(player)
