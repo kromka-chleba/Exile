@@ -272,3 +272,44 @@ if minetest.is_creative_enabled() then
                                groups = { crumbly = 1, cracky = 3 },
     })
 end
+
+local function do_exit(exiting, _, player)
+    if exiting then
+        tutorial.exit(player)
+    end
+end
+
+local function exit_prompt(player)
+    minimal.yes_or_no(player:get_player_name(),
+                      S("Exit the tutorial?"),
+                      do_exit)
+end
+
+ncrafting.register_switch(
+    "tutorial_exile:exit_button", {
+        description = "Exit",
+        drawtype = "normal",
+        tiles={
+            "tut_exit.png",
+        },
+        groups = { },
+        _switch_sound = "",
+        _on_use_node = function(player, _, _)
+            exit_prompt(player)
+        end,
+        on_rightclick = function(pos, _, puncher)
+            if not minetest.is_player(puncher) then return end
+            exit_prompt(puncher)
+        end,
+        on_punch = function(pos, _, puncher)
+            if not minetest.is_player(puncher) then return end
+            exit_prompt(puncher)
+        end,
+})
+
+if minetest.is_creative_enabled() then
+    minetest.override_item("tutorial_exile:exit_button",
+                           {
+                               groups = { crumbly = 1, cracky = 3 },
+    })
+end
