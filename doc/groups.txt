@@ -15,6 +15,7 @@ edible - Nodes that are edible - auto adds on_use callbacks to eat
 `unclaimable`: Cannot be nailed down or otherwise owned. e.g. crafting spots
 `drug`: indicates whether or not an item or node is a substance of drug-like explicit interest
 `timer`: this node runs on a timer -- value is the default timer length
+`hand`: items that support the same interactions as the empty hand
 
 Digging:
 ---------

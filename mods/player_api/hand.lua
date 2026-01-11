@@ -4,10 +4,15 @@ local S = player_api.S
 
 -- we have to do this because damage groups does not properly transfer for held items
 -- with a custom hand, because yay! Engine!!!
+local hand_groups = {not_in_creative_inventory = 1, nobones = 1, hand = 1}
+local hand_def = core.registered_items[""]
+hand_groups = minimal.merge_tables(hand_groups, table.copy(hand_def.groups))
+
 core.override_item("", {
                        tool_capabilities =
                            {damage_groups = {fleshy=minimal.hand_dmg}},
-                       liquids_pointable = true
+                       liquids_pointable = true,
+                       groups = table.copy(hand_groups)
                        }
 )
 -- The hand
@@ -39,7 +44,7 @@ minetest.register_item(
             damage_groups = {fleshy=minimal.hand_dmg}
         },
         liquids_pointable = true,
-        groups = {not_in_creative_inventory = 1, nobones = 1},
+        groups = hand_groups,
         _dig_tip = S("Dig / Punch / Stun small animals / Grab animals"),
         _use_tip = S("Split certain blocks"),
         _place_tip = S("Select a place for crafting / Drink")

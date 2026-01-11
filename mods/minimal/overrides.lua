@@ -308,7 +308,9 @@ function minetest.item_place(itemstack, placer, pointed_thing, param2)
 
     -- item is a type of an empty hand?
     -- -> try to open crafting (default behaviour for external mods, too)
-    if itemstack:is_empty() and core.is_player(placer) then
+    if core.get_item_group(itemstack:get_name(), "hand") > 0
+        and core.is_player(placer) then
+
         local mp = multi_placing[placer:get_player_name()]
         if not mp or mp:has_ended() then
             if hand_on_rightclick(placer, pointed_thing) then
