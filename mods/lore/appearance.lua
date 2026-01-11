@@ -26,6 +26,7 @@ local function NewBody(player)
     base_texture["hair"].color = HColor
     base_texture["eye"] = "player_"..EColor.."_eye.png"
     player_api.save_base_texture(player, base_texture)
+    player_api.add_player_hand(player)
 end
 
 minetest.register_on_newplayer(function(player)
@@ -37,4 +38,10 @@ minetest.register_on_respawnplayer(function(player)
         if meta:get("playtime_suspended") then return end
         NewBody(player)
         player_api.set_texture(player)
+end)
+
+-- Update appearance when the player joins
+minetest.register_on_joinplayer(function(player)
+    -- make sure, existing players get the new hand item, too
+    player_api.add_player_hand(player)
 end)

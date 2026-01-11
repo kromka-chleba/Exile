@@ -1,3 +1,4 @@
+
 player_api.hair_colors = {
     black = {
         color = "#000000",
