@@ -1,4 +1,7 @@
 
+-- Internationalization
+local S = player_api.S
+
 -- we have to do this because damage groups does not properly transfer for held items
 -- with a custom hand, because yay! Engine!!!
 core.override_item("", {
@@ -12,6 +15,7 @@ core.override_item("", {
 -- use core.registered_items["player_api:hand"] instead
 minetest.register_item(
     "player_api:hand", {
+        description = S("Your hand"),
         type = "none",
         wield_image = "player_hand.png",
         wield_scale = {x=1,y=1,z=2.5},
@@ -36,6 +40,9 @@ minetest.register_item(
         },
         liquids_pointable = true,
         groups = {not_in_creative_inventory = 1, nobones = 1},
+        _dig_tip = S("Dig / Punch / Stun small animals / Grab animals"),
+        _use_tip = S("Split certain blocks"),
+        _place_tip = S("Select a place for crafting / Drink")
 })
 
 -- Adds a colorized hand item to the first slot of the main inventory and

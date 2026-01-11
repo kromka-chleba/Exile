@@ -4,7 +4,8 @@ local states = {} -- table of all defined or registered states
 local playerstates = {} -- holds all player state objects, indexed by pname
 -- { playername = pstate }
 
-local S = minetest.get_translator("player_api")
+-- Internationalization
+local S = player_api.S
 local health_S = minetest.get_translator("health")
 
 

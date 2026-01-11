@@ -1,8 +1,8 @@
 -- Minetest 0.4 mod: player
 -- See README.txt for licensing and other information.
 
--- Load support for MT game translation.
-local S = minetest.get_translator("player_api")
+-- Internationalization
+local S = player_api.S
 
 player_monoids = player_monoids
 

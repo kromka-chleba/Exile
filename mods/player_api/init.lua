@@ -1,6 +1,10 @@
 -- player/init.lua
 
 player_api = {}
+
+-- Internationalization
+player_api.S = core.get_translator("player_api")
+
 local modpath = minetest.get_modpath("player_api")
 
 -- register the formspec page using player's state to display
