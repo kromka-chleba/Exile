@@ -89,3 +89,20 @@ function player_api.add_player_hand(player)
     end
 end
 
+-- block inventory action to move/remove our hand
+-- "take" includes cases where the player tries to drop the hand or to throw it
+-- out of a formspec window
+core.register_allow_player_inventory_action(
+function(player, action, inventory, inventory_info)
+    -- prevent taking the hand out of main
+    if action == "take" and inventory_info.index == 1
+        and inventory_info.listname == "main" then
+        return 0
+    end
+    -- also prevent moving it to a different slot or inventory
+    if action == "move" and inventory_info.from_index == 1
+        and inventory_info.from_list == "main" then
+        return 0
+    end
+    -- otherwise, do not interfere
+end)
