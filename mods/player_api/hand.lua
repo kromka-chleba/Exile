@@ -47,7 +47,13 @@ minetest.register_item(
         groups = hand_groups,
         _dig_tip = S("Dig / Punch / Stun small animals / Grab animals"),
         _use_tip = S("Split certain blocks"),
-        _place_tip = S("Select a place for crafting / Drink")
+        _place_tip = S("Select a place for crafting / Drink"),
+        -- despite allow_player_inventory_action Luanti 5.10 would let the hand
+        -- disappear and show up later without an explicit on_drop()
+        -- (fixed in 5.11, -> #TODO: remove if 5.11 becomes minimum req.)
+        on_drop = function(itemstack, dropper, pos)
+            return itemstack
+        end
 })
 
 -- Adds a colorized hand item to the first slot of the main inventory and
