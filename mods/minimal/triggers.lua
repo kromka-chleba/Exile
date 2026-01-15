@@ -126,6 +126,7 @@ local function clearinv(player, pname, pos, nmeta, metastring)
     local inv = player:get_inventory()
     if metastring == "main" or metastring == "both"  then
         inv:set_list("main", {})
+        l_player_api.add_player_hand(player)
     end
     if metastring == "cloths" or metastring == "both"  then
         inv:set_list("cloths", {})

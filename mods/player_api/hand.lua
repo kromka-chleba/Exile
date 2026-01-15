@@ -63,12 +63,13 @@ function player_api.add_player_hand(player)
     local inv = player:get_inventory()
     local stack_1 = inv:get_stack("main", 1)
     local name = stack_1:get_name()
-    -- new player or respawned or older existing player without a hand?
+    -- player does not yet have a hand? -> add it
     if not name:find("player_api:hand", 1, true) then
         local base_texture = player_api.load_base_texture_table(player)
         local handstring = "player_api:hand_"..base_texture["skin"]["color"]
 
-        if inv:is_empty("main") then -- new player or respawn
+        if inv:is_empty("main") then
+            -- new player or respawn or after inventory cleared in tutorial
             inv:set_stack("main", 1, handstring)
         else
             -- must be an existing player who does not yet have a hand
