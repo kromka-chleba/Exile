@@ -29,7 +29,7 @@ Min Temperature Tolerance: @1=Température minimum tolérée: @1
 Max Temperature Tolerance: @1=Température maximum tolérée: @1
 You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
 You already wear that!=Vos portez déjà la même chose !
-equipped!=@1 équipé !
+@1 equipped!=@1 équipé !
 
 # states.lua
 (mild)=(effet léger)
