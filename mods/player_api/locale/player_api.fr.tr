@@ -1,7 +1,13 @@
 # textdomain: player_api
+# api.lua:
 Select your gender=Choisissez votre sexe
 Male=Homme
 Female=Femme
+
+# cloth_composing.lua
+Naked=Nu(e)
+
+# cloth_definitions.lua
 Head=Tête
 Upper=Haut
 Lower=Bas
@@ -9,15 +15,7 @@ Footwear=
 Cape=Cape
 Keeps you warm in bed=Vous maintient au chaud dans le lit
 Unisex=Unisexe
-
-
-Naked=Nu(e)
-(mild)=(effet léger)
-(moderate)=(effet modéré)
-(severe)=(sévère)
-(extreme)=(extrême)
-
-#cloths.lua
+Wear clothing=Équiper le vêtement
 Purple Stripe Summer T-shirt=
 Fresh Summer Denim Shorts=
 Common Black Shoes=Chaussures noires banales
@@ -25,14 +23,20 @@ Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
 
-You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
-
-equipped!=@1 équipé !
-You already wear that!=Vos portez déjà la même chose !
-Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein ! le vêtement que vous portez a été jeté au sol.
-
 # equip.lua
 Clothing=Vêtements
-Wear clothing=Équiper le vêtement
 Min Temperature Tolerance: @1=Température minimum tolérée: @1
 Max Temperature Tolerance: @1=Température maximum tolérée: @1
+You can't equip a blanket outside of a bed.=Vous ne pouvez pas équiper une couverture en dehors d'un lit.
+You already wear that!=Vos portez déjà la même chose !
+equipped!=@1 équipé !
+
+# states.lua
+(mild)=(effet léger)
+(moderate)=(effet modéré)
+(severe)=(sévère)
+(extreme)=(extrême)
+
+##### not used anymore #####
+
+Inventory is full : the clothing you wore was thrown on the floor!=L'inventaire est plein ! le vêtement que vous portez a été jeté au sol.

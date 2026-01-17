@@ -1,7 +1,13 @@
 # textdomain: player_api
+# api.lua:
 Select your gender=Wählen Sie Ihr Geschlecht
 Male=Mann
 Female=Frau
+
+# cloth_composing.lua
+Naked=Nackt
+
+# cloth_definitions.lua
 Head=Kopf
 Upper=Oberteil
 Lower=Unterteil
@@ -9,13 +15,7 @@ Footwear=Schuhwerk
 Cape=Umhang
 Keeps you warm in bed=Hält Sie im Bett warm
 Unisex=Unisex
-Naked=Nackt
-(mild)=(mild)
-(moderate)=(mäßig)
-(severe)=(schwer)
-(extreme)=(extrem)
-
-#cloths.lua
+Wear clothing=Kleidung tragen
 Purple Stripe Summer T-shirt=Violett gestreiftes Sommer-T-Shirt
 Fresh Summer Denim Shorts=Sommerliche Jeansshorts
 Common Black Shoes=Gewöhnliche schwarze Schuhe
@@ -23,10 +23,16 @@ Pink Bow=Rosa Schleife
 Classic Green Sweater=Klassischer grüner Pullover
 Fine Blue Pants=Fine blaue Hose
 
-You can't equip a blanket outside of a bed.=Man kann eine Decke nicht außerhalb eines Bettes nutzen.
-You already wear that!=Das tragen Sie bereits!
 # equip.lua
 Clothing=Kleidung
-Wear clothing=Kleidung tragen
 Min Temperature Tolerance: @1=Min. Temperaturtoleranz: @1
 Max Temperature Tolerance: @1=Max. Temperaturtoleranz: @1
+You can't equip a blanket outside of a bed.=Man kann eine Decke nicht außerhalb eines Bettes nutzen.
+You already wear that!=Das tragen Sie bereits!
+@1 equipped!=
+
+# states.lua
+(mild)=(mild)
+(moderate)=(mäßig)
+(severe)=(schwer)
+(extreme)=(extrem)
