@@ -58,6 +58,8 @@ minetest.register_item(
 
 -- Adds a colorized hand item to the first slot of the main inventory and
 -- handles existing items in that slot.
+-- WARNING Calling this function before setting up textures for the player
+--         will cause a crash!
 function player_api.add_player_hand(player)
     -- player_api:hand is always in the first slot -> check it
     local inv = player:get_inventory()
@@ -83,12 +85,15 @@ function player_api.add_player_hand(player)
             if stack_1 and not stack_1:is_empty() then
                 local leftover = inv:add_item("main", stack_1)
                 if not leftover:is_empty() then
-                    -- drop stack and warn player
-                    local pos = player:get_pos()
-                    core.add_item(vector.new(pos.x,pos.y+1,pos.z), stack_1)
+                    -- create a special inventory accessible in the clothing FS
+                    inv:set_size("new_hand_backup", 1)
+                    inv:set_stack("new_hand_backup", 1, leftover)
                     core.chat_send_player(player_name,
-                                    S("Attention! Some item(s) were dropped."))
+                                    S("Check your inventory!"))
                     minimal.warn_inv_full(player)
+                    -- make sure the clothing FS is the current sfinv page and
+                    -- that it is up to date
+                    sfinv.set_page(player, "clothing:clothing")
                 end
             end
             core.chat_send_player(player_name, "* * * * * *")
@@ -96,20 +101,46 @@ function player_api.add_player_hand(player)
     end
 end
 
--- block inventory action to move/remove our hand
--- "take" includes cases where the player tries to drop the hand or to throw it
+-- update `Clothing` FS if it is the current and if inventory "new_hand_backup"
+-- is empty
+local function update_clothing_formspec(player)
+    local inv = player:get_inventory()
+    if inv and inv:is_empty("new_hand_backup")
+        and sfinv.get_page(player) == "clothing:clothing" then
+
+        sfinv.set_player_inventory_formspec(player)
+    end
+end
+
+-- Block inventory action to move/remove our hand and make special inventory
+-- "new_hand_backup" inaccessible, once it gets cleared.
+-- NOTE: "take" includes cases where the player tries to drop the hand or to throw it
 -- out of a formspec window
 core.register_allow_player_inventory_action(
 function(player, action, inventory, inventory_info)
-    -- prevent taking the hand out of main
-    if action == "take" and inventory_info.index == 1
-        and inventory_info.listname == "main" then
-        return 0
+    if action == "take" then
+        if inventory_info.index == 1 then
+            -- prevent taking the hand out of "main"
+            if inventory_info.listname == "main" then return 0 end
+            -- update `Clothing` FS after "new_hand_backup" is cleared
+            if inventory_info.listname == "new_hand_backup" then
+                core.after(0.1, update_clothing_formspec, player)
+            end
+        end
+        return -- no restriction
     end
-    -- also prevent moving it to a different slot or inventory
-    if action == "move" and inventory_info.from_index == 1
-        and inventory_info.from_list == "main" then
-        return 0
+    if action == "move" then
+        if inventory_info.from_index == 1 then
+            -- prevent moving the hand out of "main"
+            if inventory_info.from_list == "main" then return 0 end
+            -- update `Clothing` FS after "new_hand_backup" is cleared
+            if inventory_info.from_list == "new_hand_backup" then
+                core.after(0.1, update_clothing_formspec, player)
+            end
+        elseif inventory_info.to_list == "new_hand_backup" then
+            -- to avoid confusion, block using the `pocket` forever by swapping
+            return 0
+        end
+        return -- no restriction
     end
-    -- otherwise, do not interfere
 end)
