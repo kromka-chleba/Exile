@@ -4,6 +4,14 @@ Select your gender=Seleziona il tuo genere
 Male=Uomo
 Female=Donna
 
+# hand.lua
+Your hand=
+Dig / Punch / Stun small animals / Grab animals=
+Split certain blocks=
+Select a place for crafting / Drink=
+You were given a hand!=
+Attention! Some item(s) were dropped.=
+
 # cloth_composing.lua
 Naked=
 
