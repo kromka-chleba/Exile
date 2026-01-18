@@ -31,6 +31,9 @@ local bones_formspec =
     main_inv_fs ..
     "listring[current_name;main]" ..
     "listring[current_player;main]" ..
+    -- close on enter (and space key) by default
+    "set_focus[exit_btn;true]" ..
+    "button_exit[0.2,5.05;0,0;exit_btn;]"
 --default.get_hotbar_bg(0,4.85)
 
 local share_bones_time = tonumber(minetest.settings:get("share_bones_time"))

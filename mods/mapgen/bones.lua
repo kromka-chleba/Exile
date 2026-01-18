@@ -69,6 +69,9 @@ local bones_formspec = -- #TODO: get the bones mod to set this?
     main_inv_fs ..
     "listring[current_name;main]" ..
     "listring[current_player;main]" ..
+    -- close on enter (and space key) by default
+    "set_focus[exit_btn;true]" ..
+    "button_exit[0.2,5.05;0,0;exit_btn;]"
 
 local counts = { light = 0, dark = 0 }
 

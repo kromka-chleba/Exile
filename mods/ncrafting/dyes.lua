@@ -519,11 +519,12 @@ core.register_on_mods_loaded(function()
 
     pot_formspec =  "formspec_version[6]" ..
         "size[10.5,5.625]" ..
-        "button_exit[7.875,0.375;2.25,1;dump;" .. S("Dump") .. "]"
         "list[current_name;main;5.325,0.375;1,1]" ..
         main_inv_fs ..
         "listring[current_name;main]" ..
         "listring[current_player;main]" ..
+        -- last, to get focus (set_focus[dump;false] not reliable):
+        "button_exit[7.875,0.375;2.25,1;dump;" .. S("Dump") .. "]"
 end)
 
 

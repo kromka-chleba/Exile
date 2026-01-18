@@ -487,6 +487,10 @@ local function get_formspec()
     fs[#fs + 1] = "listring[current_name;main]"
     fs[#fs + 1] = "listring[current_player;main]"
     fs[#fs + 1] = "listring[current_name;main]"
+    -- close on enter (and space key) by default
+    fs[#fs + 1] = "set_focus[exit_btn;true]"
+    fs[#fs + 1] = "button_exit[0.2,2.8;0,0;exit_btn;]"
+    fs[#fs + 1] = "container_end[]"
     return table.concat(fs, "")
 end
 

@@ -269,8 +269,8 @@ function sfinv.make_formspec_for_exile(player, context, content, show_inv)
         "size[11.4,10]",
 		"position[0.5,0.5]",
 		sfinv.get_nav_fs(player, context, context.nav_titles, context.nav_idx),
-        add_setting_button(),
         show_inv and sfinv.make_main_inv_fs() or "",
+        add_setting_button(), -- gets focus, if no suitable element follows!
 		content
 	}
 	return table.concat(tmp, "")
