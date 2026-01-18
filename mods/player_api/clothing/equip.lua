@@ -99,14 +99,14 @@ local clothing_page = {
             -- "label[0.8,9.75;Tip : use \"shift\" key to switch clothes]"
             }
 
+            local inv_y = 7.2
             -- display special inventory slot if we had to replace an existing
             -- stack in the player's inventory when adding the new player_hand
             local inv = player:get_inventory()
             if inv and not inv:is_empty("new_hand_backup") then
                 -- 'Why that position?': see sfinv.make_formspec_for_exile()
-                local inv_y = 7.2 - 1.25
                 formspec[#formspec + 1] ="list[current_player;new_hand_backup;"
-                                          .. "0.8," .. inv_y .. ";1,1;]"
+                                        .. "0.8," .. (inv_y - 1.25) .. ";1,1;]"
             end
 
         -- call a function making a size[11.4,10.0] formspec with that content and adding tabs if needed
