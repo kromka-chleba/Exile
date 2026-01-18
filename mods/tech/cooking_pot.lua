@@ -722,7 +722,7 @@ end
 -- ;note is changed to be nil
 -- ;baking meta is set
 -- plays close sound
-local function pot_receive_fields(pos, formname, fields, sender)
+local function pot_receive_fs_closed(pos, formname, fields, sender)
     local meta = minetest.get_meta(pos)
     if minetest.is_protected(pos, sender, meta) then return end
 
@@ -802,6 +802,13 @@ local function pot_receive_fields(pos, formname, fields, sender)
     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
     -- set soup satiation
     meta:set_string("pot_contents", minetest.serialize(total))
+end
+
+-- process fields, when formspec was closed or the immovable hand was clicked
+local function pot_receive_fields(pos, formname, fields, sender)
+    if fields.quit then
+        pot_receive_fs_closed(pos, formname, fields, sender)
+    end
 end
 
 local function pot_cook(pos, elapsed)
