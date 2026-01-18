@@ -24,13 +24,13 @@ local function is_owner(pos, name)
     return false
 end
 
+local main_inv_fs = sfinv.make_main_inv_fs(0, 4.85)
 local bones_formspec =
     "size[8,9]" ..
     "list[current_name;main;0,0.3;8,4;]" ..
-    "list[current_player;main;0,4.85;8,1;]" ..
-    "list[current_player;main;0,6.08;8,3;8]" ..
+    main_inv_fs ..
     "listring[current_name;main]" ..
-    "listring[current_player;main]"
+    "listring[current_player;main]" ..
 --default.get_hotbar_bg(0,4.85)
 
 local share_bones_time = tonumber(minetest.settings:get("share_bones_time"))

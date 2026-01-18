@@ -485,7 +485,7 @@ function crafting.make_crafting_formspec(player, cache)
 
     -- Inventory List part-----------------------------------------------------
 
-    output[#output + 1] = 'container[0.8,7.2]'
+    output[#output + 1] = "container[0.8,7.2]"
 
     -- adds background color under the main inventory list, if needed
     local input_mode = cache:get_craft_mode()
@@ -493,14 +493,10 @@ function crafting.make_crafting_formspec(player, cache)
     if main_color then
         output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. main_color .. "]"
     end
+    output[#output + 1] = "container_end[]"
 
     -- display main inventory list
-    output[#output + 1] = tofstring({
-        'style_type[list;size=;spacing=]',
-        'list[current_player;main;0,0;8,2;0]'
-    })
-
-    output[#output + 1] = 'container_end[]'
+    output[#output + 1] = sfinv.make_main_inv_fs()
 
     -- re-add worldedit gui button if that exists -----------------------------
     local we_x = (mode == 2) and "3.5" or "9.75"

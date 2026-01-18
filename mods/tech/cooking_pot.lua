@@ -480,12 +480,14 @@ minetest.register_alias_force("tech:soup","tech:food_bowl_clay_soup")
 
 -- # TODO: add options for more or less slots
 local function get_formspec()
-    local pot_formspec = "size[8,4.1]"..
-        "list[current_name;main;0,0;8,2]"..
-        "list[current_player;main;0,2.3;8,4]"..
-        "listring[current_name;main]"..
-        "listring[current_player;main]"
-    return pot_formspec
+    local fs = {"formspec_version[6]size[10.5,5.625]"}
+    fs[#fs + 1] = "container[0.375,0.375]"
+    fs[#fs + 1] = "list[current_name;main;0,0;8,2]"
+    fs[#fs + 1] = sfinv.make_main_inv_fs(0, 2.625)
+    fs[#fs + 1] = "listring[current_name;main]"
+    fs[#fs + 1] = "listring[current_player;main]"
+    fs[#fs + 1] = "listring[current_name;main]"
+    return table.concat(fs, "")
 end
 
 -- miscellaneous pot functions
