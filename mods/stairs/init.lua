@@ -55,7 +55,7 @@ function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_sta
             -- Recipes
             crafting.register_recipe({
                     type = station,
-                    output = prefix .. subname.. " 2",
+                    output = prefix .. "_".. subname.. " 2",
                     items = {recipeitem},
                     level = level,
                     always_known = true,
@@ -70,7 +70,7 @@ function stairs.register_recipies(recipeitem,craft_station, recycle, recycle_sta
                 crafting.register_recipe({
                         type = station,
                         output = recipeitem,
-                        items = {prefix .. subname.. " 2"},
+                        items = {prefix .. "_".. subname.. " 2"},
                         level = level,
                         always_known = true,
                 })
@@ -329,7 +329,7 @@ function stairs.register_stair_and_slab(params)
     -- register stairs
     local func
     for _, subtype in ipairs({"", "_inner", "_outer"}) do
-        if stexist then -- else, defautl droptype above
+        if stexist then -- else, default droptype above
             -- get matching name
             droptype = "stairs:stair" .. subtype .."_" ..droptypesub
         end
