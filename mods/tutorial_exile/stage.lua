@@ -77,7 +77,7 @@ end
 
 local function loadschem(anchor, file)
     local filename = modpath.."/schematics/"..file..".ex_schm"
-    minetest.log("action", "Loading schematic: "..filename)
+    --minetest.log("action", "Loading schematic: "..filename)
     minimal.load_region(anchor,
                         io.open(filename, "rb"))
 end
@@ -290,6 +290,7 @@ local function stage_change(player, playername)
 
     inst.active = inst.active + 1
     player:get_meta():set_string("tutorial_stage", inst.active)
+    clear(player)
     if inst.active > #stages then
         player:get_meta():set_string("tutorial_stage", "")
         tutorial.exit(player)
@@ -304,12 +305,25 @@ function stage.open(player) -- called when a player enters the tutorial
         local pname = player:get_player_name(player)
         local current_stage =
             tonumber(player:get_meta():get("tutorial_stage")) or 0
-        if not i_num[pname] then
+        local num = i_num[pname]
+        if not num then
             stage_init(pname, tonumber(current_stage))
+            num = i_num[pname]
         end
-        if current_stage == 0 then
+        instance[num].active = current_stage
+        if current_stage == 0 then -- clear inv on LZ
             clear(player)
+        else -- Is player inside the correct tutorial stage already?
+            num = i_num[pname]
+            local inst = instance[num]
+            local start =
+                inst.offset + stages[current_stage].location
+            local stop = start + stages[current_stage].size
+            if player:get_pos():in_area(start, stop) then
+                return -- If so, don't reset
+            end
         end
+
         enter_stage(player, pname, current_stage)
     end
 

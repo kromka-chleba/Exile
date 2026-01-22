@@ -33,6 +33,17 @@ local mstore = minetest.get_mod_storage()
 
 local pstore = {} -- store status of players so we can restore it after tutorial
 
+local quit_list = {}
+function tutorial.register_on_quit(func)
+    table.insert(quit_list, func)
+end
+local function do_quit_functions(player)
+    for i = 1, #quit_list do
+        quit_list[i](player)
+    end
+end
+
+
 local welcome = S("Welcome to Exile!")
 local intro = S(
     "Exile is an original game with unique mechanics\n"..
@@ -52,15 +63,16 @@ local confirmspec = "formspec_version[6]"..
     "button_exit[2,5.5;1,0.5;take_tut;Yes]"..
     "button_exit[5,5.5;1,0.5;refuse_tut;No]"
 
-function tutorial.init(player, quitfunc)
+function tutorial.init(player)
     if disable_tutorial == true then
-        if quitfunc then quitfunc(player) end
+        do_quit_functions(player)
         return
     end
     local name = player:get_player_name()
-    if pstore[name] then stage.open(player) return end -- already in?
+    if pstore[name] then  -- Is the player already in?
+        return
+    end
     pstore[name] = {}
-    pstore[name].quit = quitfunc
     minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)
 end
 
@@ -135,34 +147,30 @@ end
 
 local function read_player_store(name)
         local readps = mstore:get_string(name)
-        if readps then
+        if readps ~= "" then
             pstore[name] = core.deserialize(readps)
         end
 end
 
-minimal.register_on_joinplayer(function(player)
+
+core.register_on_joinplayer(function(player)
         local name = player:get_player_name()
+        local meta = player:get_meta()
+        if meta:get_string("playtime_suspended") ~= "y"  then
+            return -- Not in the tutorial, don't bother
+        end
         read_player_store(name)
         if pstore[name] then
             player:override_day_night_ratio(1)
             stage.open(player) -- restart current stage
         end
-end)
---[[
-core.register_on_respawnplayer(function(player)
-        local name = player:get_player_name()
-        if pstore[name] then
-            print(name," is rejoining the tutorial")
-            stage.open(player)
-        end -- restart current stage
     end)
-]]--
 
 -- Tutorial's closed, call the next login function if any
 local function after_tutorial(player)
     local name = player:get_player_name()
     if not pstore[name] then return end
-    if pstore[name].quit then pstore[name].quit(player) end
+    do_quit_functions(player)
     pstore[name] = nil
 end
 minetest.register_on_player_receive_fields(function(player, formname, fields)

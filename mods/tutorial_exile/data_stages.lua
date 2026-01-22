@@ -42,7 +42,6 @@ return
                 local tgt = instance.offset -- absolute map location
                     + vector.new(6,4.5,9) -- where to put the entity
                 local ent = minetest.get_objects_inside_radius(tgt, 1)
-                print("ENT: ",dump(ent))
                 if not ent or #ent == 0 then
                     minetest.add_entity( tgt, "tutorial_exile:place_blocker" )
                 end

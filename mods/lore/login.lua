@@ -8,6 +8,7 @@ region = region
 local S = lore.S
 
 local newplayer = {}
+newplayer["AlwaysNewPlayer"] = true -- For testing purposes
 
 local tutorial_available = false
 minetest.register_on_mods_loaded(function()
@@ -61,26 +62,20 @@ local function loginspec(player)
     minetest.show_formspec(name, "lore:login", spec)
 end
 
-local function show_motd(player, force)
-    -- Message of the day for servers
-    local playername = player:get_player_name()
-    if minetest.is_singleplayer() then return end
+local function get_motd()
     local motd = minetest.settings:get("exile_motd")
     if ( not motd ) or motd == "" or motd == "\"\"" then return end
     motd = motd:gsub("\\n","\n")
+    local hash = minetest.sha1(motd)
+    return motd, hash
+end
+local function show_motd(player)
+    -- Message of the day for servers
+    local playername = player:get_player_name()
+    if minetest.is_singleplayer() then return end
+    local motd, hash = get_motd()
     local meta = player:get_meta()
-    if not meta then
-        queue_clear(playername)
-        return
-    end
-    if not force then
-        local hash = minetest.sha1(motd)
-        local oldhash = meta:get("seen_motd")
-        if oldhash then
-            if hash == oldhash then return end
-        end
-        meta:set_string("seen_motd",hash)
-    end
+    meta:set_string("seen_motd",hash)
     local spec = "formspec_version[3]"..
         "size[7,7.5]"..
         "styletype[scrollbar;bgimg=artifacts_antiquorium.png]"..
@@ -100,7 +95,7 @@ local function show_formspec(player, qname)
         if qname == "loginspec" then
             loginspec(player)
         elseif qname == "motd" then
-            if not show_motd(player) then return end
+             show_motd(player)
         end
     end
     local playername = player:get_player_name()
@@ -109,6 +104,16 @@ local function show_formspec(player, qname)
     -- ^ UDP: open may arrive before the close, and doing it again won't hurt
     minetest.after(0.3, do_it) -- (fails silently if a formspec's open already)
     return "wait"
+end
+
+local function check_motd(player)
+    local _, hash = get_motd()
+    local meta = player:get_meta()
+    local oldhash = meta:get("seen_motd")
+    if oldhash then
+        if hash == oldhash then return end
+    end
+    return show_formspec(player, "motd")
 end
 
 ------------------------------------------------------------------------------
@@ -260,6 +265,10 @@ local function queue_start(player)
     end
     local name = player:get_player_name()
     if not player_queue[name] then player_queue[name] = {} end
+    local todo = ""
+    for i = 1, #player_queue[name] do
+        todo = todo .. (player_queue[name][i].name) .. ", "
+    end
     if waiting[name] then
         waiting[name]:cancel() -- we're not waiting now, start next item
         waiting[name] = nil -- cancel doesn't remove it
@@ -267,6 +276,7 @@ local function queue_start(player)
     for _ = 1, #player_queue[name] do
         local qitem = queue_pop(name)
         local wait = qitem.func(player, qitem.name)
+        --print("Queue ran item ",qitem.name," - ",qitem.func,"  Result: ",wait)
         if wait == "wait" then
             -- The current task is still running.
             -- It should call queue_start() when it's done
@@ -274,6 +284,7 @@ local function queue_start(player)
             local nm = tostring(qitem.name) -- dereference
             if nm == "tut" then return end -- no forcible restart on tutorial
             if jumpstart_queue_delay == 0 then return end -- disabled
+            --print("Will restart in ",jumpstart_queue_delay," seconds")
             waiting[name] =
                 minetest.after(jumpstart_queue_delay, function()
                                    minetest.log("action",
@@ -290,12 +301,10 @@ end
 -- Queue up the actual events
 ------------------------------------------------------------------------------
 
-local function exit_tutorial(player) -- special handling, no formspec on exit
-    queue_start(player)
-end
+tutorial.register_on_quit(queue_start)
 
 local function do_tutorial(player) -- enter, and tell it to call exit_ when done
-    tutorial.init(player, exit_tutorial)
+        tutorial.init(player)
     return "wait"
 end
 
@@ -321,16 +330,26 @@ minetest.register_on_joinplayer(function(player)
         if not newplayer[name] and meta:contains("spawning") then
             newplayer[name] = true -- Restart a player who quit before spawning
         end
-        queue_push(player, show_formspec, "motd")
+        queue_push(player, check_motd, "motd")
         if newplayer[name] == true then
             if tutorial_available then
-                queue_push(player, do_tutorial, "tut")
+            --    and meta:get_string("playtime_suspended") ~= "y" then
+                    queue_push(player, do_tutorial, "tut")
             end
             queue_push(player, first_spawn, "1st")
         end
         if not newplayer[name] then
             annoy_ihirc(player, name, meta)
         end
+        -- Pretty print a list of queue items and their function addresses
+        --[[
+        local todo = ""
+            for i = 1, #player_queue[name] do
+            print(player_queue[name][i].name , ": ",
+            (player_queue[name][i].func)       )
+            end
+            print("Queue is: ",todo)
+        ]]--
         queue_start(player)
 end)
 
@@ -346,6 +365,6 @@ minetest.register_chatcommand(
     "motd",{
         description = S("This command shows the current message of the day."),
         func = function(name, param)
-            show_motd(minetest.get_player_by_name(name), true)
+            show_motd(minetest.get_player_by_name(name))
         end
 })

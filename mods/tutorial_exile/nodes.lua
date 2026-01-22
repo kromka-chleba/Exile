@@ -84,6 +84,7 @@ local lpdef = {
                           aspect_h = 1,
                           length = 3 }
     }},
+    sounds = nodes_nature.node_sound_stone_defaults(),
     groups = { not_in_creative_inventory = 1,
                oddly_breakable_by_hand = 1},
     after_place_node = function(pos, placer, itemstack, pointed_thing)
@@ -105,6 +106,15 @@ for i = 1, 8 do
     minetest.register_node("tutorial_exile:"..name, def)
 end
 
+minetest.register_node(
+    "tutorial_exile:sand", {
+        description = "Sand",
+        tiles = {"nodes_nature_sand.png"
+        },
+        sounds = nodes_nature.node_sound_sand_defaults(),
+        groups = { crumbly = 3, falling_node = 1, puts_out_fire = 1,
+                   not_in_creative_inventory = 1 }
+})
 
 
 minetest.register_node(

@@ -23,6 +23,19 @@ local blocker_ent = {
             end
         end
         self.poscheck = vector.new(pos.x, pos.y - 1.5, pos.z)
+
+        local checkpos = vector.new(pos.x, pos.y - 3.5, pos.z)
+        -- Sometimes the water node is missing? Recreate it if it's gone
+        core.after(2, function()
+                       local node = core.get_node(checkpos)
+                       if node.name == "air" then
+                           core.set_node(checkpos,
+                                         { name =
+                                               "nodes_nature:freshwater_source"}
+                           )
+                       end
+        end)
+
     end,
     on_step = function(self, dtime, moveresult)
         if self.disabled then -- Old entity, or done existing

@@ -149,10 +149,10 @@ function minimal.load_region(base_raw, file)
     local input, err = open_region_file(file)
     if not input then return nil, err end
     local version, range, cids, dat = unpack(input)
-    minetest.log("action", ("Found ex_schm version "..
-                            version:gsub("ex_schm_","").." and loaded"))
+    --minetest.log("action", ("Found ex_schm version "..
+      --                      version:gsub("ex_schm_","").." and loaded"))
     local partway = minetest.get_us_time() - benchmark
-    minetest.log("action", "File read time: "..tostring(partway).." us")
+    --minetest.log("action", "File read time: "..tostring(partway).." us")
 
     local timers = {}
 
@@ -209,7 +209,7 @@ function minimal.load_region(base_raw, file)
     for i = 1, #timers do
         core.get_node_timer(timers[i][1]):start(timers[i][2])
     end
-    minetest.log("action", "Setup time: "..tostring(benchmark).." us")
+    --minetest.log("action", "Setup time: "..tostring(benchmark).." us")
 end
 
 function minimal.get_region_size(name)
