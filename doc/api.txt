@@ -106,9 +106,6 @@ minimal.vmanip_subregion(pos1,pos2, p1, p2)
 ----------- player -----------
 minimal.player_in_creative(player/playername)
 		- Returns true if the player object or name is in creative
-minimal.register_on_joinplayer(func)
-                - Register a function to be run when a player joins
-                  Will be run also for singleplayer and the first hosted player
 
 ----------- inventory system (minimal/utility/general) -----------
 minimal.get_item_inventory(itemstack,metadata,inv_name)
