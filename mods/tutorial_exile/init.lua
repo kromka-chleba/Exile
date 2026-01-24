@@ -5,7 +5,8 @@
 -- zone above y = 9000, which will walk them through the basics of shelter,
 -- fire, food, water, and crafting.
 
-local disable_tutorial = core.settings:get_bool("exile_notutorialprompt",false)
+local settings = core.settings
+local disable_tutorial = settings:get_bool("exile_notutorialprompt",false)
 -- #TODO: Set this to true in minetest.conf if the tutorial is completed in
 --        singleplayer?
 
@@ -42,6 +43,50 @@ local function do_quit_functions(player)
         quit_list[i](player)
     end
 end
+
+-- Freeze time when in the tutorial
+--  Singleplayer only, would need to track tutorial users for multiplayer
+local original_speed
+local function store_time_speed()
+    if not original_speed then
+        original_speed = settings:get("time_speed") or 72
+        mstore:set_string("original_time_speed", original_speed)
+    end
+end
+local function enable_time_freeze()
+    return core.is_singleplayer()
+end
+local function freeze_time()
+    if not enable_time_freeze() then return end
+    -- This won't update original_speed if the player changed their time_speed
+    --  since we first saved it, but it ensures we don't overwrite it in the
+    --  case of a crash and restart with the modified time_speed
+    if not original_speed or not mstore:contains("original_time_speed") then
+        store_time_speed()
+    end
+    settings:set("time_speed", 0)
+end
+local function thaw_time()
+    if original_speed or mstore:contains("original_time_speed") then
+        settings:set("time_speed", original_speed
+                     or mstore:get("original_time_speed")
+                     or 72 )
+    end
+end
+local function end_time_freeze()
+    thaw_time()
+    mstore:set_string("original_time_speed", "")
+    original_speed = nil
+end
+
+core.register_on_joinplayer(function(player)
+        if player:get_meta():get_string("playtime_suspended") == "y" then
+            freeze_time()
+        else -- in case he logged out in the tutorial and switched to multi
+            thaw_time()
+        end
+end)
+core.register_on_shutdown(thaw_time)
 
 
 local welcome = S("Welcome to Exile!")
@@ -86,6 +131,7 @@ local function store_player(player)
     ps.stats = HEALTH.get_player_stats(player, meta)
     meta:set_string("playtime_suspended", "y")
     region.disable_spawnex(name)
+    freeze_time()
 
     local inv = player:get_inventory()
     local invlists = inv:get_lists()
@@ -139,6 +185,7 @@ local function restore_player(player)
 
     pstore[name].invis = nil
 
+    end_time_freeze()
     meta:set_string("playtime_suspended", "")
     region.enable_spawnex(name)
     mstore:set_string(name, "")
@@ -168,9 +215,8 @@ core.register_on_joinplayer(function(player)
 
 -- Tutorial's closed, call the next login function if any
 local function after_tutorial(player)
-    local name = player:get_player_name()
-    if not pstore[name] then return end
     do_quit_functions(player)
+    local name = player:get_player_name()
     pstore[name] = nil
 end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
