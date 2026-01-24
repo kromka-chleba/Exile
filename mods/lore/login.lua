@@ -72,7 +72,6 @@ end
 local function show_motd(player)
     -- Message of the day for servers
     local playername = player:get_player_name()
-    if minetest.is_singleplayer() then return end
     local motd, hash = get_motd()
     local meta = player:get_meta()
     meta:set_string("seen_motd",hash)
@@ -107,6 +106,7 @@ local function show_formspec(player, qname)
 end
 
 local function check_motd(player)
+    if minetest.is_singleplayer() then return end
     local _, hash = get_motd()
     local meta = player:get_meta()
     local oldhash = meta:get("seen_motd")
@@ -276,7 +276,7 @@ local function queue_start(player)
     for _ = 1, #player_queue[name] do
         local qitem = queue_pop(name)
         local wait = qitem.func(player, qitem.name)
-        --print("Queue ran item ",qitem.name," - ",qitem.func,"  Result: ",wait)
+        --print("Ran item ",qitem.name," - ",qitem.func,"  Result: ",wait)
         if wait == "wait" then
             -- The current task is still running.
             -- It should call queue_start() when it's done
@@ -304,11 +304,15 @@ end
 tutorial.register_on_quit(queue_start)
 
 local function do_tutorial(player) -- enter, and tell it to call exit_ when done
+    --local meta = player:get_meta()
+    --if meta:get_string("playtime_suspended") ~= "y" then
         tutorial.init(player)
+    --end
     return "wait"
 end
 
 minetest.register_on_newplayer(function(player)
+        player:set_pos(vector.new(-500, 9002, -500))
         local name = player:get_player_name()
         newplayer[name] = true
         region.prespawn(player)
@@ -323,7 +327,6 @@ minetest.register_on_joinplayer(function(player)
         if newplayer[name] == true and not meta:contains("spawning") then
             meta:set_string("spawning",
                             minetest.pos_to_string(player:get_pos()))
-            player:set_pos(vector.new(-500, 9002, -500))
             -- hide new players until they read the intro
             player_api.set_invisible(player, true, "set_invis")
         end
@@ -344,12 +347,13 @@ minetest.register_on_joinplayer(function(player)
         -- Pretty print a list of queue items and their function addresses
         --[[
         local todo = ""
-            for i = 1, #player_queue[name] do
+        for i = 1, #player_queue[name] do
             print(player_queue[name][i].name , ": ",
-            (player_queue[name][i].func)       )
-            end
-            print("Queue is: ",todo)
+                  (player_queue[name][i].func)       )
+        end
+        print("Queue is: ",todo)
         ]]--
+
         queue_start(player)
 end)
 
@@ -366,5 +370,20 @@ minetest.register_chatcommand(
         description = S("This command shows the current message of the day."),
         func = function(name, param)
             show_motd(minetest.get_player_by_name(name))
+        end
+})
+
+
+__DEBUG__ = __DEBUG__
+if not __DEBUG__ then return end
+
+minetest.register_chatcommand(
+    "dumpqueue",{
+        description = S("This command prints the login queue for all players."),
+        privs = "server",
+        func = function(name,param)
+            if core.check_player_privs(name, "server") == false then return end
+            print("Queue: ",dump(player_queue))
+            print("Waiting: ",dump(waiting))
         end
 })
