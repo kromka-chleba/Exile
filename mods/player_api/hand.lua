@@ -8,27 +8,33 @@ local hand_groups = {not_in_creative_inventory = 1, nobones = 1, hand = 1}
 local hand_def = core.registered_items[""]
 hand_groups = minimal.merge_tables(hand_groups, table.copy(hand_def.groups))
 
+-- callback for hand items to open a crafting formspec for simple crafting
+-- task doable with pure hands
+local function on_secondary_use_hand(itemstack, user, pointed_thing)
+    -- must be a player not pointing at an object)
+    if not core.is_player(user) or not pointed_thing
+        or (pointed_thing.type ~= "nothing") then
+
+        return
+    end
+
+    -- open `freehand crafting station`,
+    -- suppress default hand tool
+    local tool_node = {name = "tech:bare_hands"}
+    crafting.crafting_item_on_rightclick(nil, tool_node, user, ItemStack(),
+                                         pointed_thing, true)
+end
+
+-- override properties of empty hand
 core.override_item("", {
                        tool_capabilities =
                            {damage_groups = {fleshy=minimal.hand_dmg}},
                        liquids_pointable = true,
                        groups = table.copy(hand_groups),
-                       on_secondary_use = function(itemstack, user, pointed_thing)
-                           -- must be a player not pointing at an object)
-                           if not core.is_player(user) or not pointed_thing
-                               or (pointed_thing.type ~= "nothing") then
-
-                               return
-                           end
-
-                           -- open `freehand crafting station`,
-                           -- suppress default hand tool
-                           local tool_node = {name = "tech:bare_hands"}
-                           crafting.crafting_item_on_rightclick(nil, tool_node,
-                                        user, ItemStack(), pointed_thing, true)
-                       end,
+                       on_secondary_use = on_secondary_use_hand,
                        }
 )
+
 -- The hand
 -- does not override core.registered_items[""]
 -- use core.registered_items["player_api:hand"] instead
@@ -59,6 +65,7 @@ minetest.register_item(
         },
         liquids_pointable = true,
         groups = hand_groups,
+        on_secondary_use = on_secondary_use_hand,
         _dig_tip = S("Dig / Punch / Stun small animals / Grab animals"),
         _use_tip = S("Split certain blocks"),
         _place_tip = S("Select a place for crafting / Drink"),
