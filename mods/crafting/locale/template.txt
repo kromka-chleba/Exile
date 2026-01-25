@@ -37,7 +37,6 @@ Use first:=
 
 Missing required items!=
 Crafting?=
-Use an empty hand anywhere for simple manual tasks, @nor on a flat, clear surface for more options. @nOr use placed tools or crafting stations.=
 
 Crafted by: @1=
 You are using: @1=

@@ -35,7 +35,6 @@ Input Items=Eingabegegenstände
 Tool used=Verwendetes Werkzeug
 #Craft Type=Fertigungstyp
 Crafting?=Fertigung?
-Use an empty hand anywhere for simple manual tasks,@nor on a flat, clear surface for more options.@nOr use placed tools or crafting stations.=Verwenden Sie irgendwo eine freie Hand für einfache manuelle@nAufgaben oder auf einer ebenen, freien Fläche für mehr Optionen,@noder verwenden Sie platzierte Werkzeuge oder Fertigungsgeräte.
 
 Quantity=Menge
 Single=Einzel

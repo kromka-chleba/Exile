@@ -44,29 +44,22 @@ sfinv.register_page(
             end
 
             local fs = {"container[0.8,0.8]"}
-            -- NOTE: The extra "new line" is to indicate to translators and
-            --       coders: There is/needs to be space for 3 lines of text.
-            local text = S("Use an empty hand anywhere for simple manual "
-                    .. "tasks,@nor on a flat, clear surface for more "
-                    .. "options.@nOr use placed tools or crafting stations.")
-            fs[#fs + 1] = "label[0,0;".. text .. "]"
-
-            -- leave space for a 4th line of translations!
-            fs[#fs + 1] = "container[0,1.8]"
 
             local tool1 = "tech_bare_hands.png"
             local tool2 = "tech_flat_clear_surface.png"
             local tool3 = "crafting_digging_stick.png"
             local tool4 = "crafting_mortar_pestle.png"
 
-            fs[#fs + 1] = tip_fs("0,0",       "01", item_name, tool1)
-            fs[#fs + 1] = tip_fs("0,2.65",    "02", item_name, tool1)
-            fs[#fs + 1] = tip_fs("3.35,0",    "03", item_name, tool2)
-            fs[#fs + 1] = tip_fs("3.35,2.65", "04", item_name, tool2)
-            fs[#fs + 1] = tip_fs("6.7,0",     "05", item_name, tool2, tool3)
-            fs[#fs + 1] = tip_fs("6.7,2.65",  "06", item_name, tool2, tool4)
+            fs[#fs + 1] = tip_fs("0,0",    "01", item_name, tool1)
+            fs[#fs + 1] = tip_fs("3.35,0", "03", item_name, tool2)
+            fs[#fs + 1] = tip_fs("6.7,0",  "05", item_name, tool2, tool3)
 
+            fs[#fs + 1] = "container[0,4.4]"
+            fs[#fs + 1] = tip_fs("0,0",    "02", item_name, tool1)
+            fs[#fs + 1] = tip_fs("3.35,0", "04", item_name, tool2)
+            fs[#fs + 1] = tip_fs("6.7,0",  "06", item_name, tool2, tool4)
             fs[#fs + 1] = "container_end[]"
+
             fs[#fs + 1] = "container_end[]"
 
             local content = table.concat(fs,"")
