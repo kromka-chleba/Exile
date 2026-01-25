@@ -249,8 +249,10 @@ local function move_to_spawn_pos(player, playername)
                 + stages[act].location
                 + inst.offset )
     end
+    local facing = stages[act].facing
+    player:set_look_horizontal(facing)
+    player:set_look_vertical(0)
 
-    -- not currently in, send him to the landing zone
     print("Moving ",pname," to spawn pos for stage ",
           act," at ",core.pos_to_string(pos))
     player:set_pos(pos)

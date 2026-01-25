@@ -9,10 +9,11 @@ return
             name = "Landing zone",
             schem = "",
             size = vector.new(50,1,50),
-            -- player start pos, relative to location
-            start = vector.new(17,9253,25),
             -- location is relative to instance base pos
             location = vector.new(0,9260,0), -- but this one's hardcoded
+            -- player start pos, relative to location
+            start = vector.new(17,9253,25),
+            facing = 5.517, -- look direction in radians
             splashicon = nil, -- These are displayed on entering
             splashtext = "Welcome to the tutorial",
 
@@ -36,8 +37,9 @@ return
             name = "Controls",
             schem = "controls",
             size = vector.new(12,9,18),
-            start = vector.new(3,5,15),
             location = vector.new(0,0,0),
+            start = vector.new(3,5,15),
+            facing = 4.07,
             entry = function(self, player, name, instance)
                 local tgt = instance.offset -- absolute map location
                     + vector.new(6,4.5,9) -- where to put the entity
@@ -51,8 +53,9 @@ return
             name = "Movement",
             schem = "movement",
             size = vector.new(46, 28, 22),
-            start = vector.new(5,2,16),
             location = vector.new(80,0,0),
+            start = vector.new(5,2,16),
+            facing = 2.023,
             exit = function(self, player, name, instance)
                 --minetest.chat_send_player(name, "Area complete")
             end,
@@ -61,8 +64,9 @@ return
             name = "Shelter",
             schem = "shelter",
             size = vector.new(52,21,49),
-            start = vector.new(46,4,8),
             location = vector.new(0,0,80),
+            start = vector.new(46,4,8),
+            facing = 1.5,
             entry = shelter_entry,
             exit = shelter_exit
         },
@@ -70,14 +74,20 @@ return
             name = "Fire+Air",
             schem = "fire+air",
             size = vector.new(19,7,23),
-            start = vector.new(5,5,5),
             location = vector.new(80,0,80),
+            start = vector.new(5,5,5),
+            facing = 0.023,
+            entry = function(self, player, name, instance)
+                local inv = player:get_inventory()
+                inv:add_item("main", "inferno:fire_sticks")
+            end,
         },
         [5] ={
             name = "Crafting",
             schem = "crafting",
             size = vector.new(36,20,43),
-            start = vector.new(13,12,17),
             location = vector.new(160,0,0),
+            start = vector.new(13,12,17),
+            facing = 4.9,
         },
     }

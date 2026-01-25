@@ -342,3 +342,14 @@ minetest.register_chatcommand(
             return true, core.pos_to_string(pos)
         end
 })
+
+core.register_chatcommand(
+    "get_facing",{
+        privs = "server",
+        func = function(name, param)
+            if core.check_player_privs(name, "server") == false then return end
+            local plyr = core.get_player_by_name(name)
+            local facing = plyr:get_look_horizontal()
+            print("Facing: ",facing)
+        end
+})

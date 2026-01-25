@@ -106,6 +106,8 @@ for i = 1, 8 do
     minetest.register_node("tutorial_exile:"..name, def)
 end
 
+--- Inactive dummy nodes
+
 minetest.register_node(
     "tutorial_exile:sand", {
         description = "Sand",
@@ -147,6 +149,7 @@ minetest.register_node(
                    not_in_creative_inventory = 1 }
 })
 
+--- Door and switch
 
 ncrafting.register_switch(
     "tutorial_exile:basalt_hand_switch", {
@@ -209,6 +212,8 @@ if minetest.is_creative_enabled() then
     })
 end
 
+--- Info boxes
+
 local info = { -- #TODO: set up locales, template.txt etc
     ["dig_key"] = "^  "..S("Press the dig button to pick up or strike things."),
     ["place_key"] = "v  "..S("Press the place button to put things down."),
@@ -216,13 +221,16 @@ local info = { -- #TODO: set up locales, template.txt etc
                            "@n @n This is E by default on PC, AUX1 or sprint on mobile."),
     ["zoom_key"] = S("Press the zoom key to see the name of what "..
                      "you're looking at. @n This is Z by default on PC, "..
-                     "and the binoculars or magnifying lens on mobile"),
+                     "and the binoculars or magnifying lens on mobile."),
     ["crawl"] = S("Double-tap sneak to crouch and get through small spaces.@n"..
                   "@nIf server lag makes this hard, you can use the"..
                   " /crouch command, or install exile_csm, the "..
-                  "client-side mod to handle controls locally"),
-    ["movement"] = S("Loss of energy affects move and jump rate"),
-    ["torch"] = S("Drop a torch to see what's below")
+                  "client-side mod to handle controls locally."),
+    ["movement"] = S("Loss of energy affects move and jump rate."),
+    ["torch"] = S("Drop a torch to see what's below."),
+    ["shelter"] = S("A shelter needs a roof. Once completed, it will shield against hot or cold weather."),
+    ["shelter_bed"] = S("Build a bed in a sheltered place to restore energy.@n"
+                        .."Better beds restore it faster.")
 }
 
 local function display_info(pos, player)
@@ -283,6 +291,8 @@ if minetest.is_creative_enabled() then
     })
 end
 
+--- Exit button
+
 local function do_exit(exiting, _, player)
     if exiting then
         tutorial.exit(player)
@@ -323,3 +333,26 @@ if minetest.is_creative_enabled() then
                                groups = { crumbly = 1, cracky = 3 },
     })
 end
+
+core.register_node("tutorial_exile:exit_transporter", {
+    description = S("Glowing Transporter Pad"),
+    tiles = {"artifacts_antiquorium.png^[colorize:#B939:]"},
+    light_source = 6,
+    drawtype = "nodebox",
+    paramtype = "light",
+    node_box = {
+        type = "fixed",
+        fixed = {
+            {-0.5, 0, -0.5, -0.125, 0.0625, -0.125}, -- NodeBox1
+            {0.125, 0, -0.5, 0.5, 0.0625, -0.125}, -- NodeBox2
+            {0.125, 0, 0.125, 0.5, 0.0625, 0.5}, -- NodeBox3
+            {-0.5, 0, 0.125, -0.125, 0.0625, 0.5}, -- NodeBox4
+            {-0.375, -0.125, -0.375, 0.375, 0.0, 0.375}, -- NodeBox5
+            {-0.4375, -0.3125, -0.4375, 0.4375, -0.125, 0.4375}, -- NodeBox6
+            {-0.5, -0.5, -0.5, 0.5, -0.3125, 0.5}, -- NodeBox7
+            {-0.125, 0, -0.125, 0.125, 0.0625, 0.125}, -- NodeBox9
+        }
+    },
+    groups = { cracky = 3, not_in_creative_inventory = 1 },
+    sounds = nodes_nature.node_sound_glass_defaults(),
+})

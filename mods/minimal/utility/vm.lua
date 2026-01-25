@@ -142,6 +142,8 @@ local function translate_cids(cid_in)
     return out
 end
 
+local exit_pad
+
 function minimal.load_region(base_raw, file)
     -- Loads a stored region and builds it on the map
 
@@ -159,6 +161,8 @@ function minimal.load_region(base_raw, file)
     benchmark = minetest.get_us_time()
 
     local translated_ids = translate_cids(cids)
+    exit_pad = exit_pad
+        or core.get_content_id("tutorial_exile:exit_transporter")
 
     local base = vector.round(base_raw)
     local xlate = vector.subtract(base, range.pos1) -- for translating pos values
@@ -195,6 +199,10 @@ function minimal.load_region(base_raw, file)
                 end
                 if timer_ids[this.id] then -- it's a timer node, start it
                     table.insert(timers, {tpos, timer_ids[this.id]} )
+                end
+                if translated_ids[this.id] == exit_pad then
+                    core.add_entity(VoxAr:position(index),
+                                    "tutorial_exile:pad_effect")
                 end
                 count = count + 1
             end

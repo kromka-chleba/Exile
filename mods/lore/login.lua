@@ -212,6 +212,8 @@ local function first_spawn(player)
     HEALTH.reset_attributes(player, meta) -- All stats back to starting values
     local pname = player:get_player_name()
     newplayer[pname] = nil
+    climate.set_weather_override(pname, player, "")
+    player:override_day_night_ratio()
     add_media(pname, meta)
     -- Bang! new player appears in the world
     minetest.after(0.15, function()
@@ -314,6 +316,8 @@ end
 minetest.register_on_newplayer(function(player)
         player:set_pos(vector.new(-500, 9002, -500))
         local name = player:get_player_name()
+        climate.set_weather_override(name, player, "clear")
+        player:override_day_night_ratio(0) -- night sky until spawned
         newplayer[name] = true
         region.prespawn(player)
         queue_push(player, show_formspec, "loginspec")

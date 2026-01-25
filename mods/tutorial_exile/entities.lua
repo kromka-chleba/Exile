@@ -59,6 +59,93 @@ local blocker_ent = {
 }
 minetest.register_entity("tutorial_exile:place_blocker", blocker_ent)
 
+
+-- Exit transporter pad, special effects include light, particles and a hum
+
+local function transporter_particles(pos)
+    local adj_str = "^[colorize:#003333:10"
+    return core.add_particlespawner({
+            amount = 3,
+            time = 0,
+            minpos = {x=pos.x, y=pos.y+0.3, z=pos.z},
+            maxpos = {x=pos.x, y=pos.y+2, z=pos.z},
+            minvel = {x = 1,  y = -6,  z = 1},
+            maxvel = {x = -1, y = 2, z = -1},
+            minacc = {x = 0, y = -2, z = 0},
+            maxacc = {x = 0, y = -6, z = 0},
+            minexptime = 0.2,
+            maxexptime = 1,
+            minsize = 1,
+            maxsize = 10,
+            texture = "artifacts_sparks.png"..adj_str,
+            glow = 14,
+    })
+end
+
+local pad_effects = {
+    initial_properties = {collisionbox = {-0.15, -0.025, -0.15,
+                                          0.15, 0.5, 0.15},
+                          visual="sprite",
+                          textures = { "empty.png" },
+                          pointable = true,
+                          physical = false,
+                          collide_with_objects = false,
+                         },
+    check_pad = function(self, pos)
+        local node = core.get_node(pos or self.object:get_pos())
+        if node.name ~= "ignore"
+            and node.name ~= "tutorial_exile:exit_transporter" then
+
+            self.object:remove()
+            return false
+        end
+    end,
+    on_deactivate = function(self)
+        if self.sound_handle then -- Ensure we finished setup before we do this
+            core.sound_stop(self.sound_handle)
+            core.delete_particlespawner(self.particle_id)
+        end
+    end,
+    on_activate = function(self, staticdata)
+        self.time = 0
+        local pos = self.object:get_pos()
+
+        local nearby = core.get_objects_inside_radius(pos, 1.5)
+        for i = 1, #nearby do
+            local it = nearby[i]
+            if it ~= self.object and not it:is_player() then
+                local ent = it:get_luaentity()
+                if ent.name == "tutorial_exile:pad_effect" then
+                    -- It's already handled
+                    self.object:remove()
+                    return
+                else -- not a player or us, a loose item dropped on the pad
+                    it:remove() -- so remove it
+                end
+            end
+        end
+        self.sound_handle = core.sound_play(
+            "tutorial_transporter_hum",
+            {pos = pos, gain = 1, max_hear_distance = 10,
+             loop = true })
+        self.particle_id = transporter_particles(pos)
+    end,
+    -- #TODO: Only add this when in creative mode?
+    -- It's needed for altering a tutorial stage layout, but otherwise
+    -- uses cycles for no good reason
+    on_step = function(self, dtime)
+        self.time = self.time + dtime
+        if self.time > 5 then
+            self.time = 0
+            self:check_pad()
+        end
+    end,
+}
+minetest.register_entity("tutorial_exile:pad_effect", pad_effects)
+
+
+--- Debug commands
+
 if minetest.settings:get("exile_debug") ~= "true" then return end
 
 local loaded_ents = {}
