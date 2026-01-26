@@ -40,12 +40,10 @@ local input_options = {
         no_craft_from_main = true,
         i_color = c_color, -- bgcolor behind input inventory
         get_m_color = function(cache) -- bgcolor behind main inventory
-            if cache.possible_hint then -- hint btn activated
+            if cache.hint_btn and cache.possible_hint then  -- > hints on
                 return p_color -- possible color
             else
-                return u_color
-                -- replace by following line to get "no color"
-                -- return nil -- no color if "hint" disabled.
+                return nil -- no color if "hint" disabled.
             end
         end,
         get_r_cbg = function(cache, p_recipe)
