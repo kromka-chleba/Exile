@@ -9,6 +9,24 @@ local get_watchers = minimal.get_watchers
 local add_watcher = minimal.add_watcher
 local remove_watcher = minimal.remove_watcher
 
+-- creates a formspec for the trash bin, that shows the trash icon even with
+-- 100 percent opaque list colors
+-- `pos_x`, `pos_y`: top left corner of inventory slot - must be numbers
+function storage.make_trash_formpec(pos_x, pos_y)
+    if not (type(pos_x) == "number" and type(pos_y) == "number") then
+        return
+    end
+    local fs = {}
+    fs[#fs + 1] = "list[detached:creative_trash;main;"
+                   .. pos_x .. "," .. pos_y .. ";1,1;]"
+    -- put the icon in front of the inv slot to keep it visible even with the
+    -- high contrast theme (does not block access to the  slot)
+    fs[#fs + 1] = "image[" .. (pos_x + 0.055) .. "," .. (pos_y + 0.115)
+    fs[#fs + 1] =       ";0.8,0.8;creative_trash_icon.png^[opacity:127]"
+    return table.concat(fs,"")
+end
+
+
 function storage.get_storage_formspec(pos, w, h, meta)
     local creator = meta:get_string('creator')
     local label = minimal.sanitize_string(meta:get_string('label'))
@@ -36,9 +54,7 @@ function storage.get_storage_formspec(pos, w, h, meta)
     fs[#fs + 1] = "listring[current_name;main]"
     fs[#fs + 1] = "listring[current_player;main]"
     y = y + 2.55
-    fs[#fs + 1] = "image[0.425," .. (y + 0.115)
-    fs[#fs + 1] =     ";0.8,0.8;creative_trash_icon.png]"
-    fs[#fs + 1] = "list[detached:creative_trash;main;0.375," .. y .. ";1,1;]"
+    fs[#fs + 1] = storage.make_trash_formpec(0.375, y)
     local trash_offset = y
     y = y + 0.12
     fs[#fs + 1] = "field[1.875," .. y .. ";4.75,0.78;label;"

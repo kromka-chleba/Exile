@@ -462,6 +462,8 @@ minimal.register_on_player_setting_change(
 -- Formspec generation ---------------------------------------------------------
 
 local esc = minetest.formspec_escape
+local trash_fs_use_this = storage.make_trash_formpec(0.4, 5.8)
+local trash_fs_safe_this = storage.make_trash_formpec(9.52, 5.8)
 
 --[[ This is the function to call to create or update the formspec.
     It returns the full crafting formspec to be displayed
@@ -516,11 +518,9 @@ function crafting.make_crafting_formspec(player, cache)
     -- Trash ------------------------------------------------------------------
 
     if mode == 2 then
-        output[#output + 1] ="image[0.48,5.93;0.8,0.8;creative_trash_icon.png]"
-        output[#output + 1] = "list[detached:creative_trash;main;0.4,5.8;1,1;]"
+        output[#output + 1] = trash_fs_use_this
     else
-        output[#output + 1] = "image[9.6,5.93;0.8,0.8;creative_trash_icon.png]"
-        output[#output + 1] ="list[detached:creative_trash;main;9.52,5.8;1,1;]"
+        output[#output + 1] = trash_fs_safe_this
     end
 
     -- Tool types part --------------------------------------------------------
