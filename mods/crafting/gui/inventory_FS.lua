@@ -54,10 +54,25 @@ sfinv.register_page(
             fs[#fs + 1] = tip_fs("3.35,0", "03", item_name, tool2)
             fs[#fs + 1] = tip_fs("6.7,0",  "05", item_name, tool2, tool3)
 
-            fs[#fs + 1] = "container[0,4.4]"
+            fs[#fs + 1] = "container[0,2.7]"
             fs[#fs + 1] = tip_fs("0,0",    "02", item_name, tool1)
             fs[#fs + 1] = tip_fs("3.35,0", "04", item_name, tool2)
             fs[#fs + 1] = tip_fs("6.7,0",  "06", item_name, tool2, tool4)
+            fs[#fs + 1] = "container_end[]"
+
+            fs[#fs + 1] = "container[0,2.8]"
+            fs[#fs + 1] = "image[0,2.6;9.8,1.6;crafting_help_progress.png]"
+            fs[#fs + 1] = "item_image[0.50,3.4;0.8,0.8;tech:grass_fibre]"
+            fs[#fs + 1] = "image[1.7,3.5;0.6,0.6;nodes_nature_tikusati.png^[hsl:0:30:-5]"
+            fs[#fs + 1] = "image[1.95,3.3;0.7,0.7;nodes_nature_seeds.png]"
+            fs[#fs + 1] = "item_image[3.80,3.25;0.8,0.8;inferno:fire_sticks]"
+            fs[#fs + 1] = "item_image[5.15,3.4;0.7,0.7;tech:woven_blanket]"
+            fs[#fs + 1] = "item_image[5.1,2.6;1.2,1.2;tech:food_bowl_clay_unfired]"
+            fs[#fs + 1] = "item_image[7.1,3.5;0.6,0.6;stairs:stair_inner_silt]"
+            fs[#fs + 1] = "item_image[7.3,3;0.6,0.6;stairs:slab_compost_undecomposed]"
+            fs[#fs + 1] = "item_image[8.45,3.5;0.6,0.6;tech:mashed_anperla]"
+            fs[#fs + 1] = "item_image[8.9,3.2;0.6,0.6;tech:vegetable_oil]"
+            fs[#fs + 1] = "item_image[8.55,2.8;0.7,0.7;tech:paint_lime_white]"
             fs[#fs + 1] = "container_end[]"
 
             fs[#fs + 1] = "container_end[]"
