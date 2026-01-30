@@ -114,7 +114,9 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
                                   wielded_item)
     local pos = minimal.get_usable_position(pointed_thing)
     if not pos then return end -- can't split from nothing or objects
-    if wielded_item:get_name() ~= "" then return end -- must be empty handed
+    local wielded_name = wielded_item:get_name()
+    -- must be done with a hand
+    if core.get_item_group(wielded_name, "hand") < 1 then return end
     local nname = pointed_node.name -- nodename
     local split_name = core.registered_nodes[nname]._splits_by_hand
     local split_def = core.registered_nodes[split_name]
@@ -130,8 +132,19 @@ function minimal.slabs_split_hand(player, pointed_node, pointed_thing,
         ndef._split_by_hand(player, itemstack, pos, ndef, split_def)
     end
     -- now to split into two!
-    minimal.switch_node(pos, split_name)
-    wielded_item:replace(itemstack)
+    if wielded_name == "" then
+        wielded_item:replace(itemstack)
+        minimal.switch_node(pos, split_name)
+    else
+        local inv = player:get_inventory()
+        local leftover = inv:add_item("main", itemstack)
+        if leftover:is_empty() then
+            minimal.switch_node(pos, split_name)
+        else
+            -- no room for the slab -> no change
+            minimal.warn_inv_full(player)
+        end
+    end
     -- must return itemstack to indicate in handle_use_key (player_api) that
     -- we need to stop running other use functions after that.
     -- returned itemstack will be set to wielded_item.

@@ -197,16 +197,31 @@ end
 
 -- Tools -----------------------------------------------------------------------
 
-minetest.register_tool("tech:hand",
+-- simple crafting, purely with bare hands
+minetest.register_tool("tech:bare_hands",
         {
         description = S("Bare Hands"),
-        inventory_image = "tech_hand.png",
+        inventory_image = "tech_bare_hands.png",
+        exile_crafting = {
+            craft_types  = {'hand', 'hand_tools', 'hand_pottery',
+                             'hand_mixing', 'weaving_frame', 'threshing_spot'},
+            craft_level  = 0,
+            },
+        groups = {not_in_creative_inventory = 1}
+        })
+
+-- crafting with bare hands on a solid base
+minetest.register_tool("tech:hand",
+        {
+        description = S("Flat Surface"),
+        inventory_image = "tech_flat_clear_surface.png",
         -- copied from tech:crafting_spot
         exile_crafting = {
-            craft_types  = {'hand','hand_tools','hand_pottery','hand_mixing',
-                            'weaving_frame','threshing_spot'},
+            craft_types  = {'hand', 'hand_tools', 'hand_pottery',
+                            'hand_mixing', 'weaving_frame', 'threshing_spot'},
             craft_level  = 2,
-            }
+            },
+        groups = {not_in_creative_inventory = 1}
         })
 
 --1st level -- Crude emergency tools ------------------------------------------
@@ -454,7 +469,7 @@ crafting.register_recipe({
         type = {"crafting_spot","hand_tools","knife"},
         output = "tech:digging_stick 1",
         items = {"tech:stick 2"},
-        level = 1,
+        level = 0,
         always_known = true,
     }
 )

@@ -1,3 +1,4 @@
+
 player_api.hair_colors = {
     black = {
         color = "#000000",
@@ -18,54 +19,75 @@ player_api.hair_colors = {
     },
 }
 
+-- Color parameters used to customize textures based on a player's skin color.
+-- `color` and `ratio` are used to modify the rgb image player_skin.png  using
+-- `[colorize ...` while `multiply_color` is used to modify the greyscale image
+-- `player_hand.png` using `multiply` resulting in the same skin colors, while
+-- retaining shading.
 player_api.skin_colors = {
-    tan = { color = "#e1bc9e" },
+    tan = {
+        -- for adapting skin texture
+        color = "#e1bc9e",
+        ratio = 255,
+        -- NOTE: ratio = 255 replaces the texture entirely! This value was
+        --       applied implicitly before it got added here for readability.
+        multiply_color = "#ebc4a5",
+    },
     pale = {
         color = "#ddeded",
         ratio = 150,
+        multiply_color = "#e8e2d5",
     },
     red = {
         color = "#b04d20",
         ratio = 150,
+        multiply_color = "#cd8057",
     },
     yellow = {
         color = "#ada540",
         ratio = 150,
+        multiply_color = "#cbb66b",
     },
     brown = {
         color = "#a56d40",
         ratio = 220,
+        multiply_color = "#b57d50",
     },
     black = {
         color = "#462409",
         ratio = 240,
+        multiply_color = "#522e12",
     },
     --unnatural colors
     greenmen = {
         color = "#21b31e",
         ratio = 160,
+        multiply_color = "#6dbe4d",
     },
     bluemen = {
         color = "#0031c3",
         ratio = 140,
+        multiply_color = "#6a74ba",
     },
     graymen = {
         color = "#909090",
         ratio = 250,
+        multiply_color = "#989796",
     },
     redmen = {
         color = "#ff1010",
         ratio = 250,
+        multiply_color = "#ff1413",
     },
 }
 
 ---register wieldhand skin variants for each skin texture
 for nm, val in pairs(player_api.skin_colors) do
     local newdef = table.copy(minetest.registered_items["player_api:hand"])
-    newdef.wield_image = "wieldhand.png"..
-        "^[colorize:"..
-        val.color..":"..
-        tostring(val.ratio)
+    newdef.wield_image = "player_hand.png" ..
+        "^[multiply:" .. val.multiply_color
+        core.log("skin variant " .. newdef.wield_image .. " " .. nm)
+    newdef.inventory_image = newdef.wield_image
     minetest.register_item("player_api:hand_"..nm, newdef)
 end
 
@@ -132,8 +154,7 @@ function player_api.compose_base_texture(player, def)
     local texture = player_api.colorize_texture(
         player, "skin", "[combine:"..def.canvas_size..":0,0="..def.skin_texture)
     local inv = player:get_inventory()
-    local handstring = "player_api:hand_"..
-        base_texture["skin"]["color"]
+    local handstring = "player_api:hand_"..base_texture["skin"]["color"]
     inv:set_stack("hand", 1, handstring)
 
     local ordered_keys = {}

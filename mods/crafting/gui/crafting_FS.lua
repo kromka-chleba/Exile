@@ -327,14 +327,15 @@ local function set_cache_input_options(cache, option_name, player_meta)
     end
 end
 
--- save station's info in cache and update tool list/reset tabs if needed
-local function cache_set_station(cache, station)
+-- save station's info in cache and update tool list/reset tabs if needed;
+-- `no_default` is to suppress adding the default tool to the tool list
+local function cache_set_station(cache, station, no_default)
     -- add station's info to cache
     cache.station = station
     -- set tools and craft tabs (in tools_and_types.lua)
     local station_name = station and station.name
     -- generates corresponding tools list
-    cache.tool_list = crafting.generate_tools_list(station_name)
+    cache.tool_list = crafting.generate_tools_list(station_name, no_default)
     -- set tool panel and crafting tabs
     cache:set_tool(station_name) -- recipes panel will be reset here
 end
@@ -421,12 +422,13 @@ local get_FS_cache = crafting.get_FS_cache
     `title`: string to be displayed above the formspec
     }
     * `cache` is optional, will be get from player if missing
+    * `no_default` is to suppress adding the default tool to the tool list
 --]]
-function crafting.set_station(player, station, cache)
+function crafting.set_station(player, station, cache, no_default)
     -- get cache if not given
     cache = cache or get_FS_cache(player, true, station)
     -- updates station info if we changed station
-    cache_set_station(cache, station)
+    cache_set_station(cache, station, no_default)
     return cache
 end
 
@@ -485,7 +487,7 @@ function crafting.make_crafting_formspec(player, cache)
 
     -- Inventory List part-----------------------------------------------------
 
-    output[#output + 1] = 'container[0.8,7.2]'
+    output[#output + 1] = "container[0.8,7.2]"
 
     -- adds background color under the main inventory list, if needed
     local input_mode = cache:get_craft_mode()
@@ -493,14 +495,10 @@ function crafting.make_crafting_formspec(player, cache)
     if main_color then
         output[#output + 1] = "box[-0.18,-0.18;10.1,2.6;".. main_color .. "]"
     end
+    output[#output + 1] = "container_end[]"
 
     -- display main inventory list
-    output[#output + 1] = tofstring({
-        'style_type[list;size=;spacing=]',
-        'list[current_player;main;0,0;8,2;0]'
-    })
-
-    output[#output + 1] = 'container_end[]'
+    output[#output + 1] = sfinv.make_main_inv_fs()
 
     -- re-add worldedit gui button if that exists -----------------------------
     local we_x = (mode == 2) and "3.5" or "9.75"

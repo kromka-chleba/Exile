@@ -1,6 +1,10 @@
 -- player/init.lua
 
 player_api = {}
+
+-- Internationalization
+player_api.S = core.get_translator("player_api")
+
 local modpath = minetest.get_modpath("player_api")
 
 -- register the formspec page using player's state to display
@@ -90,7 +94,7 @@ local function initialize_player (player)
     local pinv = player:get_inventory()
     pinv:set_size("hand", 2)
     -- create the "clothes" inventories if needed
-    -- also amange migrations issues
+    -- also manage migrations issues
     player_api.set_cloths(player) -- init and migrates inv if needed
     player_api.set_texture(player) -- setting texture according to current state
 
@@ -109,7 +113,7 @@ minetest.register_on_joinplayer(function(player)
     initialize_player (player)
 
     --[[by default, if no context is created,
-        we get the defautl sfinv homepage.
+        we get the default sfinv homepage.
     set our page to clothing formspec while player is initialized
     (the formspec needs the texture to display the model)
         ]]

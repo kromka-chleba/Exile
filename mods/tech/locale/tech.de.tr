@@ -343,6 +343,8 @@ Wooden Chest=Holztruhe
 Iron Chest=Eisentruhe
 
 # tools.lua
+Bare Hands=Bloße Hände
+Flat Surface=Ebene Fläche
 Stone Knife=Steinmesser
 Cut plants faster than bare hands=Schneidet Pflanzen schneller als mit den Händen
 Flip to stone etcher=Zum Steinkratzer umwandeln

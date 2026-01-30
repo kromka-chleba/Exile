@@ -703,7 +703,7 @@ crafting.register_recipe({
         type = {"crafting_spot","hand_pottery"},
         output = "tech:clay_oil_lamp_hanging_unlit 1",
         items = {"tech:clay_oil_lamp_unlit", "group:fibrous_plant"},
-        level = 1,
+        level = 0,
         always_known = true,
         sound = {name="nodes_nature_grass_footstep", pitch={0.85, 1.1}, gain=0.4}
 })
@@ -723,7 +723,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_pottery"},
         output = "tech:ruined_pottery",
         items = {"tech:ruined_pottery_slab 2"},
-        level = 1,
+        level = 0,
         always_known = true,
         sound = {name = "tech_rock_crush", pitch = {0.8, 0.95}}
 })
@@ -732,7 +732,7 @@ crafting.register_recipe({
         type = {"mixing_spot","hand_pottery"},
         output = "tech:ruined_pottery_slab 2",
         items = {"tech:ruined_pottery"},
-        level = 1,
+        level = 0,
         always_known = true,
         sound = {name = "tech_rock_crush", pitch = {0.8, 0.95}}
 })

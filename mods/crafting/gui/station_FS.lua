@@ -11,8 +11,10 @@ local tofstring = function(t) return table.concat(t,"") end
 local function get_station_info(station_name, pos)
     -- if no station's name, use default flat block title
     -- #TODO could be improve later
+    local desc = nil
     if station_name == nil then
-        return {title = S("You are using a flat clear surface")}
+        desc = core.formspec_escape(S("Flat, clear Surface"))
+        return {title = S("You are using: @1", desc)}
     end
     -- get placed_tool's description and creator
     -- we get item's description because we want "lili's hammer"
@@ -23,7 +25,6 @@ local function get_station_info(station_name, pos)
 
     -- generate a tab title with placed_tool's info
     local creator = nil
-    local desc = nil
     -- if station is registered and has a groups field
     if idef then
         desc = ItemStack(idef.name):get_short_description()
@@ -130,33 +131,34 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
 end)
 
--- display craft form on right click on a tool node or only for
--- crafting types supported by tech:hand - with node == {}
-function crafting.crafting_item_on_rightclick(pos,node,clicker,
-                                              itemstack,pointed_thing)
-
-    if type(node) ~= "table" then
+-- Display crafting FS on right click on a tool node `item`,
+-- or with item ==`{}` for crafting by hands only on a solid flat surface aka
+-- tech:hand, which is also the default
+-- or everywhere else, freehand with item == {name = 'tech:bare_hands'}.
+-- By default the default tool tech:hand is added automatically. Use
+-- `no_default_tool` = true to suppress it.
+function crafting.crafting_item_on_rightclick(pos, item, clicker,
+                                              itemstack, pointed_thing,
+                                              no_default_tool)
+    if type(item) ~= "table" then
         core.log("crafting.crafting_item_on_rightclick: invalid node provided")
         return
     end
-
     -- did a player click?
-    if not minetest.is_player(clicker) then
-        return
-    end
+    if not core.is_player(clicker) then return end
 
-    local station_name = node.name
-    -- station must be nil or refer to a node with crafting properties set
+    -- station must be nil or refer to an item with crafting properties defined
+    local station_name = item.name
     if station_name ~= nil then
-        local def = minetest.registered_nodes[station_name]
-        if not def or not def.exile_crafting then
-            error("invalid crafting tool: " .. station_name)
-        end
+         local def = core.registered_items[station_name]
+         if not def or not def.exile_crafting then
+             error("invalid crafting tool: " .. station_name)
+         end
     end
     -- updates station's name and title (table)
     local station = get_station_info(station_name, pos)
     -- set station
-    local cache = crafting.set_station(clicker, station)
+    local cache = crafting.set_station(clicker, station, nil, no_default_tool)
     -- generates and shows station's formspec
     show_station_formspec(clicker, cache)
 
@@ -165,4 +167,4 @@ end
 
 -- set minimal's function to open crafting formspec on right click with empty
 -- hand on a proper crafting ground
-minimal.set_crafting_ground_on_rightclick(crafting.crafting_item_on_rightclick)
+minimal.set_craft_station_on_rightclick(crafting.crafting_item_on_rightclick)

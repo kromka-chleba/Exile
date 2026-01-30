@@ -355,6 +355,6 @@ crafting.register_recipe({
         type = {"crafting_spot",'knife','hand'},
         output = "tech:torch 1",
         items = {"tech:stick 1", "group:fibrous_plant 4"},
-        level = 1,
+        level = 0,
         always_known = true,
 })

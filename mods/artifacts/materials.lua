@@ -195,7 +195,9 @@ local ladder = {
                  0.4,-0.48,  0.5},
     },
     sounds = nodes_nature.node_sound_glass_defaults(),
-    groups = {cracky = 2},
+    groups = {cracky = 2,
+              on_place_proxy = 1},  -- the role of our on_rightclick()
+    -- to handle other nodes being placed against us via item_place()
     on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local itemname = itemstack:get_name()
         if  itemname == 'artifacts:antiquorium_ladder' then

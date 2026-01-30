@@ -34,10 +34,6 @@ Bag4=Sac n°4
 Use first:=Utiliser en priorité :
 Tool used=Outil utilisé
 Crafting?=Artisanat ?
-@nUse an empty hand on a flat, clear surface,@nor use a placed tool or crafting station.=
-
-You are using a flat clear surface=Vous utilisez une surface plane dégagée
-
 
 Quantity=Quantité
 Single=Un seul
@@ -47,6 +43,7 @@ Search=Requête
 or=ou
 Crafted by: @1= Fabriqué(e) par : @1
 You are using: @1=Vous utilisez : @1
+Flat, clear Surface=Surface plane dégagée
 Filter=Filtrer
 Clear=Effacer
 Tool:=Outil :

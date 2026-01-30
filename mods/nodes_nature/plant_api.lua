@@ -482,7 +482,8 @@ function plant.get_base_props(plant_def)
         on_punch = plant_def.thorns and function(pos, node, puncher, pointed_thing)
             local itemstack = puncher:get_wielded_item()
             local item_name = itemstack:get_name()
-            if item_name == "" then
+            if core.get_item_group(item_name, "hand") > 0 then
+
                 local hp = puncher:get_hp()
                 puncher:set_hp(hp-1)
             end
@@ -1074,7 +1075,7 @@ function plant.register_threshing_recipes(plant_def)
                 output = get_name(plant_def.name,"seed").." "..
                     plant_def.seed_number,
                 items = {source},
-                level = 1,
+                level = 0,
                 always_known = true,
                 _display=get_seed_recipe_display(plant_def, source)
         })

@@ -480,12 +480,18 @@ minetest.register_alias_force("tech:soup","tech:food_bowl_clay_soup")
 
 -- # TODO: add options for more or less slots
 local function get_formspec()
-    local pot_formspec = "size[8,4.1]"..
-        "list[current_name;main;0,0;8,2]"..
-        "list[current_player;main;0,2.3;8,4]"..
-        "listring[current_name;main]"..
-        "listring[current_player;main]"
-    return pot_formspec
+    local fs = {"formspec_version[6]size[10.5,5.625]"}
+    fs[#fs + 1] = "container[0.375,0.375]"
+    fs[#fs + 1] = "list[current_name;main;0,0;8,2]"
+    fs[#fs + 1] = sfinv.make_main_inv_fs(0, 2.625)
+    fs[#fs + 1] = "listring[current_name;main]"
+    fs[#fs + 1] = "listring[current_player;main]"
+    fs[#fs + 1] = "listring[current_name;main]"
+    -- close on enter (and space key) by default
+    fs[#fs + 1] = "set_focus[exit_btn;true]"
+    fs[#fs + 1] = "button_exit[0.2,2.8;0,0;exit_btn;]"
+    fs[#fs + 1] = "container_end[]"
+    return table.concat(fs, "")
 end
 
 -- miscellaneous pot functions
@@ -716,7 +722,7 @@ end
 -- ;note is changed to be nil
 -- ;baking meta is set
 -- plays close sound
-local function pot_receive_fields(pos, formname, fields, sender)
+local function pot_receive_fs_closed(pos, formname, fields, sender)
     local meta = minetest.get_meta(pos)
     if minetest.is_protected(pos, sender, meta) then return end
 
@@ -796,6 +802,13 @@ local function pot_receive_fields(pos, formname, fields, sender)
     minimal.infotext_set_new(pos, meta, nil, nil, ndef)
     -- set soup satiation
     meta:set_string("pot_contents", minetest.serialize(total))
+end
+
+-- process fields, when formspec was closed or the immovable hand was clicked
+local function pot_receive_fields(pos, formname, fields, sender)
+    if fields.quit then
+        pot_receive_fs_closed(pos, formname, fields, sender)
+    end
 end
 
 local function pot_cook(pos, elapsed)

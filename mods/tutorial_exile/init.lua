@@ -143,6 +143,8 @@ local function store_player(player)
             inv:set_list(list, {})
         end
     end
+    -- keep the hand
+    player_api.add_player_hand(player)
     ps.inv = invlists
     ps.privs = core.get_player_privs(name)
 

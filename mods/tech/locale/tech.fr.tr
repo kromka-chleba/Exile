@@ -360,6 +360,8 @@ Woven Storage Basket=Panier de stockage tissé
 Wooden Chest=Coffre en bois
 Iron Chest=Coffre en fer
 # tools.lua
+Bare Hands=Mains nues
+Flat Surface=Surface plane
 Stone Knife=Couteau en pierre
 Cut plants faster than bare hands=Couper les plantes plus vite qu'à mains nues
 Flip to stone etcher=Retourner pour graver avec

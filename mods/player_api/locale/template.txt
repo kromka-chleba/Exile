@@ -1,8 +1,21 @@
 # textdomain: player_api
+# api.lua:
 Select your gender=
 Male=
 Female=
+
+# hand.lua
+Your hand=
+Dig / Punch / Stun small animals / Grab animals=
+Split certain blocks=
+Select a place for crafting / Drink=
+You were given a hand!=
+Check your inventory!=
+
+# cloth_composing.lua
 Naked=
+
+# cloth_definitions.lua
 Head=
 Upper=
 Lower=
@@ -10,21 +23,23 @@ Footwear=
 Cape=
 Keeps you warm in bed=
 Unisex=
-#cloths.lua
+Wear clothing=
 Purple Stripe Summer T-shirt=
 Fresh Summer Denim Shorts=
 Common Black Shoes=
 Pink Bow=
 Classic Green Sweater=
 Fine Blue Pants=
+
 # equip.lua
 Clothing=
-Wear clothing=
 Min Temperature Tolerance: @1=
 Max Temperature Tolerance: @1=
 You can't equip a blanket outside of a bed.=
 You already wear that!=
-@1 equipped!=@1 equipped!
+@1 equipped!=
+
+# states.lua
 (mild)=
 (moderate)=
 (severe)=

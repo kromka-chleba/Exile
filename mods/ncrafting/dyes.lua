@@ -342,30 +342,35 @@ end
 -----------------------------------------------
 -- Dyer's Table
 
-local table_formspec_base = "formspec_version[5]" ..
-    "size[11,5.5]" ..
-    "label[4.55,0.5;"..S("Dyer's Table").."]" ..
-    "list[current_name;craft;3,1.2;1,1]" ..
-    "list[current_name;craftresult;7,1.2;1,1]" ..
-    "list[current_player;main;0.66,2.9;8,2;0]"..
-    "listring[current_name;craft]"..
-    "listring[current_name;craftresult]"..
-    "listring[current_player;main]"
-
-
+-- need to wait for player_api to register player_api:hand
 local table_formspec = {}
-table_formspec[0] = table_formspec_base.. -- Empty state
-    "image_button[4.9,1.2;1.2,1;blank.png;nocommand;-  ;false;true;blank.png]"
-table_formspec[1] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button25.png;nocommand;-  ;false;true;button25.png]"
-table_formspec[2] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button50.png;nocommand;-  ;false;true;button50.png]"
-table_formspec[3] = table_formspec_base..
-    "image_button[4.9,1.2;1.2,1;button75.png;nocommand;-  ;false;true;button75.png]"
-table_formspec[4] = table_formspec_base.. -- Ready to make a bundle
-    "image_button[4.9,1.2;1.2,1;buttonGO.png;dyebundle;->;false;true;blank.png]"
-table_formspec[5] = table_formspec_base.. -- Ready to test a treated bundle
-    "image_button[4.9,1.2;1.2,1;buttonGO.png;dyetest;??;false;true;blank.png]"
+core.register_on_mods_loaded(function()
+    local main_inv_fs = sfinv.make_main_inv_fs(0.66, 2.9)
+
+    local table_formspec_base = "formspec_version[5]" ..
+        "size[11,5.5]" ..
+        "label[4.55,0.5;" .. S("Dyer's Table") .. "]" ..
+        "list[current_name;craft;3,1.2;1,1]" ..
+        "list[current_name;craftresult;7,1.2;1,1]" ..
+        main_inv_fs ..
+        "listring[current_name;craft]" ..
+        "listring[current_name;craftresult]" ..
+        "listring[current_player;main]"
+
+    local img_btn_base = "image_button[4.9,1.2;1.2,1;"
+    table_formspec[0] = table_formspec_base .. -- Empty state
+        img_btn_base .. "blank.png;nocommand;-  ;false;true;blank.png]"
+    table_formspec[1] = table_formspec_base ..
+        img_btn_base .. "button25.png;nocommand;-  ;false;true;button25.png]"
+    table_formspec[2] = table_formspec_base ..
+        img_btn_base .. "button50.png;nocommand;-  ;false;true;button50.png]"
+    table_formspec[3] = table_formspec_base ..
+        img_btn_base .. "button75.png;nocommand;-  ;false;true;button75.png]"
+    table_formspec[4] = table_formspec_base .. -- Ready to make a bundle
+        img_btn_base .. "buttonGO.png;dyebundle;->;false;true;blank.png]"
+    table_formspec[5] = table_formspec_base .. -- Ready to test a treated bundle
+        img_btn_base .. "buttonGO.png;dyetest;??;false;true;blank.png]"
+end)
 
 local function adjust_button(pos)
     local meta = minetest.get_meta(pos)
@@ -508,12 +513,19 @@ minetest.register_node(
 -----------------------------------------------
 -- Dye pot
 
-local pot_formspec = "size[8,4.1]"..
-    "button_exit[6,0;2,1;dump;"..S("Dump").."]"..
-    "list[current_name;main;4,0;1,1]"..
-    "list[current_player;main;0,2.3;8,4]"..
-    "listring[current_name;main]"..
-    "listring[current_player;main]"
+local pot_formspec = ""
+core.register_on_mods_loaded(function()
+    local main_inv_fs = sfinv.make_main_inv_fs(0.375, 3)
+
+    pot_formspec =  "formspec_version[6]" ..
+        "size[10.5,5.625]" ..
+        "list[current_name;main;5.325,0.375;1,1]" ..
+        main_inv_fs ..
+        "listring[current_name;main]" ..
+        "listring[current_player;main]" ..
+        -- last, to get focus (set_focus[dump;false] not reliable):
+        "button_exit[7.875,0.375;2.25,1;dump;" .. S("Dump") .. "]"
+end)
 
 
 local function clear_pot(pos) -- Initial set up for new pot

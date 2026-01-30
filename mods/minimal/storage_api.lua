@@ -14,42 +14,57 @@ function storage.get_storage_formspec(pos, w, h, meta)
     local label = minimal.sanitize_string(meta:get_string('label'))
     meta:set_string("label",label)
     minimal.infotext_set_new(pos, meta)
-    local formspec_size_h = 3.85 + h
-    local main_offset = 0.25 + h
-    local trash_offset = 0.45 + h + 2
-    local label_offset = trash_offset + .35
-    local creator_offset_x =  (3*(30-string.len(creator))/30/2) + 5
-    local craftedby_offset_x = 6.05 -- 3*(30-string.len('crafted by'))/30/2 + 5
 
-    local formspec = {
-        "size[8,"..formspec_size_h.."]",
-        "list[current_name;main;0,0;"..w..","..h.."]",
-        "list[current_player;main;0,"..main_offset..";8,2]",
-        "listring[current_name;main]",
-        "listring[current_player;main]",
-        "list[detached:creative_trash;main;0,"..trash_offset..";1,1;]",
-        "image[0.05,"..(trash_offset+.10)..
-            ";0.8,0.8;creative_trash_icon.png]",
-        "field[1.5,"..label_offset..";4,1;label;"..
-            S("Label")..":;"..label.."]",
-        "field_close_on_enter[label;false]",
-        --[[fake button under Set to put the focus out of the field
+    local fs = {"formspec_version[6]"}
+    local v_sp = 15/13  -- old vertical spacing, ~ 1.154
+    local pdg = 0.375  -- old padding, 3/8
+    local formspec_size_h = 5.289 + h * v_sp
+
+    fs[#fs + 1] = "size[10.5," .. formspec_size_h .. "]"
+    -- storage inventory
+    local st_base_str = "list[current_name;main;0.375,"
+    local y = pdg
+    local size_str = ";" .. w .. ",1;"
+    local starting_index = 0
+    for i = 1, h do
+        fs[#fs + 1] = st_base_str .. y .. size_str .. starting_index .. "]"
+        y = y + v_sp
+        starting_index = starting_index + w
+    end
+    y = y + 0.29
+    fs[#fs + 1] = sfinv.make_main_inv_fs(pdg, y)
+    fs[#fs + 1] = "listring[current_name;main]"
+    fs[#fs + 1] = "listring[current_player;main]"
+    y = y + 2.55
+    fs[#fs + 1] = "image[0.425," .. (y + 0.115)
+    fs[#fs + 1] =     ";0.8,0.8;creative_trash_icon.png]"
+    fs[#fs + 1] = "list[detached:creative_trash;main;0.375," .. y .. ";1,1;]"
+    local trash_offset = y
+    y = y + 0.12
+    fs[#fs + 1] = "field[1.875," .. y .. ";4.75,0.78;label;"
+    fs[#fs + 1] =  S("Label") .. ":;" .. label .. "]"
+    fs[#fs + 1] =  "field_close_on_enter[label;false]"
+    --[[fake button under `Set` to put the focus out of the field
         without putting in on set
         (which I think we could also could do without much harm)]]
-        'set_focus[labelset;true]',
-        "style[dummy;border=false]",
-        "button[5.5,"..tostring(label_offset +0.1)..";0,0;dummy;]",
-        "button[5,"..label_offset..";1,0.25;labelset;"..S("Set").."]",
-        --"label["..craftedby_offset_x..","..trash_offset..";Crafted by:]",
-        --"label["..creator_offset_x..","..(trash_offset+.35)..";"..creator.."]",
-    }
+    -- enables us to leave the FS effortless by pressing the inventory key
+    fs[#fs + 1] = "set_focus[labelset;true]"
+    fs[#fs + 1] = "style[dummy;border=false]"
+    fs[#fs + 1] = "button[6.625," .. y .. ";1,0.78;labelset;" .. S("Set") .. "]"
+    fs[#fs + 1] = "button[7.25," .. tostring(y + 0.1154) .. ";0,0;dummy;]"
+
+    local craftedby_offset_x = 7.94
+    -- center of creator at x = 8.44, extending more to the right than to left
+    local creator_offset_x =   7.94 + (24-string.len(creator))/48
+
+    y = trash_offset + 0.05
     if (creator and creator ~= '') then
-        formspec[#formspec + 1] = "label["..craftedby_offset_x..","..trash_offset..
-            ";"..S("Crafted by")..":]"
-        formspec[#formspec + 1] = "label["..creator_offset_x..
-            ","..(trash_offset+.35)..";"..creator.."]"
+        fs[#fs + 1] = "label[" .. craftedby_offset_x .. "," .. y ..
+                             ";2.5,0.5;" .. S("Crafted by") .. ":]"
+        fs[#fs + 1] = "label[" .. creator_offset_x .. "," .. (y + 0.41) ..
+                             ";2.5,0.5;" .. creator .. "]"
     end
-    return table.concat(formspec, "")
+    return table.concat(fs, "")
 end
 
 

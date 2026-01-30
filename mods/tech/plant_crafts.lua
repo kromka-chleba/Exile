@@ -48,7 +48,8 @@ minetest.register_node(
         end,
         sunlight_propagates = true,
         groups = {choppy=2, dig_immediate=2, flammable=1,
-                  attached_node=1, temp_pass = 1, temp_flow = 100},
+                  attached_node=1, temp_pass = 1, temp_flow = 100,
+                  on_place_proxy = 1},  -- the role of our on_rightclick()
         override_sneak = true,
         drop = "tech:stick",
         sounds = nodes_nature.node_sound_wood_defaults(),
@@ -124,7 +125,7 @@ crafting.register_recipe({
         type = {"crafting_spot","chopping_block","hand","knife"},
         output = "tech:stick 2",
         items = {{"group:woody_plant","tech:wattle_loose"}},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 --Grass fibers from fibrous plants
@@ -132,7 +133,7 @@ crafting.register_recipe({
         type = {"hand","knife"},
         output = "tech:grass_fibre",
         items = {"group:bundleable_fiber"},
-        level = 1,
+        level = 0,
         always_known = true,
 })
 

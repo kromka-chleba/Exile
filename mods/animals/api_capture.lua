@@ -219,7 +219,8 @@ function animals.get_stun_power(self, item_name, any_item_stuns)
     local chance -- chance of being stunned if any, otherwise nil
     local group -- stunning group to apply, or nil if no group matches
     for ci_group, values in pairs(self.capture_interactions) do
-        if ci_group == "hand" and (item_name == "" or any_item_stuns) then
+        local wields_hand = (core.get_item_group(item_name, "hand") > 0)
+        if ci_group == "hand" and (wields_hand or any_item_stuns) then
             -- update chance
             if not chance or -- initialize chance OR
                 (chance and values[1] > chance) then
