@@ -310,7 +310,7 @@ minetest.register_node("tech:clay_water_pot_dry_salt",{
         "tech_pottery.png",
         "tech_pottery.png"
     },
-    groups = {dig_immediate=2, pottery = 1, temp_pass = 1},
+    groups = {dig_immediate=2, pottery = 1, temp_pass = 1, falling_node = 1},
     sounds = tech.node_sound_earthenware_defaults(),
     drop = {
       -- chance of getting 6 salt at most, 1 at least

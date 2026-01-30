@@ -365,7 +365,7 @@ minetest.register_node(
                 {-0.3125, 0.3125, -0.3125, 0.3125, 0.375, 0.3125}, -- NodeBox5
             }
         },
-        groups = {dig_immediate = 3, pottery = 1, temp_pass = 1},
+        groups = {dig_immediate = 3, pottery = 1, temp_pass = 1, falling_node = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         drop = {
             max_items = 2,
