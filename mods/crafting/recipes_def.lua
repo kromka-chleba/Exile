@@ -100,10 +100,11 @@ end
 
 -- Recipes ---------------------------------------------------------
 
---array of all registered recipes, by `id`
+-- array of all registered recipes, by `id`
 local recipes_by_id = {}
 
---#TODO still used ?
+-- returns an array of all registered recipes where the indices match the
+-- ids of the recipes
 function crafting.get_recipes()
     return recipes_by_id
 end
@@ -168,7 +169,7 @@ end
     * doesn't update the item
     * returns 0 if none present]]
 --[[WARNING, tool should not be also used as ingredient, because else it could give false posive.
-For that, TODO maybe copy item_ash to modify it]]
+For that, TODO maybe copy item_hash to modify it]]
 
 -- returns have --, available (boolean)]]
 -- TODO (not sure yet if I keep sending the second info or not)
@@ -279,6 +280,7 @@ item_funcs.get_items_names = get_items_names
 local recipe_funcs = {}
 recipe_funcs.__index = recipe_funcs
 
+-- returns input items in a unified format: list of lists of alternatives
 local function generate_items_table(recipe_items)
     local items_details = {}
     -- case string or function
@@ -416,8 +418,9 @@ end
 -- Check of recipe validity and generationg of item and tool table
  ----------------------------------------------------------------------
 
---[[ check if no duplicates inputs, which currentldy would make craft do unwanted things
-run after mods loaded
+--[[ checks for duplicate inputs, which currently would make craft do unwanted
+things; runs after mods loaded
+pre: group_tables in groups.lua initialized
 ]]
 -- TODO improve/check with units/complex grouptag
 local function check_recipe_def(def)
@@ -445,7 +448,15 @@ local function check_recipe_def(def)
     return true -- recipe is ok
 end
 
--- have to wait for all modules load before generating list fo recipes per crafting type
+-- Fully initialize all recipes in recipes_by_id, i.e. replace 'items' and
+-- 'tool' by more detailed tables for crafting, then check for any cases of
+-- the same input item being required twice in the same recipe, e.g.
+--    1) explicitly and
+--    2) as a member of a group.
+-- Also sets up the recipe lists for all craft types, see 'craft_types'.
+-- pre: Has to wait until all modules are loaded before generating lists of
+-- recipes per craft type.
+-- costs: takes about 20ms @3GHz
 minetest.register_on_mods_loaded( function ()
     for _,recipe in ipairs(recipes_by_id) do
         -- doing it now else items in recipes are not registered...
@@ -455,6 +466,7 @@ minetest.register_on_mods_loaded( function ()
         if type(recipe.type) == "string" then
             recipe.type = { recipe.type }
         end
+        -- add recipe to recipe lists of all valid 'craft types'
         for _,station in ipairs(recipe.type) do
             local t = craft_types[station]
             if not t then

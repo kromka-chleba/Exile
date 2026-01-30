@@ -377,7 +377,7 @@ end
 -- #TODO that could be solved/cleaned with better heritage ?
 local function get_sound (recipe, ctype)
     local sound = recipe.sound
-    -- if recipe as no sound and not "false", get crafting type's one
+    -- if recipe has no sound and not "false", get crafting type's one
     if not sound and sound ~= false then
         sound = crafting.get_type(ctype).sound
     end
