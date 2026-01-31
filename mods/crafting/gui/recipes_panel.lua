@@ -656,13 +656,13 @@ do
 
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
-                    'scrollbaroptions[',
-                    'max=' .. tonumber(scroll_max) .. ';', -- max
-                    -- move with click/mouse scroll
-                    'smallstep=' .. lines_actual .. ';',
+                    "scrollbaroptions[",
+                    "max=" .. tonumber(scroll_max) .. ";", -- max
+                    -- move with arrow buttons/mouse wheel
+                    "smallstep=" .. 1 .. ";",  -- a single line
                     -- move with page up/down key
-                    'largestep=' .. lines_actual .. ';',
-                    'thumbsize=1]'
+                    "largestep=" .. lines_actual .. ";",
+                    "thumbsize=1]"
                 })
 
             local scroll_bar_x = columns * grid_size - 0.1
