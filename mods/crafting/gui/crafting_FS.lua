@@ -556,10 +556,11 @@ function crafting.make_crafting_formspec(player, cache)
 
     if not cache.FS_recipes then
         -- in gui/recipes_panel.lua
+        local y = 0.95
         local height
-        cache.FS_recipes, height = cache:get_recipes_panel(0, 0.75,
-                                                           mode)
-        cache.recipes_height = height + 0.75
+        cache.FS_recipes, height = cache:get_recipes_panel(0, y, mode)
+
+        cache.recipes_height = height + y + 0.2
     end
     output[#output + 1] = cache.FS_recipes
 

@@ -525,7 +525,7 @@ do
         local form_table={}
         -- place recipe
         local id = pr.recipe.id
-        local bg_coords =  tostring(x) ..','.. tostring(y + 0.2)
+        local bg_coords =  tostring(x) ..','.. y
 
         -- set background image
         local bg_image = cache:get_craft_mode().get_r_cbg(cache, pr)
@@ -536,7 +536,7 @@ do
         -- Add button image
         local btn_coords =
         tostring( x + 0.1 ) .. ','..
-        tostring( y + 0.3 )
+        tostring( y + 0.1 )
         -- TODO issue doesn't dsplay count if not item image
         -- TODO dcide if I modify count or put an overlay for max... but then, how ? label ?
 
@@ -570,10 +570,8 @@ do
             })
             -- add a label with the output number
             if display_count > 1 then -- don't display if 0
-                --local label_coords = tostring( x + 0.1 ) .. ','
-                --                .. tostring( y + 0.45 )
                 local label_coords = tostring( x + 0.2 ) .. ','
-                                .. tostring( y + 0.95 )
+                                .. tostring( y + 0.75 )
                 form_table[#form_table + 1] = "label["
                                         .. label_coords ..";"
                                         .. tostring(display_count) .. "]"
@@ -645,7 +643,7 @@ do
         local lines_total = math.ceil(nb_recipes / columns)
         local lines_actual = math.max(1, math.min(lines_max, lines_total))
         -- resulting height of the panel
-        local panel_height = lines_actual * (grid_size + 0.05)
+        local panel_height = lines_actual * (grid_size) - 0.2
 
         -- add scrollbar if needed
         -- #TODO don't reset the recipe lists just because of the scrollbar
@@ -654,22 +652,23 @@ do
             -- columns = columns -1 -- discard a line to make room for scrollbar
             local scroll_max = lines_total - lines_actual
 
+            local page_height = 3 * lines_actual
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
                     "scrollbaroptions[",
-                    "max=" .. tonumber(scroll_max) .. ";", -- max
+                    "max=" .. tonumber(3 * scroll_max) .. ";", -- max
                     -- move with arrow buttons/mouse wheel
                     "smallstep=" .. 1 .. ";",  -- a single line
                     -- move with page up/down key
-                    "largestep=" .. lines_actual .. ";",
-                    "thumbsize=1]"
+                    "largestep=" .. page_height .. ";",
+                    "thumbsize=3]"
                 })
 
             local scroll_bar_x = columns * grid_size - 0.1
             FS_recipes[#FS_recipes + 1] = tofstring(
                 {
-                    "scrollbar[" .. scroll_bar_x .. ",0.95;", -- position
-                    "0.5," .. (1.14 * lines_actual) .. ";", -- width/height
+                    "scrollbar[" .. scroll_bar_x .. "," .. y .. ";", -- position
+                    "0.5," .. panel_height .. ";", -- width/height
                     "vertical;", -- orientation
                     "recipes_scroll;", -- name
                     sScroll .. "]" -- value
@@ -683,7 +682,7 @@ do
                 tostring(columns + 1),',', -- Width
                 panel_height, -- Height
                 ';recipes_scroll;vertical;', -- scrollbar name and orientation
-                grid_size , --optional scrollfactor
+                grid_size/3 , --optional scrollfactor
                 ']'
             })
 
