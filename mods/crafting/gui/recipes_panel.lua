@@ -10,9 +10,9 @@
 -- When we had crafting by pressing the recipe button, if someone wanted to
 -- craft the same recipe repeatedly and kept pressing the recipe button,
 -- sort_craftable_recipes() made sure, the recipe under the mouse did not
--- change just due to resorting - avoiding accidentally crafting another
--- recipe. Now only the selected recipe can be crafted and no longer press the
--- recipes to craft.
+-- change just due to resorting - avoiding accidentally crafting a different
+-- recipe. Now, only the selected recipe can be crafted and we no longer press
+-- the recipes to craft.
 -- Therefore, the simpler sort_recipes_by_input_state() is used instead of
 -- sort_craftable_recipes(), which also was easier to extended to devide
 -- the recipes into more categories + it is probably faster.
@@ -26,33 +26,60 @@ local tofstring = function(t) return table.concat(t,"") end
 -- FUNCTIONS -------------------------------------------------------------------
 
 -- Divide cache.recipes into 4 categories, depending on availability of inputs.
--- For input mode 'Use this' it depents also on whether hints a re enabled and
+-- For input mode 'Use this' it depends also on whether hints a re-enabled and
 -- whether the filter button binds sorting and highlighting to the input grid.
+-- If a recipe is selected and cache.c_recipes was not reset, items in that
+-- list remain at the top to not move the crafted recipe right after crafting.
 local function sort_recipes_by_input_state(cache)
     local craftables = {} -- recipes with full sets of inputs in craftable list
     local possibles = {} -- all inputs available, but not all in craftable list
     local some_inputs = {} -- no full set of inputs, but some inputs available
     local no_inputs = {} -- no inputs at all
 
+    -- if a recipe is selected and the list of craftable recipes was not reset
+    -- -> keep items in that list to not move the recipe right after crafting
     local filtered = cache.input_filter
     local hints = cache.possible_hint
-    for _, result in ipairs (cache.recipes) do
-        -- add recipe to list only if it matchs search
-        if result.craftable then
-            craftables[#craftables + 1] = result
-        elseif not filtered and hints and result.possible then
-            if cache.hint_btn then
-                possibles[#possibles + 1] = result
-            else
-                craftables[#craftables + 1] = result
-            end
-        elseif result.partial
-            or result.craftable_partial
-            or not filtered and hints and result.possible_partial then
+    if cache.selected_id and cache.c_recipes then
+        craftables = cache.c_recipes -- keep craftable list
+        -- resort player recipes in the following lists
+        local lists = {cache.p_recipes, cache.ipa_recipes, cache.u_recipes}
+        for _, list in ipairs (lists) do
+            for _, result in ipairs (list) do
+                -- add recipe to list unless it is filtered out by the search
+                if result.craftable then
+                    craftables[#craftables + 1] = result
+                elseif not filtered and hints and result.possible then
+                    possibles[#possibles + 1] = result
+                elseif result.partial
+                    or result.craftable_partial
+                    or not filtered and hints and result.possible_partial then
 
-            some_inputs[#some_inputs + 1] = result
-        else
-            no_inputs[#no_inputs + 1] = result
+                    some_inputs[#some_inputs + 1] = result
+                else
+                    no_inputs[#no_inputs + 1] = result
+                end
+            end
+        end
+    else
+        for _, result in ipairs (cache.recipes) do
+            -- add recipe to list unless it is filtered out by the search
+            if result.craftable then
+                craftables[#craftables + 1] = result
+            elseif not filtered and hints and result.possible then
+                if cache.hint_btn then
+                    possibles[#possibles + 1] = result
+                else
+                    craftables[#craftables + 1] = result
+                end
+            elseif result.partial
+                or result.craftable_partial
+                or not filtered and hints and result.possible_partial then
+
+                some_inputs[#some_inputs + 1] = result
+            else
+                no_inputs[#no_inputs + 1] = result
+            end
         end
     end
     cache.c_recipes = craftables
@@ -915,8 +942,8 @@ local function push_recipe(cache, id, player, player_name)
             local item_hash = crafting.get_item_hash(inv, "main")
             local recipe = p_recipe.recipe
             local count = recipe:find_max_craftable(item_hash)
-            -- If not enough to craft, pull what's available to visualize in
-            -- order to visualize what's missing - in input grid and info text.
+            -- If not enough to craft, pull what's available in order to
+            -- visualize what's missing - in input grid and info text.
             local allow_partial = nil
             if count < 1 then
                 count = 1
@@ -1017,6 +1044,7 @@ local function craft_selected(cache, qty)
             cache.FS_recipes = nil -- force recipes panel redraw
             -- update of recipe states will be made in get_recipes_panel()
             -- when formspec will be updated
+            cache.to_sort = true
             return true -- > success, changes in inventory
         end
     end
