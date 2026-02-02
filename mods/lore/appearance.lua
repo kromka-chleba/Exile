@@ -35,7 +35,11 @@ end)
 
 minetest.register_on_respawnplayer(function(player)
         local meta = player:get_meta()
-        if meta:get("playtime_suspended") then return end
+        if meta:get("playtime_suspended") then
+            -- no new body during tutorial, but re-add the hand item
+            player_api.add_player_hand(player)
+            return
+        end
         NewBody(player)
         player_api.set_texture(player)
 end)

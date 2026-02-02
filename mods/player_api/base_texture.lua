@@ -86,7 +86,6 @@ for nm, val in pairs(player_api.skin_colors) do
     local newdef = table.copy(minetest.registered_items["player_api:hand"])
     newdef.wield_image = "player_hand.png" ..
         "^[multiply:" .. val.multiply_color
-        core.log("skin variant " .. newdef.wield_image .. " " .. nm)
     newdef.inventory_image = newdef.wield_image
     minetest.register_item("player_api:hand_"..nm, newdef)
 end

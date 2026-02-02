@@ -216,45 +216,36 @@ local function add_setting_button()
     --"image_button[-1,-0.7;0.7,0.7;gear2.png;player_settings;]"
 end
 
--- Returns a formspec to put a button on top of the first slot of a player
--- inventory to block the player from dragging the hand item around and to
--- display it as being anchored on attempts to take or drag it.
--- REQUIRES: formspec version 3+ / player_api mod must be loaded
--- NOTE: Take into account that you will recieve a field when the button is
--- pressed, and that it can get focus. The name is `player_hand`.
--- `rect`: a string in the form <X>,<Y>;<W>,<H> or nil
--- `x`, `y`, `w`, `h`: coordinates, width and height to be used if rect is nil
---                     with defaults: 0, 0, 1, 1  (must be numbers!)
-function sfinv.player_hand_locker(rect, x, y, w, h)
-    if not rect then
-        x = x or 0
-        y = y or 0
-        w = w or 1
-        h = h or 1
-        rect = tostring(x) .. "," .. y .. ";" .. w .. "," .. h
-    end
-    local def = core.registered_items["player_api:hand"]
-    if not def then return "" end -- no player_api:hand -> no locker
+-- Create a dummy inventory with a single slot that prevents players to put
+-- anything into it. Required for `make_main_inv_fs()`.
+local dummy_slot = minetest.create_detached_inventory(
+    "sfinv_dummy_slot", {
+         allow_put = function(inv, listname, index, stack, player)
+             return 0
+         end,
+})
+dummy_slot:set_size("main", 1)
 
-    local tooltip = def.description or ""
-    local fs ={"style[player_hand;border=false;bgimg_middle=;"}
-    fs[#fs +1] =           "bgimg_pressed=player_bound.png^[opacity:192]"
-    fs[#fs +1] = "item_image_button[" .. rect .. ";;player_hand;]"
-    fs[#fs +1] = "tooltip[" .. rect .. ";" .. tooltip .. "]"
-    return table.concat(fs, "")
-end
-
--- Creates a formspec to show the player's main inventory list with a button on
--- top of the first slot to prevent players from dragging their hand item
--- around. See sfinv.player_hand_locker() for details.
+-- Creates a formspec to show the player's main inventory where the first item
+-- stack cannot even be dragged around.
 -- `inv_x`, `inv_y`: top left corner for the inventory list
 function sfinv.make_main_inv_fs(inv_x, inv_y)
     inv_x = inv_x or 0.8
     inv_y = inv_y or 7.2
-    local hand_locker = sfinv.player_hand_locker("0,0;1,1")
     local fs = {"container[" .. inv_x .. "," .. inv_y .. "]"}
+    -- hack! hack! hack! - tested with Luanti 5.10 and 5.15
+    -- REQUIRES: formspec version 6+ / player_api mod must be loaded
+    -- First, the dummy slot! It will absorb leftclick, rightclick and mid
+    -- button events, also release events of left mouse button when pressed
+    -- elsewhere!
+    -- Weirdly, it will not absorb tooltip events :)
+    -- NOTE: if that should break with future luanti versions:
+    --  - try different stacking order for these elements,
+    --  - last resort: drop the feature to prevent dragging the item around,
+    --  -              then it will work like with old chests
+    fs[#fs + 1] = "list[detached:sfinv_dummy_slot;main;0,0;1,1;]"
     fs[#fs + 1] = "list[current_player;main;0,0;8,2;]"
-    fs[#fs + 1] = hand_locker
+    fs[#fs + 1] = "image[0.05,0.45;0.6,0.6;" .. "player_bound.png]"
     fs[#fs + 1] = "container_end[]"
     return table.concat(fs, "")
 end
