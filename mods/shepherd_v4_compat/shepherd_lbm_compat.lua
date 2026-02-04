@@ -15,17 +15,20 @@ end
 
 core.log("action", "[" .. mod_name .. "] Loading LBM fallback compatibility...")
 
-mapchunk_shepherd = mapchunk_shepherd  -- Ensure global is loaded before accessing
 assert(mapchunk_shepherd, "mapchunk_shepherd mod must be loaded before shepherd_v4_compat")
 local ms = mapchunk_shepherd
 
 -- Helper function to safely get node names from nodes_nature
 local function get_nodes_nature_soil_names(func_name)
     if nodes_nature and nodes_nature[func_name] then
-        return nodes_nature[func_name]()
+        local names = nodes_nature[func_name]()
+        if names and #names > 0 then
+            return names
+        end
     end
-    core.log("warning", "[" .. mod_name .. "] nodes_nature." .. func_name .. " not available")
-    return {}
+    core.log("warning", "[" .. mod_name .. "] nodes_nature." .. func_name ..
+        " not available or returned no nodes")
+    return nil
 end
 
 -- Spring soil compatibility
@@ -34,15 +37,20 @@ local spring_labels = {
     "seasonal_plants",
 }
 
-core.register_lbm({
-    name = "shepherd_v4_compat:spring_soil_lbm",
-    label = "Spring soil finder for mapchunk shepherd",
-    nodenames = get_nodes_nature_soil_names("get_seasonal_soil_names"),
-    run_at_every_load = false,
-    action = function(pos, node)
-        ms.labels_to_position(pos, spring_labels)
-    end,
-})
+local spring_soil_names = get_nodes_nature_soil_names("get_seasonal_soil_names")
+if spring_soil_names then
+    core.register_lbm({
+        name = "shepherd_v4_compat:spring_soil_lbm",
+        label = "Spring soil finder for mapchunk shepherd",
+        nodenames = spring_soil_names,
+        run_at_every_load = false,
+        action = function(pos, node)
+            if pos and node then
+                ms.labels_to_position(pos, spring_labels)
+            end
+        end,
+    })
+end
 
 -- Winter soil compatibility
 local winter_labels = {
@@ -50,15 +58,20 @@ local winter_labels = {
     "seasonal_plants",
 }
 
-core.register_lbm({
-    name = "shepherd_v4_compat:winter_soil_lbm",
-    label = "Winter soil finder for mapchunk shepherd",
-    nodenames = get_nodes_nature_soil_names("get_winter_soil_names"),
-    run_at_every_load = false,
-    action = function(pos, node)
-        ms.labels_to_position(pos, winter_labels)
-    end,
-})
+local winter_soil_names = get_nodes_nature_soil_names("get_winter_soil_names")
+if winter_soil_names then
+    core.register_lbm({
+        name = "shepherd_v4_compat:winter_soil_lbm",
+        label = "Winter soil finder for mapchunk shepherd",
+        nodenames = winter_soil_names,
+        run_at_every_load = false,
+        action = function(pos, node)
+            if pos and node then
+                ms.labels_to_position(pos, winter_labels)
+            end
+        end,
+    })
+end
 
 -- Leaf marker compatibility
 core.register_lbm({
@@ -67,7 +80,9 @@ core.register_lbm({
     nodenames = {"group:leaf_marker"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, {"leaves_dropped"})
+        if pos and node then
+            ms.labels_to_position(pos, {"leaves_dropped"})
+        end
     end,
 })
 
@@ -78,7 +93,9 @@ core.register_lbm({
     nodenames = {"group:drops_leaves"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, {"leaves"})
+        if pos and node then
+            ms.labels_to_position(pos, {"leaves"})
+        end
     end,
 })
 
@@ -89,7 +106,9 @@ core.register_lbm({
     nodenames = {"group:wet_sediment"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, "moisture_spread")
+        if pos and node then
+            ms.labels_to_position(pos, "moisture_spread")
+        end
     end,
 })
 
@@ -100,7 +119,9 @@ core.register_lbm({
     nodenames = {"nodes_nature:freshwater_source"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, "water_gravity")
+        if pos and node then
+            ms.labels_to_position(pos, "water_gravity")
+        end
     end,
 })
 
@@ -111,7 +132,9 @@ core.register_lbm({
     nodenames = {"nodes_nature:ice", "nodes_nature:sea_ice"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, {"last_freezed"})
+        if pos and node then
+            ms.labels_to_position(pos, {"last_freezed"})
+        end
     end,
 })
 
@@ -122,7 +145,9 @@ core.register_lbm({
     nodenames = {"nodes_nature:snow", "nodes_nature:snow_block"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, {"last_snow"})
+        if pos and node then
+            ms.labels_to_position(pos, {"last_snow"})
+        end
     end,
 })
 
@@ -133,7 +158,9 @@ core.register_lbm({
     nodenames = {"nodes_nature:salt_water_source"},
     run_at_every_load = false,
     action = function(pos, node)
-        ms.labels_to_position(pos, {"ocean"})
+        if pos and node then
+            ms.labels_to_position(pos, {"ocean"})
+        end
     end,
 })
 
