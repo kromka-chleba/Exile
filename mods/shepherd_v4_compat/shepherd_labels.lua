@@ -1,0 +1,3 @@
+-- TODO: populate this file
+-- get list of nodes for each `blockpos` using functions exposed by `sql_map_reader.lua`. Assign labels to mapchunks based on these nodes.
+-- node -> label mappings need to be created
