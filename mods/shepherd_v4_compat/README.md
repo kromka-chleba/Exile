@@ -71,9 +71,12 @@ If insecure environment is not available, you can enable the LBM-based fallback 
 - ❌ Slower than SQL-based method for large worlds
 
 The LBM fallback was migrated from `nodes_nature:shepherd_v3_compat.lua` with the following improvements:
-- Changed `run_at_every_load = true` to `false` for better performance
-- Changed from `bulk_action` to `action` to process all nodes correctly
+- Changed `run_at_every_load = true` to `false` for better performance (LBMs run once per mapblock)
+- Uses `bulk_action` for efficiency - processes all matching nodes in a mapblock with a single function call
+- Only needs one position from `pos_list[1]` because `ms.labels_to_position()` labels the entire mapchunk
 - Made inactive by default with a setting to enable
+
+**Why bulk_action?** The shepherd API's `labels_to_position(pos, labels)` function takes a single position and labels the entire mapchunk (80x80x80 nodes) that contains it. Since all positions in `pos_list` come from the same mapblock, we only need to call it once with any position (e.g., `pos_list[1]`). Using `bulk_action` instead of `action` reduces overhead significantly by processing all matches in one call instead of invoking a callback for each individual node.
 
 ## Node to Label Mappings
 

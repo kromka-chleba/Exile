@@ -44,9 +44,11 @@ if spring_soil_names then
         label = "Spring soil finder for mapchunk shepherd",
         nodenames = spring_soil_names,
         run_at_every_load = false,
-        action = function(pos, node)
-            if pos and node then
-                ms.labels_to_position(pos, spring_labels)
+        bulk_action = function(pos_list, dtime_s)
+            -- All positions in pos_list are from the same mapblock
+            -- We only need one position to label the entire mapchunk
+            if pos_list and #pos_list > 0 then
+                ms.labels_to_position(pos_list[1], spring_labels)
             end
         end,
     })
@@ -65,9 +67,11 @@ if winter_soil_names then
         label = "Winter soil finder for mapchunk shepherd",
         nodenames = winter_soil_names,
         run_at_every_load = false,
-        action = function(pos, node)
-            if pos and node then
-                ms.labels_to_position(pos, winter_labels)
+        bulk_action = function(pos_list, dtime_s)
+            -- All positions in pos_list are from the same mapblock
+            -- We only need one position to label the entire mapchunk
+            if pos_list and #pos_list > 0 then
+                ms.labels_to_position(pos_list[1], winter_labels)
             end
         end,
     })
@@ -79,9 +83,9 @@ core.register_lbm({
     label = "Leaf marker finder for mapchunk shepherd",
     nodenames = {"group:leaf_marker"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, {"leaves_dropped"})
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], {"leaves_dropped"})
         end
     end,
 })
@@ -92,9 +96,9 @@ core.register_lbm({
     label = "Leaf finder for mapchunk shepherd",
     nodenames = {"group:drops_leaves"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, {"leaves"})
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], {"leaves"})
         end
     end,
 })
@@ -105,9 +109,9 @@ core.register_lbm({
     label = "Wet soil finder for mapchunk shepherd",
     nodenames = {"group:wet_sediment"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, "moisture_spread")
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], "moisture_spread")
         end
     end,
 })
@@ -118,9 +122,9 @@ core.register_lbm({
     label = "Freshwater finder for mapchunk shepherd",
     nodenames = {"nodes_nature:freshwater_source"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, "water_gravity")
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], "water_gravity")
         end
     end,
 })
@@ -131,9 +135,9 @@ core.register_lbm({
     label = "Ice finder for mapchunk shepherd",
     nodenames = {"nodes_nature:ice", "nodes_nature:sea_ice"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, {"last_freezed"})
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], {"last_freezed"})
         end
     end,
 })
@@ -144,9 +148,9 @@ core.register_lbm({
     label = "Snow finder for mapchunk shepherd",
     nodenames = {"nodes_nature:snow", "nodes_nature:snow_block"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, {"last_snow"})
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], {"last_snow"})
         end
     end,
 })
@@ -157,9 +161,9 @@ core.register_lbm({
     label = "Ocean finder for mapchunk shepherd",
     nodenames = {"nodes_nature:salt_water_source"},
     run_at_every_load = false,
-    action = function(pos, node)
-        if pos and node then
-            ms.labels_to_position(pos, {"ocean"})
+    bulk_action = function(pos_list, dtime_s)
+        if pos_list and #pos_list > 0 then
+            ms.labels_to_position(pos_list[1], {"ocean"})
         end
     end,
 })
