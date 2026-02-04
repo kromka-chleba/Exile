@@ -1,5 +1,6 @@
--- Assign shepherd labels to mapblocks based on node content from map.sqlite
--- This provides v4 compatibility by re-labeling mapblocks after database format changes
+-- Assign shepherd labels to mapchunks based on node content from map.sqlite
+-- This provides v4 compatibility by re-labeling mapchunks after database format changes
+-- Note: SQL stores mapblocks, we convert to node positions, shepherd labels mapchunks
 
 local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
 
@@ -95,18 +96,20 @@ local function get_labels_for_node(node_name)
 end
 
 -- Process a single mapblock and assign labels
+-- Converts mapblock position to node position, then labels the containing mapchunk
 local function process_mapblock(block_data)
     local pos = block_data.pos
     local nodes = block_data.nodes
     
-    -- Convert mapblock position to world position (center of first node)
-    local world_pos = {
+    -- Convert mapblock position to node position (multiply by 16)
+    -- The shepherd API accepts node positions and labels the containing mapchunk
+    local node_pos = {
         x = pos.x * 16,
         y = pos.y * 16,
         z = pos.z * 16
     }
     
-    -- Track which labels should be added to this mapblock
+    -- Track which labels should be added to the mapchunk containing this mapblock
     local labels_to_add = {}
     
     -- Scan all nodes in the mapblock
@@ -126,7 +129,7 @@ local function process_mapblock(block_data)
     end
     
     if #labels_array > 0 then
-        ms.labels_to_position(world_pos, labels_array)
+        ms.labels_to_position(node_pos, labels_array)
     end
 end
 

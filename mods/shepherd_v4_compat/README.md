@@ -4,34 +4,40 @@ This mod provides compatibility for worlds upgrading from older versions of Exil
 
 ## Purpose
 
-The mapchunk_shepherd mod assigns labels to mapblocks during mapgen based on:
+The mapchunk_shepherd mod assigns labels to **mapchunks** during mapgen based on:
 - Biome information
 - Decoration placement
 - Node content
 
 Note: In Minetest/Luanti terminology:
 - **Node** = one voxel (1x1x1)
-- **Mapblock** = 16x16x16 nodes
-- **Mapchunk** = 5x5x5 mapblocks (80x80x80 nodes)
+- **Mapblock** = 16x16x16 nodes (what the SQL database stores)
+- **Mapchunk** = 5x5x5 mapblocks (80x80x80 nodes, what mapgen uses and what gets labeled)
 
-Despite its name, the shepherd mod operates at the mapblock level.
+The shepherd API accepts node positions and internally determines which mapchunk contains that position, then labels that mapchunk.
 
-When the database format changed, this labeling information was lost for existing mapblocks. This mod reads the historical node data from the `map.sqlite` database and re-assigns shepherd labels based on the nodes present in each mapblock.
+When the database format changed, this labeling information was lost for existing mapchunks. This mod reads the historical node data from the `map.sqlite` database (which stores mapblocks), converts mapblock positions to node positions, and re-assigns shepherd labels based on the nodes present in each mapblock.
 
 ## How It Works
+
+The mod follows this data flow:
 
 1. **SQL Map Reader** (`sql_map_reader.lua`): Reads and decodes mapblock data from the `map.sqlite` database, including:
    - Node ID to name mappings
    - Individual node content for all 4096 nodes per mapblock
-   - Block position information
+   - Mapblock position information (in mapblock coordinates)
 
-2. **Label Assignment** (`shepherd_labels.lua`): 
+2. **Position Conversion**: Converts mapblock positions to node positions by multiplying by 16
+   - Mapblock position (x, y, z) → Node position (x×16, y×16, z×16)
+
+3. **Label Assignment** (`shepherd_labels.lua`): 
    - Maps specific nodes to shepherd labels (e.g., `nodes_nature:salt_water_source` → `ocean` label)
    - Checks node groups (e.g., `group:wet_sediment` → `moisture_spread` label)
    - Detects seasonal soil patterns (e.g., nodes with `_spring` → `spring_soil` and `seasonal_plants` labels)
-   - Assigns appropriate labels to mapblocks using the `ms.labels_to_position()` API
+   - Calls `ms.labels_to_position()` with node positions
+   - The shepherd API internally determines which mapchunk contains each node position and labels that mapchunk
 
-3. **Migration Execution**: Runs automatically on mod load, processing all mapblocks in the database.
+4. **Migration Execution**: Runs automatically on mod load, processing all mapblocks in the database.
 
 ## Node to Label Mappings
 
