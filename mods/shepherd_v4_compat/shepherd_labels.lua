@@ -2,14 +2,20 @@
 -- This provides v4 compatibility by re-labeling mapchunks after database format changes
 -- Note: SQL stores mapblocks, we convert to node positions, shepherd labels mapchunks
 
+local mod_name = "shepherd_v4_compat"
+
 -- This file requires insecure environment and will only run if available
 local secenv = core.request_insecure_environment()
 if not secenv then
-    core.log("warning", "[shepherd_v4_compat] shepherd_labels.lua requires insecure environment")
-    return
+    core.log("warning", "[" .. mod_name .. "] shepherd_labels.lua requires insecure environment")
+    return false
 end
 
-local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
+local sql_map_reader = dofile(core.get_modpath(mod_name) .. "/sql_map_reader.lua")
+if not sql_map_reader then
+    core.log("error", "[" .. mod_name .. "] Failed to load sql_map_reader.lua")
+    return false
+end
 
 mapchunk_shepherd = mapchunk_shepherd  -- Ensure global is loaded before accessing
 assert(mapchunk_shepherd, "mapchunk_shepherd mod must be loaded before shepherd_v4_compat")
@@ -142,10 +148,14 @@ end
 
 -- Run the migration
 local function run_migration()
-    core.log("action", "[shepherd_v4_compat] Starting mapblock label migration...")
+    core.log("action", "[" .. mod_name .. "] Starting mapblock label migration...")
+    
+    -- Send initial message to all connected players
+    core.chat_send_all("[" .. mod_name .. "] Starting world migration. This may take a while for large worlds...")
     
     local start_time = os.clock()
     local block_count = 0
+    local last_chat_time = start_time
     
     sql_map_reader.iterate_blocks(function(block_data)
         process_mapblock(block_data)
@@ -154,18 +164,36 @@ local function run_migration()
         -- Log progress every 1000 blocks
         if block_count % 1000 == 0 then
             core.log("action", string.format(
-                "[shepherd_v4_compat] Processed %d mapblocks...",
+                "[" .. mod_name .. "] Processed %d mapblocks...",
                 block_count
             ))
+        end
+        
+        -- Send chat message to players every 10 seconds to show progress
+        -- Check time only every 100 blocks to reduce os.clock() overhead
+        if block_count % 100 == 0 then
+            local current_time = os.clock()
+            if current_time - last_chat_time >= 10 then
+                core.chat_send_all(string.format(
+                    "[" .. mod_name .. "] Migration in progress: %d mapblocks processed...",
+                    block_count
+                ))
+                last_chat_time = current_time
+            end
         end
     end)
     
     local elapsed = os.clock() - start_time
-    core.log("action", string.format(
-        "[shepherd_v4_compat] Migration complete: %d mapblocks in %.2f seconds",
+    local completion_msg = string.format(
+        "[" .. mod_name .. "] Migration complete: %d mapblocks in %.2f seconds",
         block_count, elapsed
-    ))
+    )
+    core.log("action", completion_msg)
+    core.chat_send_all(completion_msg)
 end
 
 -- Execute migration on mod load
 core.after(0, run_migration)
+
+-- Return true to indicate successful loading
+return true

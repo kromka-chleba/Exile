@@ -25,13 +25,14 @@ if secenv then
         assert(sql)
         assert(sql.open)
     else
-        core.log("error", "could not find sqlite3. old map update will not function")
-        core.log("error", lib)
+        core.log("error", "[shepherd_v4_compat] Could not find sqlite3 (lsqlite3). Old map update will not function")
+        core.log("error", "[shepherd_v4_compat] " .. tostring(lib))
+        return nil
     end
 else
-    core.log("error", "[shepherd_v4_compat] failed to load insecure" ..
+    core.log("error", "[shepherd_v4_compat] Failed to load insecure" ..
                  " environment, please add this mod to the trusted mods list.")
-    return
+    return nil
 end
 
 
