@@ -4,12 +4,19 @@ This mod provides compatibility for worlds upgrading from older versions of Exil
 
 ## Purpose
 
-The mapchunk_shepherd mod assigns labels to mapchunks (16x16x16 blocks) during mapgen based on:
+The mapchunk_shepherd mod assigns labels to mapblocks during mapgen based on:
 - Biome information
 - Decoration placement
 - Node content
 
-When the database format changed, this labeling information was lost for existing mapchunks. This mod reads the historical node data from the `map.sqlite` database and re-assigns shepherd labels based on the nodes present in each mapchunk.
+Note: In Minetest/Luanti terminology:
+- **Node** = one voxel (1x1x1)
+- **Mapblock** = 16x16x16 nodes
+- **Mapchunk** = 5x5x5 mapblocks (80x80x80 nodes)
+
+Despite its name, the shepherd mod operates at the mapblock level.
+
+When the database format changed, this labeling information was lost for existing mapblocks. This mod reads the historical node data from the `map.sqlite` database and re-assigns shepherd labels based on the nodes present in each mapblock.
 
 ## How It Works
 
@@ -22,7 +29,7 @@ When the database format changed, this labeling information was lost for existin
    - Maps specific nodes to shepherd labels (e.g., `nodes_nature:salt_water_source` → `ocean` label)
    - Checks node groups (e.g., `group:wet_sediment` → `moisture_spread` label)
    - Detects seasonal soil patterns (e.g., nodes with `_spring` → `spring_soil` and `seasonal_plants` labels)
-   - Assigns appropriate labels to mapchunks using the `ms.labels_to_position()` API
+   - Assigns appropriate labels to mapblocks using the `ms.labels_to_position()` API
 
 3. **Migration Execution**: Runs automatically on mod load, processing all mapblocks in the database.
 

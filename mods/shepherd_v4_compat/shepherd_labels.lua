@@ -1,5 +1,5 @@
--- Assign shepherd labels to mapchunks based on node content from map.sqlite
--- This provides v4 compatibility by re-labeling mapchunks after database format changes
+-- Assign shepherd labels to mapblocks based on node content from map.sqlite
+-- This provides v4 compatibility by re-labeling mapblocks after database format changes
 
 local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
 
@@ -106,7 +106,7 @@ local function process_mapblock(block_data)
         z = pos.z * 16
     }
     
-    -- Track which labels should be added to this mapchunk
+    -- Track which labels should be added to this mapblock
     local labels_to_add = {}
     
     -- Scan all nodes in the mapblock
@@ -132,7 +132,7 @@ end
 
 -- Run the migration
 local function run_migration()
-    core.log("action", "[shepherd_v4_compat] Starting mapchunk label migration...")
+    core.log("action", "[shepherd_v4_compat] Starting mapblock label migration...")
     
     local start_time = os.clock()
     local block_count = 0

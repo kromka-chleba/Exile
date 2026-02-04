@@ -1,5 +1,5 @@
 -- Shepherd v4 Compatibility Module
--- Re-assigns shepherd labels to mapchunks based on node content from map.sqlite
+-- Re-assigns shepherd labels to mapblocks based on node content from map.sqlite
 -- This is necessary after database format changes where mapgen labeling information was lost
 
 local mod_name = core.get_current_modname()
