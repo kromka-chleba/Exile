@@ -1,11 +1,19 @@
 local secenv = core.request_insecure_environment()
 local sql
 
--- the `map.sqlite` table has the following structure
--- CREATE TABLE `blocks` (`x` INTEGER,`y` INTEGER,`z` INTEGER,`data` BLOB NOT NULL,PRIMARY KEY (`x`, `z`, `y`))
--- The code below retrieves data from the table and decodes the blob.
+-- The `map.sqlite` table has different structures depending on Luanti version:
+--
+-- Pre-5.12.0 format:
+-- CREATE TABLE `blocks` (`pos` INT NOT NULL PRIMARY KEY, `data` BLOB);
+-- Position is encoded as: pos = (z << 24) + (y << 12) + x
+--
+-- 5.12.0+ format:
+-- CREATE TABLE `blocks` (`x` INTEGER, `y` INTEGER, `z` INTEGER,
+--                        `data` BLOB NOT NULL, PRIMARY KEY (`x`, `z`, `y`));
+-- Position is stored as separate x, y, z columns
+--
+-- The code below automatically detects which schema is in use and retrieves data accordingly.
 -- What is obtained are node content IDs (core.get_content_id(node_name)) mapped to node names.
--- TODO: content IDs for blocks could get out of date, it is probably good to verify them.
 
 -- load insecure environment
 
@@ -38,6 +46,31 @@ assert(db)
 -- Export functions for use by other files in this mod
 local sql_map_reader = {}
 
+-- Detect SQL table schema version
+-- Returns: "new" for 5.12.0+ (x,y,z columns), "old" for pre-5.12.0 (pos column)
+local function detect_schema()
+    -- Query the table structure
+    local has_pos = false
+    local has_xyz = false
+    
+    for row in db:nrows("PRAGMA table_info(blocks)") do
+        if row.name == "pos" then
+            has_pos = true
+        elseif row.name == "x" or row.name == "y" or row.name == "z" then
+            has_xyz = true
+        end
+    end
+    
+    if has_xyz then
+        return "new"
+    elseif has_pos then
+        return "old"
+    else
+        error("[shepherd_v4_compat] Unknown map.sqlite schema - neither pos nor x,y,z columns found")
+    end
+end
+
+-- Decode position hash (for old schema only)
 local function decode_pos_hash(hash)
         hash = hash + 0x800800800
         local x = bit.band(hash, 0xFFF) - 0x800
@@ -127,14 +160,29 @@ function sql_map_reader.iterate_blocks(callback)
         return
     end
     
+    local schema = detect_schema()
+    core.log("action", string.format("[shepherd_v4_compat] Detected map.sqlite schema: %s (%s format)",
+        schema, schema == "new" and "5.12.0+" or "pre-5.12.0"))
+    
     local count = 0
     local start = os.clock()
     
-    for row in db:nrows("SELECT pos,data FROM blocks") do
-        local block_pos = decode_pos_hash(row.pos)
-        local block_data = sql_map_reader.decode_mapblock(row.data, block_pos)
-        callback(block_data)
-        count = count + 1
+    if schema == "new" then
+        -- New schema (5.12.0+): SELECT x,y,z,data FROM blocks
+        for row in db:nrows("SELECT x,y,z,data FROM blocks") do
+            local block_pos = { x = row.x, y = row.y, z = row.z }
+            local block_data = sql_map_reader.decode_mapblock(row.data, block_pos)
+            callback(block_data)
+            count = count + 1
+        end
+    else
+        -- Old schema (pre-5.12.0): SELECT pos,data FROM blocks
+        for row in db:nrows("SELECT pos,data FROM blocks") do
+            local block_pos = decode_pos_hash(row.pos)
+            local block_data = sql_map_reader.decode_mapblock(row.data, block_pos)
+            callback(block_data)
+            count = count + 1
+        end
     end
     
     local elapsed = os.clock() - start

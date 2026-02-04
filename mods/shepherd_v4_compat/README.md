@@ -60,6 +60,27 @@ The following mappings are implemented based on the `shepherd_v3_compat` pattern
   ```
   secure.trusted_mods = shepherd_v4_compat
   ```
+- Supports Luanti/Minetest 5.0.0+ (both pre-5.12.0 and 5.12.0+ SQL schemas)
+
+## Compatibility
+
+The mod automatically detects and supports both SQL table formats:
+
+**Pre-5.12.0 format:**
+```sql
+CREATE TABLE `blocks` (`pos` INT NOT NULL PRIMARY KEY, `data` BLOB);
+```
+Position is encoded as a single integer hash.
+
+**5.12.0+ format:**
+```sql
+CREATE TABLE `blocks` (
+    `x` INTEGER, `y` INTEGER, `z` INTEGER,
+    `data` BLOB NOT NULL,
+    PRIMARY KEY (`x`, `z`, `y`)
+);
+```
+Position is stored as separate x, y, z columns.
 
 ## Performance
 
