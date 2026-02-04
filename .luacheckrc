@@ -232,6 +232,15 @@ files["mods/sfinv"] = {
     globals = {"sfinv"}
 }
 
+files["mods/shepherd_v4_compat"] = {
+    read_globals = {
+        -- dependencies in mod.conf
+        "mapchunk_shepherd",
+        -- optional dependencies in mod.conf
+        "nodes_nature"
+    }
+}
+
 files["mods/spawnex"] = {
     read_globals = {
         -- dependencies in mod.conf

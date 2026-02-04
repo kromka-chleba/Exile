@@ -7,6 +7,17 @@
 # was fixed.
 exile_bed_clear (Fix broken beds *press edit for details*) bool false
 
+## Shepherd compatibility settings
+
+# Enable LBM-based fallback for shepherd v4 compatibility.
+# 
+# This is only needed if the shepherd_v4_compat mod cannot access the
+# insecure environment (SQL-based compatibility). LBMs are less efficient
+# but provide a fallback mechanism for re-labeling mapchunks.
+# 
+# Only enable this if you see errors about insecure environment in the logs.
+shepherd_v4_use_lbm_fallback (Use LBM fallback for shepherd compatibility) bool false
+
 ## Gameplay settings
 
 # By default, Exile uses the world seed to generate dye sources. This
