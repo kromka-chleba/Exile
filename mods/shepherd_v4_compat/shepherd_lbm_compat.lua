@@ -45,8 +45,9 @@ if spring_soil_names then
         nodenames = spring_soil_names,
         run_at_every_load = false,
         bulk_action = function(pos_list, dtime_s)
-            -- All positions in pos_list are from the same mapblock
-            -- We only need one position to label the entire mapchunk
+            -- All positions in pos_list are from the same mapblock (16x16x16)
+            -- We only need one position to label the containing mapchunk (80x80x80)
+            -- since labels_to_position() labels entire mapchunks
             if pos_list and #pos_list > 0 then
                 ms.labels_to_position(pos_list[1], spring_labels)
             end
@@ -68,8 +69,9 @@ if winter_soil_names then
         nodenames = winter_soil_names,
         run_at_every_load = false,
         bulk_action = function(pos_list, dtime_s)
-            -- All positions in pos_list are from the same mapblock
-            -- We only need one position to label the entire mapchunk
+            -- All positions in pos_list are from the same mapblock (16x16x16)
+            -- We only need one position to label the containing mapchunk (80x80x80)
+            -- since labels_to_position() labels entire mapchunks
             if pos_list and #pos_list > 0 then
                 ms.labels_to_position(pos_list[1], winter_labels)
             end
