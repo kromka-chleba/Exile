@@ -3,13 +3,13 @@
 -- LBMs are inactive by default and must be enabled via game settings
 
 local mod_name = core.get_current_modname()
-local mod_path = core.get_modpath(mod_name)
 
 -- Check if LBMs should be enabled (they are disabled by default)
 local enable_lbms = core.settings:get_bool("shepherd_v4_use_lbm_fallback", false)
 
 if not enable_lbms then
-    core.log("action", "[" .. mod_name .. "] LBM fallback is disabled (set shepherd_v4_use_lbm_fallback=true to enable)")
+    core.log("action", "[" .. mod_name ..
+        "] LBM fallback is disabled (set shepherd_v4_use_lbm_fallback=true to enable)")
     return
 end
 
