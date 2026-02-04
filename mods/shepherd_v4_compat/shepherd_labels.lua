@@ -2,6 +2,13 @@
 -- This provides v4 compatibility by re-labeling mapchunks after database format changes
 -- Note: SQL stores mapblocks, we convert to node positions, shepherd labels mapchunks
 
+-- This file requires insecure environment and will only run if available
+local secenv = core.request_insecure_environment()
+if not secenv then
+    core.log("warning", "[shepherd_v4_compat] shepherd_labels.lua requires insecure environment")
+    return
+end
+
 local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
 
 mapchunk_shepherd = mapchunk_shepherd  -- Ensure global is loaded before accessing
