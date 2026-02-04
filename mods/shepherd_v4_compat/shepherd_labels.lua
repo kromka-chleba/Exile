@@ -6,10 +6,14 @@
 local secenv = core.request_insecure_environment()
 if not secenv then
     core.log("warning", "[shepherd_v4_compat] shepherd_labels.lua requires insecure environment")
-    return
+    return false
 end
 
 local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
+if not sql_map_reader then
+    core.log("error", "[shepherd_v4_compat] Failed to load sql_map_reader.lua")
+    return false
+end
 
 mapchunk_shepherd = mapchunk_shepherd  -- Ensure global is loaded before accessing
 assert(mapchunk_shepherd, "mapchunk_shepherd mod must be loaded before shepherd_v4_compat")
@@ -144,12 +148,18 @@ end
 local function run_migration()
     core.log("action", "[shepherd_v4_compat] Starting mapblock label migration...")
     
+    -- Send initial message to all connected players
+    core.chat_send_all("[shepherd_v4_compat] Starting world migration. This may take a while for large worlds...")
+    
     local start_time = os.clock()
     local block_count = 0
+    local last_chat_time = start_time
     
     sql_map_reader.iterate_blocks(function(block_data)
         process_mapblock(block_data)
         block_count = block_count + 1
+        
+        local current_time = os.clock()
         
         -- Log progress every 1000 blocks
         if block_count % 1000 == 0 then
@@ -157,15 +167,29 @@ local function run_migration()
                 "[shepherd_v4_compat] Processed %d mapblocks...",
                 block_count
             ))
+            
+            -- Send chat message to players every 10 seconds to show progress
+            if current_time - last_chat_time >= 10 then
+                core.chat_send_all(string.format(
+                    "[shepherd_v4_compat] Migration in progress: %d mapblocks processed...",
+                    block_count
+                ))
+                last_chat_time = current_time
+            end
         end
     end)
     
     local elapsed = os.clock() - start_time
-    core.log("action", string.format(
+    local completion_msg = string.format(
         "[shepherd_v4_compat] Migration complete: %d mapblocks in %.2f seconds",
         block_count, elapsed
-    ))
+    )
+    core.log("action", completion_msg)
+    core.chat_send_all(completion_msg)
 end
 
 -- Execute migration on mod load
 core.after(0, run_migration)
+
+-- Return true to indicate successful loading
+return true
