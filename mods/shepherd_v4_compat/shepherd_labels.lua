@@ -3,7 +3,8 @@
 
 local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
 
-mapchunk_shepherd = mapchunk_shepherd
+mapchunk_shepherd = mapchunk_shepherd  -- Ensure global is loaded before accessing
+assert(mapchunk_shepherd, "mapchunk_shepherd mod must be loaded before shepherd_v4_compat")
 local ms = mapchunk_shepherd
 
 -- Node to label mappings based on shepherd_v3_compat patterns
@@ -30,7 +31,9 @@ local group_to_labels = {
     ["wet_sediment"] = {"moisture_spread"},
     ["drops_leaves"] = {"leaves"},
     ["leaf_marker"] = {"leaves_dropped"},
-    ["spreading"] = {"seasonal_plants"},  -- Seasonal soils have spreading group
+    -- The 'spreading' group is assigned to spring/summer seasonal soils
+    -- (winter soils and roots explicitly have spreading=nil or 0)
+    ["spreading"] = {"seasonal_plants"},
 }
 
 -- Seasonal soil mappings require checking specific node patterns
@@ -39,11 +42,11 @@ local group_to_labels = {
 local seasonal_soil_patterns = {
     spring = {
         patterns = {"_spring_", "_spring$", "^spring_"},
-        labels = {"spring_soil"},
+        labels = {"spring_soil", "seasonal_plants"},
     },
     winter = {
         patterns = {"_winter_", "_winter$", "^winter_"},
-        labels = {"winter_soil"},
+        labels = {"winter_soil", "seasonal_plants"},
     },
 }
 
