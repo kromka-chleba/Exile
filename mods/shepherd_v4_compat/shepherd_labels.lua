@@ -1,3 +1,158 @@
--- TODO: populate this file
--- get list of nodes for each `blockpos` using functions exposed by `sql_map_reader.lua`. Assign labels to mapchunks based on these nodes.
--- node -> label mappings need to be created
+-- Assign shepherd labels to mapchunks based on node content from map.sqlite
+-- This provides v4 compatibility by re-labeling mapchunks after database format changes
+
+local sql_map_reader = dofile(core.get_modpath("shepherd_v4_compat") .. "/sql_map_reader.lua")
+
+mapchunk_shepherd = mapchunk_shepherd
+local ms = mapchunk_shepherd
+
+-- Node to label mappings based on shepherd_v3_compat patterns
+-- Multiple labels can be assigned to a position
+local node_to_labels = {
+    -- Ocean biome nodes
+    ["nodes_nature:salt_water_source"] = {"ocean"},
+    
+    -- Ice/freezing nodes
+    ["nodes_nature:ice"] = {"last_freezed"},
+    ["nodes_nature:sea_ice"] = {"last_freezed"},
+    
+    -- Snow nodes
+    ["nodes_nature:snow"] = {"last_snow"},
+    ["nodes_nature:snow_block"] = {"last_snow"},
+    
+    -- Freshwater nodes
+    ["nodes_nature:freshwater_source"] = {"water_gravity"},
+}
+
+-- Group-based label assignments
+-- We need to check node groups for these
+local group_to_labels = {
+    ["wet_sediment"] = {"moisture_spread"},
+    ["drops_leaves"] = {"leaves"},
+    ["leaf_marker"] = {"leaves_dropped"},
+    ["spreading"] = {"seasonal_plants"},  -- Seasonal soils have spreading group
+}
+
+-- Seasonal soil mappings require checking specific node patterns
+-- Spring soils typically have "spring" or nodes with spreading group
+-- Winter soils are derived from spring soils and have "winter" in name
+local seasonal_soil_patterns = {
+    spring = {
+        patterns = {"_spring_", "_spring$", "^spring_"},
+        labels = {"spring_soil"},
+    },
+    winter = {
+        patterns = {"_winter_", "_winter$", "^winter_"},
+        labels = {"winter_soil"},
+    },
+}
+
+-- Check if a node belongs to a group
+local function node_has_group(node_name, group)
+    local node_def = core.registered_nodes[node_name]
+    if node_def and node_def.groups and node_def.groups[group] then
+        return true
+    end
+    return false
+end
+
+-- Get labels for a specific node
+local function get_labels_for_node(node_name)
+    local labels = {}
+    
+    -- Direct node name mapping
+    if node_to_labels[node_name] then
+        for _, label in ipairs(node_to_labels[node_name]) do
+            table.insert(labels, label)
+        end
+    end
+    
+    -- Group-based mappings
+    for group, group_labels in pairs(group_to_labels) do
+        if node_has_group(node_name, group) then
+            for _, label in ipairs(group_labels) do
+                table.insert(labels, label)
+            end
+        end
+    end
+    
+    -- Seasonal soil pattern matching
+    for season, info in pairs(seasonal_soil_patterns) do
+        for _, pattern in ipairs(info.patterns) do
+            if string.find(node_name, pattern) then
+                for _, label in ipairs(info.labels) do
+                    table.insert(labels, label)
+                end
+                break
+            end
+        end
+    end
+    
+    return labels
+end
+
+-- Process a single mapblock and assign labels
+local function process_mapblock(block_data)
+    local pos = block_data.pos
+    local nodes = block_data.nodes
+    
+    -- Convert mapblock position to world position (center of first node)
+    local world_pos = {
+        x = pos.x * 16,
+        y = pos.y * 16,
+        z = pos.z * 16
+    }
+    
+    -- Track which labels should be added to this mapchunk
+    local labels_to_add = {}
+    
+    -- Scan all nodes in the mapblock
+    for _, node_name in ipairs(nodes) do
+        if node_name ~= "ignore" and node_name ~= "unknown" then
+            local node_labels = get_labels_for_node(node_name)
+            for _, label in ipairs(node_labels) do
+                labels_to_add[label] = true
+            end
+        end
+    end
+    
+    -- Convert to array and assign labels if any were found
+    local labels_array = {}
+    for label, _ in pairs(labels_to_add) do
+        table.insert(labels_array, label)
+    end
+    
+    if #labels_array > 0 then
+        ms.labels_to_position(world_pos, labels_array)
+    end
+end
+
+-- Run the migration
+local function run_migration()
+    core.log("action", "[shepherd_v4_compat] Starting mapchunk label migration...")
+    
+    local start_time = os.clock()
+    local block_count = 0
+    
+    sql_map_reader.iterate_blocks(function(block_data)
+        process_mapblock(block_data)
+        block_count = block_count + 1
+        
+        -- Log progress every 1000 blocks
+        if block_count % 1000 == 0 then
+            core.log("action", string.format(
+                "[shepherd_v4_compat] Processed %d mapblocks...",
+                block_count
+            ))
+        end
+    end)
+    
+    local elapsed = os.clock() - start_time
+    core.log("action", string.format(
+        "[shepherd_v4_compat] Migration complete: %d mapblocks in %.2f seconds",
+        block_count, elapsed
+    ))
+end
+
+-- Execute migration on mod load
+core.after(0, run_migration)
