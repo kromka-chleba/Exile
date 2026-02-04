@@ -159,23 +159,22 @@ local function run_migration()
         process_mapblock(block_data)
         block_count = block_count + 1
         
-        local current_time = os.clock()
-        
         -- Log progress every 1000 blocks
         if block_count % 1000 == 0 then
             core.log("action", string.format(
                 "[shepherd_v4_compat] Processed %d mapblocks...",
                 block_count
             ))
-            
-            -- Send chat message to players every 10 seconds to show progress
-            if current_time - last_chat_time >= 10 then
-                core.chat_send_all(string.format(
-                    "[shepherd_v4_compat] Migration in progress: %d mapblocks processed...",
-                    block_count
-                ))
-                last_chat_time = current_time
-            end
+        end
+        
+        -- Send chat message to players every 10 seconds to show progress
+        local current_time = os.clock()
+        if current_time - last_chat_time >= 10 then
+            core.chat_send_all(string.format(
+                "[shepherd_v4_compat] Migration in progress: %d mapblocks processed...",
+                block_count
+            ))
+            last_chat_time = current_time
         end
     end)
     
