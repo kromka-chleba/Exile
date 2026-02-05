@@ -140,7 +140,7 @@ local function OpenTheGate(player)
     local gate = core.find_node_near(pos, 3, "tutorial_exile:iron_wall")
     if gate then
         core.sound_play("tech_iron_chest_close",
-                        { pos = gate, gain = 1, max_hear_distance = 6 })
+                        { pos = gate, gain = 1, max_hear_distance = 10 })
         core.remove_node(gate)
         queue_next_weather(player)
     end
@@ -163,6 +163,35 @@ local function tracking()
     minetest.after(1.5, tracking)
 end
 
+local function OpenFireGate(pos, player)
+    local gate = core.find_node_near(pos, 6, "tutorial_exile:iron_wall")
+    if gate then
+        core.sound_play("tech_iron_chest_close",
+                        { pos = gate, gain = 1, max_hear_distance = 10 })
+        core.remove_node(gate)
+        if player then
+            queue_next_weather(player)
+        end
+    end
+end
+local function TutorialShelterFire(pos)
+    local objs = core.get_objects_inside_radius(pos, 6)
+    local player
+    for _, o in pairs(objs) do
+        if core.is_player(o) then player = o ; break ; end
+    end
+    minimal.switch_node(pos, "tech:small_wood_fire")
+    local meta = core.get_meta(pos)
+    meta:set_string("hot_air", "Y")
+    minetest.check_for_falling(pos)
+    core.after(8, OpenFireGate, pos, player)
+end
+core.override_item("tutorial_exile:demo_fire", {
+        on_ignite = TutorialShelterFire
+})
+
+-- Enter and exit functions
+
 local function enter(stage, player, name, instance)
     HEALTH.hide_hud_elements(player, nil, "all")
     HEALTH.show_hud_elements(player, nil, "enviro_temp")
@@ -174,6 +203,7 @@ local function enter(stage, player, name, instance)
     core.after(12, tracking) -- won't hit the next stage for a bit
 end
 local function exit(stage, player, name, instance)
+    HEALTH.show_hud_elements(player, nil, "all")
     remove_instance_weather(name)
 end
 

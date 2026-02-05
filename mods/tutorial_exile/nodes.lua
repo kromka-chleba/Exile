@@ -149,6 +149,22 @@ minetest.register_node(
                    not_in_creative_inventory = 1 }
 })
 
+minetest.register_node(
+    "tutorial_exile:demo_fire", {
+        description = S("Demonstration fire"),
+        drawtype = "nodebox",
+        node_box = {
+            type = "fixed",
+            fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+        },
+        tiles = {"tech_wood_fire_unlit.png"},
+        paramtype = "light",
+        groups = { flammable = 1 },
+        sounds = nodes_nature.node_sound_wood_defaults(),
+        on_ignite = nil -- see the override in shelter.lua
+})
+
+
 --- Door and switch
 
 ncrafting.register_switch(
@@ -228,9 +244,16 @@ local info = { -- #TODO: set up locales, template.txt etc
                   "client-side mod to handle controls locally."),
     ["movement"] = S("Loss of energy affects move and jump rate."),
     ["torch"] = S("Drop a torch to see what's below."),
-    ["shelter"] = S("A shelter needs a roof. Once completed, it will shield against hot or cold weather."),
+    ["shelter"] = S("A shelter needs something solid over your head.@n"..
+                    "Once completed, this roof will shield against hot or "..
+                    "cold weather."),
     ["shelter_bed"] = S("Build a bed in a sheltered place to restore energy.@n"
-                        .."Better beds restore it faster.")
+                        .."Better beds restore it faster."),
+    ["shelter_fire"] = S("Fires create hot air, which will drift away unless "..
+                         "contained.@n"..
+                         "It is normally invisible, but is shown here."),
+    ["shelter_fire2"] = S("Keep fires away from water, muddy ground, and "..
+                          "anything that can catch on fire.")
 }
 
 local function display_info(pos, player)
