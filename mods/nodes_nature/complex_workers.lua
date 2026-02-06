@@ -313,20 +313,21 @@ function nn.create_soak_out_move_down(args_in)
                 end
             end
 
-            -- Check neighbors using neighborhood API
+            -- Check all 6 adjacent positions (may be up to 6 if not at world boundaries)
             local adjacent = neighborhood:get_adjacent_positions(world_pos)
             for _, adj_pos in ipairs(adjacent) do
-                -- Don't check below for now
-                if adj_pos.y >= world_pos.y then
+                -- Check sideways and below positions
+                if adj_pos.y < world_pos.y then
+                    -- Below - just count wet
+                    count_wet(adj_pos)
+                elseif adj_pos.y == world_pos.y then
+                    -- Sideways - check air and wet
                     check_air_below(adj_pos)
                 else
+                    -- Above - count wet
                     count_wet(adj_pos)
                 end
             end
-            
-            -- Check above
-            local above_pos = vector.add(world_pos, vector.new(0, 1, 0))
-            count_wet(above_pos)
 
             if #air_table > 0 and wet_nr >= 8 then
                 local selected_pos = air_table[math.random(1, #air_table)]
@@ -435,11 +436,12 @@ function nn.create_gravity_soak_in(args_in)
                         end
                         
                         -- Check positions below and sideways
+                        -- Positions below get checked twice for downward bias (gravity effect)
                         local adjacent = neighborhood:get_adjacent_positions(world_pos)
                         for _, adj_pos in ipairs(adjacent) do
                             if adj_pos.y <= world_pos.y then
                                 check_adjacent(adj_pos)
-                                -- Check twice for positions below to add downward bias
+                                -- Check twice for positions directly below to add downward bias
                                 if adj_pos.y < world_pos.y then
                                     check_adjacent(adj_pos)
                                 end
@@ -460,14 +462,15 @@ function nn.create_gravity_soak_in(args_in)
                             neighborhood:write_node(selected_pos, buildable_to_liquid_ids[air_node])
                             
                             -- Update previous_i if we moved within the same block
-                            local block_offset_x = selected_pos.x - pos_min.x
-                            local block_offset_y = selected_pos.y - pos_min.y
-                            local block_offset_z = selected_pos.z - pos_min.z
-                            if block_offset_x >= 0 and block_offset_x < block_side and
-                               block_offset_y >= 0 and block_offset_y < block_side and
-                               block_offset_z >= 0 and block_offset_z < block_side then
-                                previous_i = 1 + block_offset_z * block_side^2 + 
-                                           block_offset_y * block_side + block_offset_x
+                            -- This prevents processing the same water source twice in one iteration
+                            local offset_x = selected_pos.x - pos_min.x
+                            local offset_y = selected_pos.y - pos_min.y
+                            local offset_z = selected_pos.z - pos_min.z
+                            if offset_x >= 0 and offset_x < block_side and
+                               offset_y >= 0 and offset_y < block_side and
+                               offset_z >= 0 and offset_z < block_side then
+                                previous_i = 1 + offset_z * block_side^2 + 
+                                           offset_y * block_side + offset_x
                             end
                         end
                     end
