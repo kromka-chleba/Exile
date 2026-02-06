@@ -712,24 +712,7 @@ local function water_source_down(pos)
     end
 end
 
-nn.moisture_orphans = {}
-nn.water_orphans = {}
-
-local function handle_sediment_orphans(hash)
-    local orphans = nn.moisture_orphans[hash]
-    for _, pos in pairs(orphans) do
-        moisture_spread(pos)
-    end
-    nn.moisture_orphans[hash] = {}
-end
-
-local function handle_water_orphans(hash)
-    local orphans = nn.water_orphans[hash]
-    for _, pos in pairs(orphans) do
-        water_source_down(pos)
-    end
-    nn.water_orphans[hash] = {}
-end
+-- Orphan handling removed - now handled by block_neighborhood API in workers
 
 local function start_moisture_spread()
     local buildable_to_liquid = {}
@@ -749,7 +732,6 @@ local function start_moisture_spread()
          work_every = moisture_spread_interval,
          has_one_of = soil_labels,
          rework_labels = {"moisture_spread"},
-         afterworker = handle_sediment_orphans,
     })
     worker:register()
     local soak_in_grav =
@@ -766,7 +748,6 @@ local function start_moisture_spread()
          work_every = 50,
          has_one_of = soil_labels,
          rework_labels = {"water_gravity"},
-         afterworker = handle_water_orphans,
     })
     worker2:register()
 end
