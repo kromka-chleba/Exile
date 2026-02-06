@@ -236,7 +236,7 @@ minetest.register_on_generated(function(vm, minp, maxp, seed)
 	vm:get_param2_data(p2data)
 
     -- Add the "volcano" label to volcano chunks
-    local hash = ms.mapchunk_hash(emin)
+    local hash = ms.mapblock_hash(emin)
     local volcano_watchdog = ms.mapgen_watchdog.new(hash)
     volcano_watchdog:mark_for_addition("volcano")
     volcano_watchdog:save_gen_notify()

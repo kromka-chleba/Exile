@@ -10,7 +10,7 @@ local climate = climate
 local placeholder_id_pairs = ms.placeholder_id_pairs()
 local ignore_id = minetest.get_content_id("ignore")
 
-local chunk_side = ms.chunk_side()
+local block_side = ms.block_side()
 
 function nn.create_evaporator(args_in)
     local args = table.copy(args_in)
@@ -64,25 +64,25 @@ function nn.create_evaporator(args_in)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local z = math.floor((i - 1) / chunk_side^2)
-                local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-                local x = (i - 1) % chunk_side
+                local z = math.floor((i - 1) / block_side^2)
+                local y = math.floor((i - 1 - z * block_side^2) / block_side)
+                local x = (i - 1) % block_side
 
                 -- need to handle them edges in moisture_spread.lua
                 -- too lazy for that today
-                if not (x == 0 or x == chunk_side - 1 or
-                        z == 0 or z == chunk_side - 1 or
-                        y == 0 or y == chunk_side - 1) then
+                if not (x == 0 or x == block_side - 1 or
+                        z == 0 or z == block_side - 1 or
+                        y == 0 or y == block_side - 1) then
 
                     local has_air = false
 
                     if neighbor_ids[data[i - 1]] or
                         neighbor_ids[data[i + 1]] or
                         -- not checking for air below
-                        --neighbor_ids[data[i - chunk_side]] or
-                        neighbor_ids[data[i + chunk_side]] or
-                        neighbor_ids[data[i - chunk_side^2]] or
-                        neighbor_ids[data[i + chunk_side^2]] then
+                        --neighbor_ids[data[i - block_side]] or
+                        neighbor_ids[data[i + block_side]] or
+                        neighbor_ids[data[i - block_side^2]] or
+                        neighbor_ids[data[i + block_side^2]] then
                         has_air = true
                     end
 
@@ -98,7 +98,7 @@ function nn.create_evaporator(args_in)
                         end
                     else
                         -- is sediment
-                        local light = data_light[i + chunk_side] or 0
+                        local light = data_light[i + block_side] or 0
                         local light_cofactor = light / 15
                         evap_chance = temperature_cofactor * light_cofactor
                             * chance
@@ -155,7 +155,7 @@ function nn.create_soak_out_move_down(args_in)
     -- The actual worker function
     return function(pos_min, pos_max, vm_data, chance)
         --local t1 = minetest.get_us_time()
-        local hash = ms.mapchunk_hash(pos_min)
+        local hash = ms.mapblock_hash(pos_min)
         nn.moisture_orphans[hash] = {}
         local found = false
         local data = vm_data.nodes
@@ -165,11 +165,11 @@ function nn.create_soak_out_move_down(args_in)
         end
 
         local function z_index(index)
-            return index + chunk_side^2
+            return index + block_side^2
         end
 
         local function y_index(index)
-            return index - chunk_side
+            return index - block_side
         end
 
         local unmoved = {}
@@ -227,7 +227,7 @@ function nn.create_soak_out_move_down(args_in)
         end
 
         local start = 0
-        local finish = chunk_side - 1
+        local finish = block_side - 1
 
         local z_start = math.random(0, 1)
         local z_finish = finish - 2 - z_start
@@ -239,9 +239,9 @@ function nn.create_soak_out_move_down(args_in)
         local function z_step()
             local index_function = z_index
             for z = z_start, z_finish, 2 do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = start, y_finish do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = start, finish do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -254,9 +254,9 @@ function nn.create_soak_out_move_down(args_in)
         local function x_step()
             local index_function = x_index
             for z = start, finish do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = start, y_finish do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = x_start, x_finish, 2 do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -269,9 +269,9 @@ function nn.create_soak_out_move_down(args_in)
         local function y_step()
             local index_function = y_index
             for z = start, finish do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = y_start, y_finish, 2 do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = start, finish do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -301,9 +301,9 @@ function nn.create_soak_out_move_down(args_in)
                     wet_nr = wet_nr + 1
                 elseif buildable_to_liquid_ids[data[index]] then
                     -- checking what's below
-                    if buildable_to_liquid_ids[data[index - chunk_side]] then
+                    if buildable_to_liquid_ids[data[index - block_side]] then
                         -- needs to have air below to soak out
-                        table.insert(air_table, index - chunk_side)
+                        table.insert(air_table, index - block_side)
                     elseif wet_to_dry_ids[data[index]] then
                         wet_nr = wet_nr + 1
                     end
@@ -314,19 +314,19 @@ function nn.create_soak_out_move_down(args_in)
                 add_wet(index)
                 add_wet(index - 1)
                 add_wet(index + 1)
-                add_wet(index - chunk_side^2)
-                add_wet(index + chunk_side^2)
+                add_wet(index - block_side^2)
+                add_wet(index + block_side^2)
             end
 
             -- checks on the level and below
             local function check_both(index)
                 add_both(index - 1)
                 add_both(index + 1)
-                add_both(index - chunk_side^2)
-                add_both(index + chunk_side^2)
+                add_both(index - block_side^2)
+                add_both(index + block_side^2)
             end
 
-            local above_index = i + chunk_side
+            local above_index = i + block_side
             check_both(i)
             check_wet(above_index)
 
@@ -338,12 +338,12 @@ function nn.create_soak_out_move_down(args_in)
         end
 
         for i, _ in pairs(unmoved) do
-            local z = math.floor((i - 1) / chunk_side^2)
-            local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-            local x = (i - 1) % chunk_side
-            if not (x == 0 or x == chunk_side - 1 or
-                    z == 0 or z == chunk_side - 1 or
-                    y == 0 or y == chunk_side - 1) then
+            local z = math.floor((i - 1) / block_side^2)
+            local y = math.floor((i - 1 - z * block_side^2) / block_side)
+            local x = (i - 1) % block_side
+            if not (x == 0 or x == block_side - 1 or
+                    z == 0 or z == block_side - 1 or
+                    y == 0 or y == block_side - 1) then
                 soak_out(i)
             else
                 local node_pos = vector.new(x, y, z)
@@ -398,7 +398,7 @@ function nn.create_gravity_soak_in(args_in)
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes
-        local hash = ms.mapchunk_hash(pos_min)
+        local hash = ms.mapblock_hash(pos_min)
 
         local orphans = {}
         nn.water_orphans[hash] = {}
@@ -409,15 +409,15 @@ function nn.create_gravity_soak_in(args_in)
                 local replacement = liquid_to_air_ids[data[i]]
                 if replacement and i ~= previous_i then
                     -- z, y, x have values 0 - 79
-                    local z = math.floor((i - 1) / chunk_side^2)
+                    local z = math.floor((i - 1) / block_side^2)
                     local y = math.floor((i - 1 - z
-                                          * chunk_side^2) / chunk_side)
-                    local x = (i - 1) % chunk_side
-                    local dry_below = dry_to_wet_ids[data[i - chunk_side]]
-                    local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if x == 0 or x == chunk_side - 1 or
-                        z == 0 or z == chunk_side - 1 or
-                        y == 0 or y == chunk_side - 1 then
+                                          * block_side^2) / block_side)
+                    local x = (i - 1) % block_side
+                    local dry_below = dry_to_wet_ids[data[i - block_side]]
+                    local seawater_below = seawater_ids[data[i - block_side]]
+                    if x == 0 or x == block_side - 1 or
+                        z == 0 or z == block_side - 1 or
+                        y == 0 or y == block_side - 1 then
                         -- borders here
                         if last then
                             table.insert(orphans, i)
@@ -425,7 +425,7 @@ function nn.create_gravity_soak_in(args_in)
                     elseif dry_below then
                         -- Soak in
                         data[i] = replacement
-                        data[i - chunk_side] = dry_below
+                        data[i - block_side] = dry_below
                     elseif seawater_below then
                         -- Remove if seawater below
                         data[i] = replacement
@@ -444,11 +444,11 @@ function nn.create_gravity_soak_in(args_in)
                             -- x border
                             add(index - 1)
                             add(index + 1)
-                            add(index - chunk_side^2)
-                            add(index + chunk_side^2)
+                            add(index - block_side^2)
+                            add(index + block_side^2)
                         end
-                        check(i - chunk_side) -- below
-                        check(i - chunk_side) -- add twice for downwards bias
+                        check(i - block_side) -- below
+                        check(i - block_side) -- add twice for downwards bias
                         check(i)
 
                         if #dry_table >= 1 then
@@ -483,9 +483,9 @@ function nn.create_gravity_soak_in(args_in)
 
         for _, orphan in pairs(orphans) do
             if liquid_to_air_ids[data[orphan]] then
-                local air_z = math.floor((orphan - 1) / chunk_side^2)
-                local air_y = math.floor((orphan - 1 - air_z * chunk_side^2) / chunk_side)
-                local air_x = (orphan - 1) % chunk_side
+                local air_z = math.floor((orphan - 1) / block_side^2)
+                local air_y = math.floor((orphan - 1 - air_z * block_side^2) / block_side)
+                local air_x = (orphan - 1) % block_side
                 local air_pos = vector.new(air_x, air_y, air_z)
                 table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
             end
