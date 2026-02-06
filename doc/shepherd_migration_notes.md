@@ -11,7 +11,7 @@ This document describes the migration from the mapchunk-based shepherd API to th
 
 - `ms.mapchunk_hash()` → `ms.mapblock_hash()`
   - Computes a hash for a mapblock position
-  - Now uses Luanti's standard `core.hash_node_position()`
+  - Now uses Minetest/Luanti's standard `core.hash_node_position()`
   - Updated in complex_workers.lua, volcanoes.lua, and spawnex/init.lua
 
 ### 2. API Signature Changes

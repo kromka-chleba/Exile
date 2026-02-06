@@ -12,6 +12,13 @@ local ignore_id = minetest.get_content_id("ignore")
 
 local block_side = ms.block_side()
 
+-- Helper function to check if a position is at block boundary
+local function is_at_block_boundary(x, y, z)
+    return (x == 0 or x == block_side - 1 or
+            z == 0 or z == block_side - 1 or
+            y == 0 or y == block_side - 1)
+end
+
 function nn.create_evaporator(args_in)
     local args = table.copy(args_in)
     local find_replace_pairs = args.find_replace_pairs
@@ -70,9 +77,7 @@ function nn.create_evaporator(args_in)
 
                 -- need to handle them edges in moisture_spread.lua
                 -- too lazy for that today
-                if not (x == 0 or x == block_side - 1 or
-                        z == 0 or z == block_side - 1 or
-                        y == 0 or y == block_side - 1) then
+                if not is_at_block_boundary(x, y, z) then
 
                     local has_air = false
 
@@ -341,9 +346,7 @@ function nn.create_soak_out_move_down(args_in)
             local z = math.floor((i - 1) / block_side^2)
             local y = math.floor((i - 1 - z * block_side^2) / block_side)
             local x = (i - 1) % block_side
-            if not (x == 0 or x == block_side - 1 or
-                    z == 0 or z == block_side - 1 or
-                    y == 0 or y == block_side - 1) then
+            if not is_at_block_boundary(x, y, z) then
                 soak_out(i)
             else
                 local node_pos = vector.new(x, y, z)
@@ -415,9 +418,7 @@ function nn.create_gravity_soak_in(args_in)
                     local x = (i - 1) % block_side
                     local dry_below = dry_to_wet_ids[data[i - block_side]]
                     local seawater_below = seawater_ids[data[i - block_side]]
-                    if x == 0 or x == block_side - 1 or
-                        z == 0 or z == block_side - 1 or
-                        y == 0 or y == block_side - 1 then
+                    if is_at_block_boundary(x, y, z) then
                         -- borders here
                         if last then
                             table.insert(orphans, i)
