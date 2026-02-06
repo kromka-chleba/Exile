@@ -24,93 +24,52 @@ The system has migrated from "mapchunk" terminology to "mapblock":
 - **Mapblock**: 16x16x16 nodes (what the system now processes)
 - **Mapchunk**: 5x5x5 mapblocks = 80x80x80 nodes (old terminology, no longer used)
 
-## Worker Edge Handling
+## Worker Edge Handling - COMPLETED ✅
 
-### Current Approach
-Workers in `complex_workers.lua` (evaporator, soak_out_move_down, gravity_soak_in) currently:
-1. Skip processing nodes at block boundaries (x/y/z == 0 or 15)
-2. Store "orphan" positions for boundary nodes
-3. Process orphans later using ABM-style callbacks in afterworker
+### Previous Approach (Removed)
+Workers previously:
+1. Skipped processing nodes at block boundaries (x/y/z == 0 or 15)
+2. Stored "orphan" positions for boundary nodes
+3. Processed orphans later using ABM-style callbacks in afterworker
 
-Example from complex_workers.lua:
-```lua
--- Lines 73-75, 344-346
-if not (x == 0 or x == block_side - 1 or
-        z == 0 or z == block_side - 1 or
-        y == 0 or y == block_side - 1) then
-    -- Process node
-else
-    -- Store as orphan
-    table.insert(nn.moisture_orphans[hash], vector.add(pos_min, node_pos))
-end
-```
-
-### Optional Refactoring: Block Neighborhood Wrapper
-
-The new shepherd API provides a `block_neighborhood` wrapper that allows workers to:
+### Current Approach (Implemented)
+Workers now use the `block_neighborhood` API to:
 - Read and write nodes in adjacent mapblocks
-- Eliminate orphan tracking
 - Process boundary nodes directly within the worker
+- Eliminate orphan tracking and afterworker callbacks
 
-See `/mods/mapchunk_shepherd/example_neighbor_worker.lua` for a complete example.
+### Implementation Details
 
-#### Benefits
-- More efficient (no ABM callbacks needed)
-- Cleaner code (no orphan tracking)
-- True cross-block operations in a single pass
+All three complex workers have been refactored:
 
-#### Refactoring Steps (for future work)
+1. **create_evaporator**
+   - Uses `neighborhood:read_node()` to check air neighbors
+   - Uses `neighborhood:get_adjacent_positions()` for 6-connectivity
+   - Processes all nodes including boundaries
 
-1. **Wrap the worker function:**
-```lua
-local bn = ms.block_neighborhood
+2. **create_soak_out_move_down**
+   - Refactored moisture spread to use neighborhood API
+   - Checks wet/dry neighbors across block boundaries
+   - Handles air positions for soak-out across edges
 
-local function moisture_worker(pos_min, pos_max, vm_data, chance, neighborhood)
-    -- Can now access adjacent blocks via neighborhood:read_node() / write_node()
-    -- neighborhood:get_adjacent_positions() for 6-connectivity
-    return labels_to_add, labels_to_remove, light_changed, param2_changed
-end
+3. **create_gravity_soak_in**
+   - Water gravity uses neighborhood API
+   - Checks below and sideways positions across boundaries
+   - Implements downward bias by checking below positions twice
 
-local wrapped = bn.wrap_worker_function(moisture_worker, true)
-```
+### Benefits Achieved
+- ✅ More efficient (no ABM callbacks needed)
+- ✅ Cleaner code (no orphan tracking)
+- ✅ True cross-block operations in a single pass
+- ✅ Proper moisture spread across boundaries
+- ✅ Correct water gravity at block edges
+- ✅ Working evaporation at boundaries
 
-2. **Update worker registration:**
-```lua
-ms.worker.new({
-    name = "moisture_spread_worker",
-    fun = wrapped,  -- Use wrapped function
-    -- ... other params
-}):register()
-```
-
-3. **Remove orphan handling:**
-- Remove `nn.moisture_orphans` and `nn.water_orphans` tracking
-- Remove `handle_sediment_orphans` and `handle_water_orphans` callbacks
-- Remove boundary exclusion checks
-
-#### Example Worker Patterns
-
-**Reading from neighbor:**
-```lua
-local neighbor_pos = vector.add(world_pos, vector.new(1, 0, 0))
-local neighbor_node = neighborhood:read_node(neighbor_pos)
-```
-
-**Writing to neighbor:**
-```lua
-if neighbor_node == air_id then
-    neighborhood:write_node(neighbor_pos, water_id)
-end
-```
-
-**Getting adjacent positions:**
-```lua
-local adjacent = neighborhood:get_adjacent_positions(world_pos)
-for _, adj_pos in ipairs(adjacent) do
-    local node = neighborhood:read_node(adj_pos)
-    -- Process
-end
-```
+### Code Removed
+- `is_at_block_boundary()` helper function
+- `nn.moisture_orphans` and `nn.water_orphans` tables
+- `handle_sediment_orphans()` and `handle_water_orphans()` callbacks
+- All boundary exclusion checks
 
 ## Compatibility Notes
 
