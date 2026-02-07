@@ -157,23 +157,26 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     end
     
     -- Set appropriate labels for the mapblock based on what we found
-    -- Use a position in the middle of the mapblock for labeling
-    local center_pos = {
-        x = math.floor((minp.x + maxp.x) / 2),
-        y = math.floor((minp.y + maxp.y) / 2),
-        z = math.floor((minp.z + maxp.z) / 2)
-    }
-    
+    -- In mapgen environment, we must use mapgen_watchdog and save_gen_notify
+    -- instead of labels_to_position
     local ms = mapchunk_shepherd
     
+    -- Get the mapblock coordinates from minp
+    local blockpos = ms.units.mapblock_coords(minp)
+    local watchdog = ms.mapgen_watchdog.new(blockpos)
+    
     if has_winter_soil then
-        ms.labels_to_position(center_pos, {"winter_soil"})
+        watchdog:mark_for_addition("winter_soil")
     elseif has_spring_soil then
-        ms.labels_to_position(center_pos, {"spring_soil"})
+        watchdog:mark_for_addition("spring_soil")
     end
     
     if has_seasonal_plants then
-        ms.labels_to_position(center_pos, {"seasonal_plants", current_season .. "_plants"})
+        watchdog:mark_for_addition("seasonal_plants")
+        watchdog:mark_for_addition(current_season .. "_plants")
     end
+    
+    -- Save the labels for processing in the main environment
+    watchdog:save_gen_notify()
 end)
 
