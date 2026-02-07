@@ -136,9 +136,10 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     end
     
     -- Write changes back if we modified anything
+    -- Note: In mapgen environment, write_to_map() is disallowed
+    -- The engine automatically writes the VM back after the callback
     if modified then
         vm:set_data(data)
-        vm:write_to_map()
     end
 end)
 
