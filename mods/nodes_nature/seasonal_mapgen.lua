@@ -103,6 +103,11 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     local modified = false
     local is_winter = is_winter_season(current_season)
     
+    -- Track if we found any seasonal nodes to label the mapblock
+    local has_spring_soil = false
+    local has_winter_soil = false
+    local has_seasonal_plants = false
+    
     -- Get the appropriate plant replacement table for this season
     local plant_table = plant_replacements[current_season]
     
@@ -117,6 +122,7 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
             if winter_id then
                 data[i] = winter_id
                 modified = true
+                has_winter_soil = true
             end
         else
             -- Convert winter soils back to spring/summer
@@ -124,6 +130,10 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
             if spring_id then
                 data[i] = spring_id
                 modified = true
+                has_spring_soil = true
+            elseif soil_to_winter[node_id] then
+                -- This is a spring soil that wasn't converted (not winter season)
+                has_spring_soil = true
             end
         end
         
@@ -132,6 +142,10 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
         if replacement_id and replacement_id ~= node_id then
             data[i] = replacement_id
             modified = true
+            has_seasonal_plants = true
+        elseif replacement_id == node_id then
+            -- Plant already in correct seasonal state
+            has_seasonal_plants = true
         end
     end
     
@@ -140,6 +154,26 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     -- The engine automatically writes the VM back after the callback
     if modified then
         vm:set_data(data)
+    end
+    
+    -- Set appropriate labels for the mapblock based on what we found
+    -- Use a position in the middle of the mapblock for labeling
+    local center_pos = {
+        x = math.floor((minp.x + maxp.x) / 2),
+        y = math.floor((minp.y + maxp.y) / 2),
+        z = math.floor((minp.z + maxp.z) / 2)
+    }
+    
+    local ms = mapchunk_shepherd
+    
+    if has_winter_soil then
+        ms.labels_to_position(center_pos, {"winter_soil"})
+    elseif has_spring_soil then
+        ms.labels_to_position(center_pos, {"spring_soil"})
+    end
+    
+    if has_seasonal_plants then
+        ms.labels_to_position(center_pos, {"seasonal_plants", current_season .. "_plants"})
     end
 end)
 
