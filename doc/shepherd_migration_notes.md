@@ -2,6 +2,28 @@
 
 This document describes the migration from the mapchunk-based shepherd API to the mapblock-based API.
 
+## Recent Updates
+
+### Surface Finder API (February 2026)
+Added efficient surface detection using heightmap during mapgen:
+- **Surface finder**: Uses `core.get_mapgen_object("heightmap")` to detect surface blocks
+- **Margin support**: Configurable margin to include blocks above/below exact surface
+- **New labels**: `surface`, `underground`, `aboveground`
+- **Usage**: Replaces node-based detection for seasonal soil and moisture spread
+
+**Configuration:**
+```lua
+ms.create_surface_finder({
+    margin = 1  -- Include 1 block above and below exact surface
+})
+```
+
+**Benefits:**
+- ✅ Runs during mapgen (more efficient than LBMs)
+- ✅ Uses heightmap data (no node scanning needed)
+- ✅ Consistent detection across all biomes
+- ✅ Reduces worker overhead by pre-labeling surface blocks
+
 ## Changes Made
 
 ### 1. API Function Renames
