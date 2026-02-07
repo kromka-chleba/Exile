@@ -9,8 +9,6 @@ ms.tag.register("no_soil")
 ms.tag.register("bare_soil")
 ms.tag.register("spring_soil")
 ms.tag.register("winter_soil")
-ms.tag.register("no_spring_soil")
-ms.tag.register("no_winter_soil")
 
 -- Moisture
 ms.tag.register("moisture_spread")
@@ -43,3 +41,5 @@ ms.tag.register("last_freezed")
 ms.tag.register("ocean")
 ms.tag.register("coast")
 ms.tag.register("mountains")
+
+-- Note: surface, underground, aboveground tags are provided by shepherd's common_tags.lua

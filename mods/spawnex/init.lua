@@ -98,8 +98,8 @@ local function spawn_offset(hex1, max_count)
             slcount = slcount + 1
         else
             vgl = volcano.estimate_ground_level(check) or 0
-            local chunk = ms.mapchunk_hash(check)
-            local label_store = ms.label_store.new(chunk)
+            local blockpos = ms.units.mapblock_coords(check)
+            local label_store = ms.label_store.new(blockpos)
             local bname =
                 minetest.get_biome_name(minetest.get_biome_data(
                                             vector.new(check.x,

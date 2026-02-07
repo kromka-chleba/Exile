@@ -1,0 +1,188 @@
+---------------------------------------------------------
+-- Seasonal Mapgen Script
+-- Runs in mapgen environment to generate new chunks with correct season
+--
+
+-- This script runs in the mapgen environment
+-- It has access to core.ipc_get to read the current season
+-- and can modify freshly generated chunks before they're added to the world
+
+-- Get season from IPC (set by main environment)
+local function get_current_season()
+    return core.ipc_get("exile:current_season") or "summer_early"
+end
+
+-- Helper to check if season is winter
+local function is_winter_season(season_name)
+    return season_name == "winter_early" or season_name == "winter_late"
+end
+
+-- Build content_id-based lookup tables for fast replacement
+-- These are indexed by content_id for O(1) lookup during mapgen
+local soil_to_winter = {}  -- content_id -> winter content_id
+local winter_to_soil = {}  -- winter content_id -> spring/summer content_id
+local winter_soil_ids = {}  -- Set of winter soil content_ids for quick checking
+
+-- Plant replacements by season, indexed by content_id
+local plant_replacements = {
+    spring_early = {},
+    spring_late = {},
+    summer_early = {},
+    summer_late = {},
+    fall_early = {},
+    fall_late = {},
+    winter_early = {},
+    winter_late = {},
+}
+
+-- Initialize replacement tables from registered nodes
+-- Build soil replacement mappings (spring <-> winter) using content_ids
+for name, nodedef in pairs(core.registered_nodes) do
+    if nodedef._winter_name and nodedef._winter_name ~= "" then
+        -- This is a spring/summer soil that has a winter variant
+        local spring_id = minetest.get_content_id(name)
+        local winter_id = minetest.get_content_id(nodedef._winter_name)
+        
+        soil_to_winter[spring_id] = winter_id
+        winter_to_soil[winter_id] = spring_id
+        winter_soil_ids[winter_id] = true
+    end
+end
+
+-- Build plant replacement mappings for all seasons using content_ids
+for name, nodedef in pairs(core.registered_nodes) do
+    if nodedef._spring_early or nodedef._spring_late or 
+       nodedef._summer_early or nodedef._summer_late or
+       nodedef._fall_early or nodedef._fall_late or
+       nodedef._winter_early or nodedef._winter_late then
+        -- This is a seasonal plant - get its content_id
+        local base_id = minetest.get_content_id(name)
+        
+        -- For each season, map base_id to the appropriate variant's content_id
+        if nodedef._spring_early and nodedef._spring_early ~= "" then
+            plant_replacements.spring_early[base_id] = minetest.get_content_id(nodedef._spring_early)
+        end
+        if nodedef._spring_late and nodedef._spring_late ~= "" then
+            plant_replacements.spring_late[base_id] = minetest.get_content_id(nodedef._spring_late)
+        end
+        if nodedef._summer_early and nodedef._summer_early ~= "" then
+            plant_replacements.summer_early[base_id] = minetest.get_content_id(nodedef._summer_early)
+        end
+        if nodedef._summer_late and nodedef._summer_late ~= "" then
+            plant_replacements.summer_late[base_id] = minetest.get_content_id(nodedef._summer_late)
+        end
+        if nodedef._fall_early and nodedef._fall_early ~= "" then
+            plant_replacements.fall_early[base_id] = minetest.get_content_id(nodedef._fall_early)
+        end
+        if nodedef._fall_late and nodedef._fall_late ~= "" then
+            plant_replacements.fall_late[base_id] = minetest.get_content_id(nodedef._fall_late)
+        end
+        if nodedef._winter_early and nodedef._winter_early ~= "" then
+            plant_replacements.winter_early[base_id] = minetest.get_content_id(nodedef._winter_early)
+        end
+        if nodedef._winter_late and nodedef._winter_late ~= "" then
+            plant_replacements.winter_late[base_id] = minetest.get_content_id(nodedef._winter_late)
+        end
+    end
+end
+
+-- Register callback to run during mapgen
+-- In mapgen environment, vm is passed as the first argument with data already loaded
+minetest.register_on_generated(function(vm, minp, maxp, blockseed)
+    local current_season = get_current_season()
+    
+    -- Get data from the voxel manipulator (already prepared in mapgen environment)
+    -- Don't call read_from_map() - the VM already has the data loaded
+    local data = vm:get_data()
+    
+    local modified = false
+    local is_winter = is_winter_season(current_season)
+    
+    -- Track if we found any seasonal nodes to label the mapblock
+    local has_spring_soil = false
+    local has_winter_soil = false
+    local has_seasonal_plants = false
+    
+    -- Get the appropriate plant replacement table for this season
+    local plant_table = plant_replacements[current_season]
+    
+    -- Iterate directly over the data array - much faster than nested x,y,z loops
+    for i = 1, #data do
+        local node_id = data[i]
+        
+        -- Replace seasonal soils using content_id lookup
+        if is_winter then
+            -- Convert spring/summer soils to winter
+            local winter_id = soil_to_winter[node_id]
+            if winter_id then
+                data[i] = winter_id
+                modified = true
+            end
+            -- Track if we found any seasonal soil (spring or winter)
+            if soil_to_winter[node_id] or winter_to_soil[node_id] then
+                has_winter_soil = true
+            end
+        else
+            -- Convert winter soils back to spring/summer (non-winter seasons)
+            local spring_id = winter_to_soil[node_id]
+            if spring_id then
+                data[i] = spring_id
+                modified = true
+            end
+            -- Track if we found any seasonal soil (winter or spring)
+            if soil_to_winter[node_id] or winter_to_soil[node_id] then
+                has_spring_soil = true
+            end
+        end
+        
+        -- Replace seasonal plants using content_id lookup
+        -- Skip for summer_early since it's the default generation state
+        if current_season ~= "summer_early" then
+            local replacement_id = plant_table[node_id]
+            if replacement_id and replacement_id ~= node_id then
+                data[i] = replacement_id
+                modified = true
+                has_seasonal_plants = true
+            elseif replacement_id == node_id then
+                -- Plant already in correct seasonal state
+                has_seasonal_plants = true
+            end
+        end
+    end
+    
+    -- Write changes back if we modified anything
+    -- Note: In mapgen environment, write_to_map() is disallowed
+    -- The engine automatically writes the VM back after the callback
+    if modified then
+        vm:set_data(data)
+    end
+    
+    -- Set appropriate labels for the mapblock based on what we found
+    -- In mapgen environment, we must use mapgen_watchdog and save_gen_notify
+    -- instead of labels_to_position
+    local ms = mapchunk_shepherd
+    
+    -- Get the mapblock coordinates from minp
+    local blockpos = ms.units.mapblock_coords(minp)
+    local watchdog = ms.mapgen_watchdog.new(blockpos)
+    
+    -- Set soil labels based on actual soil presence
+    -- Workers need these labels to find blocks with soils to convert
+    if has_winter_soil then
+        watchdog:mark_for_addition("winter_soil")
+    end
+    
+    if has_spring_soil then
+        watchdog:mark_for_addition("spring_soil")
+    end
+    
+    -- Set plant labels if we have seasonal plants
+    if has_seasonal_plants then
+        watchdog:mark_for_addition("seasonal_plants")
+        watchdog:mark_for_addition(current_season .. "_plants")
+    end
+    
+    -- Save the labels for processing in the main environment
+    watchdog:save_gen_notify()
+end)
+

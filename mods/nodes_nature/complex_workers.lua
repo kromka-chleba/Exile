@@ -3,6 +3,7 @@
 
 mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
+local bn = ms.block_neighborhood
 nodes_nature = nodes_nature
 local nn = nodes_nature
 local climate = climate
@@ -10,7 +11,7 @@ local climate = climate
 local placeholder_id_pairs = ms.placeholder_id_pairs()
 local ignore_id = minetest.get_content_id("ignore")
 
-local chunk_side = ms.chunk_side()
+local block_side = ms.block_side()
 
 function nn.create_evaporator(args_in)
     local args = table.copy(args_in)
@@ -36,7 +37,8 @@ function nn.create_evaporator(args_in)
         local id = minetest.get_content_id(water)
         water_ids[id] = true
     end
-    return function(pos_min, pos_max, vm_data, chance_in)
+    
+    local function worker_fn(pos_min, pos_max, vm_data, chance_in, neighborhood)
         local chance = chance_in or 1/35
         --local t1 = minetest.get_us_time()
         local found = false
@@ -64,53 +66,49 @@ function nn.create_evaporator(args_in)
         for i = 1, #data do
             local replacement = ids[data[i]]
             if replacement then
-                local z = math.floor((i - 1) / chunk_side^2)
-                local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-                local x = (i - 1) % chunk_side
+                local z = math.floor((i - 1) / block_side^2)
+                local y = math.floor((i - 1 - z * block_side^2) / block_side)
+                local x = (i - 1) % block_side
+                
+                local world_pos = vector.add(pos_min, vector.new(x, y, z))
 
-                -- need to handle them edges in moisture_spread.lua
-                -- too lazy for that today
-                if not (x == 0 or x == chunk_side - 1 or
-                        z == 0 or z == chunk_side - 1 or
-                        y == 0 or y == chunk_side - 1) then
-
-                    local has_air = false
-
-                    if neighbor_ids[data[i - 1]] or
-                        neighbor_ids[data[i + 1]] or
-                        -- not checking for air below
-                        --neighbor_ids[data[i - chunk_side]] or
-                        neighbor_ids[data[i + chunk_side]] or
-                        neighbor_ids[data[i - chunk_side^2]] or
-                        neighbor_ids[data[i + chunk_side^2]] then
+                local has_air = false
+                
+                -- Check all 6 neighbors, using neighborhood API for cross-block access
+                local adjacent = neighborhood:get_adjacent_positions(world_pos)
+                for _, adj_pos in ipairs(adjacent) do
+                    local adj_node = neighborhood:read_node(adj_pos)
+                    if adj_node and neighbor_ids[adj_node] then
                         has_air = true
-                    end
-
-                    local evap_chance
-
-                    if water_ids[data[i]] and has_air then
-                        local light = data_light[i] or 0
-                        local light_cofactor = light / 15
-                        evap_chance = temperature_cofactor * light_cofactor
-                            * chance * 1/15
-                        if evap_chance >= math.random() then
-                            data[i] = replacement
-                        end
-                    else
-                        -- is sediment
-                        local light = data_light[i + chunk_side] or 0
-                        local light_cofactor = light / 15
-                        evap_chance = temperature_cofactor * light_cofactor
-                            * chance
-                        if not has_air then
-                            -- 5 times slower if plant grows on top
-                            evap_chance = 1/5 * evap_chance
-                        end
-                        if evap_chance >= math.random() then
-                            data[i] = replacement
-                        end
+                        break
                     end
                 end
+
+                local evap_chance
+
+                if water_ids[data[i]] and has_air then
+                    local light = data_light[i] or 0
+                    local light_cofactor = light / 15
+                    evap_chance = temperature_cofactor * light_cofactor
+                        * chance * 1/15
+                    if evap_chance >= math.random() then
+                        data[i] = replacement
+                    end
+                else
+                    -- is sediment
+                    local light = data_light[i + block_side] or 0
+                    local light_cofactor = light / 15
+                    evap_chance = temperature_cofactor * light_cofactor
+                        * chance
+                    if not has_air then
+                        -- 5 times slower if plant grows on top
+                        evap_chance = 1/5 * evap_chance
+                    end
+                    if evap_chance >= math.random() then
+                        data[i] = replacement
+                    end
+                end
+                
                 found = true
             elseif data[i] == ignore_id then
                 return {"worker_failed"}
@@ -123,6 +121,8 @@ function nn.create_evaporator(args_in)
             return not_found
         end
     end
+    
+    return bn.wrap_worker_function(worker_fn, true)
 end
 
 -- Moisture spread --
@@ -152,11 +152,9 @@ function nn.create_soak_out_move_down(args_in)
         buildable_to_liquid_ids[buildable_id] = liquid_id
     end
 
-    -- The actual worker function
-    return function(pos_min, pos_max, vm_data, chance)
+    -- The actual worker function with neighborhood support
+    local function worker_fn(pos_min, pos_max, vm_data, chance, neighborhood)
         --local t1 = minetest.get_us_time()
-        local hash = ms.mapchunk_hash(pos_min)
-        nn.moisture_orphans[hash] = {}
         local found = false
         local data = vm_data.nodes
 
@@ -165,11 +163,11 @@ function nn.create_soak_out_move_down(args_in)
         end
 
         local function z_index(index)
-            return index + chunk_side^2
+            return index + block_side^2
         end
 
         local function y_index(index)
-            return index - chunk_side
+            return index - block_side
         end
 
         local unmoved = {}
@@ -227,7 +225,7 @@ function nn.create_soak_out_move_down(args_in)
         end
 
         local start = 0
-        local finish = chunk_side - 1
+        local finish = block_side - 1
 
         local z_start = math.random(0, 1)
         local z_finish = finish - 2 - z_start
@@ -239,9 +237,9 @@ function nn.create_soak_out_move_down(args_in)
         local function z_step()
             local index_function = z_index
             for z = z_start, z_finish, 2 do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = start, y_finish do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = start, finish do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -254,9 +252,9 @@ function nn.create_soak_out_move_down(args_in)
         local function x_step()
             local index_function = x_index
             for z = start, finish do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = start, y_finish do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = x_start, x_finish, 2 do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -269,9 +267,9 @@ function nn.create_soak_out_move_down(args_in)
         local function y_step()
             local index_function = y_index
             for z = start, finish do
-                local z_base = z * chunk_side^2
+                local z_base = z * block_side^2
                 for y = y_start, y_finish, 2 do
-                    local y_base = y * chunk_side
+                    local y_base = y * block_side
                     for x = start, finish do
                         local i1 = z_base + y_base + x + 1
                         local i2 = index_function(i1)
@@ -285,71 +283,67 @@ function nn.create_soak_out_move_down(args_in)
         x_step()
         y_step()
 
-        local function soak_out(i)
-
+        local function soak_out(world_pos)
             local air_table = {}
             local wet_nr = 1
 
-            local function add_wet(index)
-                if wet_to_dry_ids[data[index]] then
+            local function count_wet(check_pos)
+                local node_id = neighborhood:read_node(check_pos)
+                if node_id and wet_to_dry_ids[node_id] then
                     wet_nr = wet_nr + 1
                 end
             end
 
-            local function add_both(index)
-                if wet_to_dry_ids[data[index]] then
-                    wet_nr = wet_nr + 1
-                elseif buildable_to_liquid_ids[data[index]] then
-                    -- checking what's below
-                    if buildable_to_liquid_ids[data[index - chunk_side]] then
-                        -- needs to have air below to soak out
-                        table.insert(air_table, index - chunk_side)
-                    elseif wet_to_dry_ids[data[index]] then
+            local function check_air_below(check_pos)
+                local node_id = neighborhood:read_node(check_pos)
+                if node_id then
+                    if wet_to_dry_ids[node_id] then
                         wet_nr = wet_nr + 1
+                    elseif buildable_to_liquid_ids[node_id] then
+                        -- check what's below
+                        local below_pos = vector.add(check_pos, vector.new(0, -1, 0))
+                        local below_id = neighborhood:read_node(below_pos)
+                        if below_id and buildable_to_liquid_ids[below_id] then
+                            -- needs to have air below to soak out
+                            table.insert(air_table, check_pos)
+                        elseif below_id and wet_to_dry_ids[below_id] then
+                            wet_nr = wet_nr + 1
+                        end
                     end
                 end
             end
 
-            local function check_wet(index)
-                add_wet(index)
-                add_wet(index - 1)
-                add_wet(index + 1)
-                add_wet(index - chunk_side^2)
-                add_wet(index + chunk_side^2)
+            -- Check all 6 adjacent positions (may be up to 6 if not at world boundaries)
+            local adjacent = neighborhood:get_adjacent_positions(world_pos)
+            for _, adj_pos in ipairs(adjacent) do
+                -- Check sideways and below positions
+                if adj_pos.y < world_pos.y then
+                    -- Below - just count wet
+                    count_wet(adj_pos)
+                elseif adj_pos.y == world_pos.y then
+                    -- Sideways - check air and wet
+                    check_air_below(adj_pos)
+                else
+                    -- Above - count wet
+                    count_wet(adj_pos)
+                end
             end
-
-            -- checks on the level and below
-            local function check_both(index)
-                add_both(index - 1)
-                add_both(index + 1)
-                add_both(index - chunk_side^2)
-                add_both(index + chunk_side^2)
-            end
-
-            local above_index = i + chunk_side
-            check_both(i)
-            check_wet(above_index)
 
             if #air_table > 0 and wet_nr >= 8 then
-                local air_index = air_table[math.random(1, #air_table)]
-                data[i] = wet_to_dry_ids[data[i]]
-                data[air_index] = buildable_to_liquid_ids[data[air_index]]
+                local selected_pos = air_table[math.random(1, #air_table)]
+                -- Dry the current position and add water to selected position
+                neighborhood:write_node(world_pos, wet_to_dry_ids[neighborhood:read_node(world_pos)])
+                neighborhood:write_node(selected_pos, buildable_to_liquid_ids[neighborhood:read_node(selected_pos)])
             end
         end
 
+        -- Process unmoved wet nodes using neighborhood API
         for i, _ in pairs(unmoved) do
-            local z = math.floor((i - 1) / chunk_side^2)
-            local y = math.floor((i - 1 - z * chunk_side^2) / chunk_side)
-            local x = (i - 1) % chunk_side
-            if not (x == 0 or x == chunk_side - 1 or
-                    z == 0 or z == chunk_side - 1 or
-                    y == 0 or y == chunk_side - 1) then
-                soak_out(i)
-            else
-                local node_pos = vector.new(x, y, z)
-                table.insert(nn.moisture_orphans[hash],
-                             vector.add(pos_min, node_pos))
-            end
+            local z = math.floor((i - 1) / block_side^2)
+            local y = math.floor((i - 1 - z * block_side^2) / block_side)
+            local x = (i - 1) % block_side
+            local world_pos = vector.add(pos_min, vector.new(x, y, z))
+            soak_out(world_pos)
         end
 
         found = true
@@ -361,6 +355,8 @@ function nn.create_soak_out_move_down(args_in)
             return not_found
         end
     end
+    
+    return bn.wrap_worker_function(worker_fn, true)
 end
 
 function nn.create_gravity_soak_in(args_in)
@@ -394,76 +390,87 @@ function nn.create_gravity_soak_in(args_in)
         local seawater_id = minetest.get_content_id(seawater)
         seawater_ids[seawater_id] = true
     end
-    return function(pos_min, pos_max, vm_data, chance)
+    
+    local function worker_fn(pos_min, pos_max, vm_data, chance, neighborhood)
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes
-        local hash = ms.mapchunk_hash(pos_min)
 
-        local orphans = {}
-        nn.water_orphans[hash] = {}
-
-        local function one_iteration(last)
+        local function one_iteration()
             local previous_i = false
             for i = 1, #data do
                 local replacement = liquid_to_air_ids[data[i]]
                 if replacement and i ~= previous_i then
-                    -- z, y, x have values 0 - 79
-                    local z = math.floor((i - 1) / chunk_side^2)
-                    local y = math.floor((i - 1 - z
-                                          * chunk_side^2) / chunk_side)
-                    local x = (i - 1) % chunk_side
-                    local dry_below = dry_to_wet_ids[data[i - chunk_side]]
-                    local seawater_below = seawater_ids[data[i - chunk_side]]
-                    if x == 0 or x == chunk_side - 1 or
-                        z == 0 or z == chunk_side - 1 or
-                        y == 0 or y == chunk_side - 1 then
-                        -- borders here
-                        if last then
-                            table.insert(orphans, i)
-                        end
-                    elseif dry_below then
+                    local z = math.floor((i - 1) / block_side^2)
+                    local y = math.floor((i - 1 - z * block_side^2) / block_side)
+                    local x = (i - 1) % block_side
+                    local world_pos = vector.add(pos_min, vector.new(x, y, z))
+                    
+                    -- Check below using neighborhood
+                    local below_pos = vector.add(world_pos, vector.new(0, -1, 0))
+                    local below_node = neighborhood:read_node(below_pos)
+                    local dry_below = below_node and dry_to_wet_ids[below_node]
+                    local seawater_below = below_node and seawater_ids[below_node]
+                    
+                    if dry_below then
                         -- Soak in
                         data[i] = replacement
-                        data[i - chunk_side] = dry_below
+                        neighborhood:write_node(below_pos, dry_below)
                     elseif seawater_below then
                         -- Remove if seawater below
                         data[i] = replacement
                     else
-                        local air_table = {}
-                        local dry_table = {}
-                        local function add(index)
-                            if buildable_to_liquid_ids[data[index]] then
-                                table.insert(air_table, index)
-                            end
-                            if dry_to_wet_ids[data[index]] then
-                                table.insert(dry_table, index)
+                        local air_positions = {}
+                        local dry_positions = {}
+                        
+                        local function check_adjacent(check_pos)
+                            local check_node = neighborhood:read_node(check_pos)
+                            if check_node then
+                                if buildable_to_liquid_ids[check_node] then
+                                    table.insert(air_positions, check_pos)
+                                end
+                                if dry_to_wet_ids[check_node] then
+                                    table.insert(dry_positions, check_pos)
+                                end
                             end
                         end
-                        local function check(index)
-                            -- x border
-                            add(index - 1)
-                            add(index + 1)
-                            add(index - chunk_side^2)
-                            add(index + chunk_side^2)
+                        
+                        -- Check positions below and sideways
+                        -- Positions below get checked twice for downward bias (gravity effect)
+                        local adjacent = neighborhood:get_adjacent_positions(world_pos)
+                        for _, adj_pos in ipairs(adjacent) do
+                            if adj_pos.y <= world_pos.y then
+                                check_adjacent(adj_pos)
+                                -- Check twice for positions directly below to add downward bias
+                                if adj_pos.y < world_pos.y then
+                                    check_adjacent(adj_pos)
+                                end
+                            end
                         end
-                        check(i - chunk_side) -- below
-                        check(i - chunk_side) -- add twice for downwards bias
-                        check(i)
 
-                        if #dry_table >= 1 then
+                        if #dry_positions >= 1 then
                             -- soak in sideways
-                            local dry_index = dry_table[math.random(1, #dry_table)]
+                            local selected_pos = dry_positions[math.random(1, #dry_positions)]
                             data[i] = replacement
-                            data[dry_index] = dry_to_wet_ids[data[dry_index]]
-                        elseif #air_table >= 1 then
+                            local dry_node = neighborhood:read_node(selected_pos)
+                            neighborhood:write_node(selected_pos, dry_to_wet_ids[dry_node])
+                        elseif #air_positions >= 1 then
                             -- move water source
-                            local air_index = air_table[math.random(1, #air_table)]
+                            local selected_pos = air_positions[math.random(1, #air_positions)]
                             data[i] = replacement
-                            data[air_index] = buildable_to_liquid_ids[data[air_index]]
-                            previous_i = air_index
-                            if last then
-                                table.insert(orphans, air_index)
+                            local air_node = neighborhood:read_node(selected_pos)
+                            neighborhood:write_node(selected_pos, buildable_to_liquid_ids[air_node])
+                            
+                            -- Update previous_i if we moved within the same block
+                            -- This prevents processing the same water source twice in one iteration
+                            local offset_x = selected_pos.x - pos_min.x
+                            local offset_y = selected_pos.y - pos_min.y
+                            local offset_z = selected_pos.z - pos_min.z
+                            if offset_x >= 0 and offset_x < block_side and
+                               offset_y >= 0 and offset_y < block_side and
+                               offset_z >= 0 and offset_z < block_side then
+                                previous_i = 1 + offset_z * block_side^2 + 
+                                           offset_y * block_side + offset_x
                             end
                         end
                     end
@@ -474,22 +481,12 @@ function nn.create_gravity_soak_in(args_in)
             end
         end
 
-        -- this speeds up things a little
+        -- Run multiple iterations to speed up water movement
         one_iteration()
         one_iteration()
         one_iteration()
         one_iteration()
-        one_iteration(true)
-
-        for _, orphan in pairs(orphans) do
-            if liquid_to_air_ids[data[orphan]] then
-                local air_z = math.floor((orphan - 1) / chunk_side^2)
-                local air_y = math.floor((orphan - 1 - air_z * chunk_side^2) / chunk_side)
-                local air_x = (orphan - 1) % chunk_side
-                local air_pos = vector.new(air_x, air_y, air_z)
-                table.insert(nn.water_orphans[hash], vector.add(pos_min, air_pos))
-            end
-        end
+        one_iteration()
 
         if found then
             --minetest.log("error", string.format("elapsed time: %g ms", (minetest.get_us_time() - t1) / 1000))
@@ -498,4 +495,6 @@ function nn.create_gravity_soak_in(args_in)
             return not_found
         end
     end
+    
+    return bn.wrap_worker_function(worker_fn, true)
 end
