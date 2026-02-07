@@ -81,18 +81,21 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
                 
                 -- Replace seasonal soils
                 if soil_replacements[node_name] then
-                    local target_name
+                    local target_name = soil_replacements[node_name]
                     if is_winter then
                         -- If current node is spring variant, replace with winter
-                        target_name = soil_replacements[node_name]
-                        -- Check if target is actually the winter variant
-                        local target_def = core.registered_nodes[target_name]
-                        if target_def and target_def._is_winter_soil then
+                        -- Winter names contain "_winter" in them
+                        if target_name:find("_winter") then
+                            data[idx] = minetest.get_content_id(target_name)
+                            modified = true
+                        end
+                    else
+                        -- For non-winter seasons, replace winter with spring/summer variant
+                        if node_name:find("_winter") then
                             data[idx] = minetest.get_content_id(target_name)
                             modified = true
                         end
                     end
-                    -- For non-winter seasons, keep the spring/summer variant (default)
                 end
                 
                 -- Replace seasonal plants
