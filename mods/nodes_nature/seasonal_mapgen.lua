@@ -166,19 +166,14 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     local blockpos = ms.units.mapblock_coords(minp)
     local watchdog = ms.mapgen_watchdog.new(blockpos)
     
-    -- Coordinate soil and plant labels based on season
-    -- Winter seasons: winter_soil goes with winter plants
-    -- Non-winter seasons: spring_soil goes with spring plants
-    if is_winter then
-        -- Winter season: set winter_soil if we have soils OR plants
-        if has_winter_soil or has_seasonal_plants then
-            watchdog:mark_for_addition("winter_soil")
-        end
-    else
-        -- Non-winter season: set spring_soil if we have soils OR plants
-        if has_spring_soil or has_seasonal_plants then
-            watchdog:mark_for_addition("spring_soil")
-        end
+    -- Set soil labels based on actual soil presence
+    -- Workers need these labels to find blocks with soils to convert
+    if has_winter_soil then
+        watchdog:mark_for_addition("winter_soil")
+    end
+    
+    if has_spring_soil then
+        watchdog:mark_for_addition("spring_soil")
     end
     
     -- Set plant labels if we have seasonal plants
