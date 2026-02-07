@@ -99,7 +99,6 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
     local vm = minetest.get_voxel_manip()
     local emin, emax = vm:read_from_map(minp, maxp)
     local data = vm:get_data()
-    local area = VoxelArea:new({MinEdge=emin, MaxEdge=emax})
     
     local modified = false
     local is_winter = is_winter_season(current_season)
@@ -107,37 +106,32 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
     -- Get the appropriate plant replacement table for this season
     local plant_table = plant_replacements[current_season]
     
-    -- Process all nodes in the chunk using direct content_id lookups
-    for z = minp.z, maxp.z do
-        for y = minp.y, maxp.y do
-            for x = minp.x, maxp.x do
-                local idx = area:index(x, y, z)
-                local node_id = data[idx]
-                
-                -- Replace seasonal soils using content_id lookup
-                if is_winter then
-                    -- Convert spring/summer soils to winter
-                    local winter_id = soil_to_winter[node_id]
-                    if winter_id then
-                        data[idx] = winter_id
-                        modified = true
-                    end
-                else
-                    -- Convert winter soils back to spring/summer
-                    local spring_id = winter_to_soil[node_id]
-                    if spring_id then
-                        data[idx] = spring_id
-                        modified = true
-                    end
-                end
-                
-                -- Replace seasonal plants using content_id lookup
-                local replacement_id = plant_table[node_id]
-                if replacement_id and replacement_id ~= node_id then
-                    data[idx] = replacement_id
-                    modified = true
-                end
+    -- Iterate directly over the data array - much faster than nested x,y,z loops
+    for i = 1, #data do
+        local node_id = data[i]
+        
+        -- Replace seasonal soils using content_id lookup
+        if is_winter then
+            -- Convert spring/summer soils to winter
+            local winter_id = soil_to_winter[node_id]
+            if winter_id then
+                data[i] = winter_id
+                modified = true
             end
+        else
+            -- Convert winter soils back to spring/summer
+            local spring_id = winter_to_soil[node_id]
+            if spring_id then
+                data[i] = spring_id
+                modified = true
+            end
+        end
+        
+        -- Replace seasonal plants using content_id lookup
+        local replacement_id = plant_table[node_id]
+        if replacement_id and replacement_id ~= node_id then
+            data[i] = replacement_id
+            modified = true
         end
     end
     
