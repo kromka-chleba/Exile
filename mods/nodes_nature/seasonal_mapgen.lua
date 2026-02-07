@@ -17,38 +17,72 @@ local function is_winter_season(season_name)
     return season_name == "winter_early" or season_name == "winter_late"
 end
 
--- Build lookup tables for node replacements
-local soil_replacements = {}
-local plant_replacements = {}
+-- Build content_id-based lookup tables for fast replacement
+-- These are indexed by content_id for O(1) lookup during mapgen
+local soil_to_winter = {}  -- content_id -> winter content_id
+local winter_to_soil = {}  -- winter content_id -> spring/summer content_id
+local winter_soil_ids = {}  -- Set of winter soil content_ids for quick checking
+
+-- Plant replacements by season, indexed by content_id
+local plant_replacements = {
+    spring_early = {},
+    spring_late = {},
+    summer_early = {},
+    summer_late = {},
+    fall_early = {},
+    fall_late = {},
+    winter_early = {},
+    winter_late = {},
+}
 
 -- Initialize replacement tables from registered nodes
--- Build soil replacement mappings (spring <-> winter)
+-- Build soil replacement mappings (spring <-> winter) using content_ids
 for name, nodedef in pairs(core.registered_nodes) do
     if nodedef._winter_name and nodedef._winter_name ~= "" then
         -- This is a spring/summer soil that has a winter variant
-        soil_replacements[name] = nodedef._winter_name
-        -- Also store reverse mapping (winter -> spring)
-        soil_replacements[nodedef._winter_name] = name
+        local spring_id = minetest.get_content_id(name)
+        local winter_id = minetest.get_content_id(nodedef._winter_name)
+        
+        soil_to_winter[spring_id] = winter_id
+        winter_to_soil[winter_id] = spring_id
+        winter_soil_ids[winter_id] = true
     end
 end
 
--- Build plant replacement mappings for all seasons
+-- Build plant replacement mappings for all seasons using content_ids
 for name, nodedef in pairs(core.registered_nodes) do
     if nodedef._spring_early or nodedef._spring_late or 
        nodedef._summer_early or nodedef._summer_late or
        nodedef._fall_early or nodedef._fall_late or
        nodedef._winter_early or nodedef._winter_late then
-        -- This is a seasonal plant
-        plant_replacements[name] = {
-            spring_early = nodedef._spring_early or name,
-            spring_late = nodedef._spring_late or name,
-            summer_early = nodedef._summer_early or name,
-            summer_late = nodedef._summer_late or name,
-            fall_early = nodedef._fall_early or name,
-            fall_late = nodedef._fall_late or name,
-            winter_early = nodedef._winter_early or name,
-            winter_late = nodedef._winter_late or name,
-        }
+        -- This is a seasonal plant - get its content_id
+        local base_id = minetest.get_content_id(name)
+        
+        -- For each season, map base_id to the appropriate variant's content_id
+        if nodedef._spring_early and nodedef._spring_early ~= "" then
+            plant_replacements.spring_early[base_id] = minetest.get_content_id(nodedef._spring_early)
+        end
+        if nodedef._spring_late and nodedef._spring_late ~= "" then
+            plant_replacements.spring_late[base_id] = minetest.get_content_id(nodedef._spring_late)
+        end
+        if nodedef._summer_early and nodedef._summer_early ~= "" then
+            plant_replacements.summer_early[base_id] = minetest.get_content_id(nodedef._summer_early)
+        end
+        if nodedef._summer_late and nodedef._summer_late ~= "" then
+            plant_replacements.summer_late[base_id] = minetest.get_content_id(nodedef._summer_late)
+        end
+        if nodedef._fall_early and nodedef._fall_early ~= "" then
+            plant_replacements.fall_early[base_id] = minetest.get_content_id(nodedef._fall_early)
+        end
+        if nodedef._fall_late and nodedef._fall_late ~= "" then
+            plant_replacements.fall_late[base_id] = minetest.get_content_id(nodedef._fall_late)
+        end
+        if nodedef._winter_early and nodedef._winter_early ~= "" then
+            plant_replacements.winter_early[base_id] = minetest.get_content_id(nodedef._winter_early)
+        end
+        if nodedef._winter_late and nodedef._winter_late ~= "" then
+            plant_replacements.winter_late[base_id] = minetest.get_content_id(nodedef._winter_late)
+        end
     end
 end
 
@@ -70,45 +104,38 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
     local modified = false
     local is_winter = is_winter_season(current_season)
     
-    -- Process all nodes in the chunk
+    -- Get the appropriate plant replacement table for this season
+    local plant_table = plant_replacements[current_season]
+    
+    -- Process all nodes in the chunk using direct content_id lookups
     for z = minp.z, maxp.z do
         for y = minp.y, maxp.y do
             for x = minp.x, maxp.x do
-                local pos = {x=x, y=y, z=z}
                 local idx = area:index(x, y, z)
                 local node_id = data[idx]
-                local node_name = minetest.get_name_from_content_id(node_id)
                 
-                -- Replace seasonal soils
-                if soil_replacements[node_name] then
-                    local target_name = soil_replacements[node_name]
-                    if is_winter then
-                        -- If current node is spring variant, replace with winter
-                        -- Winter names contain "_winter" in them
-                        if target_name:find("_winter") then
-                            data[idx] = minetest.get_content_id(target_name)
-                            modified = true
-                        end
-                    else
-                        -- For non-winter seasons, replace winter with spring/summer variant
-                        if node_name:find("_winter") then
-                            data[idx] = minetest.get_content_id(target_name)
-                            modified = true
-                        end
+                -- Replace seasonal soils using content_id lookup
+                if is_winter then
+                    -- Convert spring/summer soils to winter
+                    local winter_id = soil_to_winter[node_id]
+                    if winter_id then
+                        data[idx] = winter_id
+                        modified = true
+                    end
+                else
+                    -- Convert winter soils back to spring/summer
+                    local spring_id = winter_to_soil[node_id]
+                    if spring_id then
+                        data[idx] = spring_id
+                        modified = true
                     end
                 end
                 
-                -- Replace seasonal plants
-                if plant_replacements[node_name] then
-                    local variants = plant_replacements[node_name]
-                    local target_name = variants[current_season]
-                    if target_name and target_name ~= "" and target_name ~= node_name then
-                        local target_id = minetest.get_content_id(target_name)
-                        if target_id ~= node_id then
-                            data[idx] = target_id
-                            modified = true
-                        end
-                    end
+                -- Replace seasonal plants using content_id lookup
+                local replacement_id = plant_table[node_id]
+                if replacement_id and replacement_id ~= node_id then
+                    data[idx] = replacement_id
+                    modified = true
                 end
             end
         end
