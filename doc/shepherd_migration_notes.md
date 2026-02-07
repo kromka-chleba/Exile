@@ -8,8 +8,10 @@ This document describes the migration from the mapchunk-based shepherd API to th
 Added efficient surface detection using heightmap during mapgen:
 - **Surface finder**: Uses `core.get_mapgen_object("heightmap")` to detect surface blocks
 - **Margin support**: Configurable margin to include blocks above/below exact surface
-- **New labels**: `surface`, `underground`, `aboveground`
+- **Standard tags**: `surface`, `underground`, `aboveground` (provided by shepherd's common_tags.lua)
 - **Usage**: Replaces node-based detection for seasonal soil and moisture spread
+
+**Note:** The surface-related tags are pre-registered in the shepherd mod's `common_tags.lua` file. Exile should NOT re-register these tags to avoid duplicate registration errors.
 
 **Configuration:**
 ```lua

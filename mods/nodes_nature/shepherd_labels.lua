@@ -44,7 +44,4 @@ ms.tag.register("ocean")
 ms.tag.register("coast")
 ms.tag.register("mountains")
 
--- Surface detection
-ms.tag.register("surface")
-ms.tag.register("underground")
-ms.tag.register("aboveground")
+-- Note: surface, underground, aboveground tags are provided by shepherd's common_tags.lua
