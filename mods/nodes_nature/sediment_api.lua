@@ -212,11 +212,9 @@ function sediment.get_base_props(sed)
             local remove_labels = {"no_soil"}
             if minimal.pos_group(pos, "spreading") then
                 table.insert(labels, "spring_soil")
-                table.insert(remove_labels, "no_spring_soil")
                 table.insert(remove_labels, "bare_soil")
             elseif minimal.pos_group(pos, "winter_soil") then
                 table.insert(labels, "winter_soil")
-                table.insert(remove_labels, "no_winter_soil")
                 table.insert(remove_labels, "bare_soil")
             else
                 table.insert(labels, "bare_soil")

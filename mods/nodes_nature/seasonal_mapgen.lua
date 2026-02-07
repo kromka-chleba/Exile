@@ -91,11 +91,6 @@ end
 minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     local current_season = get_current_season()
     
-    -- Skip if we're in default summer state
-    if current_season == "summer_early" then
-        return
-    end
-    
     -- Get data from the voxel manipulator (already prepared in mapgen environment)
     -- Don't call read_from_map() - the VM already has the data loaded
     local data = vm:get_data()
@@ -128,7 +123,7 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
                 has_winter_soil = true
             end
         else
-            -- Convert winter soils back to spring/summer
+            -- Convert winter soils back to spring/summer (non-winter seasons)
             local spring_id = winter_to_soil[node_id]
             if spring_id then
                 data[i] = spring_id
@@ -141,14 +136,17 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
         end
         
         -- Replace seasonal plants using content_id lookup
-        local replacement_id = plant_table[node_id]
-        if replacement_id and replacement_id ~= node_id then
-            data[i] = replacement_id
-            modified = true
-            has_seasonal_plants = true
-        elseif replacement_id == node_id then
-            -- Plant already in correct seasonal state
-            has_seasonal_plants = true
+        -- Skip for summer_early since it's the default generation state
+        if current_season ~= "summer_early" then
+            local replacement_id = plant_table[node_id]
+            if replacement_id and replacement_id ~= node_id then
+                data[i] = replacement_id
+                modified = true
+                has_seasonal_plants = true
+            elseif replacement_id == node_id then
+                -- Plant already in correct seasonal state
+                has_seasonal_plants = true
+            end
         end
     end
     

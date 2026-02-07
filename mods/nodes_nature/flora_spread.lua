@@ -334,8 +334,7 @@ minetest.register_abm({
                                             param2 = node.param2})
                     ms.labels_to_position(pos,
                                           {"spring_soil"},
-                                          {"no_spring_soil", "no_soil",
-                                           "bare_soil"})
+                                          {"no_soil", "bare_soil"})
                     break
                 end
             end

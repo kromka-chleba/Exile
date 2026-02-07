@@ -9,8 +9,6 @@ ms.tag.register("no_soil")
 ms.tag.register("bare_soil")
 ms.tag.register("spring_soil")
 ms.tag.register("winter_soil")
-ms.tag.register("no_spring_soil")
-ms.tag.register("no_winter_soil")
 
 -- Moisture
 ms.tag.register("moisture_spread")

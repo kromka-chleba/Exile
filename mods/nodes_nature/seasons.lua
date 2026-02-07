@@ -204,7 +204,6 @@ local spring_soil_replacer =
         {find_replace_pairs = spring_to_winter,
          add_labels = {"winter_soil"},
          remove_labels = {"spring_soil"},
-         not_found_labels = {"no_spring_soil"},
          not_found_remove = {"spring_soil"},
         }
     )
@@ -214,7 +213,6 @@ local winter_soil_replacer =
         {find_replace_pairs = winter_to_spring,
          add_labels = {"spring_soil"},
          remove_labels = {"winter_soil"},
-         not_found_labels = {"no_winter_soil"},
          not_found_remove = {"winter_soil"}
         }
     )
