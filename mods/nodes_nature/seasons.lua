@@ -116,6 +116,8 @@ local function update_season()
 
     if season_name ~= current_season then
         current_season = season_name
+        -- Send season to mapgen via IPC so new chunks generate with correct season
+        minetest.ipc_set("exile:current_season", current_season)
     end
 end
 
@@ -416,5 +418,11 @@ end
 -- returned nil
 
 minetest.register_on_mods_loaded(function ()
+        -- Initialize season in IPC for mapgen
+        minetest.after(1, function()
+            update_season()
+            local season_name = seasons.get_season_name()
+            minetest.ipc_set("exile:current_season", season_name)
+        end)
         minetest.after(2, season_loop)
 end)
