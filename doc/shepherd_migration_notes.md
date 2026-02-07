@@ -4,6 +4,24 @@ This document describes the migration from the mapchunk-based shepherd API to th
 
 ## Recent Updates
 
+### Season-Aware Mapgen (February 2026)
+New chunks now generate with the correct seasonal state instead of always appearing in summer:
+
+**IPC Communication**
+- Main environment sends current season to mapgen via `core.ipc_set("exile:current_season", season_name)`
+- Mapgen environment reads season via `core.ipc_get("exile:current_season")`
+- Season updates automatically when game time progresses
+
+**Seasonal Node Replacement**
+- **Soils**: Winter soils generate in winter seasons, spring/summer soils in other seasons
+- **Plants**: All 8 seasonal plant variants supported (spring_early, spring_late, summer_early, summer_late, fall_early, fall_late, winter_early, winter_late)
+- **Performance**: Only processes when season differs from default summer state
+
+**Implementation Files**
+- `seasons.lua`: Updates IPC when season changes
+- `seasonal_mapgen.lua`: Runs in mapgen environment, replaces nodes based on season
+- Registered via `minetest.register_mapgen_script()`
+
 ### Surface Finder API (February 2026)
 Added efficient surface detection using heightmap during mapgen:
 - **Surface finder**: Uses `core.get_mapgen_object("heightmap")` to detect surface blocks
