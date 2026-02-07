@@ -87,7 +87,8 @@ for name, nodedef in pairs(core.registered_nodes) do
 end
 
 -- Register callback to run during mapgen
-minetest.register_on_generated(function(minp, maxp, blockseed)
+-- In mapgen environment, vm is passed as the first argument
+minetest.register_on_generated(function(vm, minp, maxp, blockseed)
     local current_season = get_current_season()
     
     -- Skip if we're in default summer state
@@ -95,8 +96,7 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
         return
     end
     
-    -- Get voxel manipulator for the chunk
-    local vm = minetest.get_voxel_manip()
+    -- Get data from the voxel manipulator (vm is passed as argument)
     local emin, emax = vm:read_from_map(minp, maxp)
     local data = vm:get_data()
     
