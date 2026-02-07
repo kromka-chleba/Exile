@@ -41,7 +41,11 @@ local function sort_recipes_by_input_state(cache)
         if result.craftable then
             craftables[#craftables + 1] = result
         elseif not filtered and hints and result.possible then
-            possibles[#possibles + 1] = result
+            if cache.hint_btn then
+                possibles[#possibles + 1] = result
+            else
+                craftables[#craftables + 1] = result
+            end
         elseif result.partial
             or result.craftable_partial
             or not filtered and hints and result.possible_partial then
