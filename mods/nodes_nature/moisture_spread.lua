@@ -167,7 +167,8 @@ local soil_labels =
      "coast",
      "volcano",
      "mountains",
-     "bare_soil"}
+     "bare_soil",
+     "surface"}  -- Use surface detection for seasonal soil and moisture
 
 local function soaker()
     return ms.create_light_aware_replacer(

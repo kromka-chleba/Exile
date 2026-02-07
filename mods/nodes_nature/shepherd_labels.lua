@@ -43,3 +43,8 @@ ms.tag.register("last_freezed")
 ms.tag.register("ocean")
 ms.tag.register("coast")
 ms.tag.register("mountains")
+
+-- Surface detection
+ms.tag.register("surface")
+ms.tag.register("underground")
+ms.tag.register("aboveground")
