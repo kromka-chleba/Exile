@@ -122,6 +122,9 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
             if winter_id then
                 data[i] = winter_id
                 modified = true
+            end
+            -- Track if we found any seasonal soil (spring or winter)
+            if soil_to_winter[node_id] or winter_to_soil[node_id] then
                 has_winter_soil = true
             end
         else
@@ -130,9 +133,9 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
             if spring_id then
                 data[i] = spring_id
                 modified = true
-                has_spring_soil = true
-            elseif soil_to_winter[node_id] then
-                -- This is a spring soil that wasn't converted (not winter season)
+            end
+            -- Track if we found any seasonal soil (winter or spring)
+            if soil_to_winter[node_id] or winter_to_soil[node_id] then
                 has_spring_soil = true
             end
         end
