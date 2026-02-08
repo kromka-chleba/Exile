@@ -201,6 +201,12 @@ local default_option_idx = option_to_idx[default_option_name]
         `FS_search` = nil, -- search container
         `FS_input_list` =nil -- input panel
 
+        -- The following variables are used for elements that almost always get
+        -- updated, but with specific exceptions.
+        -------------------------------------------------------
+        `last_change` = nil : change that triggered update of the formspec
+        `craft_button_pos` = number : last position of the first craft button
+
         -- player settings
         -------------------
         `lang` = player's lang code for translation
@@ -615,7 +621,10 @@ function crafting.make_crafting_formspec(player, cache)
         output[#output + 1] = "container[3.5,1.4,]"
 
         -- dynamic positions of the buttons - depending on #quantities
-        local pos = 1.4 - (#quantities - 1) * 0.467
+        if (cache.last_change ~= "crafted") or not cache.craft_button_pos then
+            cache.craft_button_pos = 1.4 - (#quantities - 1) * 0.467
+        end
+        local pos = cache.craft_button_pos
 
         for i, q in ipairs(quantities) do
             local qty_id = "qty_" .. i
@@ -661,7 +670,10 @@ function crafting.make_crafting_formspec(player, cache)
         output[#output + 1] = "container[3.5,6.0,]"
 
         -- dynamic positions of the buttons - depending on #quantities
-        local pos = 1.8 - (#quantities - 1) * 0.6
+        if (cache.last_change ~= "crafted") or not cache.craft_button_pos then
+            cache.craft_button_pos = 1.8 - (#quantities - 1) * 0.6
+        end
+        local pos = cache.craft_button_pos
 
         for i, q in ipairs(quantities) do
             local qty_id = "qty_" .. i
@@ -769,6 +781,8 @@ function crafting.make_crafting_formspec(player, cache)
 
     -- return formspec
     output[#output + 1] = 'container_end[]'
+    -- reset info on what change triggered this formspec update
+    cache.last_change = nil
     return tofstring(output)
 end
 
@@ -941,12 +955,13 @@ function crafting.process_receive_fields(player, formname, fields)
         -- user clicked nth button to craft and a recipe is selected?
         if fields[qty_id] and cache.selected_id then
             if cache:craft_selected(i) then
+                cache.last_change = "crafted"
                 return cache
             end
         end
     end
 
-    -- processin buttons with id
+    -- processing buttons with id
     local function process_button(key,btypes)
         for _,prefix in ipairs(btypes) do
             if key:sub(1, #prefix) == prefix then
