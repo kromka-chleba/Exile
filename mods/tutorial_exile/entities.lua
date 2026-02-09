@@ -31,7 +31,7 @@ local blocker_ent = {
                        if node.name == "air" then
                            core.set_node(checkpos,
                                          { name =
-                                               "nodes_nature:freshwater_source"}
+                                               "nodes_nature:salt_water_source"}
                            )
                        end
         end)
