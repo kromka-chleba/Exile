@@ -1,7 +1,8 @@
 tutorial = tutorial
+local stage = ...
 
-local shelter_entry, shelter_exit = dofile(
-    minetest.get_modpath("tutorial_exile").."/shelter.lua")
+local shelter_entry, shelter_exit = loadfile(
+    core.get_modpath("tutorial_exile").."/shelter.lua")(stage)
 
 return
     {
@@ -63,31 +64,11 @@ return
         [3] = {
             name = "Shelter",
             schem = "shelter",
-            size = vector.new(52,21,49),
+            size = vector.new(52,21,51),
             location = vector.new(0,0,80),
-            start = vector.new(46,4,8),
+            start = vector.new(46,4,10),
             facing = 1.5,
             entry = shelter_entry,
             exit = shelter_exit
-        },
-        [4] = {
-            name = "Fire+Air",
-            schem = "fire+air",
-            size = vector.new(19,7,23),
-            location = vector.new(80,0,80),
-            start = vector.new(5,5,5),
-            facing = 0.023,
-            entry = function(self, player, name, instance)
-                local inv = player:get_inventory()
-                inv:add_item("main", "inferno:fire_sticks")
-            end,
-        },
-        [5] ={
-            name = "Crafting",
-            schem = "crafting",
-            size = vector.new(36,20,43),
-            location = vector.new(160,0,0),
-            start = vector.new(13,12,17),
-            facing = 4.9,
         },
     }

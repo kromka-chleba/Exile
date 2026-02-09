@@ -120,21 +120,6 @@ minetest.register_node(
 
 
 minetest.register_node(
-    "tutorial_exile:wet_silt_grass", {
-        description = "Wet Woodland Soil",
-        tiles = {"nodes_nature_woodland_soil.png^nodes_nature_mud.png",
-                 "nodes_nature_silt.png^nodes_nature_mud.png",
-                 "nodes_nature_silt.png^"..
-                     "nodes_nature_woodland_soil_side.png^"..
-                     "nodes_nature_mud.png"
-        },
-        sounds = { footstep = {name = "nodes_nature_mud", gain = 0.4},
-                   dug = {name = "nodes_nature_mud", gain = 0.4} },
-        groups = { crumbly = 3, falling_node = 1, puts_out_fire = 1,
-                   not_in_creative_inventory = 1 }
-})
-
-minetest.register_node(
     "tutorial_exile:wet_silt", {
         description = "Wet Silt",
         tiles = {"nodes_nature_silt.png^nodes_nature_mud.png",
@@ -248,7 +233,8 @@ local info = { -- #TODO: set up locales, template.txt etc
                     "Once completed, this roof will shield against hot or "..
                     "cold weather."),
     ["shelter_bed"] = S("Build a bed in a sheltered place to restore energy.@n"
-                        .."Better beds restore it faster."),
+                        .."Better beds restore it faster.@n@n")..
+                        S("This is a very poor bed and shelter."),
     ["shelter_fire"] = S("Fires create hot air, which will drift away unless "..
                          "contained.@n"..
                          "It is normally invisible, but is shown here."),

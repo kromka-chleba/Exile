@@ -15,9 +15,9 @@ local disable_tutorial = settings:get_bool("exile_notutorialprompt",false)
 local S = minetest.get_translator("tutorial_exile")
 tutorial = {}
 
--- NOTE: add global var,
--- otherwise, even on `true`, lore/login do display the window and calls it !
 tutorial.enable_tutorial = not disable_tutorial
+
+local mstore = minetest.get_mod_storage() ;  tutorial.mstore = mstore
 
 local modpath = minetest.get_modpath("tutorial_exile")
 dofile(modpath..'/nodes.lua')
@@ -29,8 +29,6 @@ local worldpath=minetest.get_worldpath()
 
 --------------------------------------------------------------------------------
 -- Start/quit from tutorial
-
-local mstore = minetest.get_mod_storage()
 
 local pstore = {} -- store status of players so we can restore it after tutorial
 
@@ -117,13 +115,13 @@ function tutorial.init(player)
     if pstore[name] then  -- Is the player already in?
         return
     end
-    pstore[name] = {}
     minetest.show_formspec(name, "tutorial_exile:confirm", confirmspec)
 end
 
 -- save player's state before entering the tutorial
 local function store_player(player)
     local name = player:get_player_name()
+    pstore[name] = {}
     local ps = pstore[name]
 
     ps.pos = player:get_pos()
@@ -161,6 +159,7 @@ local function restore_player(player)
 
     HEALTH.show_hud_elements(player, nil, "all")
     player_api.set_invisible(player, false)
+    climate.set_weather_override(player:get_player_name(), nil, "")
 
     local ps = pstore[name]
 
@@ -353,5 +352,6 @@ core.register_chatcommand(
             local plyr = core.get_player_by_name(name)
             local facing = plyr:get_look_horizontal()
             print("Facing: ",facing)
+            return true, tostring(facing)
         end
 })

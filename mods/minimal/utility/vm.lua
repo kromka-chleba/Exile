@@ -195,7 +195,9 @@ function minimal.load_region(base_raw, file)
                     if tmeta.ztr_id then -- it's a zone, create an instance
                         this.meta.fields = zone_instance(tpos, tmeta)
                     end
-                    minetest.get_meta(tpos):from_table(this.meta)
+                    core.get_meta(tpos):from_table(this.meta)
+                else
+                    core.get_meta(tpos):from_table({}) -- Clear this node's meta
                 end
                 if timer_ids[this.id] then -- it's a timer node, start it
                     table.insert(timers, {tpos, timer_ids[this.id]} )

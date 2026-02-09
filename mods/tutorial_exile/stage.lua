@@ -8,11 +8,14 @@ HEALTH = HEALTH
 player_api = player_api
 
 local modpath = minetest.get_modpath("tutorial_exile")
-local stages = dofile(modpath..'/data_stages.lua')
+
+stage.handlers = {} -- functions to handle a stage when server is restarted
+-- A list, each takes (stage, player, name, instance) arguments like entry/exit
+local stages = loadfile(modpath..'/data_stages.lua')(stage)
 
 local mstore = minetest.get_mod_storage()
 
-local tutorial_version = 0
+local tutorial_version = 1
 
 -- Loading/unloading areas -----------------------------------------------
 
@@ -39,9 +42,10 @@ local reloading = false
 local tutorial_version_stored = tonumber(mstore:get("tutorial_exile_version"))
 if not tutorial_version_stored
     or tutorial_version_stored < tutorial_version then
-    print("RELOADING TUTORIAL STAGES")
+    print("RELOADING TUTORIAL STAGES, VERSION ",tutorial_version,
+          " vs ",tutorial_version_stored)
     reloading = true -- tutorial's been updated, reload it and restart players
-    mstore:set_string("exile_tutorial_version", tutorial_version)
+    mstore:set_string("tutorial_exile_version", tutorial_version)
 end
 
 local counter = 0
@@ -155,7 +159,7 @@ function stage.shutdown(player) -- For when a player quits the tutorial instance
     local pname = player:get_player_name()
     local num = i_num[pname]
     if not num or minetest.is_singleplayer() then return end
-    if instance[num].active == 6 then -- Finished, clear and reset
+    if instance[num].active == #stages + 1 then -- Finished, clear and reset
         reload(num)
         save_out(instance[num])
     else -- Not complete, keep it set up for the player
@@ -165,7 +169,7 @@ end
 
 -- Spawn the landing zone on first load or when requested if /test_tut is used
 local LZ_spawned = mstore:get("tutorial_lz_spawned")
-local enable_tutorial = minetest.settings:get("exile_enabletutorial") or false
+local enable_tutorial = tutorial.enable_tutorial
 
 local function spawn_lz()
             print("TUTORIAL_EXILE: Spawning a Landing Zone")
@@ -175,7 +179,8 @@ local function spawn_lz()
 end
 
 minetest.after(1, function()
-        if ( not LZ_spawned ) and enable_tutorial then
+        if ( not LZ_spawned or reloading ) and enable_tutorial then
+            print("TUTORIAL_EXILE: Landing Zone RELOAD")
             spawn_lz()
         end
 end)
@@ -257,6 +262,8 @@ local function move_to_spawn_pos(player, playername)
     print("Moving ",pname," to spawn pos for stage ",
           act," at ",core.pos_to_string(pos))
     player:set_pos(pos)
+    core.sound_play( {name="lore_gateway", gain=0.20},
+        {pos = pos, max_hear_distance=100} )
 end
 
 
@@ -305,9 +312,11 @@ end
 
 function stage.open(player) -- called when a player enters the tutorial
     local function stage_go()
+        player_api.set_invisible(player, false)
         local pname = player:get_player_name(player)
         local current_stage =
             tonumber(player:get_meta():get("tutorial_stage")) or 0
+        if current_stage > #stages then current_stage = 0 end
         local num = i_num[pname]
         if not num then
             stage_init(pname, tonumber(current_stage))
@@ -323,6 +332,12 @@ function stage.open(player) -- called when a player enters the tutorial
                 inst.offset + stages[current_stage].location
             local stop = start + stages[current_stage].size
             if player:get_pos():in_area(start, stop) then
+                if stage.handlers then
+                    for i = 1, #stage.handlers do
+                        stage.handlers[i]( stages[current_stage],
+                                           player, pname, inst )
+                    end
+                end
                 return -- If so, don't reset
             end
         end
