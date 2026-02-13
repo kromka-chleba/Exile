@@ -43,7 +43,7 @@ minetest.register_item(
         description = S("Your hand"),
         type = "none",
         wield_image = "player_hand.png",
-        wield_scale = {x=1,y=1,z=2.5},
+        wield_scale = {x=0.667,y=0.667,z=1.667},
         tool_capabilities = {
             full_punch_interval = minimal.hand_punch_int,
             max_drop_level = minimal.hand_max_lvl,
