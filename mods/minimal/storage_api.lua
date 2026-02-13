@@ -56,7 +56,7 @@ function storage.get_storage_formspec(pos, w, h, meta)
     y = y + 2.55
     fs[#fs + 1] = storage.make_trash_formpec(0.375, y)
     local trash_offset = y
-    y = y + 0.12
+    y = y + 0.2
     fs[#fs + 1] = "field[1.875," .. y .. ";4.75,0.78;label;"
     fs[#fs + 1] =  S("Label") .. ":;" .. label .. "]"
     fs[#fs + 1] =  "field_close_on_enter[label;false]"
@@ -70,15 +70,15 @@ function storage.get_storage_formspec(pos, w, h, meta)
     fs[#fs + 1] = "button[7.25," .. tostring(y + 0.1154) .. ";0,0;dummy;]"
 
     local craftedby_offset_x = 7.94
-    -- center of creator at x = 8.44, extending more to the right than to left
-    local creator_offset_x =   7.94 + (24-string.len(creator))/48
+    -- center of creator at x = 8.24, extending more to the right than to left
+    local creator_offset_x =   7.74 + (24-string.len(creator))/48
 
-    y = trash_offset + 0.05
+    y = trash_offset + 0.27
     if (creator and creator ~= '') then
         fs[#fs + 1] = "label[" .. craftedby_offset_x .. "," .. y ..
-                             ";2.5,0.5;" .. S("Crafted by") .. ":]"
-        fs[#fs + 1] = "label[" .. creator_offset_x .. "," .. (y + 0.41) ..
-                             ";2.5,0.5;" .. creator .. "]"
+                             ";" .. S("Crafted by") .. ":]"
+        fs[#fs + 1] = "label[" .. creator_offset_x .. "," .. (y + 0.5) ..
+                             ";" .. creator .. "]"
     end
     return table.concat(fs, "")
 end
