@@ -713,9 +713,9 @@ function mobkit.physics(self)
     local colinfo = self.colinfo
 
     if self.isonground and not self.isinliquid then
-        vnew = {x= vel.x> 0.2 and vel.x*mobkit.friction or 0,
+        vnew = {x=math.abs(vel.x)> 0.2 and vel.x*mobkit.friction or 0,
                 y=vel.y,
-                z=vel.z > 0.2 and vel.z*mobkit.friction or 0}
+                z=math.abs(vel.z)> 0.2 and vel.z*mobkit.friction or 0}
     end
 
     -- bounciness
