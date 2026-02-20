@@ -10,8 +10,6 @@ local climate = climate
 local placeholder_id_pairs = ms.placeholder_id_pairs()
 local ignore_id = minetest.get_content_id("ignore")
 
-local chunk_side = ms.chunk_side()
-
 function nn.create_evaporator(args_in)
     local args = table.copy(args_in)
     local find_replace_pairs = args.find_replace_pairs
@@ -37,6 +35,7 @@ function nn.create_evaporator(args_in)
         water_ids[id] = true
     end
     return function(pos_min, pos_max, vm_data, chance_in)
+        local chunk_side = pos_max.x - pos_min.x + 1
         local chance = chance_in or 1/35
         --local t1 = minetest.get_us_time()
         local found = false
@@ -154,6 +153,7 @@ function nn.create_soak_out_move_down(args_in)
 
     -- The actual worker function
     return function(pos_min, pos_max, vm_data, chance)
+        local chunk_side = pos_max.x - pos_min.x + 1
         --local t1 = minetest.get_us_time()
         local hash = ms.mapchunk_hash(pos_min)
         nn.moisture_orphans[hash] = {}
@@ -395,6 +395,7 @@ function nn.create_gravity_soak_in(args_in)
         seawater_ids[seawater_id] = true
     end
     return function(pos_min, pos_max, vm_data, chance)
+        local chunk_side = pos_max.x - pos_min.x + 1
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes
