@@ -27,6 +27,7 @@ local sediment_list = {
          organic_substrate = 0,
          fertility = 1,
          density = 2,
+         groups = { sievable = 1 },
     }),
     silt = sediment.new(
         {name = "silt",
@@ -37,6 +38,7 @@ local sediment_list = {
          organic_substrate = 3,
          fertility = 3,
          density = 3,
+         groups = { sievable = 1 },
     }),
     clay = sediment.new(
         {name = "clay",
@@ -58,6 +60,7 @@ local sediment_list = {
          organic_substrate = 0,
          fertility = 1,
          density = 4,
+         groups = { sievable = 1 },
     }),
     loam = sediment.new(
         {name = "loam",
@@ -68,6 +71,7 @@ local sediment_list = {
          organic_substrate = 4,
          fertility = 4,
          density = 1,
+         groups = { sievable = 1 },
     }),
     volcanic_ash = sediment.new(
         {name = "volcanic_ash",
@@ -79,6 +83,7 @@ local sediment_list = {
          organic_substrate = 0,
          fertility = 4,
          density = 1,
+         groups = { sievable = 1 },
     }),
 }
 

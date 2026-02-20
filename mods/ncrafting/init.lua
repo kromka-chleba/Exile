@@ -17,6 +17,7 @@ dofile(modpath..'/arches.lua')
 dofile(modpath..'/switches.lua')
 dofile(modpath..'/fermentation.lua')
 dofile(modpath..'/microbial.lua')
+dofile(modpath..'/place_physics.lua')
 
 local store = minetest.get_mod_storage()
 

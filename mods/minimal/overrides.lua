@@ -807,6 +807,7 @@ minetest.register_entity(
                     minetest.sound_play(def.sounds.place, {pos = np}, true)
                 end
             end
+            ncrafting.placement_physics(np, self.node)
             minetest.check_for_falling(np)
             return true
         end,

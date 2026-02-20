@@ -202,9 +202,14 @@ end
 -----------------------------
 --Drink Liquids with weild hand
 
---make freshwater drinkable on click
+--make freshwater drinkable on click, add sievable
+local fwgroups = table.copy(
+    core.registered_nodes["nodes_nature:freshwater_source"].groups)
+fwgroups["sievable"] = 1
+
 minetest.override_item(
     "nodes_nature:freshwater_source", {
+        groups = fwgroups,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             if not minetest.is_player(clicker) then
                 return

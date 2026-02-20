@@ -12,8 +12,8 @@ local S = tech.S
 --Craft items
 
 
-minetest.register_node(
-    "tech:stick", {
+local stick_def =
+    {
         description = S("Stick"),
         drawtype = "nodebox",
         node_box = {
@@ -58,14 +58,24 @@ minetest.register_node(
             -- for other attached nodes
             local itemname = itemstack:get_name()
             if itemname == node.name then
-                local flipdir = (node.param2 % 2) * -2 + node.param2 + 1
+                -- wallmounted param2, only uses 3 bits:
+                local p2wm = bit.band(node.param2, 7) -- bits 1, 2, 4
+
+                -- Count how far out a stick has extended, using 3 more bits:
+                local countbit = bit.band(node.param2, 56) -- bits 8, 16, 32
+                if bit.rshift(countbit, 3) >= 4 then -- too long, 0-4 only
+                    return
+                end
+                countbit = countbit + 8
+
+                local flipdir = (p2wm % 2) * -2 + p2wm + 1
                 local enddir = minetest.wallmounted_to_dir(flipdir)
                 local newpos = vector.add(pos,enddir)
                 local stickend = minetest.get_node(newpos)
                 if stickend.name == "air" then -- extend an existing stick
                     minetest.item_place_node(itemstack, clicker,
                                              {type = "node", under=pos,
-                                              above=newpos}, node.param2)
+                                              above=newpos}, p2wm + countbit)
                     return itemstack
                 end
             else -- only allow placing things on top of a stick, for support beams etc
@@ -81,7 +91,10 @@ minetest.register_node(
         end
 
 
-})
+}
+core.register_node("tech:stick", stick_def)
+ncrafting.register_sieve("tech:stick", stick_def)
+
 
 minetest.register_craftitem("tech:grass_fibre",{
                                 description = S('Grass Fibre'),

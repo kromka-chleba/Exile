@@ -303,6 +303,10 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_wood_defaults(),
 })
 
+ncrafting.register_sieve("tech:wattle", core.registered_nodes["tech:wattle"])
+ncrafting.register_sieve("tech:wattle_loose",
+                         core.registered_nodes["tech:wattle_loose"])
+
 --A frame to let wattle walls connect to wattle doors
 --TODO: Make it detect wattle or doors and rotate itself to match
 
