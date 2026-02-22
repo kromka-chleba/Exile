@@ -2512,6 +2512,8 @@ end
 -- similar to mobkit version, but including removal of prey and gaining energy
 -- and optimized to work from 5 to 60 calls of mobkit.stepfunc() per second;
 -- to hit is to catch... for predators, where the chewing does the killing
+--NOTE: Distance to target should be less than self.jump_range, otherwise
+--      it is not unlikely to miss a fleeing target repeatedly.
 local function lq_jumpattack_eat(self,height,target,consume)
     local phase = 1
     local dt = 0
@@ -2527,11 +2529,12 @@ local function lq_jumpattack_eat(self,height,target,consume)
             local pos = mobkit.get_stand_pos(self)
             local tpos = mobkit.get_stand_pos(target)
             local jump_range = self.jump_range
+            local jump_height = self.jump_height
             local dist = vector.distance(pos, tpos)
-            if dist <= jump_range and abs(pos.y - tpos.y) <= 3 then
+            if dist <= jump_range and abs(pos.y - tpos.y) <= jump_height then
                 -- height to jump to
                 local dy = math.floor(tpos.y) - math.floor(pos.y) + height
-                dy = math.max(0, math.min(dy, jump_range/3))
+                dy = math.max(0, math.min(dy, jump_height))
 
                 -- reduce distance a bit to end up in front of enemy
                 if dist > 0.3 then dist = dist - 0.2 end
@@ -2557,11 +2560,19 @@ local function lq_jumpattack_eat(self,height,target,consume)
                 local dir = vector.direction(pos, tpos)
                 local vel = vector.multiply(dir, vh)
 
-                -- also follow target's current horizontal speed
+                -- also follow target's current horizontal speed, but not
+                -- exactly - leave players a chance!
                 local tvel = target:get_velocity()
-                vel.x = vel.x + tvel.x
-                vel.z = vel.z + tvel.z
+                local rnd = 0.5 + random()   --> 1 +/- 0.5
+                vel.x = vel.x + tvel.x * rnd
+                vel.z = vel.z + tvel.z * 0.5
                 vel.y = vy
+                -- but keep some speed limit corresponding to jump_range
+                local v = vector.length(vel)
+                local v_limit = t > 0 and jump_range/t or 0
+                if v > v_limit then
+                    vel = vector.multiply(vel, v_limit/v)
+                end
 
                 -- turn and jump
                 self.object:set_yaw(core.dir_to_yaw(vel))
@@ -2649,10 +2660,13 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             local tpos = mobkit.get_stand_pos(tgtobj)
             local dist = vector.distance(pos,tpos)
             mobkit.lq_turn2pos(self,tpos)
-            local height = tgt.height or 0
-            height = tgtobj:is_player() and 0.35 or height*0.6
-            if dist <= jump_range and abs(pos.y - tpos.y) <= 3 then
+            local jump_height = self.jump_height
+            if dist <= 0.8 * jump_range
+                and abs(pos.y - tpos.y) <= jump_height then
+
                 -- close in
+                local height = tgt.height or 0
+                height = tgtobj:is_player() and 0.35 or height*0.6
                 lq_jumpattack_eat(self,height,tgtobj, eat)
                     -- add 0.5 to 1.75 seconds to timer if enemy or prey
                 if dist <= math.min(jump_range * 0.5,self.view_range) then
