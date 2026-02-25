@@ -50,6 +50,25 @@ local function get_yaw_to_object(pos, opos)
     return yaw
 end
 
+-- Returns the smaller angle a creature `self` could turn to point towards
+-- `tpos`, including sign. (Current yaw + delta gives yaw to target)
+-- `self_yaw`: optional, could be given if the current yaw of self is already
+--     known
+local function yaw_delta(self, tpos, self_yaw)
+    if not self_yaw then
+        self_yaw = self.object:get_yaw()
+    end
+    local two_pi = 2 * pi
+    local pos = self.object:get_pos()
+    local target_yaw = core.dir_to_yaw(vector.direction(pos, tpos))
+    if target_yaw < self_yaw then target_yaw = target_yaw + two_pi end
+    local delta = target_yaw - self_yaw
+    if delta > pi then
+        delta = delta - two_pi
+    end
+    return delta
+end
+
 -- 1 function to get time from (allows for ease of modification)
 -- allows optional "since" value, expected number,
 --  returns it subtracted by got time
@@ -1301,6 +1320,35 @@ end
 --------------------------------------------------------------------------
 
 
+----------------------------------------------
+-- similar to mobkit's version but more efficient and with an optional paramter
+-- `duration` to define when from now on it shall finish; default: 0.5 seconds
+-- NOTE: only works correctly if added to an empty lqueue before mobkit
+--       executes the lqueue
+function animals.lq_turn2pos(self, tpos, duration)
+    duration = duration or 0.5 -- default to 2*pi/sec
+    local two_pi = 2 * pi
+
+    local yaw = self.object:get_yaw() -- initial yaw
+    local delta_yaw = yaw_delta(self, tpos, yaw)
+
+    local dtime = 0
+    -- instead of skipping the initial call we consider self.dtime
+    -- as elapsed part of the total time to finish
+    duration = duration + self.dtime
+    local time_left = duration
+    local func = function()
+        dtime = dtime + self.dtime -- sum up until evaluation
+        if not animals.timer(self, 0.1) then return false end -- not this time
+        -- update yaw
+        yaw = (yaw + delta_yaw * math.min(dtime,time_left) / duration) % two_pi
+        self.object:set_yaw(yaw)
+        time_left = time_left - dtime
+        dtime = 0
+        return time_left <= 0
+    end
+    mobkit.queue_low(self, func)
+end
 
 ----------------------------------------------
 --roam to places with equal or lesser darkness
@@ -2659,12 +2707,17 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             local pos = mobkit.get_stand_pos(self)
             local tpos = mobkit.get_stand_pos(tgtobj)
             local dist = vector.distance(pos,tpos)
-            mobkit.lq_turn2pos(self,tpos)
+
+            -- spend some time for turning towards target, also as delay
+            -- before jump attack
+            local dt = 0.25 -- effectively > 0.25s
+            animals.lq_turn2pos(self, tpos, dt)
             local jump_height = self.jump_height
             if dist <= 0.8 * jump_range
                 and abs(pos.y - tpos.y) <= jump_height then
 
                 -- close in
+                -- queue jump attack
                 local height = tgt.height or 0
                 height = tgtobj:is_player() and 0.35 or height*0.6
                 lq_jumpattack_eat(self,height,tgtobj, eat)
