@@ -4,10 +4,13 @@ local function restore_sieve(pos, node)
     if now.name ~= node.name.."_sieve" then return end -- Broken!
     core.swap_node(pos, node)
 end
-function ncrafting.register_sieve(name, node_def)
+function ncrafting.register_sieve(name)
+    local node_def = core.registered_nodes[name]
     local def = table.copy(node_def)
-    node_def.groups["sieve"] = 1 -- add the sieve group to the base node
-    node_def.groups["timer"] = 1 -- so the ABM will restart this if it dies
+    local groups = table.copy(node_def.groups)
+    groups["sieve"] = 1 -- add the sieve group to the base node
+    groups["timer"] = 1 -- so the ABM will restart this if it dies
+    core.override_item(name, { groups = groups })
 
     local sieve_name = name.."_sieve"
     def.walkable = false

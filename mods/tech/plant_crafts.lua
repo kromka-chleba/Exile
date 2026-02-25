@@ -93,7 +93,7 @@ local stick_def =
 
 }
 core.register_node("tech:stick", stick_def)
-ncrafting.register_sieve("tech:stick", stick_def)
+ncrafting.register_sieve("tech:stick")
 
 
 minetest.register_craftitem("tech:grass_fibre",{
