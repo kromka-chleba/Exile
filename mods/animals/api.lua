@@ -69,13 +69,48 @@ end
 -- entity is called by the engine (up to 60x/sec with Luanti 5.13, but < 10x if
 -- there are many entities or due to lag. Expect regular lag of > 0.5s due to
 -- updates of the map database every 5s, even if rendering shows good fps).
+-- Dependency on frequency of on_step() per animal and second:
+-- Take into account, that mobkit limits dtime to 0.2! s = 0.21 may regulary
+-- result in delays of 0.4 if on_step() gets called only about 5 times per
+-- second. Instead, s = 0.18 (or 0.1666) would increase chances to result in true
+-- being returned 5x per second, while for 60 on_step() / second it would
+-- return true about 5.55x (6x) per second on average.
 function animals.timer(self, s)
     if self.dtime < s then
-        local t2 = self.time_total + self.dtime
-        if (t2 % s) < (self.time_total % s) then return true end
+        local now = self.time_total + self.dtime
+        -- NOTE: mobkit.stepfunc() adds dtime before it returns
+        if (now % s) < (self.time_total % s) then return true end
+        -- example: total = 1232.3, dtime = 0.2, s = 0.4
+        --                 (1232.3 + 0.2) % 0.4 = 0.1 < 0.3 = 1232.3 % 0.4
     else  -- self.dtime >= s (on lag or with small s)
         return true
     end
+end
+
+-- animals.get_timer_timeout() is useful if you need an s to let
+-- animals.timer(self, s) timeout almost exactly at now + dt for a specific
+-- animal.
+-- Returns the largest s, 0 <= s < dt that is an exact divisor of
+-- self.time_total + self.dtime (= now).
+-- With self.time_total + self.dtime < 10 * dt the return value can
+-- be significantly smaller than dt. The error is returned as 2nd return value.
+-- WARNING: If this timeout is evaluated within the same call to
+-- mobkit.stepfunc() animals.timer() may return true immediately!
+-- If that's not wanted, next evaluation of animals.timer() must be skipped.
+function animals.calc_timeout_for_timer(self, dt)
+    if dt > 0 then
+        local now = self.time_total + self.dtime
+        if now > 0 then
+            local s = now / math.ceil(now / dt)
+            return s, dt - s
+            -- example: now = 158.4 + 0.925 = 159.325
+            -- timeout wanted at: 159.325 + 2.3 = 161.625
+            -- 159.325 / 2.3 = 69.27174
+            -- return s = 159.325 / 70 = 2.27607
+            -- -> animals.timer(self, 2.27607) returns true after 161.60107
+        end
+    end
+    return 0, dt
 end
 
 --flee sound (has to be in water!)
@@ -2474,45 +2509,88 @@ end
 
 
 ---------------------------------------------------
---like mobkit version, but including removal of prey and gaining energy
---to hit is to catch... for predators, where the chewing does the killing
+-- similar to mobkit version, but including removal of prey and gaining energy
+-- and optimized to work from 5 to 60 calls of mobkit.stepfunc() per second;
+-- to hit is to catch... for predators, where the chewing does the killing
 local function lq_jumpattack_eat(self,height,target,consume)
-    local phase=1
+    local phase = 1
+    local dt = 0
 
     local func=function()
-        if not mobkit.is_alive(target) then return true end
+        if not animals.timer(self, dt) then return end -- try again later
+        if not mobkit.is_alive(target) then return true end -- done
 
+        -- can only jump if on ground
         if phase == 1 and self.isonground then
-            -- collision bug workaround
-            local vel = self.object:get_velocity()
-            vel.y = -mobkit.gravity*sqrt(height*2/-mobkit.gravity)
-            self.object:set_velocity(vel)
-            animals.make_sound(self,'charge')
-            phase=2
-        elseif phase==2 then
-            local dir = minetest.yaw_to_dir(self.object:get_yaw())
-            local vy = self.object:get_velocity().y
-            dir=vector.multiply(dir,6)
-            dir.y=vy
-            self.object:set_velocity(dir)
-            phase=3
-        elseif phase==3 then      -- in air
+            -- if target still in range, adjust orientation and jump
+
+            local pos = mobkit.get_stand_pos(self)
+            local tpos = mobkit.get_stand_pos(target)
+            local jump_range = self.jump_range
+            local dist = vector.distance(pos, tpos)
+            if dist <= jump_range and abs(pos.y - tpos.y) <= 3 then
+                -- height to jump to
+                local dy = math.floor(tpos.y) - math.floor(pos.y) + height
+                dy = math.max(0, math.min(dy, jump_range/3))
+
+                -- reduce distance a bit to end up in front of enemy
+                if dist > 0.3 then dist = dist - 0.2 end
+
+                -- aim a bit higher than where the target position is
+                local dy_peak_bonus = 0.1 + 0.1 * dist
+                -- calculate time to reach the peak
+                local g = -mobkit.gravity
+                -- NOTE: h = 1/2* gt^2 => t = sqrt(2h/g),
+                --       with g=9.81, h=0.35 for a player => 0.27s
+                -- => back on ground after 0.54s, likely colliding with
+                --    the target in the meantime
+                local t = sqrt(2 * (dy + dy_peak_bonus) / g)  -- for climbing
+                -- vertical speed to reach h = dy + dy_peak_bonus:
+                -- (mv^2)/2 = mgh => v = sqrt(2gh) = g sqrt(2h/g) = gt
+                local vy = g * t
+                -- add time for declining until collision at height dy
+                t = t + sqrt(2 * dy_peak_bonus / g)  -- for climbing + falling
+
+                -- calculate required horizontal speed to reach player on time
+                local vh = t > 0 and dist / t or 0
+
+                local dir = vector.direction(pos, tpos)
+                local vel = vector.multiply(dir, vh)
+
+                -- also follow target's current horizontal speed
+                local tvel = target:get_velocity()
+                vel.x = vel.x + tvel.x
+                vel.z = vel.z + tvel.z
+                vel.y = vy
+
+                -- turn and jump
+                self.object:set_yaw(core.dir_to_yaw(vel))
+                self.object:set_velocity(vel)
+                animals.make_sound(self,'charge')
+                -- delay to phase 2 (scanning for target at last known position)
+                dt = animals.calc_timeout_for_timer(self, 0.55 * t)
+                phase = 2
+            else
+                return true
+            end
+        elseif phase <= 4 then -- check several times whether target is reached
             -- calculate attack spot
             local yaw = self.object:get_yaw()
-            local dir = minetest.yaw_to_dir(yaw)
+            local dir = core.yaw_to_dir(yaw)
 
-            if animals.target_in_range(self,target) then -- bite
+            if animals.target_in_range(self, target) then -- bite
                 -- bounce off
                 local vy = self.object:get_velocity().y
                 self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
                 -- play attack sound if defined
                 animals.make_sound(self,'attack','bite')
-                phase=4
 
                 -- eat bits of opponent
-                return animals.hurt_target(self,target,consume)
-            else
+                animals.hurt_target(self,target,consume)
                 return true
+            else
+                if phase == 2 then dt = 0.3 * dt end -- min delay to phase 3, 4
+                phase = phase + 1
             end
         else
             return true
@@ -2552,6 +2630,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
         -- will be true if consume_non_prey is not specified
     end
     local func = function()
+        -- choose an interval < 0.2 to get a frequency ~5/sec
+        if not animals.timer(self, 0.18) then return end
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
                 -- we've done enough, get away from them now (false so that we aren't scared)
@@ -2588,9 +2668,16 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                     -- out of sight, out of mind
                     return end_func()
                 end
+                -- approach/follow target in steps of about jump_range/2
+                local f = 0.5 * jump_range / dist --> 0 < f < 1
+                tpos = vector.new(pos.x + f * (tpos.x - pos.x),
+                                  pos.y + f * (tpos.y - pos.y),
+                                  pos.z + f * (tpos.z - pos.z))
+                -- but do not approach in a straight line (easy target)
+                local rnd = 0.2 * dist
                 mobkit.lq_dumbwalk(
-                    self,mobkit.pos_shift(tpos,{x=random(-20,20)/10,
-                                                z=random(-20,20)/10}))
+                    self,mobkit.pos_shift(tpos,{x=(random() - 0.5) * rnd,
+                                                z=(random() - 0.5) * rnd}))
             end
         end
     end
