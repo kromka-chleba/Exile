@@ -187,9 +187,12 @@ local self_data = {
     springiness=0,
     buoyancy = 1.01,
     max_speed = 0.75,                                    -- m/s
+    jump_range=5.4,                                      -- nodes/meters
     view_range = 10,                                     -- nodes/meters
-    --attack
-    attack={range=0.9, damage_groups={fleshy=4}},
+    -- attack, used as argument `tool_capabilities`
+    attack={range=0.2, damage_groups={fleshy=4}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.25,y=0.2},
     armor_groups = {fleshy=100},
     hunting_depth = 4,
     -- animation + sounds

@@ -200,8 +200,11 @@ self_data = {
     springiness=0,
     buoyancy = 1.01,
     max_speed = 1,                                       -- m/s
-    --attack
-    attack={range=0.3, damage_groups={fleshy=1}},
+    jump_range=1.8,                                      -- nodes/meters
+    -- attack, used as argument `tool_capabilities`
+    attack={range=0.15, damage_groups={fleshy=1}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.15,y=0.05},
     armor_groups = {fleshy=100},
     -- settings
     max_pop = 20,

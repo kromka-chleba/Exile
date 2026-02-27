@@ -307,11 +307,14 @@ local self_data = {
     buoyancy = 1.01,
     max_speed = 2.5,       -- m/s --NotPegasun (faster)
     jump_height = 1.2,     -- nodes/meters
+    jump_range = 5.4,      -- nodes/meters
     view_range = 26,       -- nodes/meters
     warn_distance = 6,     --NotPegasun (shorter distance)
     aggression_distance = 2, --NotPegasun (shorter distance)
-    --attack
-    attack={range=0.9, damage_groups={fleshy=1}}, --NotPegasun (weaker)
+    -- attack, used as argument `tool_capabilities`
+    attack={range=0.45, damage_groups={fleshy=1}},  --NotPegasun (weaker)
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.05,y=0.07},
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_bird_small",

@@ -180,8 +180,10 @@ local self_data = {
     max_speed = 3,                                       -- m/s
     jump_height = 2,                             -- nodes/meters
     view_range = 7,                                      -- nodes/meters
-    --attack
-    attack={range=3, damage_groups={fleshy=10}},
+    -- attack, used as argument `tool_capabilities`
+    attack={range=1, damage_groups={fleshy=10}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=1.5,y=-0.1},
     armor_groups = {fleshy=100},
     -- animations + sounds
     animation = {

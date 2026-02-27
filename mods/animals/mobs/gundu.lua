@@ -312,8 +312,10 @@ local self_data = {
     max_speed = 5,                                       -- m/s
     jump_height = 1.5,                           -- nodes/meters
     view_range = 5,                                      -- nodes/meters
-    --attack
+    -- attack, used as argument `tool_capabilities`
     attack={range=0.3, damage_groups={fleshy=1}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.08,y=0},
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_fish_small",

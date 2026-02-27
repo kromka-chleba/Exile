@@ -2316,24 +2316,60 @@ function animals.target_in_range(self,tgt)
     if not tgt then
         return false
     end
-    local range = (self.attack and self.attack.range
-                   or 0.1) + ((self.object:get_properties().stepheight or 0) * 1.1)
-    local pos = self.object:get_pos()
-    local tpos = tgt.object:get_pos()
-    local selfbox = self.object:get_properties().collisionbox
-    if tpos.y >= (pos.y + (selfbox[2] - range))
-        and tpos.y <= (pos.y + selfbox[5] + range) then
+    -- calculate position of jaws (or whatever causes the damage)
+    local pos0 = self.object:get_pos()
+    -- add horizontal offset
+    local dir = core.yaw_to_dir(self.object:get_yaw())
+    local size = self.object:get_properties().visual_size
+    local offest_h = vector.multiply(dir, self.attack_orig.x * size.x)
+    local pos = vector.add(pos0, offest_h)
+    -- vertical offset
+    pos.y = pos.y + self.attack_orig.y * size.y
 
-        tpos.y = pos.y
-    else
-        return false
+    -- center of target's selectionbox (which is to be hit by a raycast)
+    local tpos0 = tgt.object:get_pos()
+    --local tpos0 = tpos
+    local tgtbox = tgt.object:get_properties().collisionbox
+    local tbox_center = vector.new(0.5 * (tgtbox[1] + tgtbox[4]),
+                                   0.5 * (tgtbox[2] + tgtbox[5]),
+                                   0.5 * (tgtbox[3] + tgtbox[6]))
+    local tpos = vector.add(tpos0, tbox_center)
+
+    -- do a range check first, before accessing the map through a raycast
+    local dist = vector.distance(pos, tpos)
+    local fwd = self.attack.range -- forward range of jaws + neck
+    -- allow target to be hit if under or above selfbox - unless sea-borne
+    local vertical = 0 -- additional range
+    local selfbox = self.object:get_properties().collisionbox
+    if self.class ~= 2 then
+        if tpos0.y + tgtbox[5] <= (pos0.y + selfbox[2]) then
+            vertical = self.attack_orig.y * size.y - selfbox[2]
+        elseif tpos0.y + tgtbox[2] >= (pos0.y + selfbox[2]) then
+            vertical = selfbox[5] - self.attack_orig.y * size.y
+        else
+            -- narrow and high boxes of self and targets need some more range
+            -- anyways (Pegasuns vs. player!)
+            vertical = 0.2 * (selfbox[5] - selfbox[2] + tgtbox[5] - tgtbox[2])
+        end
     end
-    if vector.distance(pos,tpos) > (range+selfbox[4]) then
-        return false
-    end
-    local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),3))
-    pos = pos + vector.new(0,selfbox[2],0)
-    for pointed_thing in minetest.raycast(pos,tpos2) do
+    -- also, allow target to be hit left or right of selfbox
+    -- (skip the more complex check whether target actually is left or right of
+    -- selfbox, risking an extra range for a target ahead, which likely won't
+    -- be noticed by anyone, because attacker always moves ahead)
+    local lateral = selfbox[6] -- assume symmetry
+    local range = sqrt(fwd * fwd + vertical * vertical + lateral * lateral)
+    -- range check also requires a target radius
+    local tgt_r = vector.distance(tbox_center,
+                                  vector.new(tgtbox[1], tgtbox[2], tgtbox[3]))
+
+    local ok_dist = range + tgt_r  -- final tolerance for dist
+    if dist > ok_dist then return false end
+
+    local ray_dir = vector.direction(pos, tpos)
+    -- end of raycast with range as length
+    local tpos2 = vector.add(pos, vector.multiply(ray_dir, range))
+    -- do the raycast and check if target is hit
+    for pointed_thing in core.raycast(pos, tpos2) do
         if pointed_thing.ref == tgt.object then
             return true
         end
@@ -2490,7 +2526,7 @@ end
 function animals.hq_attack_eat(self,prty,tgt,eat)
     local timer = time() + (type(self.aggression_timer) == "number"
                             and self.aggression_timer or 12)
-    local attack_range = self.attack.range or 0.5
+    local jump_range = self.jump_range
 
     local function end_func()
         self.threat = nil
@@ -2535,11 +2571,11 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             mobkit.lq_turn2pos(self,tpos)
             local height = tgt.height or 0
             height = tgtobj:is_player() and 0.35 or height*0.6
-            if dist <= attack_range * 6 and abs(pos.y - tpos.y) <= 3 then
+            if dist <= jump_range and abs(pos.y - tpos.y) <= 3 then
                 -- close in
                 lq_jumpattack_eat(self,height,tgtobj, eat)
-                if dist <= math.min(attack_range * 3,self.view_range) then
                     -- add 0.5 to 1.75 seconds to timer if enemy or prey
+                if dist <= math.min(jump_range * 0.5,self.view_range) then
                     --  is still in close distance
                     timer = timer + random(2,7)*0.25
                     if animals.is_interactor(self,"prey",tgt.name) then
@@ -2547,7 +2583,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                         timer = timer + random(2,6)
                     end
                 end
-            else
+            else  -- jump_range < dist
                 if dist > self.view_range then
                     -- out of sight, out of mind
                     return end_func()
@@ -2789,7 +2825,7 @@ function animals.hq_mate(self,prty,tgtobj)
             local pos = mobkit.get_stand_pos(self)
             local tpos = mobkit.get_stand_pos(tgtobj)
             local dist = vector.distance(pos,tpos)
-            if dist <= self.attack.range then
+            if dist <= (self.jump_range / 6) then
                 mobkit.lq_idle(self,1)
                 animals.make_sound(self,'mating','call')
                 if self.sex == "male" then
@@ -3119,6 +3155,7 @@ function animals.size_dif_mechanics(self)
     local data = minetest.registered_entities[self.name]
     if not data then return end
     self.max_speed = data.max_speed * dif
+    self.jump_range = data.jump_range*dif
     local max_hp = data.initial_properties and data.initial_properties.max_hp
     local attack = data.attack
     local cap_interact = data.capture_interactions
@@ -3705,12 +3742,17 @@ function animals.register_animal(name,def)
     def.buoyancy = def.buoyancy or 1.01
     def.max_speed = def.max_speed or 1 -- m/s
     def.jump_height = def.jump_height or 1.2 -- nodes/meters
+    def.jump_range = def.jump_range or 1.5 -- nodes/meters
     def.view_range = def.view_range or 3 -- nodes/meters
 
     -- attack
     def.attack = def.attack or {}
     def.attack.range = def.attack.range or 0.3
     def.attack.damage_groups = def.attack.damage_groups or {fleshy=1}
+    -- attack_orig
+    def.attack_orig = def.attack_orig or {}
+    def.attack_orig.x = def.attack_orig.x or 0.15
+    def.attack_orig.y = def.attack_orig.y or 0.1
 
     -- social interactions
     -- (should be defined prior to registered animal code for get_interactors() )

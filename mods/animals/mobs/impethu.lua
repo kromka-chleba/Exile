@@ -200,6 +200,7 @@ self_data = {
     springiness=0,
     buoyancy = 1.01,
     max_speed = 0.5,                                     -- m/s
+    jump_range=1.8,                                      -- nodes/meters
     -- animation
     animation = {
         walk={range={x=0, y=12}, speed=10, loop=true},
@@ -218,8 +219,10 @@ self_data = {
             pitch={0.5, 1.5},
         },
     },
-    -- attack
-    attack={range=0.3, damage_groups={fleshy=1}},
+    -- attack, used as argument `tool_capabilities`
+    attack={range=0.1, damage_groups={fleshy=1}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.03,y=-0.03},
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_invert_small",

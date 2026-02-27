@@ -307,12 +307,15 @@ local self_data = {
     buoyancy = 1.01,
     max_speed = 2,                                       -- m/s
     jump_height = 1.2,                           -- nodes/meters
+    jump_range=3.6,                              -- nodes/meters
     view_range = 26,                                     -- nodes/meters
     warn_distance = 14,
     player_warn_distance = 10,
     aggression_distance = 5,
-    --attack
-    attack={range=0.6, damage_groups={fleshy=2}},
+    -- attack, used as argument `tool_capabilities`
+    attack={range=0.35, damage_groups={fleshy=2}},
+    -- position of jaws, will be scaled with visual_size
+    attack_orig={x=0.3,y=-0.25},
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_bird_small",
@@ -361,6 +364,7 @@ animals.sizeify(self_male,1.15) -- sexual dimorphism, male bigger then female (1
 -- physical properties
 self_male.max_speed = 2.5
 self_male.jump_height = 1.5
+self_male.jump_range=5.4
 -- male energy, lifespan, and misc interactive
 self_male.lifespan = def_female.lifespan*1.2
 self_male.lung_capacity = 25
@@ -419,8 +423,10 @@ self_male.sounds = {
         pitch={0.5, 1.5},
     },
 }
--- attack
-self_male.attack={range=0.9, damage_groups={fleshy=4}}
+-- attack, used as argument `tool_capabilities`
+self_male.attack={range=0.4, damage_groups={fleshy=4}}
+-- position of jaws, will be scaled with visual_size
+self_male.attack_orig={x=0.3,y=-0.25}
 -- use identical spawnegg - on_place(), on_drop(), ... except for
 -- inventory_image and description
 self_male.spawnegg = table.copy(def_female.spawnegg)
