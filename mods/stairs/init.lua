@@ -195,7 +195,7 @@ function stairs.register_slab(params, droptype)
         local under = minetest.get_node(pointed_thing.under)
 
         local def = minetest.registered_nodes[under.name]
-        if def.on_rightclick then
+        if def and def.on_rightclick then
             return def.on_rightclick(pointed_thing.under, under,
                                      placer, itemstack, pointed_thing)
         end
