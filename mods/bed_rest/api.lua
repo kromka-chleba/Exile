@@ -238,10 +238,11 @@ function bed_rest.register_seat(name, def)
         description = def.description,
         inventory_image = def.inventory_image,
         wield_image = def.wield_image,
-        drawtype = "nodebox",
+        drawtype = def.drawtype or "nodebox",
+        mesh = def.mesh,
         tiles = def.tiles,
         paramtype = "light",
-        paramtype2 = "facedir",
+        paramtype2 = def.paramtype2 or "facedir",
         use_texture_alpha = c_alpha.clip,
         is_ground_content = false,
         stack_max = def.stack_max,
@@ -325,5 +326,8 @@ function bed_rest.register_seat(name, def)
             return infotext
         end
     }
+    if seat_def.drawtype == "mesh" then
+        seat_def.collision_box = seat_def.selection_box
+    end
     minetest.register_node(name, seat_def)
 end
