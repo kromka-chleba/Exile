@@ -258,7 +258,7 @@ function ncrafting.start_soak(pos, length, interval)
 end
 
 function ncrafting.do_soak(pos, name, interval, catchup, detectfunc)
-    local can_soak = minimal.shift_pos(pos,{y=1})
+    local can_soak = pos + vector.new(0,1,0)
     if type(detectfunc) == "function" then
         -- specify a different set of variables, sends above pos as parameter
         -- e.g. could check temp or specify a different liquid and return

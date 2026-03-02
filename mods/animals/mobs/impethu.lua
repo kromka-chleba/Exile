@@ -84,7 +84,7 @@ local function brain(self)
                     else
                         animals.hq_roam_walkable_group(self, 'sediment', nil, 15)
                     end
-                    local u_node = minetest.get_node(minimal.shift_pos(pos,{y=-1}))
+                    local u_node = minetest.get_node(pos+vector.new(0,-1,0))
                     -- why use several get_item_group calls?
                     u_node = minimal.merge_tables(u_node,
                                                   minetest.registered_nodes[

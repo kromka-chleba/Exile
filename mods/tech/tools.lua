@@ -46,7 +46,7 @@ local function place_tool(itemstack, placer, pointed_thing)
     if not core.registered_nodes[placed_name] then return end -- don't do anything if we can't actually place it
     local above = pointed_thing.above
     local abdef = minimal.get_nodedef(above) -- above def
-    local ufdef = minimal.get_nodedef(minimal.pos_shift(above, {y=-1})) -- under_front def
+    local ufdef = minimal.get_nodedef(above + vector.new(0,-1,0)) -- under_front def
     if not (abdef and ufdef) then return end -- not a defined node
     -- check if not walkable - there's empty space over the node
     --  (air, water, etc.) if not, return

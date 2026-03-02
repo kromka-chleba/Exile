@@ -213,30 +213,12 @@ function minimal.force_place(pos, node)
     minetest.set_node(pos, node)
 end
 
+-- Deprecated
 function minimal.shift_pos(pos,change)
-    -- Get a position relative to pos, like vector.new(pos,x + change.x, ...)
-    -- change is a table with keys of x, y, and/or z, like: { y = 1, z = -3 }
-
-    if not vector.check(pos) then
-        print("invalid pos: ",dump(pos))
-    end
-    assert( vector.check(pos),
-            "exile_game.shift_pos: Invalid pos provided ")
-    assert( type(change) == "table",
-            "exile_game.shift_pos: Invalid change provided")
-
-
-    local new_pos = vector.new(pos.x + ( change.x or 0 ),
-        pos.y + ( change.y or 0 ),
-        pos.z + ( change.z or 0 )
-    )
-
-    return new_pos
+    core.log("warning", "minimal.shift_pos() is deprecated, use pos + vector.new(x,y,z) instead")
+    return pos + vector.new(change.x, change.y, change.z)
 end
--- alias of "minimal.shift_pos"
-function minimal.pos_shift(...)
-    return minimal.shift_pos(...)
-end
+minimal.pos_shift = minimal.shift_pos
 
 function minimal.get_pos_under(pos)
     return vector.new(pos.x, pos.y - 1, pos.z)
@@ -271,7 +253,7 @@ end
 function minimal.safe_landing_spot(pos)
     if not vector.check(pos) then return false end
     local floor = vector.new( pos.x, pos.y-1, pos.z )
-    local def_top = minimal.get_nodedef(minimal.shift_pos(pos,{y = 1}))
+    local def_top = minimal.get_nodedef(pos + vector.new(0,1,0))
     local def_bot = minimal.get_nodedef(pos)
     local def_flr = minimal.get_nodedef(floor)
     if not (def_top and def_bot and def_flr) then return false end
@@ -288,7 +270,7 @@ function minimal.safe_landing_spot(pos)
 
     -- floor is not walkable, search below it for a walkable floor
     for i = 0, 20 do
-        floor = minimal.shift_pos(floor,{y = -1})
+        floor = floor + vector.new(0,-1,0)
         def_flr = minimal.get_nodedef(floor)
         if (def_flr and def_flr.walkable == true) then
             return true

@@ -782,7 +782,7 @@ local function pot_receive_fs_closed(pos, formname, fields, sender)
             pot_compatibility(meta, inv, inv_main)
         -- hey, you shouldn't be in here! throw it out!
         else
-            minetest.add_item(minimal.pos_shift(pos,{y=1}), item)
+            minetest.add_item(pos + vector.new(0,1,0), item)
             inv:set_stack("main", index, "") -- clear out from inventory
         end
     end

@@ -21,7 +21,7 @@ local seasons = nn.seasons
 
 local function flora_spread(pos, node)
     -- check if we're on top of sediment
-    local pos_under = minimal.pos_shift(pos, {y=-1})
+    local pos_under = pos + vector.new(0,-1,0)
     local under = core.get_node(pos_under)
     local underdef = core.registered_nodes[under.name]
     if not (underdef and underdef.groups and underdef.groups.sediment) then
@@ -392,7 +392,7 @@ minetest.register_abm({
         catch_up = true,
         action = function(pos, node)
             if seasons.is_winter() then return end -- it's winter, let's not regrow, at all lol
-            local above_pos = minimal.pos_shift(pos, {y=1})
+            local above_pos = pos + vector.new(0,1,0)
             local above = core.get_node(above_pos)
             -- something above, ahhh!! check before ever checking meta
             if above.name ~= "air" then return end

@@ -1,3 +1,5 @@
+climate = climate
+minimal = minimal
 local random = math.random
 local pi = math.pi
 local time = os.time
@@ -933,7 +935,7 @@ function animals.place_egg(self, pos, medium, e_ov)
         -- if not an array of boxes
         if type(box.fixed[1]) ~= "table" then
           -- check pos above
-          p = minimal.pos_shift(p,{y=1})
+          p = p + vector.new(0,1,0)
           c_node = minetest.registered_nodes[minetest.get_node(p).name]
           if not c_node then return end
         end
@@ -2056,7 +2058,7 @@ function animals.prey_hunt(self, prty)
             -- look for a solid node underneath (safe to hunt)
             -- custom hunting_depth to check how far down this solid node has to be
             --  and if meant to hunt prey that's in water
-            tgtpos = minimal.pos_shift(tgtpos,{y = -(self.hunting_depth or 1)})
+            tgtpos = tgtpos+vector.new(0,-(self.hunting_depth or 1),0)
             drawtype = node_drawtype(tgtpos)
         end
         if (drawtype ~= "liquid") then
@@ -2322,7 +2324,7 @@ function animals.target_in_range(self,tgt)
         return false
     end
     local tpos2 = vector.add(tpos,vector.multiply(vector.direction(pos,tpos),3))
-    pos = minimal.shift_pos(pos,{y=selfbox[2]})
+    pos = pos + vector.new(0,selfbox[2],0)
     for pointed_thing in minetest.raycast(pos,tpos2) do
         if pointed_thing.ref == tgt.object then
             return true
@@ -3282,13 +3284,14 @@ function animals.vitals(self)
         local colbox = self.object:get_properties().collisionbox
         local lowpos = mobkit.pos_shift(self.object:get_pos(),{y=colbox[5]})
         local drawtype = node_drawtype(lowpos) -- node at hitbox top
-        local drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=1}))
+        local drawtype_above = node_drawtype(lowpos + vector.new(0,1,0))
 
         -- override self.isinliquid from mobkit to account for overhead water
         self.isinliquid = self.isinliquid or drawtype_above == "liquid" or false
         -- do after above calculation for hunting_depth if specified
         if self.hunting_depth then
-            drawtype_above = node_drawtype(minimal.pos_shift(lowpos,{y=self.hunting_depth}))
+            drawtype_above = node_drawtype(lowpos +
+                                           vector.new(0,self.hunting_depth,0))
         end
 
         local oxygen_min = self.oxygen_min or self.lung_capacity
@@ -3393,7 +3396,9 @@ function animals.hq_liquid_recovery(self,prty)
             -- continuously update for above calculation
             old_pos = pos
       -- no surface in reach can be ascertained, try to find one instead
-      elseif radius >= self.view_range or node_drawtype(minimal.shift_pos(pos,{y=1})) ~= "liquid" then
+        elseif radius >= self.view_range
+            or node_drawtype(pos + vector.new(0,1,0)) ~= "liquid" then
+
             radius = 1 -- reset radius
             n_s = true
         end

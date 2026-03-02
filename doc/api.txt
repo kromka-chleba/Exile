@@ -86,8 +86,6 @@ minimal.node_set_int(meta/pos, name, value)
 +minimal.node_set_string(meta/pos, name, value)
 +minimal.node_get_string(meta/pos, name)
 		- Gets or sets a meta value on a node by meta or position
-minimal.shift_pos(pos, pos2)
-		- Shift pos1 by pos2 -- a vector or a table like: { Y = -1 }
 minimal.slabs_combine(player, itemstack, pointed_thing, swap_node)
 +minimal.slabs_split_hand(player, pointed_node, pointed_thing, wielded_item)
 		- for slabs that can be split/joined by hand. example: see snow

@@ -120,8 +120,8 @@ function ncrafting.ferment_on_timer(pos, elapsed)
         end
     end
     if type(aerobic) == "boolean" then
-        local air_node = minetest.registered_nodes[
-            minetest.get_node(minimal.shift_pos(pos,{y=1})).name]
+        local air_node = core.registered_nodes[
+            core.get_node(pos + vector.new(0,1,0)).name]
         if air_node.drawtype == "airlike" then
             -- anaerobic and air is above...
             if not aerobic then

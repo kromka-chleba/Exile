@@ -28,7 +28,7 @@ local function brain(self)
         end
         local yaw = self.object:get_yaw()
         local nodes = {f=mobkit.pos_translate2d(pos,yaw,1.5)}
-        nodes.fu = animals.node_drawtype(minimal.shift_pos(nodes.f,{y=-1}))
+        nodes.fu = animals.node_drawtype(nodes.f + vector.new(0,-1,0))
         nodes.f = animals.node_drawtype(nodes.f)
         if (self.energy < self.energy_max
             and animals.node_drawtype(pos) ~= "airlike")

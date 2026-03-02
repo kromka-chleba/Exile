@@ -302,7 +302,7 @@ local airboat_def = {
             end
         end
 
-        under = minimal.shift_pos(under,{y = 2})
+        under = under + vector.new(0,2,0)
         local air_boat = minetest.add_entity(under,
                                              "artifacts:airboat")
         minetest.sound_play("artifacts_airboat_gear",

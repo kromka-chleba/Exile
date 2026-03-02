@@ -449,7 +449,7 @@ animals.register_spawnegg = function(name, def, animal)
       end
       if (itemdef.liquids_pointable and itemdef.drawtype == "liquid") then
           -- place fish properly into water
-          spawn_pos = minimal.pos_shift(pointed_thing.under,{y = -1})
+          spawn_pos = pointed_thing.under + vector.new(0,-1,0)
       end
       if spawn_pos
           and not minetest.is_protected(spawn_pos,
@@ -469,7 +469,7 @@ animals.register_spawnegg = function(name, def, animal)
   def.on_drop = def.on_drop or function(itemstack, dropper, pos)
       -- craft a quick pointed_thing lol
       local pointed_thing = {}
-      pointed_thing.above = minimal.shift_pos(pos,{y = 1})
+      pointed_thing.above = pos + vector.new(0,1,0)
       pointed_thing.under = pos
 
       -- run on_place function (if it exists, should!!!)
@@ -493,7 +493,7 @@ animals.register_spawnegg = function(name, def, animal)
               inv:add_item("main", item)
           -- no inventory or no room in inventory
           else
-              minetest.add_item(minimal.shift_pos(player:get_pos(), {y=1}), item)
+              minetest.add_item(player:get_pos() + vector.new(0,1,0), item)
               if itemdef.sounds.slaughter_drop then
                   minimal.sound_play(player:get_pos(), itemdef.sounds.slaughter_drop)
               end
