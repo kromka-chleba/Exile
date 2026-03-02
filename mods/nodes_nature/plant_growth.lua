@@ -21,6 +21,7 @@ nn.seed_growing_time = 40
 local good_time_rain_time = climate.good_time_rain_time
 
 local base_health = 100
+local default_light = 8 -- What light level to assume when nodes are unloaded
 
 -- soil_preferences
 -- points for "progress", should be integers (see nn.plant.soil_response for how it's used)
@@ -207,8 +208,8 @@ end
 -- tod is timeofday used for natural light
 function nn.plant.get_light(pos, tod)
     local pos_above = minimal.get_pos_above(pos)
-    local natural = minimal.get_daylight(pos_above, tod) or 0
-    local artificial = minetest.get_node_light(pos_above) or 0
+    local natural = minimal.get_daylight(pos_above, tod) or default_light
+    local artificial = minetest.get_node_light(pos_above) or default_light
     -- first is priority (return either artificial light leve or natural whichever is greatest)
     -- return natural 2nd, artificial third
     return artificial > natural and artificial or natural, natural, artificial
@@ -221,7 +222,7 @@ end
 
 local function is_light_good_when_day(pos, pdef, light)
     local pos_above = minimal.get_pos_above(pos)
-    light = light or minimal.get_daylight(pos_above, 0.5) or 0
+    light = light or minimal.get_daylight(pos_above, 0.5) or default_light
     return is_light_good(pos, pdef, light)
 end
 
@@ -230,8 +231,8 @@ local function calculate_average_light(pos)
     local sum = 0
     for i = 0, 20 do
         local light = minimal.get_daylight(pos_above, i / 20)
-        -- Light can be also nil for some weird reason...
-        if not light then light = 0 end
+        -- Light is nil if the node above isn't loaded yet, assume it's not dark
+        if not light then light = default_light end
         sum = sum + light
     end
     return sum / 20
