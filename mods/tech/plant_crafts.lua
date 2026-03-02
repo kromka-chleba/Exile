@@ -47,7 +47,7 @@ local stick_def =
             return false
         end,
         sunlight_propagates = true,
-        groups = {choppy=2, dig_immediate=2, flammable=1,
+        groups = {choppy=2, dig_immediate=2, flammable=1, support = 2,
                   attached_node=1, temp_pass = 1, temp_flow = 100,
                   on_place_proxy = 1},  -- the role of our on_rightclick()
         override_sneak = true,

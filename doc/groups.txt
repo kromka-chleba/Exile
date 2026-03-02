@@ -17,6 +17,15 @@ edible - Nodes that are edible - auto adds on_use callbacks to eat
 `timer`: this node runs on a timer -- value is the default timer length
 `hand`: items that support the same interactions as the empty hand
 
+Physics:
+--------
+`sieve`: This node allows other nodes to fall through it. Register the sieve
+         first with ncrafting.register_sieve(name)
+'sievable': If true, this node will fall through a sieve when it lands on it
+
+`support`: This node can only hold up to this value in weight, and then breaks
+`weight`: The weight of a node. Default is 1 for slabs/stairs, 2 for all others.
+
 Digging:
 ---------
 Values from 1 - 3, with 1 being hardest
