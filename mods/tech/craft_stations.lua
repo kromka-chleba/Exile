@@ -861,7 +861,7 @@ minetest.register_node(
 })
 
 crafting.register_recipe({ -- from logs for bench and iron for tools
-        type   = {"axe"},
+        type   = {"axe", "carpentry_bench"},
         output = "tech:carpentry_bench",
         items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
         level  = 1,
@@ -911,7 +911,7 @@ minetest.register_node(
 })
 
 crafting.register_recipe({ -- from logs for bench and iron for tools
-        type   = {"carpentry_bench"},
+        type   = {"axe", "carpentry_bench"},
         output = "tech:masonry_bench",
         items  = {'tech:iron_ingot 4', 'group:hard_wood 2'},
         level  = 1,
