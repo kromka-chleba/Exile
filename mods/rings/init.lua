@@ -51,7 +51,9 @@ minetest.register_node("rings:moon_glass", {
                            drop = "artifacts:moon_glass",
 })
 
-dofile(minetest.get_modpath("rings") .. "/meru.lua")
+if deco.map_version ~= "v3" then -- Mt Meru can generate partially on old maps
+    dofile(minetest.get_modpath("rings") .. "/meru.lua")
+end
 
 local c_ring_o = minetest.get_content_id("rings:antiquorium")
 -- outer shell material
