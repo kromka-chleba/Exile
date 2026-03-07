@@ -23,6 +23,10 @@ return {
         "nodes_nature:upland_woodland_soil", "nodes_nature:upland_woodland_soil_wet",
     },
 
+    open_woodland_on = {
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
+    },
+
     rich_forest_on = {
         "nodes_nature:rich_forest_soil", "nodes_nature:rich_forest_soil_wet",
         "nodes_nature:rich_woodland_soil", "nodes_nature:rich_woodland_soil_wet",
