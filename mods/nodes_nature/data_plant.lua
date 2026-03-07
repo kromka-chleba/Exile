@@ -124,6 +124,17 @@ local tree_list = {
             groups = {drops_leaves = 0}
         }
     },
+    warungaree = {
+        desc = S("Warungaree"),
+        hardwood = true,
+        fruit_def = {
+            description = S("Warungaree Seed"),
+            selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
+            dyecandidate = true,
+            dominantcolor = "black"
+        },
+        leaf_def = {}
+    },
     jalowiec = {
         desc = S("Yalovy"),
         log_description = S("Yalovy Shrub"),
