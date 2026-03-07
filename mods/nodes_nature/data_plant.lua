@@ -126,7 +126,6 @@ local tree_list = {
     },
     warungaree = {
         desc = S("Warungaree"),
-        hardwood = true,
         fruit_def = {
             description = S("Warungaree Seed"),
             selection_box = {-0.2, 0.2, -0.2, 0.2, 0.5, 0.2},
