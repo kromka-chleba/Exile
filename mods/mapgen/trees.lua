@@ -267,6 +267,34 @@ local woodland_trees = {
 }
 
 local open_woodland_trees = {
+    {--[[Trees:dominant clumped warungaree in open woodland]]
+        name = "warungaree_tree_ow_lland",
+        deco_type = "schematic",
+        place_on = sna.open_woodland_on,
+        place_offset_y = -3,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.0095, spread={x=50, y=50, z=50}, seed=772, octaves=2, persist=0.6},
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("warungaree"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:dominant scattered warungaree in open woodland]]
+        name = "warungaree_tree_ow_lland_scat",
+        deco_type = "schematic",
+        place_on = sna.open_woodland_on,
+        place_offset_y = -3,
+        sidelen = 80,
+        fill_ratio = 0.002250,
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("warungaree"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
     {--[[Trees:rare amma open woodland]]
         name = "amma_ow_lland",
         deco_type = "schematic",
