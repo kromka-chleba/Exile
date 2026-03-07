@@ -295,13 +295,27 @@ local open_woodland_trees = {
         rotation = "random",
     },
 
-    {--[[Trees:common maraka in open woodland]]
+    {--[[Trees:common clumped maraka in open woodland]]
         name = "maraka_tree_ow_lland",
         deco_type = "schematic",
         place_on = sna.open_woodland_on,
         place_offset_y = -3,
         sidelen = 16,
-        noise_params = {offset=0.00, scale=0.0020, spread={x=250, y=250, z=250}, seed=222, octaves=2, persist=0.6},
+        noise_params = {offset=0.00, scale=0.0020, spread={x=250, y=250, z=250}, seed=902, octaves=2, persist=0.6},
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        schematic = deco.find_schematic("maraka_tree"),
+        flags = "place_center_x, place_center_z",
+        rotation = "random",
+    },
+
+    {--[[Trees:scattered maraka in open woodland]]
+        name = "maraka_tree_ow_lland_scat",
+        deco_type = "schematic",
+        place_on = sna.open_woodland_on,
+        place_offset_y = -3,
+        sidelen = 80,
+        fill_ratio = 0.000500,
         y_max = sna.upland_max,
         y_min = sna.beach_max,
         schematic = deco.find_schematic("maraka_tree"),
