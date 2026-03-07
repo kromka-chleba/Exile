@@ -45,6 +45,7 @@ return {
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
         "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
         "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
     },
 
     shrubland_on = {
