@@ -44,6 +44,8 @@ local forest           = "nodes_nature:forest_soil"
 local forest_wet       = "nodes_nature:forest_soil_wet"
 local woodl            = "nodes_nature:woodland_soil"
 local woodl_wet        = "nodes_nature:woodland_soil_wet"
+local owoodl           = "nodes_nature:open_woodland_soil"
+local owoodl_wet       = "nodes_nature:open_woodland_soil_wet"
 local up_forest        = "nodes_nature:upland_forest_soil"
 local up_forest_wet    = "nodes_nature:upland_forest_soil_wet"
 local up_woodl         = "nodes_nature:upland_woodland_soil"
@@ -96,6 +98,7 @@ end
     02. Coastal Woodland
     03. Lowland Forest
     04. Lowland Woodland
+    04b. Lowland Open Woodland
     05. Upland Forest
     06. Upland Woodland
     07. Swamp Forest
@@ -209,6 +212,26 @@ local biome_list = {
         heat_point = middle,
         humidity_point = x_high,
         _color = {r = 95, g = 74, b = 22},
+    },
+
+        --[[04b]]
+    {
+        name = "Lowland Open Woodland",
+        node_top = owoodl,
+        depth_top = 1,
+        node_filler = clay,
+        depth_filler = 2,
+        node_stone = limestone,
+        node_river_water = air,
+        node_riverbed = owoodl_wet,
+        depth_riverbed = 1,
+        node_cave_liquid = {potable},
+        vertical_blend =  5,
+        y_max = lowland_max,
+        y_min = lowland_min,
+        heat_point = x_high,
+        humidity_point = x_high-5,
+        _color = {r = 95, g = 64, b = 12},
     },
 
     --[[05]]

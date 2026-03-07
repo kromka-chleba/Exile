@@ -44,6 +44,7 @@ nodes_nature.soil_list = {
     {"rich_woodland_soil", S("Rich Woodland Soil"), 3, "loam", "loam"},
     {"forest_soil", S("Forest Soil"), 3, "silt", "silt"},
     {"woodland_soil", S("Woodland Soil"), 3, "silt", "silt"},
+    {"open_woodland_soil", S("Open Woodland Soil"), 2, "clay", "clay"},
     {"upland_forest_soil", S("Upland Forest Soil"), 2, "clay", "clay"},
     {"upland_woodland_soil", S("Upland Woodland Soil"), 2, "clay", "clay"},
 
