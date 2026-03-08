@@ -175,6 +175,9 @@ local self_data = {
     attack={range=0.3, damage_groups={fleshy=12}},
     -- position of jaws, will be scaled with visual_size
     attack_orig={x=0.6,y=-0.25},
+    -- allow attacking players and rivals with 1 hits within 1x8 secs
+    attack_interval=8,
+    attack_max_hits=1,  -- warning: settings this to > 1 permits double punches
     armor_groups = {fleshy=100},
     -- animations + sounds
     animation = {

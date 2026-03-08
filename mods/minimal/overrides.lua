@@ -102,54 +102,6 @@ local hand_on_place = function(clicker, pointed_thing)
 end
 
 
------ Running mean -----
-
--- `running_mean`: Defines a class to work with running means based on up to
---     `base_count` values (see new(base_count))
-local running_mean = {}
-
--- `running_mean:include(value)`: Includes `value` into the calculation,
---     replacing the oldest value, if there were already `base_count` values
---     included.
-function running_mean:include(value)
-    if self.count then
-        local drop_value = self.values[self.next_store]
-        if drop_value then
-            self.total = self.total - self.values[self.next_store]
-            self.count = self.count - 1
-        end
-    end
-    self.values[self.next_store] = value
-    self.next_store = self.next_store % self.base_count + 1
-    self.total = self.total + value
-    self.count = self.count + 1
-end
-
--- `running_mean:mean()`: Returns the average of all currently included values
---     or 0 if there are no values.
-function running_mean:mean()
-    if self.count == 0 then return 0 end
-    return self.total / self.count;
-end
-
--- `running_mean:mean`: Constructs a new object to calculate the running mean
---     of up to `base_count` included values.
--- `base_count`: max. number of values to consider; must be a number or nil;
---     default: 5
-function running_mean:new(base_count)
-    local instance = {
-        include = self.include,
-        mean = self.mean,
-        values ={},
-        next_store = 1,
-        total = 0,
-        count = 0,
-        base_count = base_count or 5
-    }
-    return instance;
-end
-
-
 ----- Multi input action -----
 
 -- `multi_input_action` defines a class to recognize a series of consecutive
@@ -252,7 +204,7 @@ function multi_input_action:new(max_interval, auto_adjust,
         offset = auto_adjust and (offset or 100000),  -- default: 0.1 sec
         min = auto_adjust and (min or max_interval - 100000),
         max = auto_adjust and (max or max_interval + 100000),
-        running_mean = auto_adjust and running_mean:new(4)
+        running_mean = auto_adjust and stats.running_mean:new(4)
         -- `active`: boolean; active or not; default: nil
         -- `last_time`: luanti time of last action in micros secs; default: nil
     }

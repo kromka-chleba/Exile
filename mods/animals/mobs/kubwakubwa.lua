@@ -193,6 +193,9 @@ local self_data = {
     attack={range=0.2, damage_groups={fleshy=4}},
     -- position of jaws, will be scaled with visual_size
     attack_orig={x=0.25,y=0.2},
+    -- allow attacking players and rivals with 2 hits within 2x4 secs
+    attack_interval=4,
+    attack_max_hits=2,
     armor_groups = {fleshy=100},
     hunting_depth = 4,
     -- animation + sounds

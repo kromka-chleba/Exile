@@ -316,6 +316,9 @@ local self_data = {
     attack={range=0.35, damage_groups={fleshy=2}},
     -- position of jaws, will be scaled with visual_size
     attack_orig={x=0.3,y=-0.25},
+    -- allow defending with 2 hits within 2x4 secs
+    attack_interval=3,
+    attack_max_hits=2,
     armor_groups = {fleshy=100},
     --on actions
     drops = "animals:carcass_bird_small",

@@ -2562,7 +2562,7 @@ end
 -- to hit is to catch... for predators, where the chewing does the killing
 --NOTE: Distance to target should be less than self.jump_range, otherwise
 --      it is not unlikely to miss a fleeing target repeatedly.
-local function lq_jumpattack_eat(self,height,target,consume)
+local function lq_jumpattack_eat(self, height, target, consume, hit_stats)
     local phase = 1
     local dt = 0
 
@@ -2646,6 +2646,27 @@ local function lq_jumpattack_eat(self,height,target,consume)
 
                 -- eat bits of opponent
                 animals.hurt_target(self,target,consume)
+
+                if hit_stats then -- add 'now' to running mean data
+                    hit_stats:include(self.time_total + self.dtime)
+                end
+
+                -- turn by 90 degree and do some steps
+                -- NOTE: if target is prey, it's usually finished here,
+                -- while young predators may appear as if the prey is more
+                -- than what they can handle
+                local tmp = dir.x
+                if random() > 0.5 then
+                    dir.x =  2 * dir.z
+                    dir.z = -2 * tmp
+                else
+                    dir.x = -2 * dir.z
+                    dir.z =  2 * tmp
+                end
+                local pos = mobkit.get_stand_pos(self)
+                local tpos = mobkit.pos_shift(pos, dir)
+                animals.lq_turn2pos(self, tpos, 0.2)
+                mobkit.lq_dumbwalk(self, tpos)
                 return true
             else
                 if phase == 2 then dt = 0.3 * dt end -- min delay to phase 3, 4
@@ -2659,8 +2680,22 @@ local function lq_jumpattack_eat(self,height,target,consume)
 end
 
 
-
+-- animals.hq_attack_eat() implements sophisticated attack for all kinds of
+-- land-borne animals against players, rivals, predators or prey. It is
+-- designed so that attacks work more or less the same, no matter if Luanti
+-- runs an entity's on_step() 5 times or 60 times per second.
 function animals.hq_attack_eat(self,prty,tgt,eat)
+    -- NOTE: Changes to this function and to lq_jumpattack_eat() should be
+    -- tested with a separate server process where the frequency of on_step()
+    -- can be roughly controlled via fps_max, up to a limit of 60. Note that
+    -- depending on CPU load, it my be required to set fps_max higher than 60
+    -- and/or to reduce the number of animals in an area or to reduce the view
+    -- range of a server process (unless it runs headless).
+    -- Important parameters:
+    -- `self.attack_interval`: increase to make them hit players, rival,
+    --     predators less often
+    -- timeouts for animals.lq_turn2pos(): increase to make it easier to hit
+    --     them (affects all of them!)
     local timer = time() + (type(self.aggression_timer) == "number"
                             and self.aggression_timer or 12)
     local jump_range = self.jump_range
@@ -2688,9 +2723,24 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
             or self.consume_rivals ~= false and self.consume_non_prey ~= false
         -- will be true if consume_non_prey is not specified
     end
+
+    local hit_stats
+    local home
+    -- fighting off a player/predator/rival?
+    if not animals.is_interactor(self,"prey",tgt.name) then
+       -- set up hit_stats:mean() = now - self.attack_interval secs as average
+       -- time of the last self.attack_max_hits hits
+        local av_hit_time = self.time_total + self.dtime - self.attack_interval
+        hit_stats = stats.running_mean:new(self.attack_max_hits)
+        hit_stats:include(av_hit_time)
+
+        home = mobkit.get_stand_pos(self) -- territory to defend
+    end
+
     local func = function()
         -- choose an interval < 0.2 to get a frequency ~5/sec
         if not animals.timer(self, 0.18) then return end
+
         if time() > timer then
             if not animals.is_interactor(self,"prey",tgt.name) then
                 -- we've done enough, get away from them now (false so that we aren't scared)
@@ -2705,46 +2755,69 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
-            local tpos = mobkit.get_stand_pos(tgtobj)
-            local dist = vector.distance(pos,tpos)
 
-            -- spend some time for turning towards target, also as delay
-            -- before jump attack
-            local dt = 0.25 -- effectively > 0.25s
-            animals.lq_turn2pos(self, tpos, dt)
-            local jump_height = self.jump_height
-            if dist <= 0.8 * jump_range
-                and abs(pos.y - tpos.y) <= jump_height then
+            -- hunting prey or last 2 hits not within last 8 seconds?
+            local now = self.time_total + self.dtime
+            if not hit_stats
+                or (hit_stats:mean() < now - self.attack_interval) then
 
-                -- close in
-                -- queue jump attack
-                local height = tgt.height or 0
-                height = tgtobj:is_player() and 0.35 or height*0.6
-                lq_jumpattack_eat(self,height,tgtobj, eat)
-                    -- add 0.5 to 1.75 seconds to timer if enemy or prey
-                if dist <= math.min(jump_range * 0.5,self.view_range) then
-                    --  is still in close distance
-                    timer = timer + random(2,7)*0.25
-                    if animals.is_interactor(self,"prey",tgt.name) then
-                        -- add more time if prey (0.5 to 1.5 seconds)
-                        timer = timer + random(2,6)
+                -- time to hit them again
+                local tpos = mobkit.get_stand_pos(tgtobj)
+                local dist = vector.distance(pos,tpos)
+
+                -- spend some time for turning towards target, also as delay
+                -- before jump attack (defines agility for consecutive jumps!)
+                local dt = 0.3 + random() * 0.2
+                animals.lq_turn2pos(self, tpos, dt)
+                local jump_height = self.jump_height
+                if dist <= 0.8 * jump_range
+                    and abs(pos.y - tpos.y) <= jump_height then
+
+                    -- close in
+                    -- queue jump attack
+                    local height = tgt.height or 0
+                    height = tgtobj:is_player() and 0.35 or height*0.6
+                    lq_jumpattack_eat(self, height, tgtobj, eat, hit_stats)
+                        -- add 0.5 to 1.75 seconds to timer if enemy or prey
+                    if dist <= math.min(jump_range * 0.5,self.view_range) then
+                        --  is still in close distance
+                        timer = timer + random(2,7)*0.25
+                        if animals.is_interactor(self,"prey",tgt.name) then
+                            -- add more time if prey (0.5 to 1.5 seconds)
+                            timer = timer + random(2,6)
+                        end
                     end
+                else  -- jump_range < dist
+                    if dist > self.view_range then
+                        -- out of sight, out of mind
+                        return end_func()
+                    end
+                    -- approach/follow target in steps of about jump_range/2
+                    local f = dist > 0 and 0.5 * jump_range / dist --> 0<f<1
+                    tpos = vector.new(pos.x + f * (tpos.x - pos.x),
+                                      pos.y + f * (tpos.y - pos.y),
+                                      pos.z + f * (tpos.z - pos.z))
+                    -- but do not approach in a straight line (easy target)
+                    local rnd = 0.2 * dist
+                    mobkit.lq_dumbwalk(self,
+                             mobkit.pos_shift(tpos,{x=(random() - 0.5) * rnd,
+                                                    z=(random() - 0.5) * rnd}))
                 end
-            else  -- jump_range < dist
-                if dist > self.view_range then
-                    -- out of sight, out of mind
-                    return end_func()
-                end
-                -- approach/follow target in steps of about jump_range/2
-                local f = 0.5 * jump_range / dist --> 0 < f < 1
-                tpos = vector.new(pos.x + f * (tpos.x - pos.x),
-                                  pos.y + f * (tpos.y - pos.y),
-                                  pos.z + f * (tpos.z - pos.z))
-                -- but do not approach in a straight line (easy target)
-                local rnd = 0.2 * dist
-                mobkit.lq_dumbwalk(
-                    self,mobkit.pos_shift(tpos,{x=(random() - 0.5) * rnd,
-                                                z=(random() - 0.5) * rnd}))
+            else
+                -- we're not on stereoids, wait a moment, regain some energy,
+                -- allow attacker/intruder/opponent to retreat,
+                -- meanwhile hurry back towards home, ignoring risks to fall
+                -- or running against a wall
+                local dist = vector.distance(pos, home)
+                local f = dist > 0 and math.min(5, dist) / dist
+                          or 0  --> 0 <= f <= 1
+                local tpos = vector.new(pos.x + f * (home.x - pos.x),
+                                        pos.y + f * (home.y - pos.y),
+                                        pos.z + f * (home.z - pos.z))
+                tpos = mobkit.pos_shift(tpos, {x=(random() - 0.5) * 3,
+                                               z=(random() - 0.5) * 3})
+                animals.lq_turn2pos(self, tpos, 0.5) -- often ~180°
+                mobkit.lq_dumbwalk(self, tpos)
             end
         end
     end
@@ -3907,6 +3980,11 @@ function animals.register_animal(name,def)
     def.attack_orig = def.attack_orig or {}
     def.attack_orig.x = def.attack_orig.x or 0.15
     def.attack_orig.y = def.attack_orig.y or 0.1
+    -- hitting players, rivals and predators is limited to attack_max_hits hits
+    -- within attack_max_hits * attack_interval seconds
+    -- (not yet applied for sea-borne creatures)
+    def.attack_interval = def.attack_interval or 4
+    def.attack_max_hits = def.attack_max_hits or 1
 
     -- social interactions
     -- (should be defined prior to registered animal code for get_interactors() )
