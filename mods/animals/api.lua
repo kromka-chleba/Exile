@@ -2638,7 +2638,8 @@ local function lq_jumpattack_eat(self, height, target, consume, hit_stats)
             local dir = core.yaw_to_dir(yaw)
 
             if animals.target_in_range(self, target) then -- bite
-                -- bounce off
+                -- bounce off; NOTE: effect lasts 0.0167 to > 0.2 secs,
+                -- depends on fps_max, CPU load and more
                 local vy = self.object:get_velocity().y
                 self.object:set_velocity({x=dir.x*-3,y=vy,z=dir.z*-3})
                 -- play attack sound if defined
