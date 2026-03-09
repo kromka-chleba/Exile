@@ -360,44 +360,45 @@ end)
 local function load_saved_weather()
     local datestr = minetest.get_translated_string(lang, climate.datestring())
     minetest.log("action", datestr.." : Loading weather")
-    local w_name = store:get_string("weather")
 
-    if w_name ~= "" then
+    local storetable = store:to_table()
+    if not storetable then
+        minetest.log("action", "New weather generated")
+       return
+    end
+    local stored = storetable.fields or {}
+
+    local w_name = stored.weather
+    if w_name then
         --check valid
         local weather = get_weather_table(w_name)
         if weather then
             climate.active_weather = weather
             minetest.log("action", "Loaded a valid weather: "..w_name)
-            minetest.log("action", "Loaded a valid weather: "..w_name)
         else
             minetest.log("action", "Invalid weather loaded: "..w_name)
         end
     else
-        minetest.log("action", "No previous weather could be loaded")
+        minetest.log("warning", "Previous weather could not be loaded")
         save_weather() -- save initial random data
+        return
     end
 
     --same again, but for temperature
-    local temp = store:get_float("temp")
-    if temp then
-        climate.active_temp = temp
+    if stored.temp then
+        climate.active_temp = tonumber(stored.temp)
     end
-    local stemp = store:get_float("sea_temp")
-    if stemp then
-        climate.active_sea_temp = stemp
+    if stored.sea_temp then
+        climate.active_sea_temp = tonumber(stored.sea_temp)
     end
-    climate.lock_temp = minetest.is_yes(store:get_string("lock_temp"))
-    climate.lock_weather = minetest.is_yes(store:get_string("lock_weather"))
+    climate.lock_temp = stored.lock_temp
+    climate.lock_weather = stored.lock_weather
     --same again, but for ran_walk
-    local ranw = store:get_float("ran_walk")
-    if ranw then
-        ran_walk = ranw
+    if stored.ran_walk then
+        ran_walk = tonumber(stored.ran_walk)
     end
     --load climate_history
-    local ch = store:get_string("climate_history")
-    if ch ~= nil then
-        climate.load_history(ch)
-    end
+    climate.load_history(stored.climate_history)
 end
 
 --------------------
