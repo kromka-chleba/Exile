@@ -2421,6 +2421,9 @@ function animals.target_in_range(self,tgt)
     -- do a range check first, before accessing the map through a raycast
     local dist = vector.distance(pos, tpos)
     local fwd = self.attack.range -- forward range of jaws + neck
+    -- targets keep running out of range of young animals after collisions
+    -- -> compensate
+    fwd = math.max(fwd, 0.3)
     -- allow target to be hit if under or above selfbox - unless sea-borne
     local vertical = 0 -- additional range
     local selfbox = self.object:get_properties().collisionbox
@@ -2442,8 +2445,9 @@ function animals.target_in_range(self,tgt)
     local lateral = selfbox[6] -- assume symmetry
     local range = sqrt(fwd * fwd + vertical * vertical + lateral * lateral)
     -- range check also requires a target radius
+    local tgt_fwd = math.max(0.3, tgtbox[1])
     local tgt_r = vector.distance(tbox_center,
-                                  vector.new(tgtbox[1], tgtbox[2], tgtbox[3]))
+                                  vector.new(tgt_fwd, tgtbox[2], tgtbox[3]))
 
     local ok_dist = range + tgt_r  -- final tolerance for dist
     if dist > ok_dist then return false end
