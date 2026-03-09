@@ -2697,8 +2697,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
     --     predators less often
     -- timeouts for animals.lq_turn2pos(): increase to make it easier to hit
     --     them (affects all of them!)
-    local timer = time() + (type(self.aggression_timer) == "number"
-                            and self.aggression_timer or 12)
+    -- overall timeout:
+    local timeout = self.time_total + self.dtime + 12
     local jump_range = self.jump_range
 
     local function end_func()
@@ -2736,13 +2736,17 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
         hit_stats:include(av_hit_time)
 
         home = mobkit.get_stand_pos(self) -- territory to defend
+        -- increased lifetime for hit_stats. If the offender does neither win
+        -- or loose nor leave the place another hq_attack_eat() is likely to
+        -- follow after the timeout.
+        timeout = timeout + 18
     end
 
     local func = function()
         -- choose an interval < 0.2 to get a frequency ~5/sec
         if not animals.timer(self, 0.18) then return end
 
-        if time() > timer then
+        if self.time_total + self.dtime > timeout then
             if not animals.is_interactor(self,"prey",tgt.name) then
                 -- we've done enough, get away from them now (false so that we aren't scared)
                 animals.hq_runfrom(self, prty-4, tgtobj, false)
@@ -2756,6 +2760,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
 
         if mobkit.is_queue_empty_low(self) then
             local pos = mobkit.get_stand_pos(self)
+            local tpos = mobkit.get_stand_pos(tgtobj)
+            local dist = vector.distance(pos,tpos)
 
             -- hunting prey or last 2 hits not within last 8 seconds?
             local now = self.time_total + self.dtime
@@ -2763,10 +2769,8 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                 or (hit_stats:mean() < now - self.attack_interval) then
 
                 -- time to hit them again
-                local tpos = mobkit.get_stand_pos(tgtobj)
-                local dist = vector.distance(pos,tpos)
 
-                -- spend some time for turning towards target, also as delay
+                -- spend some time for turning towards target, also as a delay
                 -- before jump attack (defines agility for consecutive jumps!)
                 local dt = 0.3 + random() * 0.2
                 animals.lq_turn2pos(self, tpos, dt)
@@ -2779,15 +2783,6 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                     local height = tgt.height or 0
                     height = tgtobj:is_player() and 0.35 or height*0.6
                     lq_jumpattack_eat(self, height, tgtobj, eat, hit_stats)
-                        -- add 0.5 to 1.75 seconds to timer if enemy or prey
-                    if dist <= math.min(jump_range * 0.5,self.view_range) then
-                        --  is still in close distance
-                        timer = timer + random(2,7)*0.25
-                        if animals.is_interactor(self,"prey",tgt.name) then
-                            -- add more time if prey (0.5 to 1.5 seconds)
-                            timer = timer + random(2,6)
-                        end
-                    end
                 else  -- jump_range < dist
                     if dist > self.view_range then
                         -- out of sight, out of mind
@@ -2809,16 +2804,21 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                 -- allow attacker/intruder/opponent to retreat,
                 -- meanwhile hurry back towards home, ignoring risks to fall
                 -- or running against a wall
-                local dist = vector.distance(pos, home)
-                local f = dist > 0 and math.min(5, dist) / dist
+                local home_dist = vector.distance(pos, home)
+                local f = home_dist > 0 and math.min(5, home_dist) / home_dist
                           or 0  --> 0 <= f <= 1
-                local tpos = vector.new(pos.x + f * (home.x - pos.x),
+                local dest = vector.new(pos.x + f * (home.x - pos.x),
                                         pos.y + f * (home.y - pos.y),
                                         pos.z + f * (home.z - pos.z))
-                tpos = mobkit.pos_shift(tpos, {x=(random() - 0.5) * 3,
+                dest = mobkit.pos_shift(dest, {x=(random() - 0.5) * 3,
                                                z=(random() - 0.5) * 3})
-                animals.lq_turn2pos(self, tpos, 0.5) -- often ~180°
-                mobkit.lq_dumbwalk(self, tpos)
+                animals.lq_turn2pos(self, dest, 0.5) -- often ~180°
+                mobkit.lq_dumbwalk(self, dest)
+            end
+
+            -- if prey and still near, investing more time could pay off
+            if not hit_stats and (dist < self.view_range) then
+                 timeout = timeout + random(1, 2)
             end
         end
     end
