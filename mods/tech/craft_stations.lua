@@ -417,7 +417,7 @@ minetest.register_node(
     "tech:grinding_spot",{
         description   = S("Grinding Spot"),
         exile_crafting = {
-            craft_types       = 'grinding_spot',
+            craft_types       = 'grinding_stone',
             craft_level  = 2,
         },
         tiles         = {"tech_station_grinding_spot.png"},
@@ -462,7 +462,7 @@ minetest.register_node(
     "tech:hammering_spot",{
         description   = S("Hammering Spot"),
         exile_crafting = {
-            craft_types       = 'hammering_spot',
+            craft_types       = 'hammer',
             craft_level  = 2,
         },
         tiles         = {"tech_station_hammering_spot.png"},
