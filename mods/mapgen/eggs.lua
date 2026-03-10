@@ -33,7 +33,7 @@ animals.register_egg({
     energy_egg = 20000, -- will be divided by 3 or 5 give or take
     groups = {timer = 2}
   })
-  
+
 
 local eggs = {
     {--[[Animals:gundu]]
@@ -46,6 +46,7 @@ local eggs = {
         y_min = -25,
         decoration = "animals:gundu_eggs",
         flags = "force_placement",
+        param2 = 2,
     },
 
     {--[[Animals:sarkamos]]
@@ -58,6 +59,7 @@ local eggs = {
         y_min = -35,
         decoration = "animals:sarkamos_eggs",
         flags = "force_placement",
+        param2 = 2,
     },
 
     {--[[Animals:impethu]]
@@ -70,6 +72,7 @@ local eggs = {
         y_min = -950,
         decoration = "animals:impethu_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:kubwakubwa]]
@@ -82,6 +85,7 @@ local eggs = {
         y_min = -150,
         decoration = "animals:kubwakubwa_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:kubwakubwabarrenland]]
@@ -94,6 +98,7 @@ local eggs = {
         y_min = sna.coastal_max,
         decoration = "animals:kubwakubwa_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:kubwakubwaforest]]
@@ -106,6 +111,7 @@ local eggs = {
         y_min = sna.coastal_max,
         decoration = "animals:kubwakubwa_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:darkasthaan]]
@@ -118,6 +124,7 @@ local eggs = {
         y_min = -950,
         decoration = "animals:darkasthaan_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:pegasun-badlands]]
@@ -131,6 +138,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "mapgen:pegasun_bunch",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:pegasun-notbadlands]]
@@ -144,6 +152,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "mapgen:pegasun_bunch",
         flags = "all_floors",
+        param2 = 2,
     },
 
         {--[[Animals:chichasa-badlands]]
@@ -157,6 +166,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "mapgen:chichasa_bunch",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:chichasa-notbadlands]]
@@ -170,6 +180,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "mapgen:chichasa_bunch",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:sneachan-badlands]]
@@ -182,6 +193,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "animals:sneachan_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 
     {--[[Animals:sneachan-notbadlands]]
@@ -194,6 +206,7 @@ local eggs = {
         y_min = sna.beach_max,
         decoration = "animals:sneachan_eggs",
         flags = "all_floors",
+        param2 = 2,
     },
 }
 

@@ -1187,6 +1187,9 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
         -- if none of these if statements fit, then spawn is just a list of names, don't worry
     end
 
+    -- Spawn mature versions when hatching from mapgen eggs
+    local create_mature = core.get_node(pos).param2 == 2
+
     -- only do spawning if we can spawn somethin'
     spawn = type(spawn) == "table" and spawn or type(spawn) == "string" and {spawn} or nil
     if not spawn then
@@ -1236,8 +1239,13 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
             end
             -- spawn entity, apply starting energy
             ent = ent:get_luaentity()
-            mobkit.remember(ent,'energy', start_e)
-            mobkit.remember(ent,'age',0)
+            if create_mature then
+                mobkit.remember(ent,'energy', ent.mature_age or 2000 )
+                mobkit.remember(ent,'age', ent.mature_age or 2000 )
+            else
+                mobkit.remember(ent,'energy', start_e)
+                mobkit.remember(ent,'age',0)
+            end
             objcount = objcount + 1
         -- let's not waste energy, give more energy to each new young (remove from young_per_egg)
         else
