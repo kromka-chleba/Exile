@@ -512,10 +512,9 @@ end
 
 -- get percent of total per each soup bowl
 -- percent must be 1-100
-local function get_eat(total, percent, serialize)
+local function get_eat(total, percent)
     percent = type(percent) == "number" and percent or 10 -- default percentage of 10
     if (percent < 1 or percent > 100) then return end -- maybe do an error instead
-    serialize = type(serialize) ~= "boolean" and true or serialize
     percent = math.ceil(percent) -- no decimals
     local result = {}
     -- iterate over stats, only do calculation if number
@@ -526,7 +525,6 @@ local function get_eat(total, percent, serialize)
         end
     end
     -- serialize if not otherwise specified
-    result = serialize and core.serialize(result) or result
     return result
 end
 
@@ -962,6 +960,17 @@ local function pot_cook(pos, elapsed)
   return true
 end
 
+local eat_index =
+    { [1] = "hp", [2] = "th", [3] = "hu", [4] = "en", [5] = "tmp" }
+
+local function indexed_eat_value(keyed_eat_table)
+    local out = {}
+    for i = 1, #eat_index do
+        out[i] = keyed_eat_table[eat_index[i]]
+    end
+    return out
+end
+
 core.register_node("tech:cooking_pot",{
     description = S("Cooking Pot"),
     tiles = {"tech_pottery.png",
@@ -1145,7 +1154,7 @@ core.register_node("tech:cooking_pot",{
       -- set up soup bowl for player
       become = ItemStack(become)
       local becmeta = become:get_meta()
-      becmeta:set_string("eat_value", eat)
+      becmeta:set_string("eat_value", core.serialize(indexed_eat_value(eat)))
       becmeta:set_string("description", soup_desc)
       -- modify pot data on success
       local function modify_pot()
