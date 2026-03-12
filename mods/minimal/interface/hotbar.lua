@@ -65,12 +65,12 @@ minetest.register_on_joinplayer(function(player)
         player:hud_set_hotbar_selected_image("gui_hotbar_selected.png")
 end)
 
---[[
-    function minimal.get_hotbar_bg(x,y)
+
+function minimal.get_hotbar_bg(x,y)
     local out = ""
     for i=0,7,1 do
-    out = out .."image["..x+i..","..y..";1,1;gui_hb_bg.png]"
+        out = out .."image["..x+i..","..y..";1,1;gui_hb_bg.png]"
     end
     return out
-    end
-]]
+end
+
