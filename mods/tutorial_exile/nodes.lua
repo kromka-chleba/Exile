@@ -215,6 +215,11 @@ end
 
 --- Info boxes
 
+-- A clickable node that displays a preset, translatable text shown below,
+--  according to the label set for the node's meta key "tutinfo_text"
+-- Alternately, can be used to display any text (without translation) that is
+--  stored in the node as "tutinfo_rawtext"
+
 local info = { -- #TODO: set up locales, template.txt etc
     ["dig_key"] = "^  "..S("Press the dig button to pick up or strike things."),
     ["place_key"] = "v  "..S("Press the place button to put things down."),
@@ -239,7 +244,19 @@ local info = { -- #TODO: set up locales, template.txt etc
                          "contained.@n"..
                          "It is normally invisible, but is shown here."),
     ["shelter_fire2"] = S("Keep fires away from water, muddy ground, and "..
-                          "anything that can catch on fire.")
+                          "anything that can catch on fire."),
+    ["crafting1"] = S("Dig this plant and right click somewhere to open "..
+                      "the crafting menu.@n"..
+                      "Craft sticks from the plants and under tools, "..
+                      "craft a digging stick, which can break the clay "..
+                      "blocking the door." ),
+    ["crafting2"] = S("A flat surface to work on allows more crafts.@n"..
+                      "Craft an adze to remove the log that's in the way."),
+    ["crafting3"] = S("More crafts come with tools and stations.@n"..
+                      "Craft iron ingots for an iron pick to cut the "..
+                      "stone covering the exit"),
+    ["crafting4"] = S("Some crafts need to be done by cooking with fire "..
+                      "or soaking things under a liquid." ),
 }
 
 local function display_info(pos, player)
@@ -251,6 +268,9 @@ local function display_info(pos, player)
         return
     end
     itext = info[itext] or "INFO"
+    if itext == "INFO" and meta:contains("tutinfo_rawtext") then
+        itext = meta:get_string("tutinfo_rawtext")
+    end
     local width = meta:get("tutinfo_width") or "8"
     local height = meta:get("tutinfo_height") or"4.5"
     local btnx = ( (tonumber(width) or 7) / 2) - 1

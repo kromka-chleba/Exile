@@ -71,4 +71,17 @@ return
             entry = shelter_entry,
             exit = shelter_exit
         },
+        [4] = {
+            name = "Crafting",
+            schem = "craft",
+            size = vector.new(11,14,41),
+            location = vector.new(80,0,80),
+            start = vector.new(4,2,40),
+            facing = 3.25,
+            entry = function(self, player, name, instance)
+                climate.set_weather_override(name, nil, "")
+            end,
+            splashicon = "tech_paint_lw_weave.png^[resize:32x32",
+            splashtext = "Crafting",
+        }
     }

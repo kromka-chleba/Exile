@@ -408,6 +408,7 @@ minetest.register_chatcommand(
         privs = "server",
         func = function(name,param)
             if core.check_player_privs(name, "server") == false then return end
+            climate.set_weather_override(name, nil, "")
             stage_change(core.get_player_by_name(name), name)
         end
 })
