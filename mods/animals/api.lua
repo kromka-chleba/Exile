@@ -1322,15 +1322,16 @@ end
 
 ----------------------------------------------
 -- similar to mobkit's version but more efficient and with an optional paramter
--- `duration` to define when from now on it shall finish; default: 0.5 seconds
+-- `duration` to define when from now on it shall finish;
+--             default: based on turn rate of 2*pi/sec
 -- NOTE: only works correctly if added to an empty lqueue before mobkit
 --       executes the lqueue
 function animals.lq_turn2pos(self, tpos, duration)
-    duration = duration or 0.5 -- default to 2*pi/sec
     local two_pi = 2 * pi
 
     local yaw = self.object:get_yaw() -- initial yaw
     local delta_yaw = yaw_delta(self, tpos, yaw)
+    duration = duration or 0.5 * abs(delta_yaw/pi) -- default to 2*pi/sec
 
     local dtime = 0
     -- instead of skipping the initial call we consider self.dtime
@@ -1349,6 +1350,90 @@ function animals.lq_turn2pos(self, tpos, duration)
     end
     mobkit.queue_low(self, func)
 end
+
+----------------------------------------------
+-- Unlike mobkit's version animals.lq_dumpwalk() does not fail if the initial
+-- yaw points away from `dest` or does not require a prior call to
+-- lq_turn2pos(), although turn2yaw() is used within the function.
+-- Instead animals.lq_dumpwalk() includes a first phase for turning and a
+-- second for walking. In addition an optional parameter `timeout` can be used
+-- to interrupt a long dumb walk to reassess the situation (default = 15 secs).
+-- Furthermore this function is optimized so that it's queue function is
+-- roughly 4x as fast as the one of mobkit.lq_dumbwalk().
+-- `dest`: destination
+-- `speed_factor`: optional; 1 means max speed; default: 1
+-- `dt_turn`: optional, passed to parameter `duration` of lq_turn2pos()
+function animals.lq_dumbwalk(self, dest, speed_factor, dt_turn, timeout)
+    speed_factor = speed_factor or 1
+    local timer = timeout and (timeout + self.dtime) or 15     -- failsafe
+    local start = self.time_total
+
+    -- 1st: queue turn function
+    animals.lq_turn2pos(self, dest, dt_turn)
+
+    -- 2nd: approach destination
+    local function calc_vel_and_dir()
+        local pos = self.object:get_pos()
+        local dir_x = dest.x - pos.x
+        local dir_z = dest.z - pos.z
+        local l_inv = 1/sqrt(dir_x * dir_x + dir_z * dir_z)
+        local dir = vector.new(dir_x * l_inv, 0, dir_z * l_inv)
+        local multiplier = l_inv * self.max_speed * speed_factor
+        local v = vector.new(dir_x * multiplier, 0, dir_z * multiplier)
+        return v, dir
+    end
+    local v, dir = calc_vel_and_dir()
+
+    mobkit.animate(self,'walk') -- now walking
+
+    local is_init = false -- not yet
+    local func = function()
+        timer = timer - self.dtime
+
+        -- further optimization: animals.timer() cannot be used because
+        -- mobkit's dumb friction is applied every global step so that speed
+        -- must be updated whenever dumb friction is applied. Ideally there
+        -- would be an interval self.dt which is checked in mobkit.stepfunc()
+        -- before running anything else, while any function could adjust
+        -- self.dt needed.
+        -- if not animals.timer(self, 0.1) then return false end
+
+        -- need to adjust timeout after turning
+        if not is_init then
+            timer = timer - (self.time_total - start)
+            is_init = true
+        end
+        if timer < 0 then return true end
+
+        local vy = self.object:get_velocity().y
+
+        -- destination reached? (check dot prod of (dest-pos) and dir)
+        local pos = self.object:get_pos()
+        if 0 >= (dest.x - pos.x) * dir.x + (dest.z - pos.z) * dir.z then
+            -- stop horizontal progress if falling (no friction)
+
+            -- expensive(!) call to get_properties() for feet offset
+            local offset = self.object:get_properties().collisionbox[2]
+            if not self.isonground or abs(dest.y - (pos.y + offset)) > 0.1 then
+                self.object:set_velocity({x = 0, y = vy, z = 0})
+            end
+            return true
+        end
+
+        -- adjusting speed and yaw may be required around obstacles
+        if animals.timer(self, 1) then
+            v, dir = calc_vel_and_dir()
+            self.object:set_yaw(core.dir_to_yaw(dir))
+        end
+
+        if self.isonground then -- keep speed despite friction
+            v.y = vy -- TODO: Is this + get_velocity() above obsolete?
+            self.object:set_velocity(v)
+        end
+    end
+    mobkit.queue_low(self,func)
+end
+
 
 ----------------------------------------------
 --roam to places with equal or lesser darkness
@@ -2558,8 +2643,6 @@ end
 
 
 
-
-
 ---------------------------------------------------
 -- similar to mobkit version, but including removal of prey and gaining energy
 -- and optimized to work from 5 to 60 calls of mobkit.stepfunc() per second;
@@ -2670,8 +2753,7 @@ local function lq_jumpattack_eat(self, height, target, consume, hit_stats)
                 end
                 local pos = mobkit.get_stand_pos(self)
                 local tpos = mobkit.pos_shift(pos, dir)
-                animals.lq_turn2pos(self, tpos, 0.2)
-                mobkit.lq_dumbwalk(self, tpos)
+                animals.lq_dumbwalk(self, tpos, 1, 0.2)
                 return true
             else
                 if phase == 2 then dt = 0.3 * dt end -- min delay to phase 3, 4
@@ -2777,10 +2859,11 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                 -- spend some time for turning towards target, also as a delay
                 -- before jump attack (defines agility for consecutive jumps!)
                 local dt = 0.3 + random() * 0.2
-                animals.lq_turn2pos(self, tpos, dt)
                 local jump_height = self.jump_height
                 if dist <= 0.8 * jump_range
                     and abs(pos.y - tpos.y) <= jump_height then
+
+                    animals.lq_turn2pos(self, tpos, dt)
 
                     -- close in
                     -- queue jump attack
@@ -2799,13 +2882,13 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                                       pos.z + f * (tpos.z - pos.z))
                     -- but do not approach in a straight line (easy target)
                     local rnd = 0.2 * dist
-                    mobkit.lq_dumbwalk(self,
-                             mobkit.pos_shift(tpos,{x=(random() - 0.5) * rnd,
-                                                    z=(random() - 0.5) * rnd}))
+                    tpos = mobkit.pos_shift(tpos,{x=(random() - 0.5) * rnd,
+                                                  z=(random() - 0.5) * rnd})
+                    animals.lq_dumbwalk(self, tpos, 1, dt)
                 end
             else
                 -- we're not on stereoids, wait a moment, regain some energy,
-                -- allow attacker/intruder/opponent to retreat,
+                -- allow intruder/rival/predator to retreat,
                 -- meanwhile hurry back towards home, ignoring risks to fall
                 -- or running against a wall
                 local home_dist = vector.distance(pos, home)
@@ -2816,8 +2899,7 @@ function animals.hq_attack_eat(self,prty,tgt,eat)
                                         pos.z + f * (home.z - pos.z))
                 dest = mobkit.pos_shift(dest, {x=(random() - 0.5) * 3,
                                                z=(random() - 0.5) * 3})
-                animals.lq_turn2pos(self, dest, 0.5) -- often ~180°
-                mobkit.lq_dumbwalk(self, dest)
+                animals.lq_dumbwalk(self, dest, 1, 0.5)
             end
 
             -- if prey and still near, investing more time could pay off
