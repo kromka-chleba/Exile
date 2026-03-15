@@ -711,6 +711,13 @@ function crafting.make_crafting_formspec(player, cache)
 
     -- Input List part---------------------------------------------------------
 
+    local pInv = player:get_inventory()
+    local inputs = pInv:get_list("input_items")
+
+    -- Input list formspec requires updates only after switching input mode or
+    -- after leaving the tutorial, because lists created during tutorial are
+    -- dropped.
+
     local function FS_input_list ()
         local fs = {}
         -- background color
@@ -737,14 +744,10 @@ function crafting.make_crafting_formspec(player, cache)
         --fs[#fs + 1] = cache.craft_input
         --fs[#fs + 1] = ';true]'
 
-        -- input inventory
-        local pInv = player:get_inventory() -- #TODO could be cache.pInv, not sure which is better
-        local inputs = pInv:get_list('input_items')
-        -- create or check whether to the size adjust size
-        -- 'Use this': 12   'Save this': 6
+        -- create or resize inputs inventory list and draw formspec for
+        -- input_itmes; 'Use this': 12   'Save this': 6
         local input_size = (mode == 2) and 12 or 6
         if not inputs or #inputs ~= input_size then
-            -- create inputs inventory list and draw formspec for input_itmes
             pInv:set_size('input_items', input_size)
         end
 
@@ -759,9 +762,7 @@ function crafting.make_crafting_formspec(player, cache)
         return tofstring(fs)
     end
 
-    -- #TODO check how to reset (or not) that part
-    -- do I really need to cache it ?
-    if not cache.FS_input_list then
+    if not cache.FS_input_list or not inputs then
         cache.FS_input_list = FS_input_list ()
     end
 
