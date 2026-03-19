@@ -67,13 +67,19 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, 
 end
 
 -------------------------------------------
---converts flaming torch into ash
-local function can_burn_air(pos, meta, ash_name)
+--drop dead torch. Fuel used up or damaged somehow.
+local function drop_dead_torch(pos)
+    minetest.add_item(pos, ItemStack('tech:stick'))    
+    minetest.set_node(pos, {name = 'air'})
+end
+
+-------------------------------------------
+--converts flaming torch into a dead torch
+local function can_burn_air(pos)
     --extinguish
     if climate.get_rain(pos)
-        or minetest.find_node_near(pos, 1, {"group:water"}) then
-        minetest.set_node(pos, {name = ash_name})
-        minetest.check_for_falling(pos)
+    or minetest.find_node_near(pos, 1, {"group:water"}) then
+        drop_dead_torch(pos)
         return false
     end
 
@@ -82,7 +88,7 @@ local function can_burn_air(pos, meta, ash_name)
         return true
     else
         --go out
-        minetest.set_node(pos, {name = ash_name})
+        drop_dead_torch(pos)
         return false
     end
 end
@@ -168,7 +174,8 @@ minetest.register_entity("tech:torch_entity", torch_entity)
 -------------------------------------------
 
 local function on_flood(pos, oldnode, newnode)
-    minetest.add_item(pos, ItemStack("tech:torch 1"))
+    drop_dead_torch(pos)
+    --minetest.add_item(pos, ItemStack("tech:torch 1"))
     -- Play flame-extinguish sound if liquid is not an 'igniter'
     --[[
         local nodedef = minetest.registered_items[newnode.name]
@@ -237,10 +244,9 @@ local function register_torch_node (name, given_def)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minetest.set_node(pos, {name = "tech:wood_ash"})
-                minetest.check_for_falling(pos)
+                drop_dead_torch(pos)
                 return false
-            elseif can_burn_air(pos, meta, "tech:wood_ash" ) then
+            elseif can_burn_air(pos) then
                 torch_fire_on(pos)
                 meta:set_int("fuel", fuel - 1)
                 -- Restart timer
