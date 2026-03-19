@@ -275,7 +275,7 @@ minetest.register_tool("tech:stone_chopper",
         _tool_placed = "tech:stone_knife_placed",
         _dig_tip = S("Cut plants faster than bare hands"),
         _use_tip = S("Flip to stone etcher"),
-        -- _place_tip = ("Place tool for cutting crafts"), -- No such crafts yet
+        _place_tip = ("Place tool for cutting crafts"),
         sound = {breaks = "tech_tool_breaks"},
         _on_use_item = function(player, wielded_item, pointed_thing)
             minimal.swap_tool(player, wielded_item, "tech:stone_etcher")
@@ -420,7 +420,7 @@ minetest.register_tool("tech:digging_stick",
         _dig_tip = S("Dig hard earth"),
         _use_tip = S("Till soil slowly"),
         _on_use_item = till_soil,
-        _place_tip = S("Place tool for plant crafts"),
+        _place_tip = S("Place tool for farming crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
@@ -538,6 +538,7 @@ local function register_adze(suffix, def)
             groups = {axe = 1, craftedby = 1},
             sound = {breaks = "tech_tool_breaks"},
             _dig_tip = S("Cut softwood logs"),
+            _place_tip = S("Place tool for woodworking crafts"),
             on_place = function(itemstack, placer, pointed_thing)
                 return place_tool(itemstack, placer, pointed_thing)
             end,
@@ -665,7 +666,7 @@ local function register_hammer(suffix, desc)
         _place_tip = S("Stun animals\n"..
         " or Place on solid surface for hammering crafts"),
         --]]
-        _place_tip = S("Place on solid surface for hammering crafts"),
+        _place_tip = S("Place tool for hammering crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
@@ -814,6 +815,7 @@ minetest.register_tool("tech:axe_iron",
             damage_groups = {fleshy = iron_dmg},
         },
         _dig_tip = S("Cut any wood"),
+        _place_tip = S("Place tool for woodworking crafts"),
         groups = {axe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -896,7 +898,7 @@ minetest.register_tool("tech:shovel_iron",
         _till_speed = 4,
         _on_use_item = till_soil,
         _use_tip = S("Till soil"),
-        _place_tip = S("Place for plant crafts"),
+        _place_tip = S("Place for farming crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
@@ -1007,6 +1009,7 @@ minetest.register_tool("tech:pickaxe_iron",
             damage_groups = {fleshy = iron_dmg},
         },
         _dig_tip = S("Dig stone"),
+        _place_tip = S("Place tool for hammering crafts"),
         groups = {pickaxe = 1, craftedby = 1},
         sound = {breaks = "tech_tool_breaks"},
         on_place = function(itemstack, placer, pointed_thing)
@@ -1019,6 +1022,16 @@ minetest.register_node("tech:pickaxe_iron_placed",
         {
         description = S("Placed Iron Pickaxe"),
         inventory_image = "tech_tool_pickaxe_iron.png",
+        exile_crafting = {
+            craft_types = {"hammer", "hammer_mixing"},
+            craft_level = 1,
+            material = suffix,
+            good_on = {
+                {"stone", 1}, {"masonry", 1},
+                {"boulder", 1}, {"soft_stone", 1},
+                {"tree", 1}, {"log", 1}
+            },
+        },
         drawtype = "mesh",
         mesh = "pickaxe_placed.obj",
         tiles = {name = "tech_axe_iron_placed.png"},
@@ -1037,7 +1050,8 @@ minetest.register_node("tech:pickaxe_iron_placed",
             fixed = {-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
         },
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-            -- possible future crafting?
+            return crafting.crafting_item_on_rightclick(pos,node,clicker,
+                                                       itemstack,pointed_thing)
         end,
         on_dig = function(pos, node, digger)
             on_dig_tool(pos, node, digger)
@@ -1076,7 +1090,7 @@ minetest.register_tool("tech:hoe_iron",
         _dig_tip = S("Dig hard earth"),
         _use_tip = S("Till soil quickly"),
         _on_use_item = till_soil,
-        _place_tip = S("Place tool for plant crafts"),
+        _place_tip = S("Place tool for farming crafts"),
         on_place = function(itemstack, placer, pointed_thing)
             return place_tool(itemstack, placer, pointed_thing)
         end,
