@@ -277,6 +277,32 @@ local woody_plants = {
         param2 = 0,
     },
 
+    {--[[open woodland:badyl]]
+        name = "owl_nn:badyl",
+        deco_type = "simple",
+        place_on = sna.open_woodland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.1000, spread={x=16, y=16, z=16},
+                        seed=1821, octaves=2, persist=0.9},
+        y_max = sna.highland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:badyl",
+        param2 = 0,
+    },
+
+    {--[[open woodland:orylsar]]
+        name = "owl_nn:orylsar",
+        deco_type = "simple",
+        place_on = sna.open_woodland_on,
+        sidelen = 16,
+        noise_params = {offset=0.00, scale=0.1000, spread={x=64, y=64, z=64},
+                        seed=7721, octaves=2, persist=0.9},
+        y_max = sna.upland_max,
+        y_min = sna.beach_max,
+        decoration = "nodes_nature:orylsar",
+        param2 = 3,
+    },
+
     {--[[Grassland:gitiri]]
         name = "gr_nn:gitiri",
         deco_type = "simple",

@@ -23,6 +23,10 @@ return {
         "nodes_nature:upland_woodland_soil", "nodes_nature:upland_woodland_soil_wet",
     },
 
+    open_woodland_on = {
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
+    },
+
     rich_forest_on = {
         "nodes_nature:rich_forest_soil", "nodes_nature:rich_forest_soil_wet",
         "nodes_nature:rich_woodland_soil", "nodes_nature:rich_woodland_soil_wet",
@@ -45,6 +49,7 @@ return {
         "nodes_nature:coastal_grassland_soil", "nodes_nature:coastal_grassland_soil_wet",
         "nodes_nature:grassland_soil", "nodes_nature:grassland_soil_wet",
         "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
     },
 
     shrubland_on = {
@@ -59,7 +64,8 @@ return {
         "nodes_nature:coastal_shrubland_soil", "nodes_nature:coastal_shrubland_soil_wet",
         "nodes_nature:shrubland_soil", "nodes_nature:shrubland_soil_wet",
         "nodes_nature:upland_grassland_soil", "nodes_nature:upland_grassland_soil_wet",
-        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet"
+        "nodes_nature:upland_shrubland_soil", "nodes_nature:upland_shrubland_soil_wet",
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
     },
 
     duneland_on = {
@@ -92,6 +98,7 @@ return {
         "nodes_nature:forest_soil", "nodes_nature:forest_soil_wet",
         "nodes_nature:upland_forest_soil", "nodes_nature:upland_forest_soil_wet",
         "nodes_nature:woodland_soil", "nodes_nature:woodland_soil_wet",
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
         "nodes_nature:upland_woodland_soil", "nodes_nature:upland_woodland_soil_wet",
         "nodes_nature:rich_forest_soil", "nodes_nature:rich_forest_soil_wet",
         "nodes_nature:rich_woodland_soil", "nodes_nature:rich_woodland_soil_wet",
@@ -116,6 +123,7 @@ return {
         "nodes_nature:forest_soil", "nodes_nature:forest_soil_wet",
         "nodes_nature:upland_forest_soil", "nodes_nature:upland_forest_soil_wet",
         "nodes_nature:woodland_soil", "nodes_nature:woodland_soil_wet",
+        "nodes_nature:open_woodland_soil", "nodes_nature:open_woodland_soil_wet",
         "nodes_nature:upland_woodland_soil", "nodes_nature:upland_woodland_soil_wet",
         "nodes_nature:rich_forest_soil", "nodes_nature:rich_forest_soil_wet",
         "nodes_nature:rich_woodland_soil", "nodes_nature:rich_woodland_soil_wet",
