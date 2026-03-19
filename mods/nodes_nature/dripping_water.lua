@@ -4,7 +4,9 @@
 -------------------------------------------------------------------------
 local random = math.random
 
-local S = minetest.get_translator("nodes_nature")
+local S = core.get_translator("nodes_nature")
+
+local drip_count = 0 -- We limit the number of drips in singleplayer
 
 --Drop entities
 local drop_entity = {
@@ -51,6 +53,7 @@ local drop_entity = {
         props.collisionbox = {-size,-size,-size, size,size,size}
         props.selectionbox = props.collisionbox
         self.object:set_properties(props)
+        drip_count = drip_count + 1
     end,
 
     fall_detach = function(self)
@@ -91,6 +94,7 @@ local drop_entity = {
                 -- hey! you placed a block into me!!! no drip for u
                 if not (inside and inside.name and minimal.is_group(inside.name, "air") ) then
                     self.object:remove()
+                    drip_count = drip_count - 1
                 end
             end
             return -- nothing interesting, return
@@ -111,6 +115,7 @@ local drop_entity = {
                 elseif self.sounds and self.sounds.drip then
                     minimal.sound_play(minimal.merge_tables(self.sounds.drip, {pos=ownpos}))
                 end
+                drip_count = drip_count - 1
                 return self.object:remove()
             end
         end
@@ -125,6 +130,7 @@ local drop_entity = {
             elseif self.sounds and self.sounds.sploosh then
                 minimal.sound_play(minimal.merge_tables(self.sounds.sploosh, {pos=ownpos}))
             end
+            drip_count = drip_count - 1
             return self.object:remove()
         end
     end,
@@ -145,6 +151,7 @@ local drop_entity = {
                 minimal.sound_play(minimal.merge_tables(self.sounds.consume, {object = puncher}))
             end
             self.object:remove()
+            drip_count = drip_count - 1
 
             --food poisoning
             if random() < 0.005 then
@@ -160,35 +167,36 @@ local drop_entity = {
     end,
 }
 
-minetest.register_entity("nodes_nature:drop_water", drop_entity)
+core.register_entity("nodes_nature:drop_water", drop_entity)
 
 
 --Create drop
-minetest.register_abm({
+core.register_abm({
         label = "Dripping Water",
         nodenames = {"group:stone", "group:soft_stone"},
-        --neighbors = {"group:water"},
+        neighbors = {"group:air"},
+        min_y = -1000,
+        max_y = 200,
         interval = 27,
         chance = 120,
         action = function(pos)
-
-            if pos.y < 200
-                and pos.y > -1000 then
-                local nb = minetest.get_node({x=pos.x,
-                                              y=pos.y-1,
-                                              z=pos.z}).name
-                if nb == 'air' then
-                    local nb2 = minetest.get_node({x=pos.x,
-                                                   y=pos.y-2,
-                                                   z=pos.z}).name
-                    if nb2 == 'air' then
-                        local i = math.random(-35,35) / 100
-                        minetest.add_entity({x=pos.x + i,
-                                             y=pos.y-0.501,
-                                             z=pos.z + i},
-                            "nodes_nature:drop_water")
-                    end
+            if core.is_singleplayer() and drip_count > 200 then
+                return
+            end
+            local nb = core.get_node({x=pos.x,
+                                      y=pos.y-1,
+                                      z=pos.z}).name
+            if nb == 'air' then
+                local nb2 = core.get_node({x=pos.x,
+                                           y=pos.y-2,
+                                           z=pos.z}).name
+                if nb2 == 'air' then
+                    local i = math.random(-35,35) / 100
+                    core.add_entity({x=pos.x + i,
+                                     y=pos.y-0.501,
+                                     z=pos.z + i},
+                        "nodes_nature:drop_water")
                 end
             end
-        end,
+        end
 })
