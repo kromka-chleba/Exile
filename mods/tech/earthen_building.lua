@@ -240,6 +240,7 @@ minetest.register_node(
             'tech:wattle_loose',
             'tech:wattle_door_frame',
             'tech:wattle',
+            'tech:wattle_and_daub',
             'tech:thatch'
         },
         paramtype = "light",
@@ -286,6 +287,7 @@ minetest.register_node(
             'tech:wattle_loose',
             'tech:wattle_door_frame',
             'tech:wattle',
+            'tech:wattle_and_daub',
             'tech:thatch'
         },
         paramtype = "light",
@@ -305,6 +307,52 @@ minetest.register_node(
 
 ncrafting.register_sieve("tech:wattle")
 ncrafting.register_sieve("tech:wattle_loose")
+
+--Add mud to your wattles
+minetest.register_node(
+    'tech:wattle_and_daub', {
+        description = S('Wattle and Daub'),
+        drawtype = "nodebox",
+        node_box = {
+            type = "connected",
+            fixed = {{-1/4, -1/2, -1/4, 1/4, 1/2, 1/4}},
+            -- connect_bottom =
+            connect_front = {{-1/4, -1/2, -1/2,  1/4, 1/2, -1/4}},
+		    connect_left = {{-1/2, -1/2, -1/4, -1/4, 1/2,  1/4}},
+		    connect_back = {{-1/4, -1/2,  1/4,  1/4, 1/2,  1/2}},
+		    connect_right = {{ 1/4, -1/2, -1/4,  1/2, 1/2,  1/4}},
+        },
+        connects_to = {
+            "group:sediment",
+            "group:tree",
+            "group:log",
+            "group:stone",
+            "group:masonry",
+            "group:soft_stone",
+            'tech:drystack',
+            'tech:mudbrick',
+            'tech:rammed_earth',
+            'tech:wattle_loose',
+            'tech:wattle_door_frame',
+            'tech:wattle',
+            'tech:wattle_and_daub',
+            'tech:thatch'
+        },
+        paramtype = "light",
+        use_texture_alpha = c_alpha.clip,
+        tiles = {"tech_wattle_and_daub_top.png",
+                 "tech_wattle_and_daub_top.png",
+                 "tech_wattle_and_daub.png",
+                 "tech_wattle_and_daub.png",
+                 "tech_wattle_and_daub.png",
+                 "tech_wattle_and_daub.png" },
+        inventory_image = "tech_wattle_and_daub.png",
+        wield_image = "tech_wattle_and_daub.png",
+        stack_max = minimal.stack_max_bulky * 2,
+        groups = {choppy = 3, oddly_breakable_by_hand = 2, flammable = 10},
+        sounds = nodes_nature.node_sound_wood_defaults(),
+})
+
 
 --A frame to let wattle walls connect to wattle doors
 --TODO: Make it detect wattle or doors and rotate itself to match
@@ -483,7 +531,7 @@ crafting.register_recipe({
         output = "tech:wattle",
         items = {{"tech:stick 6","tech:wattle_loose 2",
                   "tech:wattle_door_frame","doors:door_wattle",
-                  "tech:trapdoor_wattle"}},
+                  "tech:trapdoor_wattle", "tech:wattle_and_daub"}},
         level = 1,
         always_known = true,
 })
@@ -511,6 +559,15 @@ crafting.register_recipe({
         type = {"mixing_spot",'knife_wattle'},
         output = "tech:stick 2",
         items = {"tech:wattle_loose"},
+        level = 1,
+        always_known = true,
+})
+
+--wattle and daub
+crafting.register_recipe({
+        type = {"brick_makers_bench"},
+        output = "tech:wattle_and_daub",
+        items = {"tech:wattle 8", "tech:mudbrick"},
         level = 1,
         always_known = true,
 })
