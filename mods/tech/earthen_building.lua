@@ -339,6 +339,7 @@ minetest.register_node(
             'tech:thatch'
         },
         paramtype = "light",
+        drop = "tech:wattle",
         use_texture_alpha = c_alpha.clip,
         tiles = {"tech_wattle_and_daub_top.png",
                  "tech_wattle_and_daub_top.png",
@@ -349,7 +350,7 @@ minetest.register_node(
         inventory_image = "tech_wattle_and_daub.png",
         wield_image = "tech_wattle_and_daub.png",
         stack_max = minimal.stack_max_bulky * 2,
-        groups = {choppy = 3, oddly_breakable_by_hand = 2, flammable = 10},
+        groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 10},
         sounds = nodes_nature.node_sound_wood_defaults(),
 })
 
@@ -566,7 +567,7 @@ crafting.register_recipe({
 --wattle and daub
 crafting.register_recipe({
         type = {"brick_makers_bench"},
-        output = "tech:wattle_and_daub",
+        output = "tech:wattle_and_daub 8",
         items = {"tech:wattle 8", "tech:mudbrick"},
         level = 1,
         always_known = true,
