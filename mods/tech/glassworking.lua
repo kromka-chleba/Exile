@@ -729,3 +729,5 @@ crafting.register_recipe({
         always_known = true,
 })
 
+--TODO: recycle doors back into windows and fittings somehow?. 
+-- Don't want to add them as options into window as should also get iron back.
