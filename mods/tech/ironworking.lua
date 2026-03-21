@@ -561,8 +561,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "anvil",
         output = "tech:iron_chest",
-        items = {'tech:iron_fittings 2', 'tech:iron_ingot 4',
-                 'tech:vegetable_oil'},
+        items = {'tech:iron_fittings 2', 'tech:iron_ingot 4'},
         level = 1,
         always_known = true,
 })
