@@ -710,15 +710,19 @@ minetest.register_node(
 })
 
 -- Windows from oiled wood frames and glass panes
+--TODO: if the glass furnace is ever replaced by more sophisiticated glass working then
+-- all wood framed glass crafts would make more sense to be in carpentry
+-- currently in glass furnace because removing them makes the glass furnace a silly thing with
+-- almost no crafts
 crafting.register_recipe({
-        type = "carpentry_bench",
+        type = "glass_furnace",
         output = "tech:window_green 4",
         items = {'group:log', 'tech:vegetable_oil', 'tech:pane_green 4'},
         level = 1,
         always_known = true,
 })
 crafting.register_recipe({
-        type = "carpentry_bench",
+        type = "glass_furnace",
         output = "tech:window_clear 4",
         items = {'group:log', 'tech:vegetable_oil', 'tech:pane_clear 4'},
         level = 1,

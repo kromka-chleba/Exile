@@ -226,7 +226,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "glass_furnace",
         output = "doors:door_glass_green",
-        items = {'tech:iron_fittings 2', 'tech:pane_green 2'},
+        items = {'tech:iron_fittings 2', 'tech:window_green 2'},
         level = 1,
         always_known = true,
 })
@@ -234,7 +234,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "glass_furnace",
         output = "tech:trapdoor_glass_green",
-        items = {'tech:iron_fittings', 'tech:pane_green 1'},
+        items = {'tech:iron_fittings', 'tech:window_green'},
         level = 1,
         always_known = true,
 })
@@ -242,7 +242,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "glass_furnace",
         output = "doors:door_glass_clear",
-        items = {'tech:iron_fittings 2', 'tech:pane_clear 2'},
+        items = {'tech:iron_fittings 2', 'tech:window_clear 2'},
         level = 1,
         always_known = true,
 })
@@ -250,7 +250,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "glass_furnace",
         output = "tech:trapdoor_glass_clear",
-        items = {'tech:iron_fittings', 'tech:pane_clear 1'},
+        items = {'tech:iron_fittings', 'tech:window_clear'},
         level = 1,
         always_known = true,
 })
