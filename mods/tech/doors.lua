@@ -89,7 +89,7 @@ doors.register_trapdoor("tech:trapdoor_iron", {
 })
 
 ------------------------------------
--- Glass - nonflammable, good for furnaces
+-- Glass
 
 doors.register("door_glass_green", {
                    tiles = {"tech_door_glass_green.png"},
@@ -98,8 +98,13 @@ doors.register("door_glass_green", {
                    stack_max = minimal.stack_max_bulky *2,
                    inventory_image = "tech_door_glass_green_item.png",
                    use_texture_alpha = c_alpha.blend,
-                   groups = {cracky = 3, oddly_breakable_by_hand = 1},
+                   groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                    sounds = tech.node_sound_glass_defaults(),
+                   on_burn = function(pos)
+                        minetest.add_item(pos, ItemStack("tech:pane_green 2"))    
+                        minetest.set_node(pos, {name = 'air'})
+                        minetest.check_for_falling(pos)
+                   end,
 })
 
 doors.register_trapdoor("tech:trapdoor_glass_green", {
@@ -111,8 +116,13 @@ doors.register_trapdoor("tech:trapdoor_glass_green", {
                             tile_front = "tech_trapdoor_glass_green.png",
                             tile_side = "tech_trapdoor_wooden_side.png",
                             use_texture_alpha = c_alpha.blend,
-                            groups = {cracky = 3, oddly_breakable_by_hand = 1},
+                            groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                             sounds = tech.node_sound_glass_defaults(),
+                            on_burn = function(pos)
+                                minetest.add_item(pos, ItemStack("tech:pane_green"))    
+                                minetest.set_node(pos, {name = 'air'})
+                                minetest.check_for_falling(pos)
+                            end,
 })
 
 doors.register("door_glass_clear", {
@@ -122,8 +132,13 @@ doors.register("door_glass_clear", {
                    stack_max = minimal.stack_max_bulky *2,
                    inventory_image = "tech_door_glass_clear_item.png",
                    use_texture_alpha = c_alpha.blend,
-                   groups = {cracky = 3, oddly_breakable_by_hand = 1},
+                   groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                    sounds = tech.node_sound_glass_defaults(),
+                   on_burn = function(pos)
+                        minetest.add_item(pos, ItemStack("tech:pane_clear 2"))    
+                        minetest.set_node(pos, {name = 'air'})
+                        minetest.check_for_falling(pos)
+                   end,
 })
 
 doors.register_trapdoor("tech:trapdoor_glass_clear", {
@@ -135,8 +150,13 @@ doors.register_trapdoor("tech:trapdoor_glass_clear", {
                             tile_front = "tech_trapdoor_glass_clear.png",
                             tile_side = "tech_trapdoor_wooden_side.png",
                             use_texture_alpha = c_alpha.blend,
-                            groups = {cracky = 3, oddly_breakable_by_hand = 1},
+                            groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                             sounds = tech.node_sound_glass_defaults(),
+                            on_burn = function(pos)
+                                minetest.add_item(pos, ItemStack("tech:pane_clear"))    
+                                minetest.set_node(pos, {name = 'air'})
+                                minetest.check_for_falling(pos)
+                            end,
 })
 ------------------------------------
 --RECIPES

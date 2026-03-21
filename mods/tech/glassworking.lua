@@ -620,7 +620,7 @@ minetest.register_node(
         stack_max = minimal.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3},
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
@@ -642,7 +642,7 @@ minetest.register_node(
         stack_max = minimal.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3},
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
@@ -668,11 +668,16 @@ minetest.register_node(
         stack_max = minimal.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3},
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, flammable = 15},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
         after_place_node = minimal.protection_after_place_node,
+        on_burn = function(pos)
+            minetest.add_item(pos, ItemStack("tech:pane_green"))    
+            minetest.set_node(pos, {name = 'air'})
+            minetest.check_for_falling(pos)
+        end,
 })
 
 minetest.register_node(
@@ -692,11 +697,16 @@ minetest.register_node(
         stack_max = minimal.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
-        groups = {cracky = 3, oddly_breakable_by_hand = 3},
+        groups = {cracky = 3, oddly_breakable_by_hand = 3, flammable = 15},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
         after_place_node = minimal.protection_after_place_node,
+        on_burn = function(pos)
+            minetest.add_item(pos, ItemStack("tech:pane_clear"))    
+            minetest.set_node(pos, {name = 'air'})
+            minetest.check_for_falling(pos)
+        end,
 })
 
 -- Windows from oiled wood frames and glass panes
