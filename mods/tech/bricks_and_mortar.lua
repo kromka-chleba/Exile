@@ -289,7 +289,7 @@ crafting.register_recipe({
 crafting.register_recipe({
         type = "brick_makers_bench",
         output = "tech:lime_mortar_slab 8",
-        items = {"tech:slaked_lime", "nodes_nature:sand 3"},
+        items = {"tech:slaked_lime", {"nodes_nature:sand 3", "tech:ruined_pottery 3"}},
         level = 1,
         always_known = true,
         sound = {name = "nodes_nature_mud", gain = 0.1}
@@ -434,7 +434,7 @@ stairs.register_stair_and_slab({
 crafting.register_recipe({
         type = "brick_makers_bench",
         output = "tech:loose_brick_unfired 8",
-        items = {'nodes_nature:clay_wet 4', 'nodes_nature:sand_wet 2'},
+        items = {'nodes_nature:clay_wet 4', {'nodes_nature:sand 2', 'tech:ruined_pottery 2'}},
         level = 1,
         always_known = true,
         sound = {name = "nodes_nature_dirt_footstep", pitch={0.6, 0.85}}
