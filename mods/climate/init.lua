@@ -242,7 +242,7 @@ local function set_sky_clouds(player,...)
     local p_name = player:get_player_name()
     local active_weather = climate.get_player_weather(p_name)
 
-    player:set_sky(active_weather.sky_data)
+    --do clouds
     local clouds = active_weather.cloud_data
     local pheight = player:get_pos().y
     if clouds.height < 9000 and pheight > 8999 then
@@ -250,19 +250,29 @@ local function set_sky_clouds(player,...)
     elseif clouds.height > 9000 and pheight < 9000 then
         clouds.height = clouds.height - 9250
     end
-    player:set_clouds(clouds)
+
+    --do seasonal effects for sun and moon
     local wth = table.copy(active_weather)
     local actmp, _ = get_seasonal_waves()
     actmp = actmp - 15 -- move centerpoint
     wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
     wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
+    --failed attempt to make tilt seasonal
+    --wth.sky_data.body_orbit_tilt = wth.sky_data.body_orbit_tilt + (-actmp * 30)
+    --placeholder to make tilt big enough to notice
+    wth.sky_data.body_orbit_tilt = wth.sky_data.body_orbit_tilt + 15
     if (wth.moon_data.visible == true
         and wth.moon_data.texture == "moon.png") then
         wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
     end
+    
+    --activate!
+    player:set_sky(wth.sky_data)
+    player:set_clouds(clouds)
     player:set_moon(wth.moon_data)
     player:set_sun(wth.sun_data)
     player:set_stars(active_weather.star_data)
+
     if dolighting and wth.lighting then
         print("Lighting!")
         player:set_lighting(wth.lighting)

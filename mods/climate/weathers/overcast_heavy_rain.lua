@@ -24,7 +24,8 @@ overcast_heavy_rain.sky_data = {
         --fog_sun_tint = "#FB7F55",
         --fog_moon_tint = "#C5C9C9",
         --fog_tint_type = "custom"
-    }
+    },
+    body_orbit_tilt = 5
 }
 
 
