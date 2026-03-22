@@ -1,16 +1,16 @@
 ------------------------------
--- Duststorm
+-- Lethal Duststorm
 -- clouds of dust
--- sky color yellowish
+-- sky color yellowish, damaging, lots of thunder
 ------------------------------
 
-local duststorm = {}
+local lethal_duststorm = {}
 lightning = lightning
 
-duststorm.name = 'duststorm'
+lethal_duststorm.name = 'lethal_duststorm'
 
 
-duststorm.sky_data = {
+lethal_duststorm.sky_data = {
     type = "regular",
     clouds = true,
     sky_color = {
@@ -28,7 +28,7 @@ duststorm.sky_data = {
 }
 
 
-duststorm.cloud_data = {
+lethal_duststorm.cloud_data = {
     color = "#ac9673",
     density = 0.6,
     height = 100,
@@ -37,7 +37,7 @@ duststorm.cloud_data = {
 }
 
 
-duststorm.moon_data = {
+lethal_duststorm.moon_data = {
     visible = false,
     texture = "moon.png",
     tonemap = "moon_tonemap.png",
@@ -45,7 +45,7 @@ duststorm.moon_data = {
 }
 
 
-duststorm.sun_data = {
+lethal_duststorm.sun_data = {
     visible = false,
     texture = "sun.png",
     tonemap = "sun_tonemap.png",
@@ -54,7 +54,7 @@ duststorm.sun_data = {
     scale = 0.4
 }
 
-duststorm.star_data = {
+lethal_duststorm.star_data = {
     visible = false,
     count = 2000,
     color = "#80FCFEFF",
@@ -64,22 +64,21 @@ duststorm.star_data = {
 
 
 
-duststorm.sound_loop = 'duststorm_loop'
+lethal_duststorm.sound_loop = 'duststorm_loop'
 
-
+lethal_duststorm.damage = true
 
 
 --probabilities in each temp class
-duststorm.chain = {
+lethal_duststorm.chain = {
     --name, p_froz, p_cold, p_mid , p_hot
-    {'haze', 1, 1, 0.97, 0.35},
-    {'lethal_duststorm', 0, 0, 0.03, 0.15}
+    {'duststorm', 1, 1, 0.97, 0.75}
 
 }
 
-duststorm.particle_interval = 0.0007
+lethal_duststorm.particle_interval = 0.0007
 
-duststorm.particle_function = function(player)
+lethal_duststorm.particle_function = function(player)
     local velxz = math.random(-5, 2)
     local vely = math.random(-3, 2)
     local accxz = math.random(-3,2)
@@ -91,14 +90,14 @@ duststorm.particle_function = function(player)
     climate.add_blizzard_particle(velxz, vely, accxz, accy, ext, size,
                                   tex, player)
 
-    if math.random() < 0.00016 then
+    if math.random() < 0.01 then
         lightning.strike()
     end
 end
 
 
 --add this weather to register
-climate.register_weather(duststorm)
+climate.register_weather(lethal_duststorm)
 
 
 ------

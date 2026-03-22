@@ -302,7 +302,8 @@ local function fast_interval(dtime)
 
                         --dust fever
                         if random() < 0.02 then
-                            if climate.active_weather.name == 'duststorm' then
+                            if climate.active_weather.name == 'duststorm'
+                            or climate.active_weather.name == 'lethal_duststorm' then
                                 HEALTH.add_new_effect(player, {"Dust Fever", 1})
                             end
                         end
