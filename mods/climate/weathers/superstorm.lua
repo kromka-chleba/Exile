@@ -25,7 +25,7 @@ superstorm.sky_data = {
         --fog_moon_tint = "#C5C9C9",
         --fog_tint_type = "custom"
     },
-    body_orbit_tilt = 5
+    body_orbit_tilt = 30
 }
 
 

@@ -257,10 +257,11 @@ local function set_sky_clouds(player,...)
     actmp = actmp - 15 -- move centerpoint
     wth.moon_data.scale = wth.moon_data.scale + (-actmp / 50 + 0.3)
     wth.sun_data.scale = wth.sun_data.scale + (actmp / 50 + 0.3)
-    --failed attempt to make tilt seasonal
-    --wth.sky_data.body_orbit_tilt = wth.sky_data.body_orbit_tilt + (-actmp * 30)
-    --placeholder to make tilt big enough to notice
-    wth.sky_data.body_orbit_tilt = wth.sky_data.body_orbit_tilt + 15
+    local t = minetest.get_day_count() - 10
+    local p = (2*math.pi)/80
+    wth.sky_data.body_orbit_tilt = -30*math.sin(p*t)+30
+
+
     if (wth.moon_data.visible == true
         and wth.moon_data.texture == "moon.png") then
         wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
@@ -724,3 +725,4 @@ end
 
 minetest.after(mphl_interval,moon_phase_loop)
 -- sky is set on player join, check again after interval
+
