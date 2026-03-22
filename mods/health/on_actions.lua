@@ -231,6 +231,7 @@ local function fast_interval(dtime)
                 local light = minetest.get_node_light(player_pos, 0.5)
                 local rain = climate.get_rain(player_pos, light)
                 local snow = climate.get_snow(player_pos, light)
+                local exh_weather = climate.get_exhausting_weather(player_pos, light)
                 local dam_weather = climate.get_damage_weather(player_pos, light)
 
                 --bed rest
@@ -241,10 +242,11 @@ local function fast_interval(dtime)
                         --best rest is under shelter, in a non-extreme temperature
                         local lvl = bed_rest.level[name]
                         if rain
-                            or snow
-                            or dam_weather
-                            or enviro_temp < stress_low
-                            or enviro_temp > stress_high then
+                        or snow
+                        or exh_weather
+                        or dam_weather
+                        or enviro_temp < stress_low
+                        or enviro_temp > stress_high then
                             --terrible sleep in the rain etc
                             sev = 1 -- resting poorly
                             if random()>0.1 then
@@ -290,6 +292,7 @@ local function fast_interval(dtime)
 
                 ------------------
                 --harmed by damaging weather,
+                --exhausted by exhausting weather
                 --exhausted by rain, snow
                 if random()<0.5 then
 
@@ -301,9 +304,21 @@ local function fast_interval(dtime)
                         end
 
                         --dust fever
+                        if random() < 0.03 then
+                            if climate.active_weather.name == 'lethal_duststorm' then
+                                HEALTH.add_new_effect(player, {"Dust Fever", 1})
+                            end
+                        end
+
+                    elseif exh_weather then
+                        energy = energy - 15
+                        if energy < 0 then
+                            energy = 0
+                        end
+
+                        --dust fever
                         if random() < 0.02 then
-                            if climate.active_weather.name == 'duststorm'
-                            or climate.active_weather.name == 'lethal_duststorm' then
+                            if climate.active_weather.name == 'duststorm' then
                                 HEALTH.add_new_effect(player, {"Dust Fever", 1})
                             end
                         end

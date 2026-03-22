@@ -66,7 +66,7 @@ duststorm.star_data = {
 
 duststorm.sound_loop = 'duststorm_loop'
 
-
+duststorm.exhausting = true
 
 
 --probabilities in each temp class

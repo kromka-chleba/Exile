@@ -75,6 +75,7 @@ overcast_heavy_snow.star_data = {
 
 overcast_heavy_snow.sound_loop = 'snowstorm_loop_light'
 
+overcast_heavy_snow.exhausting = true
 
 --probabilities in each temp class
 overcast_heavy_snow.chain = {

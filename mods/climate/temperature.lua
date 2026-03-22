@@ -175,9 +175,28 @@ climate.can_thaw = function(pos)
     return false
 end
 
+--exposed to exhausting weather
+--i.e. will seriously drain the player's energy (beyond mild effects from rain etc)
+-- if both exhausting and damaging, the use damage_weather as it contains this effect.
+climate.get_exhausting_weather = function(pos, l)
+    if pos.y < -30 then
+        return false
+    end
+    --check if a exhausting weather and outside
+    if not l then
+        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    end
 
---exposed to lethal weather e.g. choking duststorm
---i.e. will expose to significant harm, do player damage
+    if l == 15 and climate.active_weather.exhausting then
+        return true
+    else
+        return false
+    end
+end
+
+
+--exposed to lethal weather
+--i.e. will expose to significant harm, do direct player damage
 climate.get_damage_weather = function(pos, l)
     if pos.y < -30 then
         return false

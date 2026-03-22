@@ -68,6 +68,8 @@ thunderstorm.star_data = {
 
 thunderstorm.sound_loop = 'heavy_rain_loop'
 
+thunderstorm.exhausting = true
+
 --probabilities in each temp class
 thunderstorm.chain = {
     --name, p_cold, p_mid , p_hot
