@@ -69,6 +69,7 @@ local drop_entity = {
     on_step = function(self, dtime, moveresult)
         -- random chance of falling
         if not self.falling then
+            -- #TODO: make lifetime independend of rate of on_step()/sec:
             if random(1,444) == 1 then -- 1 in 444 chance
                 return self:fall_detach(self)
             end
@@ -133,6 +134,16 @@ local drop_entity = {
             drip_count = drip_count - 1
             return self.object:remove()
         end
+
+        -- falling -> check if "ignore" node below
+        local pos_below = vector.new(ownpos.x, ownpos.y - 1, ownpos.z)
+        local below = core.get_node(pos_below)
+        if below.name == "ignore" then
+            -- remove, to avoid accumulation of hundreds of drops in single
+            -- loaded mapblocks, just outside active_block_range
+            drip_count = drip_count - 1
+            return self.object:remove()
+        end
     end,
 
     on_punch=function(self, puncher, time_from_last_punch,
@@ -141,7 +152,6 @@ local drop_entity = {
         if not core.is_player(puncher) then return end -- not player, begoneth!
         local meta = puncher:get_meta()
         if not meta then return end -- oh... this is awkward
-        local pos = puncher:get_pos()
         local thirst = meta:get_int("thirst")
         --only drink if thirsty
         if thirst < 100 then
