@@ -56,7 +56,8 @@ clear.sun_data = {
 clear.star_data = {
     visible = true,
     count = 2000,
-    color = "#80FCFEFF"
+    color = "#80FCFEFF",
+    star_seed = minetest.get_mapgen_setting("seed")
 }
 
 clear.lighting = {

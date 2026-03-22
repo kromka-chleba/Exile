@@ -65,8 +65,9 @@ overcast_heavy_snow.sun_data = {
 
 overcast_heavy_snow.star_data = {
     visible = false,
-    count = 1000,
-    color = "#80FCFEFF"
+    count = 2000,
+    color = "#80FCFEFF",
+    star_seed = minetest.get_mapgen_setting("seed")
 }
 
 

@@ -58,8 +58,9 @@ light_haze.sun_data = {
 
 light_haze.star_data = {
     visible = true,
-    count = 1500,
-    color = "#80FCFEFF"
+    count = 2000,
+    color = "#80FCFEFF",
+    star_seed = minetest.get_mapgen_setting("seed")
 }
 
 

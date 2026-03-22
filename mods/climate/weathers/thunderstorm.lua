@@ -58,8 +58,9 @@ thunderstorm.sun_data = {
 
 thunderstorm.star_data = {
     visible = false,
-    count = 1000,
-    color = "#80FCFEFF"
+    count = 2000,
+    color = "#80FCFEFF",
+    star_seed = minetest.get_mapgen_setting("seed")
 }
 
 
