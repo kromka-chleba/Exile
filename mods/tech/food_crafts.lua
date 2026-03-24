@@ -829,14 +829,18 @@ crafting.register_recipe({
 
 
 --grind maraka flour
+--see plant_crafts.lua for the alternative recipe.
+--Both recipes are the same, and one could be removed if needed
 crafting.register_recipe({
         type = "mortar_and_pestle",
         output = "tech:maraka_flour_bitter",
         items = {'nodes_nature:maraka_fruit 12'},
+        replace = "tech:vegetable_oil",
         level = 1,
         always_known = true,
         sound = {name = "mortar_and_pestle_craft_seed", gain = {1, 2}, pitch = {0.88, 1.1}}
 })
+
 --IB --bulk maraka flour
 --IB crafting.register_recipe({
 --IB    type = "mortar_and_pestle",

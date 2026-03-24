@@ -164,10 +164,13 @@ crafting.register_recipe({
         sound = {name = "mortar_and_pestle_craft_seed", gain = {1, 2}, pitch = {0.9, 1.15}}
 })
 
+--see food_crafts.lua for the alternative recipe.
+--Both recipes are the same, and one could be removed if needed
 crafting.register_recipe({
     type = "mortar_and_pestle",
     output = "tech:vegetable_oil",
     items = {'nodes_nature:maraka_fruit 12'},
+    replace = "tech:maraka_flour_bitter",
     level = 1,
     always_known = true,
     sound = {name = "mortar_and_pestle_craft_seed", gain = {1, 2}, pitch = {0.88, 1.1}}
