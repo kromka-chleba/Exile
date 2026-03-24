@@ -473,9 +473,6 @@ minetest.override_item(
 ---------------------------------------
 --Recipes
 
---
---Hand crafts (Crafting spot)
---
 
 ----craft drystack from gravel
 crafting.register_recipe({
@@ -528,7 +525,7 @@ crafting.register_recipe({
 
 ----Wattle from sticks or converting from loose wattle or door_wattle
 crafting.register_recipe({
-        type = {"crafting_spot","hand",'knife_wattle'},
+        type = {'knife_wattle'},
         output = "tech:wattle",
         items = {{"tech:stick 6","tech:wattle_loose 2",
                   "tech:wattle_door_frame","doors:door_wattle",
@@ -548,7 +545,7 @@ crafting.register_recipe({
 
 ----Loose Wattle from sticks or converting from wattle
 crafting.register_recipe({
-        type = {"crafting_spot","hand",'knife_wattle'},
+        type = {'knife_wattle'},
         output = "tech:wattle_loose 2",
         items = {{"tech:stick 6","tech:wattle"}},
         level = 1,
@@ -575,7 +572,7 @@ crafting.register_recipe({
 
 ----Wattle door frame from sticks or convert from wattle
 crafting.register_recipe({
-        type = {"crafting_spot","hand",'knife_wattle'},
+        type = {'knife_wattle'},
         output = "tech:wattle_door_frame",
         items = {{"tech:stick 6","tech:wattle"}},
         level = 1,

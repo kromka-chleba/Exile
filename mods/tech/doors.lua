@@ -163,7 +163,7 @@ doors.register_trapdoor("tech:trapdoor_glass_clear", {
 
 --wattle panels plus something to tie them on
 crafting.register_recipe({
-        type = {"crafting_spot","hand","knife_wattle"},
+        type = {"knife_wattle"},
         output = "doors:door_wattle",
         items = {"tech:wattle 2", "group:fibrous_plant 2", "tech:stick 2"},
         level = 1,
@@ -172,21 +172,12 @@ crafting.register_recipe({
 
 --wattle panels plus something to tie them on
 crafting.register_recipe({
-        type = {"crafting_spot","hand","knife_wattle"},
+        type = {"knife_wattle"},
         output = "tech:trapdoor_wattle",
         items = {"tech:wattle", "group:fibrous_plant", "tech:stick"},
         level = 1,
         always_known = true,
 })
-
--- The recipe is combined with tech:wattle of mods/tech/earthen_building.lua
--- crafting.register_recipe({
---      type = {"mixing_spot","hand","knife_wattle"},
---      output = "tech:wattle",
---      items = {"tech:trapdoor_wattle"},
---      level = 1,
---      always_known = true,
--- })
 
 --------------------
 crafting.register_recipe({
