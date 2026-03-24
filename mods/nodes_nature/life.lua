@@ -79,7 +79,7 @@ for i in ipairs(searooted_list) do
     local g = {snappy = 3, flora = 1, flora_sea = 1}
     --use seaweed as fertilizer
     if type == "seaweed" then
-        g.fertilizer = 1
+        g.compostable = 1
     end
 
     if dyecandidate then

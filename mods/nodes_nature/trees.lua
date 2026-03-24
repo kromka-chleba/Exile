@@ -353,6 +353,7 @@ function trees.register_leaves(name, def, tree)
     def.groups.choppy = def.groups.choppy or 3
     def.groups.flammable = def.groups.flammable or 2
     def.groups.woody_plant = 1
+    def.groups.compostable = 1
     def.groups.leafdecay = 1
     def.groups.leafdecay_drop = 1
     def.groups.drops_leaves = def.groups.drops_leaves or 1

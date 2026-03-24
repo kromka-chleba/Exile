@@ -73,7 +73,10 @@ local sounds = {
 
 local base_groups = {
     base = {temp_pass = 1, attached_node = 1, flora = 1},
-    mushroom = {mushroom = 1, flora = 1},
+    mushroom = {
+        mushroom = 1,
+        flora = 1,
+    },
     seed = {
         seed = 1,
         flammable = 2,
@@ -116,6 +119,7 @@ local plant_groups = {
         snappy = 3,
         herbaceous_plant = 1,
         flammable = 3,
+        compostable = 1,
     },
     ["fibrous_plant"] = {
         snappy = 3,
@@ -127,6 +131,7 @@ local plant_groups = {
     ["mushroom"] = {
         snappy = 3,
         flammable = 3,
+        compostable = 1,
     },
     ["cane"] = {
         snappy = 3,
