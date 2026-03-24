@@ -189,7 +189,7 @@ minetest.register_node(
         tiles = {"tech_wood_ash.png"},
         stack_max = minimal.stack_max_bulky,
         paramtype = "light",
-        groups = {crumbly = 3, falling_node = 1, fertilizer = 1},
+        groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         on_place = function (itemstack, placer, pointed_thing)
             on_place_fert(itemstack, placer, pointed_thing)
@@ -201,7 +201,6 @@ minetest.register_node(
                                            itemstack)
             end
         end,
-        _dig_tip = S("Enrich depleted soil"),
         _splits_by_hand = "tech:wood_ash",
         _on_use_node = minimal.slabs_split_hand,
         _fertilize_replace_with = "tech:wood_ash",
@@ -219,7 +218,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
         },
-        groups = {crumbly = 3, falling_node = 1, fertilizer = 1},
+        groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         on_place = function (itemstack, placer, pointed_thing)
             on_place_fert(itemstack, placer, pointed_thing)
@@ -231,7 +230,6 @@ minetest.register_node(
                                            itemstack)
             end
         end,
-        _dig_tip = S("Enrich depleted soil"),
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:wood_ash_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
@@ -269,7 +267,7 @@ minetest.register_node(
         tiles = {"tech_charcoal.png"},
         paramtype = "light",
         stack_max = minimal.stack_max_bulky,
-        groups = {crumbly = 3, falling_node = 1, fertilizer = 1, flammable = 1},
+        groups = {crumbly = 3, falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _splits_by_hand = "tech:charcoal",
         _on_use_node = minimal.slabs_split_hand,
@@ -292,7 +290,7 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
         },
         stack_max = minimal.stack_max_bulky *2,
-        groups = {crumbly = 3, falling_node = 1, fertilizer = 1, flammable = 1},
+        groups = {crumbly = 3, falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         on_burn = function(pos)
             minimal.switch_node(pos, "tech:small_charcoal_fire")

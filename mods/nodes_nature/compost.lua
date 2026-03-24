@@ -344,3 +344,11 @@ crafting.register_recipe({
         level = 1,
         always_known = true,
 })
+
+crafting.register_recipe({
+        type = "shovel_agriculture",
+        output = "nodes_nature:compost_undecomposed",
+        items = {"stairs:slab_compost_undecomposed", "tech:wood_ash"},
+        level = 1,
+        always_known = true,
+})
