@@ -97,7 +97,7 @@ ncrafting.register_sieve("tech:stick")
 
 
 minetest.register_craftitem("tech:grass_fibre",{
-                                description = S('Grass Fibre'),
+                                description = S('Plant Fibre'),
                                 inventory_image = "tech_fibrous_bundle.png",
                                 stack_max = minimal.stack_max_medium,
                                 groups = {flammable=1, fibrous_plant=1, compostable = 1}
