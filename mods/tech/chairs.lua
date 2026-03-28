@@ -72,7 +72,7 @@ local function stool_registration(log_name, tile_def)
     if creative == 0 then creative = 1 end -- don't add any more than 1
 
 crafting.register_recipe({
-        type = "chopping_block",
+        type = {"axe", "chopping_block"},
         output = stool_name,
         -- slab will be used in priority
         items = {{ log_name }},

@@ -64,7 +64,7 @@ return
         [3] = {
             name = "Shelter",
             schem = "shelter",
-            size = vector.new(52,21,51),
+            size = vector.new(52,21,49),
             location = vector.new(0,0,80),
             start = vector.new(46,4,10),
             facing = 1.5,
