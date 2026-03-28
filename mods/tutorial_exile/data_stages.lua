@@ -74,14 +74,24 @@ return
         [4] = {
             name = "Crafting",
             schem = "craft",
-            size = vector.new(11,14,41),
+            size = vector.new(11,15,41),
             location = vector.new(80,0,80),
-            start = vector.new(4,2,40),
+            start = vector.new(5,3,39),
             facing = 3.25,
             entry = function(self, player, name, instance)
                 climate.set_weather_override(name, nil, "")
             end,
             splashicon = "tech_paint_lw_weave.png^[resize:32x32",
             splashtext = "Crafting",
+        },
+        [5] = {
+            name = "Spirit",
+            schem = "spirit",
+            size = vector.new(87,24,20),
+            location = vector.new(0,0,140),
+            start = vector.new(3,7,7),
+            facing = 4.7,
+            splashicon = "tech_paint_lw_fire.png^[resize:32x32",
+            splashtext = "The Spirit of Exile",
         }
     }

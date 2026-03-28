@@ -245,18 +245,34 @@ local info = { -- #TODO: set up locales, template.txt etc
                          "It is normally invisible, but is shown here."),
     ["shelter_fire2"] = S("Keep fires away from water, muddy ground, and "..
                           "anything that can catch on fire."),
-    ["crafting1"] = S("Dig this plant and right click somewhere to open "..
-                      "the crafting menu.@n"..
-                      "Craft sticks from the plants and under tools, "..
-                      "craft a digging stick, which can break the clay "..
-                      "blocking the door." ),
-    ["crafting2"] = S("A flat surface to work on allows more crafts.@n"..
+    ["crafting1"] = S("Dig this plant and right click with an empty hand "..
+                      "to open the crafting menu. "..
+                      "Craft sticks from the plants."),
+    ["crafting2"] = S("Look in the tools tab and craft a digging stick, "..
+                      "which can break the clay blocking the door." ),
+    ["crafting3"] = S("A flat surface to work on allows more crafts.@n"..
                       "Craft an adze to remove the log that's in the way."),
-    ["crafting3"] = S("More crafts come with tools and stations.@n"..
+    ["crafting4"] = S("More crafts come with tools and stations.@n"..
                       "Craft iron ingots for an iron pick to cut the "..
                       "stone covering the exit"),
-    ["crafting4"] = S("Some crafts need to be done by cooking with fire "..
+    ["crafting5"] = S("You'll need a ladder here. Put down your adze to make "..
+                      "sticks from a log, then combine with the fiber from "..
+                      "the pot. The ladder is made in the weaving tab of "..
+                      "hand crafting."),
+    ["crafting6"] = S("Some crafts need to be done by cooking with fire "..
                       "or soaking things under a liquid." ),
+    ["spirit1"] = S("Exile is a challenging game. Failure is normal, and "..
+                    "a part of the fun!"),
+    ["spirit2"] = S("Can you jump the gap?"),
+    ["spirit3"] = S("Do you want to try again?"),
+    ["spirit4"] = S("What if you tried a different method?"),
+    ["spirit5"] = S("You might not succeed at what you were planning, "..
+                    "but you might find another way!"),
+    ["spirit6"] = S("New players will typically die several times before "..
+                    "learning how to survive. Try to enjoy your character's "..
+                    "adventure, even if it ends in disaster."),
+    ["spirit7"] = S("Be prepared to experiment, explore, and try, try again!"),
+    ["spirit8"] = S("Good Luck! The tutorial is over now. You are on your own."),
 }
 
 local function display_info(pos, player)
