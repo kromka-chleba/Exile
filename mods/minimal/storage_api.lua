@@ -83,13 +83,27 @@ function storage.get_storage_formspec(pos, w, h, meta)
     return table.concat(fs, "")
 end
 
+local protected_is_locked = core.settings:get("exile_protection_also_locks")
+-- This setting causes all protected chests to behave like locked/iron chests
 
 local function can_interact(pos, name, meta)
-    if minetest.is_protected(pos, name, meta) then
-        -- you are NOT the owner!
+    local def = core.registered_nodes[core.get_node(pos).name]
+    if not def then return false end -- Unknown node?
+
+    if def.protected and core.is_protected(pos, name, meta) then
+        -- #TODO: separate ownership (can't dig) from locks entirely?
+        --  As-is, we can only check for "owner" in meta to determine
+        --  if the player has a "key" to this (iron) chest
+
+        -- When lock kits are added, they won't work without nailing, too
         return false
     end
-    -- returns true if the node isn't protected from the player lol
+    -- #TODO: Implement locking chests with a lock kit
+    --if minimal.check_for_lock(pos, name, meta) then return false end
+
+    if protected_is_locked and core.is_protected(pos, name, meta) then
+        return false
+    end
     return true
 end
 
@@ -102,7 +116,7 @@ function storage.can_dig(pos,player,can_grab)
         inv_empty = inv:is_empty("main")
     end
 
-    return can_interact(pos, player, meta) and inv_empty
+    return (not core.is_protected(pos, player, meta)) and inv_empty
 end
 
 function storage.on_construct(pos, width, height)
@@ -343,9 +357,6 @@ function storage.register_storage(name,def)
 
     def.on_rightclick = def.on_rightclick or function(pos, node, clicker,
                                                       itemstack, pointed_thing)
-        if minetest.is_protected(pos, clicker) then
-            return -- no touchy touchy
-        end
         -- sounds
         if #get_watchers(pos) < 1 then
             minimal.sound_play_watcher(pos)

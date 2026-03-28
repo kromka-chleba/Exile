@@ -15,6 +15,15 @@ exile_bed_clear (Fix broken beds *press edit for details*) bool false
 # the world seed is used.
 ncrafting_worldseed (Use world seed for dye generation) bool true
 
+# Iron chests are locked so that players cannot manipulate the inventory.
+# With this setting enabled, chests that are nailed will also block
+# interaction. When disabled, the nail only prevents taking the chest, not
+# the contents.
+#
+# Enabling this significantly devalues the iron chest, but makes player
+# storage protection much easier to achieve.
+exile_protection_also_locks (Protect contents of nailed chests) bool false
+
 ## Settings for displays
 
 # Name of the gui theme that will be used by default, leave empty
