@@ -4,8 +4,11 @@
 --  under weight.
 
 
--- Register a node that sieveable nodes can fall through
+--------------------------------------------------------------------------
+-- Sieve mechanics
 
+-- Register a node that sieveable nodes can fall through
+--
 -- This will register a second no-collision version of the node which will
 --  briefly appear and allow sand or whatever to pass through, before reverting
 --  to its original, solid form.
@@ -58,7 +61,7 @@ local function check_for_sieve(pos, node)
 end
 
 --------------------------------------------------------------------------
--- Handling for group: weight and group: support
+-- Handling for group:weight and group:support
 
 -- Any stack of falling nodes that exceeds this can't be sitting on a support
 local highest_support_value = 0
@@ -94,7 +97,7 @@ end
 -- If nodes in the middle of a stack have their weight changed somehow, this
 -- will not respond properly
 local function check_for_support(pos, node)
-    if not underpos and not under then -- We should have the first node cached
+    if not underpos and not under then -- We could have the first node cached
         underpos = pos + vector.new(0,-1,0)
         under = core.get_node(underpos)
     end
@@ -125,13 +128,72 @@ local function check_for_support(pos, node)
     end
 end
 
-function ncrafting.placement_physics(pos, newnode, _placer, _old, _item, _point)
+--------------------------------------------------------------------------
+-- Handle the suitability of a node's attachment surface
+
+-- Node definitions: _attach, _attach_side, _attach_top, _attach_bottom
+--  Uses a table like: _attach_side = { "my:node", "group:foo", "all" }
+
+local function check_attached_node(pos, newnode, point, old)
+
+    if not point or point.type ~= "node" then return end
+
+    local def = core.registered_nodes[newnode.name]
+    if not ( def and def.groups and -- Check if we even handle this at all
+             (def._attach or def._attach_side or
+              def._attach_top or def._attach_bottom ) ) then return true end
+
+    -- Get the node we're attaching to
+    local dir = point.above - point.under
+    local target = core.get_node(point.under)
+    if dir.y == 1 then -- Y + 1 means we're above the target, so:
+        underpos = point.under ; under = target -- cache it for later functions
+    end
+
+    local function check_attach(list)
+        if list[1] == "all" then return true end
+        for i = 1, #list do
+            if list[i] == target.name then return true end
+            if list[i]:sub(1,6) == "group:" then
+                if core.get_item_group(target.name, list[i]:sub(7)) > 0 then
+                    return true
+                end
+            end
+        end
+    end
+
+    if def._attach_bottom and dir.y == 1 then
+        if check_attach(def._attach_bottom) then return true end
+    end
+    if def._attach_side and ( dir.x ~= 0 or dir.z ~= 0 ) then
+        if check_attach(def._attach_side) then return true end
+    end
+    if def._attach_top and dir.y == -1 then
+        if check_attach(def._attach_top) then return true end
+    end
+    if def._attach then
+        if check_attach(def._attach) then return true end
+    end
+
+    -- No matching _attach_* entry found? Play a sound and handle failure
+    core.sound_play("nodes_nature_hard_footstep", { pos = pos, gain = 0.5 })
+    core.set_node(pos, old) -- Swap the node back and don't take the item
+    return false
+end
+
+
+function ncrafting.placement_physics(pos, newnode, _placer, old, item, point)
     -- Ignore salt water, because oceans, and players don't build with it
     if newnode.name == "nodes_nature:salt_water_source" then return end
+
+    if check_attached_node(pos, newnode, point, old) == false then
+        return true -- We can't place, don't take the item
+    end
+
     if core.get_item_group(newnode.name, "falling_node") == 0 then return end
 
     check_for_sieve(pos, newnode)
-    check_for_support(pos, newnode)
+    check_for_support(pos, newnode) -- Warning: under/underpos get moved here
     under = nil ; underpos = nil -- Clear cache for next call
 end
 

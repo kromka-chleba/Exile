@@ -52,6 +52,9 @@ local stick_def =
                   on_place_proxy = 1},  -- the role of our on_rightclick()
         override_sneak = true,
         drop = "tech:stick",
+        _attach = { "group:sediment", "tech:thatch", "tech:wattle", "tech:stick",
+                    "tech:drystack", "group:soft_stone", "group:leaves"
+        },
         sounds = nodes_nature.node_sound_wood_defaults(),
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             --Extend or place on top, nothing else. This could be generalized

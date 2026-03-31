@@ -432,10 +432,14 @@ minetest.register_node(
         description = S('Thatch'),
         tiles = {"tech_thatch.png"},
         stack_max = minimal.stack_max_bulky * 4,
-        groups = {snappy=3, flammable=1, fall_damage_add_percent = -30},
+        groups = {snappy=3, flammable=1, fall_damage_add_percent = -30,
+                  support = 2 },
         sounds = nodes_nature.node_sound_leaves_defaults(),
         _splits_by_hand = "stairs:slab_thatch",
         _on_use_node = minimal.slabs_split_hand,
+        _attach_side = { "tech:thatch", "stairs:slab_thatch" },
+        _attach_top = { "tech:thatch", "stairs:slab_thatch" },
+        _attach_bottom = { "all" },
         on_burn = function(pos)
             if math.random()<0.5 then
                 minimal.switch_node(pos, "tech:small_wood_fire")
@@ -452,7 +456,7 @@ stairs.register_stair_and_slab({
     "hand_mixing",
     "true",
     "hand_mixing",
-    {snappy=3, flammable=1, fall_damage_add_percent = -15},
+    {snappy=3, flammable=1, fall_damage_add_percent = -15, support = 1},
     {"tech_thatch.png"},
     S("Thatch Stair"),
     S("Thatch Slab"),
@@ -464,6 +468,9 @@ minetest.override_item(
     "stairs:slab_thatch", {
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:thatch",
+        _attach_side = { "tech:thatch", "stairs:slab_thatch" },
+        _attach_top = { "tech:thatch", "stairs:slab_thatch" },
+        _attach_bottom = { "all" },
         _on_use_item = function(player, wielded_item, pointed_thing)
             return minimal.slabs_combine(player, wielded_item,
               minimal.get_usable_position(pointed_thing))
