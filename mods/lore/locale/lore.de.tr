@@ -1,6 +1,9 @@
 # textdomain: lore
-#char_tab.lua
-# personality
+# bio_gen.lua
+# gender:
+he=er
+she=sie
+# personality:
 #  openness
 Conventional=Konventionell
 Unconventional=Unkonventionell
@@ -46,7 +49,7 @@ Self-satisfied=Selbstzufrieden
 Moody=Launisch
 Complacent=Selbstgefällig
 Paranoid=Paranoid
-# virtue
+# virtue:
 courageous=mutig
 temperate=temperiert
 charitable=großzügig
@@ -143,7 +146,7 @@ understanding=verständig
 vigorous=energisch
 wise=weise
 zealous=eifrig
-# life
+# life:
 #  Favorable
 a good=ein gutes
 a happy=ein glückliches
@@ -203,7 +206,7 @@ a misspent=ein vergeudetes
 an eccentric=ein exzentrisches
 an oddball=ein merkwürdiges
 a strange=ein seltsames
-# woe
+# woe:
 #  Bad Business
 made a bad bargain=einen schlechten Handel machte
 made a deal with the wrong people=einen Handel mit den falschen Leuten machte
@@ -305,18 +308,20 @@ received a vision from the other side=eine Vision von der anderen Seite empfing
 had a dream that explained everything=einen Traum hatte, der alles erklärte
 built a perpetual-motion machine=ein Perpetuum mobile baute
 learned the meaning of life=den Sinn des Lebens lernte
-# bio_gen.lua
+# lore.generate_bio():
 @n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @1 und @2,@n hat @3 @4 Leben gelebt,@n bis @5 eines Tages @6 …
-he=er
-she=sie
+
+# char_tab.lua
+Health Effects=Gesundheitseffekte
 Name=Name
 Days Survived=Tage überlebt
 Lives=Leben
 Biography=Biographie
-Health Effects=Gesundheitseffekte
 Character=Charakter
-# judger
-# monarchs, etc.
+
+# exile_letter.lua
+# judger:
+#  monarchs, etc.
 King=König
 Queen=Königin
 Emperor=Kaiser
@@ -338,7 +343,7 @@ Prince=Prinz
 Princess=Prinzessin
 Regent=Regent
 Dictator=Diktator
-# officials
+#  officials
 High Judge=Hoher Richter
 Tribunal=Tribunal
 Council=Rat
@@ -350,7 +355,7 @@ Sheriff=Sheriff
 Exarch=Exarch
 Prefect=Präfekt
 Seneschal=Truchsess
-# cults
+#  cults
 Brotherhood=Bruderschaft
 Sisterhood=Schwesternschaft
 High Priest=Hohepriester
@@ -368,7 +373,7 @@ Priestesses=Priesterinnen
 Enlightened Ones=Die Erleuchteten
 Great Sage=Großweiser
 Shaman=Schamane
-# tribal
+#  tribal
 Elders=Älteste
 Wise Ones=Die Weisheitsvollen
 Clan Council=Rat des Klans
@@ -377,7 +382,7 @@ Great Chieftain=Großhäuptling
 United Clans=Vereinigte Klans
 Wise Man=Weiser Mann
 Wise Woman=Weise Frau
-# republic
+#  republic
 Citizenry=Bürgerschaft
 People=Volk
 Senate=Senat
@@ -385,7 +390,7 @@ Consul=Konsul
 Senators=Senatoren
 Assembly=Versammlung
 Chief Minister=Ministerpräsident
-# Geographic/polity
+#  Geographic/polity
 City State=Stadtstaat
 Empire=Imperium
 Kingdom=Königreich
@@ -404,7 +409,7 @@ Tribe=Stamm
 Monastic Order=Klosterorden
 Merchant Republic=Händlerrepublik
 Theocracy=Theokratie
-# Military
+#  Military
 Generals=Generäle
 Champion=Champion
 Mighty Warriors=Mächtige Krieger
@@ -413,14 +418,14 @@ Legion=Legion
 Commander=Anführer
 Commandant=Kommandant
 Warlord=Kriegsherr
-# rogues
+#  rogues
 Pirates=Piraten
 Bandits=Banditen
 Company=Firma
 Horde=Horde
 Liberators=Befreier
 Destroyers=Zerstörer
-# freaky
+#  freaky
 All Seeing Eye=Allsehendes Auge
 Old Children=Alte Kinder
 Spectre=Gespenst
@@ -432,8 +437,8 @@ Eternal Pyramid=Ewige Pyramide
 Towering Tree=Alles überragender Baum
 Viridian Magister=Viridiangrüner Magister
 Thousand-tongued All-speaker=Tausendzüngiger Allsager
-# exile-worthy crime
-# crime1
+# exile-worthy crime:
+#  crime1
 treason=Verrat
 betrayal=Treuebruch
 murder=Mord
@@ -452,8 +457,8 @@ espionage=Spionage
 sabotage=Sabotage
 treachery=Verrat
 sedition=Volksverhetzung
-# flavour-text crime
-# crime2
+# flavour-text crime:
+#  crime2
 leading the youth astray=die Jugend vom rechten Pfad abbringen
 smuggling contraband=Schmuggel
 vagabondage=Landstreicherei
@@ -546,7 +551,7 @@ leading an unauthorised military campaign=Führung einer nicht autorisierten Mil
 claiming that the world is round=Behaupten, dass die Welt rund sei
 claiming that the world is not round=Behaupten, dass die Welt nicht rund sei
 promoting belief in gravity=Förderung des Glaubens an die Schwerkraft
-#exile_letter.lua
+#
 He=Er
 She=Sie
 Him=Ihm
@@ -603,8 +608,8 @@ So it is written. So it is done.=So steht es geschrieben. So ist es getan.
 Even the dogs despise @1.=Selbst die Hunde verachten @1.
 We break no bread with traitors.=Wir teilen kein Brot mit Verrätern.
 Let this be @1 journey to cleanse @2.=Lasst dies @1e Reise sein, um @2 zu reinigen.
-# Various corruptions of "Ozymandias"
-# local exile
+# Various corruptions of "Ozymandias":
+#  local exile
 Ochymadion=Ochymadion
 Aseymedius=Aseymedius
 Eshenadios=Eschenadios
@@ -621,8 +626,8 @@ Caemandior=Cämandior
 Oshaemediash=Oschämediasch
 Otzakantas=Otzakantas
 Archanatus=Archanatus
-# What happened here? Lost to memory.
-# mythic_terror
+# What happened here? Lost to memory.:
+#  mythic_terror
 Great Calamity=Großen Unheils
 Collapse=Kollaps
 Unending Curse=Unendlichen Fluchs
@@ -670,13 +675,17 @@ Twisted Existence=Existenziellen Chaos
 Twisted=Verdorbenen
 Warped=Verzerrten
 Lost=Verlorenen
+# generate_text:
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=Nach dem Dekret von @1 von @2:@n@n @3 von @4 @n@n wird hiermit für die folgenden Verbrechen zum Exil verurteilt: @n@n @5 @n@n und @n@n @6 @n@n@n @7 wird hiermit zum Lande von @8 verbannt. @n@n Dem Land des @9. @n@n
 Sentence of Exile=Verurteilung zum Exil
-#login.lua
+
+# login.lua
 login_text=login_text
 Message of the Day:@n@n=Nachricht des Tages:@n@n
 This command shows the current message of the day.=Dieser Befehl zeigt die aktuelle Nachricht des Tages.
-#restart.lua
+This command prints the login queue for all players.=
+
+# restart.lua
 @1 gave up the ghost.=@1 hat den Geist aufgegeben.
 POP!=POP!
 Restart in: @1 seconds.=Neustart in: @1 Sekunden.

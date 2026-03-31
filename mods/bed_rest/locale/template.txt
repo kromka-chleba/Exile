@@ -1,14 +1,8 @@
 # textdomain: bed_rest
-
-BREAK TIME!=
-You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=
-Disable Break-taker popup=
-
-# breaktaker message (requires translation)
-# authors (do not translate most if uses latin alphabet)
+# break_taker.lua
+# hints: Authors come before their quote. Authors do not require translation. Some quotes consist of multiple lines to translate.
+# latin:
 Seneca=
-# quotes (requires translation)
-# latin;
 Sometimes even to live is an act of courage.=
 Cicero=
 It is not by muscle, speed, or physical dexterity that great things are achieved,@nbut by reflection, force of character, and judgment.=
@@ -16,11 +10,13 @@ Ovid=
 Dripping water hollows out stone,@nnot through force but through persistence.=
 Marcus Aurelius=
 Life is a struggle and wandering in a foreign country.=
+
+# greek:
 Hippocrates=
-# greek;
 Let food be thy medicine and medicine be thy food.=
+
+# chinese:
 Sun Tzu=
-# chinese;
 If quick, I survive. If not quick, I am lost.=
 Lao Tzu=
 Fill your bowl to the brim and it will spill.@nKeep sharpening your knife and it will blunt.=
@@ -33,26 +29,33 @@ Medicinal herbs are the flourishing emanations of mountains and waterways,@nthe 
 Followers of the Dao join together as companions@nbecause they can assist each other in sickness and disease.@nIf you die, I’ll bury you; if I die, you’ll bury me.=
 The Dalai Lama=
 If you think you are too small to make a difference,@ntry sleeping with a mosquito.=
+
+# japanese:
 Masanobu Fukuoka=
-# japanese;
 The ultimate goal of farming is not the growing of crops,@nbut the cultivation and perfection of human beings.=
 Kazuaki Tanahashi=
 Artist's need the world.=
 Kobayashi Issa=
 O snail@nClimb Mount Fuji@nBut slowly, slowly!=
+
+# indian:
 Mahatma Gandhi=
-# indian;
 Each night, when I go to sleep, I die.@nAnd the next morning, when I wake up, I am reborn.=
+
+# iranian:
 Saadi=
-# iranian;
 Whatever is produced in haste goes hastily to waste.=
+
+# filipino:
 Nick Joaquín=
-# filipino;
 The point is not how we use a tool, but how it uses us.=
+
+# australian:
 John Plant=
 My approach is to look for what I’m interested in using@nand if it’s there I use it.=
+
+# american:
 Joss Whedon=
-# american;
 Humor keeps us alive. Humor and food.@nDon't forget food. You can go a week without laughing.=
 Carl Sagan=
 Extinction is the rule.@nSurvival is the exception.=
@@ -86,8 +89,9 @@ Oscar Levant=
 There's a fine line between genius and insanity.@nI have erased this line.=
 Dr. Seuss=
 They say I'm old-fashioned, and live in the past,@nbut sometimes I think progress progresses too fast!=
+
+# british:
 Arthur C. Clarke=
-# british;
 It has yet to be proven that intelligence has any survival value.=
 The only way of discovering the limits of the possible@nis to venture a little way past them into the impossible.=
 Bear Grylls=
@@ -114,15 +118,17 @@ Dylan Thomas=
 Do not go gentle into that good night.@nRage, rage against the dying of the light.=
 Robert Swan=
 The greatest threat to our planet@nis the belief that someone else will save it.=
+
+# french:
 Victor Hugo=
-# french;
 Emergencies have always been necessary to progress.=
 Albert Camus=
 There is scarcely any passion without struggle.=
 Marthe Troly-Curtin=
 Time you enjoy wasting is not wasted time.=
+
+# german:
 Franz Kafka=
-# german;
 I only fear danger where I want to fear it.=
 Friedrich Nietzsche=
 All truly great thoughts are conceived while walking.=
@@ -130,28 +136,30 @@ When we are tired, we are attacked by ideas we conquered long ago.=
 He who has a strong enough why can bear any how.=
 Markus Herz=
 Be careful about reading health books.@nSome fine day you'll die of a misprint.=
+
+# spanish:
 Balthasar Gracian=
-# spanish;
 There are rules to luck, not everything is chance for the wise;@nluck can be helped by skill.=
+
+# maltese:
 Edward de Bono=
-# maltese;
 It will be a sinister day when computers start to laugh,@nbecause that will mean they are capable of a lot of other things as well.=
 Po converts what might otherwise be taken as madness@ninto a perfectly reasonable illogical procedure.=
+
+# nordic:
 Soren Kierkegaard=
-# nordic;
 Life can only be understood backwards; but it must be lived forwards.=
 
+# hint: Break-taker hints:
+BREAK TIME!=
+You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=
+Disable Break-taker popup=
+
+# functions.lua
 Contains Blanket=
 This bed is already occupied!=
-# expects owner name to be after
+This seat is already occupied!=
+# hint: expects owner name to be after:
 Status: Occupied by @1=
-# related to above
+# hint: related to above:
 Status: Occupied by @1 (old)=
-
-
-##### not used anymore #####
-
-# other messages
-You have no room to hold your blanket, so you drop it.=
-# australian;
-My approach is to look for what I’m interested in using@nand if it’s there I use it=

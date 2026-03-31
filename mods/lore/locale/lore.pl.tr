@@ -1,6 +1,9 @@
 # textdomain: lore
-#char_tab.lua
-# personality
+# bio_gen.lua
+# gender:
+he=
+she=
+# personality:
 #  openness
 Conventional=
 Unconventional=
@@ -46,7 +49,7 @@ Self-satisfied=
 Moody=
 Complacent=
 Paranoid=
-# virtue
+# virtue:
 courageous=
 temperate=
 charitable=
@@ -143,7 +146,7 @@ understanding=
 vigorous=
 wise=
 zealous=
-# life
+# life:
 #  Favorable
 a good=
 a happy=
@@ -203,7 +206,7 @@ a misspent=
 an eccentric=
 an oddball=
 a strange=
-# woe
+# woe:
 #  Bad Business
 made a bad bargain=
 made a deal with the wrong people=
@@ -305,18 +308,20 @@ received a vision from the other side=
 had a dream that explained everything=
 built a perpetual-motion machine=
 learned the meaning of life=
-# bio_gen.lua
+# lore.generate_bio():
 @n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=
-he=
-she=
+
+# char_tab.lua
+Health Effects=
 Name=
 Days Survived=
 Lives=
 Biography=
-Health Effects=
 Character=
-# judger
-# monarchs, etc.
+
+# exile_letter.lua
+# judger:
+#  monarchs, etc.
 King=
 Queen=
 Emperor=
@@ -338,7 +343,7 @@ Prince=
 Princess=
 Regent=
 Dictator=
-# officials
+#  officials
 High Judge=
 Tribunal=
 Council=
@@ -350,7 +355,7 @@ Sheriff=
 Exarch=
 Prefect=
 Seneschal=
-# cults
+#  cults
 Brotherhood=
 Sisterhood=
 High Priest=
@@ -368,7 +373,7 @@ Priestesses=
 Enlightened Ones=
 Great Sage=
 Shaman=
-# tribal
+#  tribal
 Elders=
 Wise Ones=
 Clan Council=
@@ -377,7 +382,7 @@ Great Chieftain=
 United Clans=
 Wise Man=
 Wise Woman=
-# republic
+#  republic
 Citizenry=
 People=
 Senate=
@@ -385,7 +390,7 @@ Consul=
 Senators=
 Assembly=
 Chief Minister=
-# Geographic/polity
+#  Geographic/polity
 City State=
 Empire=
 Kingdom=
@@ -404,7 +409,7 @@ Tribe=
 Monastic Order=
 Merchant Republic=
 Theocracy=
-# Military
+#  Military
 Generals=
 Champion=
 Mighty Warriors=
@@ -413,14 +418,14 @@ Legion=
 Commander=
 Commandant=
 Warlord=
-# rogues
+#  rogues
 Pirates=
 Bandits=
 Company=
 Horde=
 Liberators=
 Destroyers=
-# freaky
+#  freaky
 All Seeing Eye=
 Old Children=
 Spectre=
@@ -432,8 +437,8 @@ Eternal Pyramid=
 Towering Tree=
 Viridian Magister=
 Thousand-tongued All-speaker=
-# exile-worthy crime
-# crime1
+# exile-worthy crime:
+#  crime1
 treason=
 betrayal=
 murder=
@@ -452,8 +457,8 @@ espionage=
 sabotage=
 treachery=
 sedition=
-# flavour-text crime
-# crime2
+# flavour-text crime:
+#  crime2
 leading the youth astray=
 smuggling contraband=
 vagabondage=
@@ -546,7 +551,7 @@ leading an unauthorised military campaign=
 claiming that the world is round=
 claiming that the world is not round=
 promoting belief in gravity=
-#exile_letter.lua
+#
 He=
 She=
 Him=
@@ -603,8 +608,8 @@ So it is written. So it is done.=
 Even the dogs despise @1.=
 We break no bread with traitors.=
 Let this be @1 journey to cleanse @2.=
-# Various corruptions of "Ozymandias"
-# local exile
+# Various corruptions of "Ozymandias":
+#  local exile
 Ochymadion=
 Aseymedius=
 Eshenadios=
@@ -621,8 +626,8 @@ Caemandior=
 Oshaemediash=
 Otzakantas=
 Archanatus=
-# What happened here? Lost to memory.
-# mythic_terror
+# What happened here? Lost to memory.:
+#  mythic_terror
 Great Calamity=
 Collapse=
 Unending Curse=
@@ -670,13 +675,17 @@ Twisted Existence=
 Twisted=
 Warped=
 Lost=
+# generate_text:
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=
 Sentence of Exile=
-#login.lua
+
+# login.lua
 login_text=
 Message of the Day:@n@n=
 This command shows the current message of the day.=
-#restart.lua
+This command prints the login queue for all players.=
+
+# restart.lua
 @1 gave up the ghost.=
 POP!=
 Restart in: @1 seconds.=

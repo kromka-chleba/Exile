@@ -1,11 +1,12 @@
 # textdomain: artifacts
 # general
 # airboat.lua
-# general
-# airboat.lua
 Airboat=Аэрокатер
 [airboat] Cruise on=[Аэрокатер] Автопилот включен
 [airboat] Cruise off=[Аэрокатер] Автопилот отключен
+
+# art.lua
+Moon Glass=Лунное стекло
 Jade=Нефрит
 Gold=Золото
 @1 Sculpture=Скульптура @1
@@ -13,25 +14,32 @@ Gamepiece (black)=Игровые фишки (черный)
 Gamepiece (white)=Игровые фишки (белый)
 Singing Stone=Поющий камень
 Drumming Stone=Барабанный камень
-# materials.lua
-Moon Glass=Лунное стекло
+
 # bell.lua
 Automated Bell=Автоматический колокол
+
 # map.lua
 Geosurveyor@nUse with 'Minimap' key=Геосъемка@nАктивация клавишей 'Миникарта'.
+
+# materials.lua
 Sun Stone=Солнечный камень
 Moon Stone=Лунный камень
 Star Stone=Звездный камень
+Antiquorium=Антиквориум
 @1 Ladder=@1ная лестница
 @1 Door=@1ная дверь
 @1 Trapdoor=@1ный люк
 Trampoline=Трамплин
 Conveyor=Конвейер
-Antiquorium=Антиквориум
+
 # pandora.lua
 Meta-Stim Injector=Инъектор Мета-Стим
+Void Space=
+
 # storage.lua 
 @1 chest=@1 сундук
+
+# tools.lua - probes
 LIGHT MEASUREMENT:=ИЗМЕРЕНИЕ ОСВЕЩЕННОСТИ:
 LIGHT LEVEL @= @1=УРОВЕНЬ ОСВЕЩЕННОСТИ @= @1
 Light Meter=Измеритель освещенности
@@ -40,9 +48,8 @@ OBJECT TEMPERATURE MEASUREMENT:=ИЗМЕРЕНИЕ ТЕМПЕРАТУРЫ ОБЪ
 TEMPERATURE @= =ТЕМПЕРАТУРА @= 
 Temperature Probe=Температурный зонд
 List temperature of node=Показывает температуру узла
-# probes;
-NOT MEASURABLE!=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 BURN UNITS REMAINING:=ОСТАТОК ТОПЛИВНЫХ ЭЛЕМЕНТОВ:
+NOT MEASURABLE!=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 Fuel Probe=Топливный зонд
 List fuel units of node=Показывает топливные элементы узла
 SMELTING UNITS REMAINING:=ОСТАТОК ПЛАВЯЩИЕСЯ ЭЛЕМЕНТОВ:
@@ -59,10 +66,10 @@ PLANT TYPE:=ТИП РАСТЕНИЯ:
 Wild=Дикий
 Domesticated=Одомашненное
 Half-wild=Полу-дикий
-PLANT GROWTH NOT MEASURABLE!=РОСТ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 GROWTH UNITS REMAINING:=ОСТАВШИЕСЯ ЕДИНИЦЫ РОСТА:
-PLANT HEALTH NOT MEASURABLE!=ЗДОРОВЬЕ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
+PLANT GROWTH NOT MEASURABLE!=РОСТ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 Health:=Здоровье:
+PLANT HEALTH NOT MEASURABLE!=ЗДОРОВЬЕ РАСТЕНИЙ НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ!
 STATE:=СОСТОЯНИЕ:
 wet=влажный
 salty=соленый
@@ -72,58 +79,64 @@ ROOTS:=КОРНЕПЛОДЫ:
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=НЕ ПОДДАЕТСЯ ИЗМЕРЕНИЮ: НУЖНО РАСТЕНИЕ ИЛИ ПОЧВА
 Farmer's Probe=Фермерский зонд
 List stats of plant or soil=Показывает состояние растения или почвы
-# tools.lua
+
+# tools.lua - more
 @1 Chisel=@1 Долото
 Spyglass=Подзорная труба
 View far distances=Осмотр дальних расстояний
-SELF=СОБСТВЕННОЕ
-ANIMAL=ЖИВОТНОЕ
-EGG=ЯЙЦО
+
+# tools.lua - player/animal probe
+Gestation: @1%=
+EGG IS DEAD=МЕРТВОЕ ЯЙЦО
 @1 CONDITION:=@1 СОСТОЯНИЕ:
-@1 units=@1 единицы
+EGG=ЯЙЦО
+1 day old=1 день
+@1 days old=@1 дня
+1 year old=1 год
+@1 years old=@1 года
 Health: @1=Здоровье: @1
-# player energy vs animal energy
+@1 units=@1 единицы
+Age: @1=Возраст: @1
+# hint: player values:
 Energy: @1%=Энергия: @1%
-Energy: @1=Энергия: @1
 Body Temp: @1=Температура тела @1
 Hunger: @1%=Голод @1%
 Thirst: @1%=Жажда: @1%
 Effects: @1=Эффекты: @1
-Age: @1=Возраст: @1
-1 year old=1 год
-@1 years old=@1 года
-1 day old=1 день
-@1 days old=@1 дня
-# player + animal
+SELF=СОБСТВЕННОЕ
+# hint: animal values:
 @1 seconds=@1 секунды
+Energy: @1=Энергия: @1
 Oxygen: @1%=Кислород: @1%
-# binary
 Yes=Да
 No=Нет
 Pregnant: @1=Беременная: @1
-Gestation: @1%=
-EGG IS DEAD=МЕРТВОЕ ЯЙЦО
+ANIMAL=ЖИВОТНОЕ
 Animal Probe=Зонд животных
 List stats of pointed animal or player=Показывает состояние указанного животного или игрока
 Inspect self=Проверьте себя
 Admin's Probe=Зонд администратора
 List groups of pointed node=Показывает группы выбранного узла
+
+# transporter.lua
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=КЛАВИША МОЖЕТ ЗАДАВАТЬ ПУНКТЫ НАЗНАЧЕНИЯ ТОЛЬКО ДЛЯ ТРАНСПОРТНОЙ ПЛОЩАДКИ
 Bond Transporter to Target=Связь транспортера с целью
 Replace Transporter Bond with NEW Target=Заменяет привязку транспортера на новую цель
 Target name=Название цели
+Cancel=Отмена
 KEY IS BLANK!: use leftclick to save this location=КЛЮЧ ПУСТ!: Используйте левую кнопку мыши, чтобы сохранить это местоположение
-Destination: @1=Место назначения: @1
-Location: @1=Место: @1
 TRANSPORTER DESTINATION SET TO: @1 at @2=ПУНКТ НАЗНАЧЕНИЯ ТРАНСПОРТЕРА УСТАНОВЛЕН НА: @1 в @2
 KEY CAN ONLY SAVE FROM TRANSPORTER PAD=КЛЮЧ МОЖНО СОХРАНИТЬ ТОЛЬКО С ТРАНСПОРТНОЙ ПЛОЩАДКИ
 Key's target name=Имя цели ключа
 Wipe Key=Стереть ключ
+Destination name=Название пункта назначения
 Create Bonded Key=Создать связанный ключ
 Transporter Key=Ключ транспортера
 Transporter Key to =Транспортный ключ к 
 TRANSPORTER KEY CREATED TO: @1=КЛЮЧ ТРАНСПОРТЕРА СОЗДАН ДЛЯ: @1
 Transporter Pad=Транспортная площадка
+Location: @1=Место: @1
+Destination: @1=Место назначения: @1
 Transporter Pad (Charging)=Транспортная площадка (зарядка)
 Transporter Pad (active)=Транспортная площадка (активная)
 Transporter Power Core (charged)=Силовое ядро транспортера (заряжено)
@@ -131,8 +144,7 @@ Transporter Power Core (depleted)=Силовое ядро транспортер
 Transporter Focalizer=Фокусировщик транспортера
 Transporter Stabilizer=Стабилизатор транспортера
 Transporter Regulator=Регулятор транспортера
-Cancel=Отмена
-Destination name=Название пункта назначения
+
 # wayfinder.lua
 Wayfinder to @1=Путеводитель для
 WAYFINDER BONDED TO: @1 @2=ПУТЕВОДИТЕЛЬ, СВЯЗАННЫЙ С: @1 @2

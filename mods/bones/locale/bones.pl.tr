@@ -1,9 +1,10 @@
 # textdomain: bones
+# init.lua
 Bones=
 @1 of @2's bones=
+@1's fresh bones=
 @1's old bones=
+@1's bones=
 @1 died at @2.=
 @1 died at @2, and dropped their inventory.=
 @1 died at @2, and bones were placed.=
-@1's fresh bones=
-@1's bones=

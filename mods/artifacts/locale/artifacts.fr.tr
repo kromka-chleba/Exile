@@ -4,6 +4,9 @@
 Airboat=Dirigeable
 [airboat] Cruise on=[dirigeable] Mode croisière activé
 [airboat] Cruise off=[dirigeable] Mode croisière désactivé
+
+# art.lua
+Moon Glass=Verre de lune
 Jade=jade
 Gold=or
 @1 Sculpture=Sculpture en @1
@@ -11,25 +14,32 @@ Gamepiece (black)=pièce de jeu (noire)
 Gamepiece (white)=pièce de jeu (blanche)
 Singing Stone=Pierre chantante
 Drumming Stone=Pierre tambourinante
-# materials.lua
-Moon Glass=Verre de lune
+
 # bell.lua
 Automated Bell=Cloche automatique
+
 # map.lua
 Geosurveyor@nUse with 'Minimap' key=
+
+# materials.lua
 Sun Stone=Pierre de soleil
 Moon Stone=Pierre de lune
 Star Stone=Pierre d'étoile
+Antiquorium=antiquorium
 @1 Ladder=échelle en @1
 @1 Door=porte en @1
 @1 Trapdoor=trappe en @1
 Trampoline=Trampoline
 Conveyor=Convoyeur
-Antiquorium=antiquorium
+
 # pandora.lua
 Meta-Stim Injector=Injecteur de Méta-Stim
+Void Space=
+
 # storage.lua 
 @1 chest=coffre en @1
+
+# tools.lua - probes
 LIGHT MEASUREMENT:=MESURE DE LUMINOSITÉ :
 LIGHT LEVEL @= @1=LUMINOSITÉ @= @1
 Light Meter=posemètre (mesure la luminosité)
@@ -38,9 +48,8 @@ OBJECT TEMPERATURE MEASUREMENT:=MESURE DE TEMPERATURE DE L'OBJET :
 TEMPERATURE @= =TEMPÉRATURE @=
 Temperature Probe=
 List temperature of node=
-# probes;
-NOT MEASURABLE!=
 BURN UNITS REMAINING:=
+NOT MEASURABLE!=
 Fuel Probe=
 List fuel units of node=
 SMELTING UNITS REMAINING:=
@@ -57,10 +66,10 @@ PLANT TYPE:=
 Wild=
 Domesticated=
 Half-wild=
-PLANT GROWTH NOT MEASURABLE!=
 GROWTH UNITS REMAINING:=
-PLANT HEALTH NOT MEASURABLE!=
+PLANT GROWTH NOT MEASURABLE!=
 Health:=
+PLANT HEALTH NOT MEASURABLE!=
 STATE:=
 wet=
 salty=
@@ -70,58 +79,64 @@ ROOTS:=
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=
 Farmer's Probe=
 List stats of plant or soil=
-# tools.lua
+
+# tools.lua - more
 @1 Chisel=
 Spyglass=
 View far distances=
-# player + animal
-SELF=
-ANIMAL=
-EGG=
+
+# tools.lua - player/animal probe
+Gestation: @1%=
+EGG IS DEAD=
 @1 CONDITION:=
-@1 units=
+EGG=
+1 day old=
+@1 days old=
+1 year old=
+@1 years old=
 Health: @1=
-# player energy vs animal energy
+@1 units=
+Age: @1=
+# hint: player values:
 Energy: @1%=
-Energy: @1=
 Body Temp: @1=
 Hunger: @1%=
 Thirst: @1%=
 Effects: @1=
-Age: @1=
-1 year old=
-@1 years old=
-1 day old=
-@1 days old=
+SELF=
+# hint: animal values:
 @1 seconds=
+Energy: @1=
 Oxygen: @1%=
-# binary
 Yes=
 No=
 Pregnant: @1=
-Gestation: @1%=
-EGG IS DEAD=
+ANIMAL=
 Animal Probe=
 List stats of pointed animal or player=
 Inspect self=
 Admin's Probe=
 List groups of pointed node=
+
+# transporter.lua
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=
 Bond Transporter to Target=
 Replace Transporter Bond with NEW Target=
 Target name=
+Cancel=
 KEY IS BLANK!: use leftclick to save this location=
-Destination: @1=
-Location: @1=
 TRANSPORTER DESTINATION SET TO: @1 at @2=
 KEY CAN ONLY SAVE FROM TRANSPORTER PAD=
 Key's target name=
 Wipe Key=
+Destination name=
 Create Bonded Key=
 Transporter Key=
 Transporter Key to =
 TRANSPORTER KEY CREATED TO: @1=
 Transporter Pad=
+Location: @1=
+Destination: @1=
 Transporter Pad (Charging)=
 Transporter Pad (active)=
 Transporter Power Core (charged)=
@@ -129,8 +144,7 @@ Transporter Power Core (depleted)=
 Transporter Focalizer=
 Transporter Stabilizer=
 Transporter Regulator=
-Cancel=
-Destination name=
+
 # wayfinder.lua
 Wayfinder to @1=
 WAYFINDER BONDED TO: @1 @2=

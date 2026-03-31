@@ -12,10 +12,16 @@ Select a place for crafting / Drink=
 You were given a hand!=
 Check your inventory!=
 
-# cloth_composing.lua
+# states.lua
+(mild)=
+(moderate)=
+(severe)=
+(extreme)=
+
+# clothing/cloth_composing.lua
 Naked=
 
-# cloth_definitions.lua
+# clothing/cloth_definitions.lua
 Head=Cabeza
 Upper=Parte superior
 Lower=Parte inferior
@@ -31,21 +37,10 @@ Pink Bow=Lazo rosa
 Classic Green Sweater=Jersei verde clásico
 Fine Blue Pants=Pantalones azules finos
 
-# equip.lua
+# clothing/equip.lua
 Clothing=Vestimenta
 Min Temperature Tolerance: @1=Temperatura mínima tolerada: @1
 Max Temperature Tolerance: @1=Temperatura máxima tolerada: @1
 You can't equip a blanket outside of a bed.=
 You already wear that!=
 @1 equipped!=
-
-# states.lua
-(mild)=
-(moderate)=
-(severe)=
-(extreme)=
-
-##### not used anymore #####
-
-Change the gender, from male to female or viceversa=Cambiar el género, de hombre a mujer o viceversa
-Your gender is changed to=Tu género se ha cambiado a

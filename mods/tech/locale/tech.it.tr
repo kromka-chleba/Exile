@@ -3,17 +3,21 @@
 Woven Bag=
 Wicker Bag=
 Fabric Bag=
+
 # beds.lua
 Sleeping Spot=
 Sleeping Mat=
 Primitive Bed=
 Mattress=
 Bed=
+
+# bricks_and_mortar.lua
 Crushed Lime=
 Quicklime=
 Slaked Lime=
 Slaked Lime (ruined)=
 Lime Mortar Slab=
+Combine with another slab=
 Lime Mortar=
 Loose Bricks (unfired)=
 Loose Bricks=
@@ -43,15 +47,18 @@ Siltstone=
 Sandstone=
 Conglomerate=
 Coquina=
-# bricks_and_mortar.lua
 Limestone=
 Ironstone=
-Scoria=
-Gneiss=
-Combine with another slab=
 Granite=
 Basalt=
+Scoria=
+Gneiss=
 Jade=
+
+# chairs.lua
+Sitting Mat=
+Stool=
+
 # clothing.lua
 Woven Hat=
 Sun Hat=
@@ -68,46 +75,37 @@ Light Fabric Trousers=
 Thick Fabric Trousers=
 Light Fabric Tunic=
 Thick Fabric Tunic=
+
 # cooking_pot.lua
-Cooking Pot (unfired)=
-Bowl (unfired)=
-Cooking Pot=
-Empty Bowl=
-Bowl of @1 Stew=
 Bowl of @1 Soup=
-#; contents
+Bowl of @1 Stew=
+Bowl of @1=
+Empty Bowl=
+Bowl=
 Water=
 Contents: @1=
-Contents: <EMPTY>=
-Leftover: @1%=
-#; status
-Soup=
-Stew=
-Unprepared Pot=
-Soup Pot=
-Status: @1 pot=
-Status: @1 pot (cooking)=
 Status: @1 pot (finished)=
-#; note + questions
+Status: @1 pot (cooking)=
+Status: @1 pot=
+Cooking Pot=
 This pot is full and heavy. Spill it?=
+Unprepared Pot=
+Contents: <EMPTY>=
 Note: Add water to pot to make soup=
-Note: Add food to the pot to make soup=
 Note: Use a Bowl to Get!=
-# misc use tips
-Eat=
-Drink=
-# craft-stations.lua
+Leftover: @1%=
+Soup Pot=
+Note: Add food to the pot to make soup=
+Cooking Pot (unfired)=
+Bowl (unfired)=
+
+# craft_stations.lua
+# Craft stations:
 Crafting Spot=
-# Craft station
 Weaving=
 Mixing=
 Grinding stone=
-@1 Mortar and Pestle=
 Mortar and Pestle=
-Limestone Mortar and Pestle=
-Basalt Mortar and Pestle=
-Granite Mortar and Pestle=
-Wooden Mortar and Pestle=
 Crafting=
 Carpentry Bench=
 Bricks=
@@ -118,6 +116,7 @@ Glass furnace=
 Pottery=
 Tools=
 Stations=
+Wattle=
 Agriculture=
 Pickaxe=
 Breadmaking=
@@ -127,6 +126,10 @@ Threshing Spot=
 Weaving Spot=
 Grinding Spot=
 Hammering Spot=
+Wooden Mortar and Pestle=
+Limestone Mortar and Pestle=
+Basalt Mortar and Pestle=
+Granite Mortar and Pestle=
 Brick Maker's Bench=
 Anvil=
 Masonry Bench=
@@ -136,28 +139,33 @@ Limestone Grinding Stone=
 Basalt Grinding Stone=
 Chopping Block=
 Hammering Block=
-Wattle=
+
 # doors.lua
 Wattle Door=
 Wattle Trapdoor=
-Wooden Door=
-Wooden Trapdoor=
+Wooden Door=Porta di legno
+Wooden Trapdoor=Botola di legno
 Iron Door=
 Iron Trapdoor=
-Glass Door=
+Glass Door=Porta di vetro
 Glass Trapdoor=
 Clear Glass Door=
 Clear Glass Trapdoor=
+
 # drugs.lua
 Herbal Medicine=
+Eat=
 Tiku (stimulant)=
+Vinegar=
 Tang Vinegar=
 Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
 Tang=
+Drink=
 Tang (unfermented)=
-# hearthen_building.lua
+
+# earthen_building.lua
 Drystack=
 Drystack Stair=
 Drystack Slab=
@@ -172,10 +180,12 @@ Wet wicker well lining=
 Salty wet wicker well lining=
 Reinforce a well wall=
 Loose Wattle=
+Wattle and Daub=
 Wattle Door Frame=
 Thatch=
 Thatch Stair=
 Thatch Slab=
+
 # fibreworking.lua
 Unretted Cana Bundle=
 Retted Cana Bundle=
@@ -183,9 +193,9 @@ Coarse Fibre=
 Fine Fibre=
 Coarse Fabric=
 Fine Fabric=
+
 # fires.lua
 Wood Ash Block=
-Enrich depleted soil=
 Wood Ash=
 Charcoal Block=
 Charcoal=
@@ -203,6 +213,7 @@ Small Wood Fire (extinguished)=
 Large Wood Fire (extinguished)=
 Small Charcoal Fire (extinguished)=
 Large Charcoal Fire (extinguished)=
+
 # food_crafts.lua
 Sea Salt=
 Bitter Maraka Flour=
@@ -216,22 +227,29 @@ Cooked Anperla Tuber=
 Mashed Anperla (uncooked)=
 Mashed Anperla=
 Burned Anperla=
+# groups of flours / doughs:
+flour=
+bread flour=
+cake flour=
+dough=
+bread dough=
+cake dough=
 Raw Rhuya Flour=
 Rhuya Flour=
 Raw Hardy Rhuya Flour=
 Hardy Rhuya Flour=
 Burnt Rhuya Flour=
+All-Purpose Flour=
 Uncured Barshocha Flour=
 Cured Barshocha Flour=
-All-Purpose Flour=
 Maraka Dough=
 Rhuya Dough=
 Hardy Rhuya Dough=
-Barshocha Dough=
 All-Purpose Dough=
-Fermenting @1=
-Fermented @1=
+Barshocha Dough=
 Ikippe Yeast=
+Infect Dough=
+Fermented @1=
 Black Bread=
 Crumbly Bread=
 Unleavened Bread=
@@ -239,12 +257,9 @@ Fluffy Unleavened Bread=
 Basic Crackerbread=
 Soft Bread=
 Burned Bread=
-# animal food_crafts
 Cracked Egg=
 Fried Egg=Uovo all'occhio di bue
-# food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
+
 # glassworking.lua
 Green Glass Sand Mix=
 Green Glass Ingot=
@@ -264,12 +279,14 @@ Green Glass Pane=
 Clear Glass Pane=
 Green Glass Window=
 Clear Glass Window=
+
 # graffiti.lua
 Painting Kit (lime white)=
 Painting Kit (glow paint)=
 Stone Etcher=
 Flip to stone knife=
 Painting Kit (ochre red)=
+
 # ironworking.lua
 Crushed Iron Ore=
 Roasted Iron Ore=
@@ -288,7 +305,8 @@ Protection Nails=
 Protect Item=
 Iron Key=
 Grant key owner access.=
-# Lantern
+
+# lantern.lua
 Lantern Case=
 Status: needs a @1 and a wick (@2)!=
 Lantern Case with a wick=
@@ -297,6 +315,7 @@ Lantern Case with Glass=
 Status: needs a wick (@1)!=
 Unlit Lantern=
 Lit Lantern=
+
 # lever.lua
 lever=
 Rotate face=
@@ -306,16 +325,19 @@ alignment tool=
 Pick up a node's facing=
 Flip to lever=
 Apply facing to another node=
+
+# lightsource_api.lua
 Empty=
 @1% fuel left=
 Status: @1=
+
 # plant_crafts.lua
 Stick=
-Grass Fibre=
+Plant Fibre=
 Vegetable Oil=
-# Pottery
-Broken Pottery Slab=
+
 # pottery.lua
+Broken Pottery Slab=
 Broken Pottery=
 Clay Water Pot (unfired)=
 Clay Storage Pot (unfired)=
@@ -326,6 +348,7 @@ Clay Oil Lamp (Lit)=
 Hanging Oil Lamp=
 Hanging Oil Lamp (Lit)=
 Clay Watering Can (unfired)=
+
 # storage.lua
 Clay Storage Pot=
 Primitive Wooden Chest=
@@ -333,34 +356,36 @@ Wicker Storage Basket=
 Woven Storage Basket=
 Wooden Chest=
 Iron Chest=
+
 # tools.lua
 Bare Hands=
 Flat Surface=
 Stone Knife=
 Cut plants faster than bare hands=
 Flip to stone etcher=
+Place tool for cutting crafts=
 Placed Stone Knife=
 Digging Stick=
 Dig hard earth=
 Till soil slowly=
-Place tool for plant crafts=
+Place tool for farming crafts=
 Placed Digging Stick=
-Cut softwood logs=
-Placed @1 adze=
 @1 Adze=
+Cut softwood logs=
+Place tool for woodworking crafts=
+Placed @1 adze=
 @1 Hammer=
-or Place on solid surface for hammering crafts=
-Placed @1 Hammer=
-Stone Club=
 Strike=
 Stun animals=
+Place tool for hammering crafts=
+Placed @1 Hammer=
+Stone Club=
 Iron Axe=
 Cut any wood=
 Placed Iron Axe=
 Iron Shovel=
 Dig earth quickly=
 Till soil=
-Place for plant crafts=
 Placed Iron Shovel=
 Iron Mace=
 Iron Pickaxe=
@@ -369,27 +394,44 @@ Placed Iron Pickaxe=
 Iron Hoe=
 Till soil quickly=
 Placed Iron Hoe=
+
 # torch.lua
 Torch=
-Clay Water Pot=
-Clay Water Pot with Salt Water=
+
+# ucsigns.lua
+Signs=
+@1 Sign=
+Oiled Sign=
+Iron Sign=
+
+# waterworking.lua
+Empty Clay Water Pot=
+Empty Clay Watering Can=
+Empty Wooden Water Pot=
+Empty Wooden Watering Can=
+# group:
+Water Pot=
+# Filled with Freshwater:
 Clay Water Pot with Freshwater=
-Salty Clay Water Pot=
-Wooden Water Pot=
-Wooden Water Pot with Salt Water=
 Wooden Water Pot with Freshwater=
-Clay Watering Can=
+# Filled with Salt Water:
+Clay Water Pot with Salt Water=
+Wooden Water Pot with Salt Water=
+Salty Clay Water Pot=
+# Watering can:
 Clay Watering Can with Freshwater=
 Clay Watering Can with Salt Water=
-Wooden Watering Can=
 Wooden Watering Can with Freshwater=
 Wooden Watering Can with Salt Water=
+# empty glass bottles:
 Green Glass Bottle=
 Clear Glass Bottle=
+# filled glass bottles:
 Green Glass Bottle With Salt Water=
+Green Glass Bottle With Freshwater=
 Clear Glass Bottle With Salt Water=
-Green Glass Bottle With Fresh Water=
-Clear Glass Bottle With Fresh Water=
+Clear Glass Bottle With Freshwater=
+
 # woodworking.lua
 Wooden Ladder=
 Wooden Floor Boards=

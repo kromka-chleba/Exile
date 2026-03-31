@@ -3,17 +3,21 @@
 Woven Bag=Mochila de Mimbre
 Wicker Bag=Mochila de Zarzo
 Fabric Bag=Mochila de Tela
+
 # beds.lua
 Sleeping Spot=Lugar para Dormir
 Sleeping Mat=Estera
 Primitive Bed=Cama Rudimentaria
 Mattress=Colchon
 Bed=Cama
+
+# bricks_and_mortar.lua
 Crushed Lime=Cal
 Quicklime=Cal Viva
 Slaked Lime=Cal Hidratada
 Slaked Lime (ruined)=Cal Hidratada Arruinada
 Lime Mortar Slab=
+Combine with another slab=
 Lime Mortar=Mortero de Cal
 Loose Bricks (unfired)=Ladrillos Sueltos sin Curar
 Loose Bricks=Ladrillos Sueltos
@@ -42,14 +46,19 @@ Claystone=
 Siltstone=
 Sandstone=
 Conglomerate=
-# bricks_and_mortar.lua
+Coquina=
 Limestone=Caliza
 Ironstone=Mineral de Hierro
 Granite=Granito
 Basalt=Basalto
+Scoria=
 Gneiss=Gneis
 Jade=Jade
-Combine with another slab=
+
+# chairs.lua
+Sitting Mat=
+Stool=
+
 # clothing.lua
 Woven Hat=Sombrero de Mimbre
 Sun Hat=
@@ -66,47 +75,37 @@ Light Fabric Trousers=Pantalon de Tela Ligera
 Thick Fabric Trousers=Pantalon de Tela Gruesa
 Light Fabric Tunic=Tunica de Tela Ligera
 Thick Fabric Tunic=Tunica de Tela Gruesa
+
 # cooking_pot.lua
-Cooking Pot (unfired)=Olla Ceramica sin Curar
-Bowl (unfired)=
-Cooking Pot=Olla Ceramica
-Empty Bowl=
-Bowl of @1 Stew=
 Bowl of @1 Soup=
-#; contents
+Bowl of @1 Stew=
+Bowl of @1=
+Empty Bowl=
+Bowl=
 Water=
 Contents: @1=
-Contents: <EMPTY>=
-Leftover: @1%=
-#; status
-Soup=Sopa
-Stew=
-Soup Pot=
-Unprepared Pot=
-Status: @1 pot=
-Status: @1 pot (cooking)=
 Status: @1 pot (finished)=
-#; note + questions
+Status: @1 pot (cooking)=
+Status: @1 pot=
+Cooking Pot=Olla Ceramica
 This pot is full and heavy. Spill it?=
+Unprepared Pot=
+Contents: <EMPTY>=
 Note: Add water to pot to make soup=
-Note: Add food to the pot to make soup=
 Note: Use a Bowl to Get!=
-# misc use tips
-Eat=Comer
-Drink=
-Create=Crear
-# craft-stations.lua
+Leftover: @1%=
+Soup Pot=
+Note: Add food to the pot to make soup=
+Cooking Pot (unfired)=Olla Ceramica sin Curar
+Bowl (unfired)=
+
+# craft_stations.lua
+# Craft stations:
 Crafting Spot=Lugar para Fabricar
-# Craft station
 Weaving=
 Mixing=
 Grinding stone=Piedra de Amolar
-@1 Mortar and Pestle=Mortero de @1
 Mortar and Pestle=Mortero
-Limestone Mortar and Pestle=Mortero de Caliza
-Basalt Mortar and Pestle=Mortero de Basalto
-Granite Mortar and Pestle=Mortero de Granito
-Wooden Mortar and Pestle=
 Crafting=
 Carpentry Bench=Banco de Carpintería
 Bricks=
@@ -117,6 +116,7 @@ Glass furnace=Horno para Vidrio
 Pottery=
 Tools=
 Stations=
+Wattle=Zarzo
 Agriculture=Agricultura
 Pickaxe=
 Breadmaking=
@@ -126,16 +126,20 @@ Threshing Spot=Lugar para Trillar
 Weaving Spot=Lugar para Tejer
 Grinding Spot=Lugar para Amolar
 Hammering Spot=Lugar para Martillar
-Chopping Block=Tronco para Cortar
+Wooden Mortar and Pestle=
+Limestone Mortar and Pestle=Mortero de Caliza
+Basalt Mortar and Pestle=Mortero de Basalto
+Granite Mortar and Pestle=Mortero de Granito
+Brick Maker's Bench=Banco Ladrillero
 Anvil=Yunque
 Masonry Bench=Banco de Albañilería
-Brick Maker's Bench=Banco Ladrillero
 Weaving Frame=Marco para Tejer
 Granite Grinding Stone=
 Limestone Grinding Stone=
 Basalt Grinding Stone=
+Chopping Block=Tronco para Cortar
 Hammering Block=Tronco de Martillado
-Wattle=Zarzo
+
 # doors.lua
 Wattle Door=Puerta de Zarzo
 Wattle Trapdoor=Trampilla de Zarzo
@@ -147,16 +151,21 @@ Glass Door=
 Glass Trapdoor=
 Clear Glass Door=
 Clear Glass Trapdoor=
+
 # drugs.lua
 Herbal Medicine=Medicina Herbal
+Eat=Comer
 Tiku (stimulant)=Estimulante Tiku
+Vinegar=
 Tang Vinegar=
 Tang Vinegar with Mother=
 Mother of Tang=
 Infect Other Pots=
 Tang=Sidra de Tangkal
+Drink=
 Tang (unfermented)=Sidra de Tangkal sin Fermentar
-# hearthen_building.lua
+
+# earthen_building.lua
 Drystack=Grava Apilada
 Drystack Stair=
 Drystack Slab=
@@ -167,12 +176,16 @@ Rammed Earth=Tapial
 Rammed Earth Stair=
 Rammed Earth Slab=
 Wicker well lining=
+Wet wicker well lining=
+Salty wet wicker well lining=
 Reinforce a well wall=
 Loose Wattle=Zarzo Suelto
+Wattle and Daub=
 Wattle Door Frame=Marco de Puerta de Zarzo
 Thatch=Fardo de Paja
 Thatch Stair=
 Thatch Slab=
+
 # fibreworking.lua
 Unretted Cana Bundle=Fardo de Caña sin Tratar
 Retted Cana Bundle=Fardo de Caña Enriado
@@ -180,9 +193,9 @@ Coarse Fibre=Fibras Vegetales Gruesas
 Fine Fibre=Fibras Vegetales Finas
 Coarse Fabric=Tejido Grueso
 Fine Fabric=Tejido Fino
+
 # fires.lua
 Wood Ash Block=Bloque de Cenizas
-Enrich depleted soil=
 Wood Ash=Ceniza
 Charcoal Block=Bloque de Carbon
 Charcoal=Carbon
@@ -200,6 +213,53 @@ Small Wood Fire (extinguished)=Fogata Pequeña Apagada
 Large Wood Fire (extinguished)=Fogata Grande Apagada
 Small Charcoal Fire (extinguished)=Carbones Apagados
 Large Charcoal Fire (extinguished)=Bloque de Carbones Apagados
+
+# food_crafts.lua
+Sea Salt=
+Bitter Maraka Flour=Harina Amarga de Maraka
+Maraka Flour=Harina de Maraka
+Unbaked Maraka Cake=Masa Cruda de Maraka
+Maraka Cake=Pastel de Maraka
+Maraka Cake Burned=Pastel de Maraka Quemado
+Peeled Anperla Tuber=Tuberculo de Anperla Pelado
+Burned Anperla Tuber=Tuberculo de Anperla Quemado
+Cooked Anperla Tuber=Tuberculo de Anperla Cocido
+Mashed Anperla (uncooked)=Puré de Anperla Crudo
+Mashed Anperla=Puré de Anperla
+Burned Anperla=Puré de Anperla Quemado
+# groups of flours / doughs:
+flour=
+bread flour=
+cake flour=
+dough=
+bread dough=
+cake dough=
+Raw Rhuya Flour=
+Rhuya Flour=
+Raw Hardy Rhuya Flour=
+Hardy Rhuya Flour=
+Burnt Rhuya Flour=
+All-Purpose Flour=
+Uncured Barshocha Flour=
+Cured Barshocha Flour=
+Maraka Dough=
+Rhuya Dough=
+Hardy Rhuya Dough=
+All-Purpose Dough=
+Barshocha Dough=
+Ikippe Yeast=
+Infect Dough=
+Fermented @1=
+Black Bread=
+Crumbly Bread=
+Unleavened Bread=
+Fluffy Unleavened Bread=
+Basic Crackerbread=
+Soft Bread=
+Burned Bread=
+Cracked Egg=
+Fried Egg=Huevo Frito
+
 # glassworking.lua
 Green Glass Sand Mix=Mezcla para Vidrio Verde
 Green Glass Ingot=Lingote de Vidrio Verde
@@ -219,12 +279,14 @@ Green Glass Pane=Panel de Vidrio Verde
 Clear Glass Pane=Panel de Vidrio Transparente
 Green Glass Window=Ventana de Vidrio Verde
 Clear Glass Window=Ventana de Vidrio Transparente
+
 # graffiti.lua
 Painting Kit (lime white)=Kit de Pintura Blanco Caliza
 Painting Kit (glow paint)=Kit de Pintura Bioluminicente
 Stone Etcher=
 Flip to stone knife=
 Painting Kit (ochre red)=
+
 # ironworking.lua
 Crushed Iron Ore=Mineral de Hierro Triturado
 Roasted Iron Ore=Mineral de Hierro Tostado
@@ -243,7 +305,8 @@ Protection Nails=
 Protect Item=
 Iron Key=
 Grant key owner access.=
-# Lantern
+
+# lantern.lua
 Lantern Case=
 Status: needs a clear glass pane and a wick (coarse fibre)!=
 Lantern Case with a wick=
@@ -252,6 +315,7 @@ Lantern Case with Glass=
 Status: needs a wick (coarse fibre)!=
 Unlit Lantern=
 Lit Lantern=
+
 # lever.lua
 lever=Palanca
 Rotate face=Rota la cara
@@ -261,67 +325,30 @@ alignment tool=Alineador
 Pick up a node's facing=Obtener la cara
 Flip to lever=Voltear a palanca
 Apply facing to another node=Aplicar la cara
+
+# lightsource_api.lua
 Empty=
-fuel left=
-Status:=
+@1% fuel left=
+Status: @1=
+
 # plant_crafts.lua
 Stick=Vara
-Grass Fibre=
+Plant Fibre=
 Vegetable Oil=Aceite Vegetal
-Sea Salt=
-Bitter Maraka Flour=Harina Amarga de Maraka
-Maraka Flour=Harina de Maraka
-Unbaked Maraka Cake=Masa Cruda de Maraka
-Maraka Cake=Pastel de Maraka
-Maraka Cake Burned=Pastel de Maraka Quemado
-Peeled Anperla Tuber=Tuberculo de Anperla Pelado
-Burned Anperla Tuber=Tuberculo de Anperla Quemado
-Cooked Anperla Tuber=Tuberculo de Anperla Cocido
-Mashed Anperla (uncooked)=Puré de Anperla Crudo
-Mashed Anperla=Puré de Anperla
-Burned Anperla=Puré de Anperla Quemado
-Raw Rhuya Flour=
-Raw Hardy Rhuya Flour=
-Rhuya Flour=
-Hardy Rhuya Flour=
-Burnt Rhuya Flour=
-Uncured Barshocha Flour=
-Cured Barshocha Flour=
-All-Purpose Flour=
-Maraka Dough=
-Rhuya Dough=
-Hardy Rhuya Dough=
-Barshocha Dough=
-All-Purpose Dough=
-@1 Fermenting=
-@1 Fermented=
-Black Bread=
-Crumbly Bread=
-Unleavened Bread=
-Fluffy Unleavened Bread=
-Basic Crackerbread=
-Soft Bread=
-Burned Bread=
-Ikippe Yeast=
-# animal food_crafts
-Cracked Egg=
-Fried Egg=Huevo Frito
-# food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
-# Pottery
-Broken Pottery Slab=
+
 # pottery.lua
+Broken Pottery Slab=
 Broken Pottery=Ceramica Rota
 Clay Water Pot (unfired)=Vasija Ceramica sin Curar
 Clay Storage Pot (unfired)=Vasija Ceramica de Almacenamiento sin Curar
 Clay Oil Lamps (x4) (unfired)=
 Clay Oil Lamps (x4)=
 Clay Oil Lamp=Lampara Ceramica
-Clay Oil Lamp (Lit)=
+Clay Oil Lamp (lit)=Lampara Ceramica Encendida
 Hanging Oil Lamp=
 Hanging Oil Lamp (Lit)=
 Clay Watering Can (unfired)=
+
 # storage.lua
 Clay Storage Pot=Vasija Ceramica de Almacenamiento
 Primitive Wooden Chest=Cofre de Madera Rudimentario
@@ -329,6 +356,7 @@ Wicker Storage Basket=Cesto de Zarzo
 Woven Storage Basket=Cesto de Mimbre
 Wooden Chest=Cofre de Madera
 Iron Chest=Cofre de Hierro
+
 # tools.lua
 Bare Hands=
 Flat Surface=
@@ -340,26 +368,24 @@ Placed Stone Knife=
 Digging Stick=Apero de Labranza
 Dig hard earth=
 Till soil slowly=
-Place tool for plant crafts=
+Place tool for farming crafts=
 Placed Digging Stick=
+@1 Adze=Hachuela de @1
 Cut softwood logs=
-Adze=
-Placed Granite Adze=
-Placed Basalt Adze=
-Placed Jade Adze=
-Basalt Adze=Hachuela de Basalto
-Jade Adze=Hachuela de Jade
-Granite Adze=Hachuela de Granito
-Stone Club=Mazo de Piedra
+Place tool for woodworking crafts=
+Placed @1 adze=
+@1 Hammer=
 Strike=
 Stun animals=
+Place tool for hammering crafts=
+Placed @1 Hammer=
+Stone Club=Mazo de Piedra
 Iron Axe=Hacha de Hierro
 Cut any wood=
 Placed Iron Axe=
 Iron Shovel=Pala de Hierro
 Dig earth quickly=
 Till soil=
-Place for plant crafts=
 Placed Iron Shovel=
 Iron Mace=Mazo de Hierro
 Iron Pickaxe=Pico de Hierro
@@ -368,48 +394,45 @@ Placed Iron Pickaxe=
 Iron Hoe=
 Till soil quickly=
 Placed Iron Hoe=
-Hammer=
-or Place on solid surface for hammering crafts=
-Placed Granite Hammer=
-Placed Basalt Hammer=
-Basalt Hammer=
-Granite Hammer=
+
 # torch.lua
 Torch=Antorcha
-Clay Water Pot=Vasija Ceramica
-Clay Water Pot with Salt Water=Vasija Ceramica con Agua Salada
+
+# ucsigns.lua
+Signs=
+@1 Sign=
+Oiled Sign=
+Iron Sign=
+
+# waterworking.lua
+Empty Clay Water Pot=
+Empty Clay Watering Can=
+Empty Wooden Water Pot=
+Empty Wooden Watering Can=
+# group:
+Water Pot=
+# Filled with Freshwater:
 Clay Water Pot with Freshwater=Vasija Ceramica con Agua Fresca
-Salty Clay Water Pot=
-Wooden Water Pot=Vasija de Madera
-Wooden Water Pot with Salt Water=Vasija de Madera con Agua Salada
 Wooden Water Pot with Freshwater=Vasija de Madera con Agua Fresca
-Clay Watering Can=
+# Filled with Salt Water:
+Clay Water Pot with Salt Water=Vasija Ceramica con Agua Salada
+Wooden Water Pot with Salt Water=Vasija de Madera con Agua Salada
+Salty Clay Water Pot=
+# Watering can:
 Clay Watering Can with Freshwater=
 Clay Watering Can with Salt Water=
-Wooden Watering Can=
 Wooden Watering Can with Freshwater=
 Wooden Watering Can with Salt Water=
+# empty glass bottles:
 Green Glass Bottle=Botella de Vidrio Verde
 Clear Glass Bottle=Botella de Vidrio Transparente
+# filled glass bottles:
 Green Glass Bottle With Salt Water=Botella de Vidrio Verde cos Agua Salada
 Clear Glass Bottle With Salt Water=Botella de Vidrio Transparente cos Agua Salada
-Green Glass Bottle With Fresh Water=Botella de Vidrio Verde con Agua Fresca
-Clear Glass Bottle With Fresh Water=Botella de Vidrio Transparente con Agua Fresca
+Green Glass Bottle With Freshwater=Botella de Vidrio Verde con Agua Fresca
+Clear Glass Bottle With Freshwater=Botella de Vidrio Transparente con Agua Fresca
+
 # woodworking.lua
 Wooden Ladder=Escalera de Madera
 Wooden Floor Boards=Piso de Madera Laminado
 Wooden Stairs=Escalinata de Madera
-
-
-##### not used anymore #####
-
-Clay Oil Lamp (lit)=Lampara Ceramica Encendida
-Clay Oil Lamp (unfired)=Lampara Ceramica sin Curar
-Oil lamp (empty)=Lampara de Aceite Vacia
-Oil lamp (full)=Lampara de Aceite Llena
-Oil lamp (almost empty)=Lampara de Aceite casi Vacia
-Oil lamp (1/4 full)=Lampara de Aceite Llena a un cuarto
-Oil lamp (1/2 full)=Lampara de Aceite Llena a la mitad
-Oil lamp (3/4 full)=Lampara de Aceite casi Llena
-Oil lamp=Lampara de Aceite
-Owned by @1=Propiedad de @1

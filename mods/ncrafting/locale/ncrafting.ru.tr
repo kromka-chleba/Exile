@@ -1,5 +1,5 @@
 # textdomain: nodecrafting
-@1 added to the @2=
+# dyes.lua
 red=красная
 crimson=малиновая
 yellow=желтая
@@ -21,3 +21,9 @@ Dyer's Table@n(Used to create dyes)=Стол красильщика@n(Испол
 Dump=Вылить
 Dye Pot=Горшок с краской
 Dump the dye from the pot?=Вылить краску из горшка?
+
+# fermentation.lua
+Fermenting @1=Ферментация @1
+
+# microbial.lua
+@1 added to the @2=

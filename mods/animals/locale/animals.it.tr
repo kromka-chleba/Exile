@@ -1,33 +1,49 @@
 # textdomain: animals
-# crafts.lua
+# api_capture.lua
 Slaughter the animal=Macellare l'animale
+Live @1=@1 Vivo
+
+#api.lua
+@1 Eggs=Uova di @1
+
+# crafts.lua
 small invertebrate=piccolo invertebrato
 large invertebrate=grande invertebrato
 small bird=piccolo uccello
 large bird=grande uccello
 small fish=piccolo pesce
 large fish=grande pesce
-
 @1 Carcass=Carcassa di @1
 Cooked @1=@1 Cotto
 Burned @1=@1 Bruciato
-# api_capture.lua + #api.lua
-@1 Eggs=Uova di @1
-Live @1=@1 Vivo
+
+#chichasa.lua
+Female Chichasa=
+Chichasa Egg=
+Live Female Chichasa=
+Male Chichasa=
+
 # darkasthaan.lua
 Darkasthaan=
+Live Darkasthaan=
+
 # gundu.lua
 Gundu=
+
 # impethu.lua
 Impethu=
+
 # kubwakubwa.lua
 Kubwakubwa=
+
 # pegasun.lua
+Female Pegasun=Pegasun femmina
 Pegasun Egg=Uovo di Pegasun
 Live Female Pegasun=Pegasun femmina Viva
-Female Pegasun=Pegasun femmina
 Male Pegasun=Pegasun maschio
+
 # sarkamos.lua
 Sarkamos=
+
 # sneachan.lua
 Sneachan=

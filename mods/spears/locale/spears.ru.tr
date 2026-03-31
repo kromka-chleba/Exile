@@ -1,4 +1,5 @@
 # textdomain: spears
+# tools.lua
 @1 spear=@1 копье
 Stone=Каменное
 Iron=Железное

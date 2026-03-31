@@ -1,8 +1,9 @@
 # textdomain: health
-# hud.lua
 # food.lua
 This is inedible.=
 Eat=
+
+# health_effects.lua
 Food Poisoning=
 Dust Fever=
 Intestinal Parasites=
@@ -14,6 +15,8 @@ Meta-Stim=
 Fungal Infection=
 Drunk=
 Hangover=
+
+# health_states.lua
 Caveman in ice=
 Frozen=
 Frostbitten=
@@ -37,6 +40,11 @@ Resting=
 poorly=
 comfortably=
 (Sweating)=
+
 #init.lua
 Hyperthermia=
 Hypothermia=
+
+
+# commented code
+body temp=

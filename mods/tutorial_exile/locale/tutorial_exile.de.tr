@@ -1,10 +1,56 @@
 # textdomain: tutorial_exile
+# data_stages.lua
+Welcome to the tutorial=Willkommen im Tutorial
+Shelter=Unterschlupf
+Crafting=Fertigen
+The Spirit of Exile=Der Geist von Exile
+
+# init.lua
 Welcome to Exile!=Willkommen bei Exile!
 Exile is an original game with unique mechanics@nthat may be unfamiliar to players of other voxel@ngames. It may be difficult to learn.=Exile ist ein Originalspiel mit einzigartiger Mechanik,@ndie Spielern anderer Voxelspiele ungewohnt erscheinen kann.
 Would you like to enter a tutorial mode@nto learn how to play the game?=Würden Sie den Tutorial-Modus betreten wollen,@num zu lernen wie man das Spiel spielt?
+Starting tutorial=Starte das Tutorial
+Stopping tutorial=Stoppe das Tutorial
+
+# nodes.lua
+Tutorial wall=Tutorial-Wand
+Tutorial iron wall=Tutorial - Eiserne Wand
+Lighted Path=Beleuchteter Weg
+Sand=Sand
+Wet Silt=Schluff, feucht
+Demonstration fire=Demonstrationsfeuer
+A hand carved in stone=Eine in Stein gemeißelte Hand
+Tutorial force field=Tutorial - Krafteld
 Press the dig button to pick up or strike things.=Drücken Sie die Grabe-Taste, um Dinge aufzuheben oder zu schlagen.
 Press the place button to put things down.=Drücken Sie die Platzieren-Taste, um Dinge abzulegen.
 Press the use button to activate items and nodes.@n @n This is E by default on PC, AUX1 or sprint on mobile.=Drücken Sie die Nutze-Taste, um Gegenstände oder Blöcke zu aktivieren oder zu nutzen.@n @nDas ist normalerweise E auf einem PC, AUX1 oder Rennen auf mobilen Geräten.
-Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=Drücke die Zoom-Taste, um den Namen von dem zu sehen auf das Sie blicken.@n Das ist normalerweise Z auf dem PC und das Fernglas oder die Lupe auf mobilen Geräten.
-Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=Drücken Sie Schleichen doppelt, um sich zu ducken und durch enge Bereiche zu kommen.@n@nFalls die Übertragsungsdauer zum Server dies erschwert, können Sie das Kommando /crouch verwenden oder exile_csm, einen Client-seitigen Mod, um die Bedienelemente lokal zu verarbeiten.
+Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile.=Drücke die Zoom-Taste, um den Namen von dem zu sehen auf das Sie blicken.@n Das ist normalerweise Z auf dem PC und das Fernglas oder die Lupe auf mobilen Geräten.
+Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, the client-side mod to handle controls locally.=Drücken Sie Schleichen doppelt, um sich zu ducken und durch enge Bereiche zu kommen.@n@nFalls die Übertragsungsdauer zum Server dies erschwert, können Sie das Kommando /crouch verwenden oder exile_csm, einen Client-seitigen Mod, um die Bedienelemente lokal zu verarbeiten.
+Loss of energy affects move and jump rate.=Energieverlust beeinträchtigt Bewegungstempo und Sprungkraft.
+Drop a torch to see what's below.=Werfe eine Fackel herunter, um zu sehen, was unten ist.
+A shelter needs something solid over your head.@nOnce completed, this roof will shield against hot or cold weather.=Ein Unterschlupf erfordert etwas stabiles über Ihrem Kopf.@nSobald es fertig ist wird dieses Dach vor heißem und kaltem Wetter schützen.
+Build a bed in a sheltered place to restore energy.@nBetter beds restore it faster.@n@n=Errichten Sie ein Bett an einem geschützen Ort, um Energie wiederaufzuladen.@nMit besseren Betten geht es schneller.
+This is a very poor bed and shelter.=Dies ist ein sehr schlechtes Bett mit wenig Schutz.
+Fires create hot air, which will drift away unless contained.@nIt is normally invisible, but is shown here.=Feuer erzeugen heiße Luft, die abzieht, sofern sie nichts zurückhält.@nSie ist normalerweise unsichtbar, wird hier aber veranschaulicht.
+Keep fires away from water, muddy ground, and anything that can catch on fire.=Halte Feuer fern von Wasser, matschigem Boden und allem, das Feuer fangen kann.
+Dig this plant and right click with an empty hand to open the crafting menu. Craft sticks from the plants.=Graben Sie die Pflanze aus und öffnen Sie das Fertigungsmenü mit einem Rechtsklick mit leerer Hand. Fertigen Sie Stöcke aus den Pflanzen.
+Look in the tools tab and craft a digging stick, which can break the clay blocking the door.=Sehen Sie sich unter dem Werkzeug-Tab um und fertigen Sie einen Grabstock, mit dem Sie den Lehm aufbrechen können, der die Tür blockiert.
+A flat surface to work on allows more crafts.@nCraft an adze to remove the log that's in the way.=Eine flache Arbeitsfläche bietet mehr Fertigungsmöglichkeiten.@nFertigen Sie eine Dechsel, um den Baumstamm zu entfernen, der im Weg ist.
+More crafts come with tools and stations.@nCraft iron ingots for an iron pick to cut the stone covering the exit.=Mehr Fertigungsmöglichkeiten gibt es mit Werkzeugen und Werkbänken.@nFertigen Sie Eisenbarren für eine Eisenspitzhacke, um den Stein zu brechen, der den Ausgang verdeckt.
+You'll need a ladder here. Put down your adze to make sticks from a log, then combine with the fiber from the pot. The ladder is made in the weaving tab of hand crafting.=Sie brauchen hier eine Leiter. Legen Sie Ihre Dechsel hin, um Stöcke aus einem Stamm zu machen und dann mit den Fasern aus dem Vorratsgefäß zu verbinden. Die Leiter macht man unter dem Weben-Tab bei Handfertigung.
+Some crafts need to be done by cooking with fire or soaking things under a liquid.=Einige Verarbeitungen erfordern Kochen mit Feuer oder das Einweichen von Dingen unter einer Flüssigkeit.
+Exile is a challenging game. Failure is normal, and a part of the fun!=Exile ist ein herausforderndes Spiel. Fehlschläge sind normal und Teil des Spaßes!
+Can you jump the gap?=Können Sie über die Lücke springen?
+Do you want to try again?=Möchten Sie es erneut versuchen?
+What if you tried a different method?=Wie wäre es, wenn Sie eine andere Methode versuchen?
+You might not succeed at what you were planning, but you might find another way!=Mit dem was Sie geplant hatten mögen Sie scheitern, aber Sie könnten einen anderen Weg finden!
+New players will typically die several times before learning how to survive. Try to enjoy your character's adventure, even if it ends in disaster.=Neue Spieler werden typischerweise mehrmals sterben, bevor Sie lernen zu überleben. Versuchen Sie die Abenteuer Ihrer Spielfigur zu genießen, auch wenn sie in einer Katastrophe enden.
+Be prepared to experiment, explore, and try, try again!=Seien Sie bereit zu experimentieren, zu erkunden, und es immer weiter zu versuchen!
+Good Luck! The tutorial is over now. You are on your own.=Viel Glück! Das Tutorial ist jetzt beendet. Sie sind auf sich gestellt.
+An informational node=Ein informativer Block
+Exit the tutorial?=Das Tutorial verlassen?
+Exit=Ausgang
+Glowing Transporter Pad=Leuchtende Transporter-Plattform
+
+# overrides.lua
 Disabled in the tutorial=Im Tutorial deaktiviert

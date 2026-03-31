@@ -35,7 +35,7 @@ minetest.register_ore({
 
 minetest.register_node(
     'tutorial_exile:wall', {
-        description = 'Tutorial wall',
+        description = S('Tutorial wall'),
         tiles = {
             "tut_wall.png",
         },
@@ -44,7 +44,7 @@ minetest.register_node(
 
 minetest.register_node(
     'tutorial_exile:iron_wall', {
-        description = 'Tutorial iron wall',
+        description = S('Tutorial iron wall'),
         tiles = {{
                 name = "[combine:32x16:0,0=tech_iron.png:16,0=tech_iron.png",
                 align_style = "world",
@@ -76,7 +76,7 @@ end
 
 local lpname = "tut_lighted_path"
 local lpdef = {
-    description = 'Lighted Path',
+    description = S('Lighted Path'),
     tiles = { {
             name = lpname,
             animation = { type = "vertical_frames",
@@ -110,7 +110,7 @@ end
 
 minetest.register_node(
     "tutorial_exile:sand", {
-        description = "Sand",
+        description = S("Sand"),
         tiles = {"nodes_nature_sand.png"
         },
         sounds = nodes_nature.node_sound_sand_defaults(),
@@ -121,7 +121,7 @@ minetest.register_node(
 
 minetest.register_node(
     "tutorial_exile:wet_silt", {
-        description = "Wet Silt",
+        description = S("Wet Silt"),
         tiles = {"nodes_nature_silt.png^nodes_nature_mud.png",
                  "nodes_nature_silt.png^nodes_nature_mud.png",
                  "nodes_nature_silt.png^nodes_nature_mud.png"
@@ -154,7 +154,7 @@ minetest.register_node(
 
 ncrafting.register_switch(
     "tutorial_exile:basalt_hand_switch", {
-        description = "A hand carved in stone",
+        description = S("A hand carved in stone"),
         paramtype2 = "facedir",
         tiles={
             "nodes_nature_basalt.png",
@@ -187,7 +187,7 @@ minetest.register_node(
 })
 minetest.register_node(
     'tutorial_exile:closed_door', {
-        description = 'Tutorial force field',
+        description = S('Tutorial force field'),
         tiles = {
             { name = "metal_plasma.png", backface_culling = true }
         },
@@ -254,7 +254,7 @@ local info = { -- #TODO: set up locales, template.txt etc
                       "Craft an adze to remove the log that's in the way."),
     ["crafting4"] = S("More crafts come with tools and stations.@n"..
                       "Craft iron ingots for an iron pick to cut the "..
-                      "stone covering the exit"),
+                      "stone covering the exit."),
     ["crafting5"] = S("You'll need a ladder here. Put down your adze to make "..
                       "sticks from a log, then combine with the fiber from "..
                       "the pot. The ladder is made in the weaving tab of "..
@@ -303,7 +303,7 @@ end
 
 ncrafting.register_switch(
     "tutorial_exile:info_node", {
-        description = "An informational node",
+        description = S("An informational node"),
         drawtype = "normal",
         tiles={
             "tech_woven.png",
@@ -352,7 +352,7 @@ end
 
 ncrafting.register_switch(
     "tutorial_exile:exit_button", {
-        description = "Exit",
+        description = S("Exit"),
         drawtype = "normal",
         tiles={
             "tut_exit.png",

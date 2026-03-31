@@ -1,6 +1,8 @@
 tutorial = tutorial
 local stage = ...
 
+local S = core.get_translator("tutorial_exile")
+
 local shelter_entry, shelter_exit = loadfile(
     core.get_modpath("tutorial_exile").."/shelter.lua")(stage)
 
@@ -16,7 +18,7 @@ return
             start = vector.new(17,9253,25),
             facing = 5.517, -- look direction in radians
             splashicon = nil, -- These are displayed on entering
-            splashtext = "Welcome to the tutorial",
+            splashtext = S("Welcome to the tutorial"),
 
             -- examples for entry/exit functions:
             entry = function(self, player, name, instance)
@@ -69,7 +71,8 @@ return
             start = vector.new(46,4,10),
             facing = 1.5,
             entry = shelter_entry,
-            exit = shelter_exit
+            exit = shelter_exit,
+            splashtext = S("Shelter"),
         },
         [4] = {
             name = "Crafting",
@@ -82,7 +85,7 @@ return
                 climate.set_weather_override(name, nil, "")
             end,
             splashicon = "tech_paint_lw_weave.png^[resize:32x32",
-            splashtext = "Crafting",
+            splashtext = S("Crafting"),
         },
         [5] = {
             name = "Spirit",
@@ -92,6 +95,6 @@ return
             start = vector.new(3,7,7),
             facing = 4.7,
             splashicon = "tech_paint_lw_fire.png^[resize:32x32",
-            splashtext = "The Spirit of Exile",
+            splashtext = S("The Spirit of Exile"),
         }
     }

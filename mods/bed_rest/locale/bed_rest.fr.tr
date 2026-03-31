@@ -1,17 +1,8 @@
 # textdomain: bed_rest
-
-BREAK TIME!=TEMPS MORT !
-You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=Vous êtes ici depuis assez longtemps pour justifier une vraie pause.@nConsidérez cela comme un rappel venant de votre meilleur moi.@nAllez vous reposer. Laissez Exile. Revenez quand vous voulez.
-Disable Break-taker popup=Désactiver les temps morts
-
-
-# breaktaker message (requires translation)
-# authors (do not translate most if uses latin alphabet)
+# break_taker.lua
+# hints: Authors come before their quote. Authors do not require translation. Some quotes consist of multiple lines to translate.
+# latin:
 Seneca=Sénèque
-
-# quotes (requires translation)
-
-# latin;
 Sometimes even to live is an act of courage.=Parfois, le simple fait de vivre est un acte de courage.
 Cicero=Cicéron
 It is not by muscle, speed, or physical dexterity that great things are achieved,@nbut by reflection, force of character, and judgment.=Ce n'est pas par la force, la vitesse ou l'agilité du corps que les grandes choses s'accomplissent,@nmais par la réflexion, la force de caractère et le jugement.
@@ -19,13 +10,13 @@ Ovid=Ovide
 Dripping water hollows out stone,@nnot through force but through persistence.=La goutte d'eau creuse la pierre non par la force,@nmais par la répétition.
 Marcus Aurelius=Marc Aurèle
 Life is a struggle and wandering in a foreign country.=La vie est un combat, une errance dans un pays étranger.
+
+# greek:
 Hippocrates=Hippocrate
-
-# greek;
 Let food be thy medicine and medicine be thy food.=Que ta nourriture soit ton médicament et que ton médicament soit ta nourriture.
-Sun Tzu=Sun Tzu
 
-# chinese;
+# chinese:
+Sun Tzu=Sun Tzu
 If quick, I survive. If not quick, I am lost.=Si je me hâte, je survis. Si je me relâche, je suis perdu.
 Lao Tzu=Lao Tseu
 Fill your bowl to the brim and it will spill.@nKeep sharpening your knife and it will blunt.=Emplis ton bol à ras bord et il débordera.@nAiguise ton couteau sans relâche et il s'émoussera.
@@ -38,31 +29,33 @@ Medicinal herbs are the flourishing emanations of mountains and waterways,@nthe 
 Followers of the Dao join together as companions@nbecause they can assist each other in sickness and disease.@nIf you die, I’ll bury you; if I die, you’ll bury me.=Les adeptes du Tao s’unissent en tant que compagnons@nparce qu’ils peuvent s’entraider quand surviennent la maladie et l’infirmité.@nSi tu meurs, je t’enterre ; si je meurs, tu m’enterres.
 The Dalai Lama=Le Dalaï Lama
 If you think you are too small to make a difference,@ntry sleeping with a mosquito.=Si tu penses êtes trop petit pour faire une différence,@nessaye de dormir avec un moustique.
-Masanobu Fukuoka=Masanobu Fukuoka
 
-# japanese;
+# japanese:
+Masanobu Fukuoka=Masanobu Fukuoka
 The ultimate goal of farming is not the growing of crops,@nbut the cultivation and perfection of human beings.=Le but ultime de l’agriculture n’est pas de faire pousser des légumes , mais de cultiver et perfectionner les êtres humains.
 Kazuaki Tanahashi=Kazuaki Tanahashi
 Artist's need the world.=Les artistes ont besoin du monde.
 Kobayashi Issa=Kobayashi Issa
 O snail@nClimb Mount Fuji@nBut slowly, slowly!=Ô escargot@nGrimpez le mont Fuji@nMais lentement, lentement !
+
+# indian:
 Mahatma Gandhi=Mahatma Gandhi
-
-# indian;
 Each night, when I go to sleep, I die.@nAnd the next morning, when I wake up, I am reborn.=Chaque nuit, quand je m'endors, je meurs.@nEt le lendemain matin, quand je me réveille, je renais.
+
+# iranian:
 Saadi=Saadi
-
-# iranian;
 Whatever is produced in haste goes hastily to waste.=Tout ce qui est produit à la hâte est rapidement gaspillé.
-Nick Joaquín=Nick Joaquín
 
-# filipino;
+# filipino:
+Nick Joaquín=Nick Joaquín
 The point is not how we use a tool, but how it uses us.=L’important n’est pas de savoir comment nous utilisons un outil, mais comment il nous utilise.
+
+# australian:
 John Plant=John Plant
 My approach is to look for what I’m interested in using@nand if it’s there I use it.=Mon approche consiste à rechercher ce dont j'ai besoin @n et si je le trouve, je l’utilise.
-Joss Whedon=Joss Whedon
 
-# american;
+# american:
+Joss Whedon=Joss Whedon
 Humor keeps us alive. Humor and food.@nDon't forget food. You can go a week without laughing.=L'humour nous maintient en vie. L'humour et la nourriture. N'oublie pas la bouffe. tu peux vivre plus d'une semaine sans rire.
 Carl Sagan=Carl Sagan
 Extinction is the rule.@nSurvival is the exception.=L'extinction est la règle.@n La survie est l'exception.
@@ -96,8 +89,9 @@ Oscar Levant=Oscar Levant
 There's a fine line between genius and insanity.@nI have erased this line.=La frontière est très mince entre le génie et la folie.@nJ'ai supprimé cette frontière.
 Dr. Seuss=Dr. Seuss
 They say I'm old-fashioned, and live in the past,@nbut sometimes I think progress progresses too fast!=Ils me disent réactionnaire, que je vis dans le passé,@nmais parfois je pense que le progrès progresse bien assez !
+
+# british:
 Arthur C. Clarke=Arthur C. Clarke
-# british;
 It has yet to be proven that intelligence has any survival value.=Il reste à prouver que l'intelligence ait une quelconque utilité quand il s'agit de survivre
 The only way of discovering the limits of the possible@nis to venture a little way past them into the impossible.=La seule façon de découvrir les limites du possible,@nc'est de s'aventurer un peu au-delà, dans l'impossible.
 Bear Grylls=Bear Grylls
@@ -124,16 +118,17 @@ Dylan Thomas=Dylan Thomas
 Do not go gentle into that good night.@nRage, rage against the dying of the light.=N'accueille pas la nuit avec douceur.@nBats-toi pour la lumière jusqu'à la dernière heure.
 Robert Swan=Robert Swan
 The greatest threat to our planet@nis the belief that someone else will save it.=La plus grande menace pour notre planète est la croyance que c'est quelqu'un d'autre qui va la sauver.
-Victor Hugo=Victor Hugo
 
-# french;
+# french:
+Victor Hugo=Victor Hugo
 Emergencies have always been necessary to progress.=L'urgence est une nécessité au progrès.
 Albert Camus=Albert Camus
 There is scarcely any passion without struggle.=Il n'est guère de passion sans lutte.
 Marthe Troly-Curtin=Marthe Troly-Curtin
 Time you enjoy wasting is not wasted time.=Le temps que tu perds à t'amuser n'est pas du temps perdu.
+
+# german:
 Franz Kafka=Franz Kafka
-# german;
 I only fear danger where I want to fear it.=Je n'ai peur du danger que là où je veux avoir peur.
 Friedrich Nietzsche=Friedrich Nietzsche
 All truly great thoughts are conceived while walking.=Les éclairs de Génie surviennent lors de promenades.
@@ -141,26 +136,30 @@ When we are tired, we are attacked by ideas we conquered long ago.=Lorsque nous 
 He who has a strong enough why can bear any how.=Celui dont le Pourquoi est assez fort peut s'attaquer à tout Comment.
 Markus Herz=Markus Herz
 Be careful about reading health books.@nSome fine day you'll die of a misprint.=Attention avec les livres médicaux;@n un beau jour tu mourras d'une faute de frappe.
+
+# spanish:
 Balthasar Gracian=Balthasar Gracian
-# spanish;
 There are rules to luck, not everything is chance for the wise;@nluck can be helped by skill.=La chance a ses règles, tout n'est pas le fruit du hasard pour le sage ;@nla chance peut être aidée par l'habileté.
+
+# maltese:
 Edward de Bono=Edward de Bono
-# maltese;
 It will be a sinister day when computers start to laugh,@nbecause that will mean they are capable of a lot of other things as well.=Sinistre jour que celui où les ordinateurs commenceront à rire,@ncar cela signifiera qu’ils sont capables de beaucoup d’autres choses.
 Po converts what might otherwise be taken as madness@ninto a perfectly reasonable illogical procedure.=Po transforme ce qui pourrait autrement être considéré comme de la folie@nen une procédure illogique parfaitement raisonnable.
+
+# nordic:
 Soren Kierkegaard=Soren Kierkegaard
-# nordic;
 Life can only be understood backwards; but it must be lived forwards.=La Vie ne peut être comprise qu'en regardant en arrière, mais pour vivre il faut aller de l'avant
 
-# other messages
-You have no room to hold your blanket, so you drop it.=Tu es trop encombré pour porter ta couverture, alors tu l'as lâchée.
-You have no room to take the blanket with you, so you left it on the bed.=
+# hint: Break-taker hints:
+BREAK TIME!=TEMPS MORT !
+You've been here long enough to justify a real break.@nThink of this as a reminder from your better self.@nGo get some rest. Leave Exile behind. You can come back any time.=Vous êtes ici depuis assez longtemps pour justifier une vraie pause.@nConsidérez cela comme un rappel venant de votre meilleur moi.@nAllez vous reposer. Laissez Exile. Revenez quand vous voulez.
+Disable Break-taker popup=Désactiver les temps morts
+
+# functions.lua
 Contains Blanket=Équipé d'une Couverture
 This bed is already occupied!=Ce lit est déjà occupé !
-
-# expects owner name to be after
+This seat is already occupied!=
+# hint: expects owner name to be after:
 Status: Occupied by @1=Occupé par @1
-
-# related to above
+# hint: related to above:
 Status: Occupied by @1 (old)=Occupé par @1 (vieux)
-My approach is to look for what I’m interested in using@nand if it’s there I use it=Ma méthode consiste à rechercher ce dont j'ai besoin;@n et si c'est là, je l'utilise

@@ -3,17 +3,21 @@
 Woven Bag=Вязанная сумка
 Wicker Bag=Плетеная сумка
 Fabric Bag=Тканевая сумка
+
 # beds.lua
 Sleeping Spot=Спальное место
 Sleeping Mat=Спальный коврик
 Primitive Bed=Примитивная кровать
 Mattress=Матрас
 Bed=Кровать
+
+# bricks_and_mortar.lua
 Crushed Lime=Дробленая известь
 Quicklime=Негашеная известь
 Slaked Lime=Гашеная известь
 Slaked Lime (ruined)=Гашеная известь (испорченная)
 Lime Mortar Slab=Плита с известковым раствором
+Combine with another slab=Соедините с другой плитой
 Lime Mortar=Известковый раствор
 Loose Bricks (unfired)=Кирпичи (необожженные)
 Loose Bricks=Обожженные кирпичи
@@ -43,15 +47,18 @@ Siltstone=Алевролит
 Sandstone=Песчаник
 Conglomerate=Конгломерат
 Coquina=Ракушечник
-# bricks_and_mortar.lua
 Limestone=Известняк
 Ironstone=Железняк
-Scoria=Шлак
-Gneiss=Гнейс
-Combine with another slab=Соедините с другой плитой
 Granite=Гранит
 Basalt=Базальт
+Scoria=Шлак
+Gneiss=Гнейс
 Jade=Нефрит
+
+# chairs.lua
+Sitting Mat=
+Stool=
+
 # clothing.lua
 Woven Hat=Вязаная шляпа
 Sun Hat=Солнечная шляпа
@@ -68,46 +75,37 @@ Light Fabric Trousers=Брюки из легкой ткани
 Thick Fabric Trousers=Брюки из плотной ткани
 Light Fabric Tunic=Туника из легкой ткани
 Thick Fabric Tunic=Туника из плотной ткани
+
 # cooking_pot.lua
-Cooking Pot (unfired)=Горшок для приготовления пищи (необожженный)
-Bowl (unfired)=
-Cooking Pot=Горшок для приготовления пищи
-Empty Bowl=
-Bowl of @1 Stew=
 Bowl of @1 Soup=
-#; contents
+Bowl of @1 Stew=
+Bowl of @1=
+Empty Bowl=
+Bowl=
 Water=Вода
 Contents: @1=Содержимое: @1
-Contents: <EMPTY>=Содержимое: <ПУСТО>
-Leftover: @1%=
-#; status
-Soup=Суп
-Stew=
-Unprepared Pot=Неподготовленный горшок
-Soup Pot=Горшок для супа
-Status: @1 pot=Статус: Содержит - @1
-Status: @1 pot (cooking)=Статус: Готовится - @1
 Status: @1 pot (finished)=Статус: Готов - @1
-#; note + questions
+Status: @1 pot (cooking)=Статус: Готовится - @1
+Status: @1 pot=Статус: Содержит - @1
+Cooking Pot=Горшок для приготовления пищи
 This pot is full and heavy. Spill it?=Этот горшок полный и тяжелый. Вылить его?
+Unprepared Pot=Неподготовленный горшок
+Contents: <EMPTY>=Содержимое: <ПУСТО>
 Note: Add water to pot to make soup=Примечание: Добавьте воды в горшок, чтобы приготовить суп
-Note: Add food to the pot to make soup=Примечание: Добавьте продукты в горшок, чтобы приготовить суп
 Note: Use a Bowl to Get!=
-# misc use tips
-Eat=Есть
-Drink=Выпить
+Leftover: @1%=
+Soup Pot=Горшок для супа
+Note: Add food to the pot to make soup=Примечание: Добавьте продукты в горшок, чтобы приготовить суп
+Cooking Pot (unfired)=Горшок для приготовления пищи (необожженный)
+Bowl (unfired)=
+
 # craft-stations.lua
+# Craft station:
 Crafting Spot=Место создания
-# Craft station
 Weaving=Ткачество
 Mixing=Смешивание
 Grinding stone=Точильный камень
-@1 Mortar and Pestle=@1 Ступка и пестик
 Mortar and Pestle=Ступка и пестик
-Limestone Mortar and Pestle=Известняк Ступка и пестик
-Basalt Mortar and Pestle=Базальт Ступка и пестик
-Granite Mortar and Pestle=Гранит Ступка и пестик
-Wooden Mortar and Pestle=Деревянная ступка и пестик
 Crafting=Создание
 Carpentry Bench=Верстак столяра
 Bricks=Кирпичи
@@ -118,6 +116,7 @@ Glass furnace=Стеклянная печь
 Pottery=Керамика
 Tools=Инструменты
 Stations=Станции
+Wattle=Плетень
 Agriculture=Агрокультура
 Pickaxe=Кирка
 Breadmaking=Хлебопечение
@@ -127,6 +126,10 @@ Threshing Spot=Молотильное место
 Weaving Spot=Ткацкое место
 Grinding Spot=Точильное место
 Hammering Spot=Ударное место
+Wooden Mortar and Pestle=Деревянная ступка и пестик
+Limestone Mortar and Pestle=Известняк Ступка и пестик
+Basalt Mortar and Pestle=Базальт Ступка и пестик
+Granite Mortar and Pestle=Гранит Ступка и пестик
 Brick Maker's Bench=Верстак кирпичника
 Anvil=Наковальня
 Masonry Bench=Верстак каменщика
@@ -136,7 +139,7 @@ Limestone Grinding Stone=Известковый шлифовальный кам�
 Basalt Grinding Stone=Базальтовый шлифовальный камень
 Chopping Block=Разделочный блок
 Hammering Block=Ударный блок
-Wattle=Плетень
+
 # doors.lua
 Wattle Door=Плетеная дверь
 Wattle Trapdoor=Плетеный люк
@@ -148,16 +151,21 @@ Glass Door=Стеклянная дверь
 Glass Trapdoor=Стеклянный люк
 Clear Glass Door=Дверь из прозрачного стекла
 Clear Glass Trapdoor=Люк из прозрачного стекла
+
 # drugs.lua
 Herbal Medicine=Травы
+Eat=Есть
 Tiku (stimulant)=Тику (стимулятор)
+Vinegar=
 Tang Vinegar=Танговый уксус
 Tang Vinegar with Mother=Танговый уксус с маткой
 Mother of Tang=Матка Танга
 Infect Other Pots=Заразить другие горшки
 Tang=Танг
+Drink=Выпить
 Tang (unfermented)=Танг (неферментированный)
-# hearthen_building.lua
+
+# earthen_building.lua
 Drystack=Сухой штабель
 Drystack Stair=Лестница из сухого штабеля
 Drystack Slab=Плита из сухого штабеля
@@ -172,10 +180,12 @@ Wet wicker well lining=Мокрая плетеная облицовка коло
 Salty wet wicker well lining=Соленая мокрая плетеная облицовка колодца
 Reinforce a well wall=Укрепление стен колодца
 Loose Wattle=Плетень с прорезями
+Wattle and Daub=
 Wattle Door Frame=Дверная рама из плетня
 Thatch=Солома
 Thatch Stair=Лестница из соломы
 Thatch Slab=Плита из соломы
+
 # fibreworking.lua
 Unretted Cana Bundle=Нерафинированный тростник
 Retted Cana Bundle=Рафинированный тростник
@@ -183,9 +193,9 @@ Coarse Fibre=Грубое волокно
 Fine Fibre=Тонкое волокно
 Coarse Fabric=Грубая ткань
 Fine Fabric=Тонкая ткань
+
 # fires.lua
 Wood Ash Block=Блок древесной золы
-Enrich depleted soil=Удобрить истощенную почву
 Wood Ash=Древесная зола
 Charcoal Block=Блок древесного угля
 Charcoal=Древесный уголь
@@ -203,6 +213,7 @@ Small Wood Fire (extinguished)=Малый дровяной костер (пот�
 Large Wood Fire (extinguished)=Большой дровяной костер (потушен)
 Small Charcoal Fire (extinguished)=Малый костер из древесного угля (потушен)
 Large Charcoal Fire (extinguished)=Большой костер из древесного угля (потушен)
+
 # food_crafts.lua
 Sea Salt=
 Bitter Maraka Flour=Мука из горького марака
@@ -216,22 +227,29 @@ Cooked Anperla Tuber=Приготовленный клубень анперлы
 Mashed Anperla (uncooked)=Пюре из анперлы (не приготовленно)
 Mashed Anperla=Пюре из анперлы
 Burned Anperla=Сгоревшая анперла
+# groups of flours / doughs:
+flour=
+bread flour=
+cake flour=
+dough=
+bread dough=
+cake dough=
 Raw Rhuya Flour=Необработанная мука из руйи
 Rhuya Flour=Мука из руйи
 Raw Hardy Rhuya Flour=Необработанная мука из зимней руйи
 Hardy Rhuya Flour=Мука из зимней руйи
 Burnt Rhuya Flour=Подгоревшая мука из руйи
+All-Purpose Flour=
 Uncured Barshocha Flour=
 Cured Barshocha Flour=
-All-Purpose Flour=
 Maraka Dough=Тесто из марака
 Rhuya Dough=Тесто из руйи
 Hardy Rhuya Dough=Тесто из зимней руйи
-Barshocha Dough=
 All-Purpose Dough=
-Fermenting @1=Ферментация @1
-Fermented @1=Ферментированное @1
+Barshocha Dough=
 Ikippe Yeast=Дрожжи Икиппе
+Infect Dough=
+Fermented @1=Ферментированное @1
 Black Bread=Черный хлеб
 Crumbly Bread=Рассыпчатый хлеб
 Unleavened Bread=
@@ -239,12 +257,9 @@ Fluffy Unleavened Bread=
 Basic Crackerbread=
 Soft Bread=
 Burned Bread=Подгоревший хлеб
-# animal food_crafts
 Cracked Egg=Разбитое яйцо
 Fried Egg=Яичница
-# food_crafts tips/messages
-Infect Dough=
-Yeast added to the @1=
+
 # glassworking.lua
 Green Glass Sand Mix=Песчаная смесь зеленого стекла
 Green Glass Ingot=Слиток зеленого стекла
@@ -264,12 +279,14 @@ Green Glass Pane=Зеленое стекло
 Clear Glass Pane=Прозрачное стекло
 Green Glass Window=Зеленое стеклянное окно
 Clear Glass Window=Прозрачное стеклянное окно
+
 # graffiti.lua
 Painting Kit (lime white)=Набор для рисования (белая известь)
 Painting Kit (glow paint)=Набор для рисования (светящаяся краска)
 Stone Etcher=Каменный резчик
 Flip to stone knife=Перевернуть на каменный нож
 Painting Kit (ochre red)=Набор для росписи (охристо-красный)
+
 # ironworking.lua
 Crushed Iron Ore=Дробленая железная руда
 Roasted Iron Ore=Обожженная железная руда
@@ -288,7 +305,8 @@ Protection Nails=Защитные гвозди
 Protect Item=Защищает элемент
 Iron Key=Железный ключ
 Grant key owner access.=Предоставление доступа владельцу ключа.
-# Lantern
+
+# lantern.lua
 Lantern Case=Корпус фонаря
 Status: needs a @1 and a wick (@2)!=Статус: требуется @1 и фитиль (@2)!
 Lantern Case with a wick=Корпус фонаря с фитилем
@@ -297,6 +315,7 @@ Lantern Case with Glass=Корпус фонаря со стеклом
 Status: needs a wick (@1)!=Состояние: нужен фитиль (@1)!
 Unlit Lantern=Незажженный фонарь
 Lit Lantern=Зажженный фонарь
+
 # lever.lua
 lever=Рычаг
 Rotate face=Поворот лицевой стороны
@@ -306,16 +325,19 @@ alignment tool=Инструмент выравнивания
 Pick up a node's facing=Выбор грани узла
 Flip to lever=Перевернуть на рычаг
 Apply facing to another node=Применить облицовку к другому узлу
+
+# lightsource_api.lua
 Empty=Пустой
 @1% fuel left=Осталось @1% топлива
 Status: @1=Состояние: @1
+
 # plant_crafts.lua
 Stick=Палка
-Grass Fibre=Растительные волокна
+Plant Fibre=
 Vegetable Oil=Растительное масло
-# Pottery
-Broken Pottery Slab=Плита из разбитой керамики
+
 # pottery.lua
+Broken Pottery Slab=Плита из разбитой керамики
 Broken Pottery=Разбитая керамика
 Clay Water Pot (unfired)=Глиняный горшок для воды (необожженный)
 Clay Storage Pot (unfired)=Глиняный горшок для хранения (необожженный)
@@ -326,6 +348,7 @@ Clay Oil Lamp (Lit)=Глиняная масляная лампа (горит)
 Hanging Oil Lamp=Подвесная масляная лампа
 Hanging Oil Lamp (Lit)=Подвесная масляная лампа (горит)
 Clay Watering Can (unfired)=Глиняная лейка (необожженная)
+
 # storage.lua
 Clay Storage Pot=Глиняный горшок для хранения
 Primitive Wooden Chest=Примитивный деревянный сундук
@@ -333,34 +356,36 @@ Wicker Storage Basket=Плетеная корзина для хранения
 Woven Storage Basket=Вязаная корзина для хранения
 Wooden Chest=Деревянный сундук
 Iron Chest=Железный сундук
+
 # tools.lua
 Bare Hands=Голые руки
 Flat Surface=Плоская поверхность
 Stone Knife=Каменный нож
 Cut plants faster than bare hands=Срезайте растения быстрее, чем голыми руками
 Flip to stone etcher=Перевернуть на каменный резчик
+Place tool for cutting crafts=
 Placed Stone Knife=Каменный нож
 Digging Stick=Палка для копания
 Dig hard earth=Копайте твердую землю
 Till soil slowly=Медленно обрабатывайте почву
-Place tool for plant crafts=Поместите инструмент для поделок из растений
+Place tool for farming crafts=
 Placed Digging Stick=Палка для копания
-Cut softwood logs=Рубка бревен мягких пород древесины
-Placed @1 adze=Лопатка @1
 @1 Adze=Лопатка @1
+Cut softwood logs=Рубка бревен мягких пород древесины
+Place tool for woodworking crafts=
+Placed @1 adze=Лопатка @1
 @1 Hammer=Молоток @1
-or Place on solid surface for hammering crafts=или поместить на твердую поверхность для поделок из молота
-Placed @1 Hammer=Молоток @1
-Stone Club=Каменная дубина
 Strike=Ударить
 Stun animals=Оглушать животных
+Place tool for hammering crafts=
+Placed @1 Hammer=Молоток @1
+Stone Club=Каменная дубина
 Iron Axe=Железный топор
 Cut any wood=Резать любое дерево
 Placed Iron Axe=Железный топор
 Iron Shovel=Железная лопата
 Dig earth quickly=Быстро копать землю
 Till soil=Обрабатывать почву
-Place for plant crafts=Место для поделок из растений
 Placed Iron Shovel=Железная лопата
 Iron Mace=Железная булава
 Iron Pickaxe=Железная кирка
@@ -369,27 +394,44 @@ Placed Iron Pickaxe=Железная кирка
 Iron Hoe=Железная мотыга
 Till soil quickly=Быстро обработайте почву
 Placed Iron Hoe=Железная мотыга
+
 # torch.lua
 Torch=Факел
-Clay Water Pot=Глиняный горшок для воды
-Clay Water Pot with Salt Water=Глиняный горшок с соленой водой
+
+# ucsigns.lua
+Signs=
+@1 Sign=
+Oiled Sign=
+Iron Sign=
+
+# waterworking.lua
+Empty Clay Water Pot=
+Empty Clay Watering Can=
+Empty Wooden Water Pot=
+Empty Wooden Watering Can=
+# group:
+Water Pot=
+# Filled with Freshwater:
 Clay Water Pot with Freshwater=Глиняный горшок с пресной водой
-Salty Clay Water Pot=
-Wooden Water Pot=Деревянный горшок для воды
-Wooden Water Pot with Salt Water=Деревянный горшок с соленой водой
 Wooden Water Pot with Freshwater=Деревянный горшок с пресной водой
-Clay Watering Can=Глиняная лейка
+# Filled with Salt Water:
+Clay Water Pot with Salt Water=Глиняный горшок с соленой водой
+Wooden Water Pot with Salt Water=Деревянный горшок с соленой водой
+Salty Clay Water Pot=
+# Watering can:
 Clay Watering Can with Freshwater=Глиняная лейка с пресной водой
 Clay Watering Can with Salt Water=Глиняная лейка с соленой водой
-Wooden Watering Can=Деревянная лейка
 Wooden Watering Can with Freshwater=Деревянная лейка с пресной водой
 Wooden Watering Can with Salt Water=Деревянная лейка с соленой водой
+# empty glass bottles:
 Green Glass Bottle=Зеленая стеклянная бутылка
 Clear Glass Bottle=Прозрачная стеклянная бутылка
+# filled glass bottles:
 Green Glass Bottle With Salt Water=Зеленая стеклянная бутылка с соленой водой
 Clear Glass Bottle With Salt Water=Прозрачная стеклянная бутылка с соленой водой
-Green Glass Bottle With Fresh Water=Зеленая стеклянная бутылка с пресной водой
-Clear Glass Bottle With Fresh Water=Прозрачная стеклянная бутылка с пресной водой
+Green Glass Bottle With Freshwater=Зеленая стеклянная бутылка с пресной водой
+Clear Glass Bottle With Freshwater=Прозрачная стеклянная бутылка с пресной водой
+
 # woodworking.lua
 Wooden Ladder=Деревянная лестница
 Wooden Floor Boards=Деревянные доски пола

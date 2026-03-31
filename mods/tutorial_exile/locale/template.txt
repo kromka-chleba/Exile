@@ -1,10 +1,56 @@
 # textdomain: tutorial_exile
+# data_stages.lua
+Welcome to the tutorial=
+Shelter=
+Crafting=
+The Spirit of Exile=
+
+# init.lua
 Welcome to Exile!=
 Exile is an original game with unique mechanics@nthat may be unfamiliar to players of other voxel@ngames. It may be difficult to learn.=
 Would you like to enter a tutorial mode@nto learn how to play the game?=
+Starting tutorial=
+Stopping tutorial=
+
+# nodes.lua
+Tutorial wall=
+Tutorial iron wall=
+Lighted Path=
+Sand=
+Wet Silt=
+Demonstration fire=
+A hand carved in stone=
+Tutorial force field=
 Press the dig button to pick up or strike things.=
 Press the place button to put things down.=
 Press the use button to activate items and nodes.@n @n This is E by default on PC, AUX1 or sprint on mobile.=
-Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile=
-Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, theclient-side mod to handle controls locally=
+Press the zoom key to see the name of what you're looking at. @n This is Z by default on PC, and the binoculars or magnifying lens on mobile.=
+Double-tap sneak to crouch and get through small spaces.@n@nIf server lag makes this hard, you can use the /crouch command, or install exile_csm, the client-side mod to handle controls locally.=
+Loss of energy affects move and jump rate.=
+Drop a torch to see what's below.=
+A shelter needs something solid over your head.@nOnce completed, this roof will shield against hot or cold weather.=
+Build a bed in a sheltered place to restore energy.@nBetter beds restore it faster.@n@n=
+This is a very poor bed and shelter.=
+Fires create hot air, which will drift away unless contained.@nIt is normally invisible, but is shown here.=
+Keep fires away from water, muddy ground, and anything that can catch on fire.=
+Dig this plant and right click with an empty hand to open the crafting menu. Craft sticks from the plants.=
+Look in the tools tab and craft a digging stick, which can break the clay blocking the door.=
+A flat surface to work on allows more crafts.@nCraft an adze to remove the log that's in the way.=
+More crafts come with tools and stations.@nCraft iron ingots for an iron pick to cut the stone covering the exit.=
+You'll need a ladder here. Put down your adze to make sticks from a log, then combine with the fiber from the pot. The ladder is made in the weaving tab of hand crafting.=
+Some crafts need to be done by cooking with fire or soaking things under a liquid.=
+Exile is a challenging game. Failure is normal, and a part of the fun!=
+Can you jump the gap?=
+Do you want to try again?=
+What if you tried a different method?=
+You might not succeed at what you were planning, but you might find another way!=
+New players will typically die several times before learning how to survive. Try to enjoy your character's adventure, even if it ends in disaster.=
+Be prepared to experiment, explore, and try, try again!=
+Good Luck! The tutorial is over now. You are on your own.=
+An informational node=
+Exit the tutorial?=
+Exit=
+Glowing Transporter Pad=
+
+# overrides.lua
 Disabled in the tutorial=

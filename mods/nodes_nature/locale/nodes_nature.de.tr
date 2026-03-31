@@ -1,64 +1,68 @@
 # textdomain: nodes_nature
-# dropping water
+# compost.lua
 Undecomposed Compost=Unzersetzter Kompost
 Set to decompose=Zum Zersetzen aufsetzen
 Compost=Kompost
 Fertilize soil=Boden düngen
 Wet Compost=Feuchter Kompost
 Fertilize and soak soil=Düngen und Boden gießen
-Wet Undecomposed Compost=Feuchter unzersetzter Kompost
-# compost.lua
+@1 Stair=@1treppe
 @1 Slab=@1platte
+Wet Undecomposed Compost=Feuchter unzersetzter Kompost
+
+# data_plant.lua
 Riraemu=Riraemu
 Opaeko=Opaeko
 Aongao=Aongao
 Nagaeo=Nagaeo
 Koaeako=Koaeako
 Imoaru=Imoaru
-Maraka Tree=Marakabaum
+Tangkal=Tangkal
+Maraka=Maraka
 Maraka Nut=Marakanuss
-Tangkal Tree=Tangkalbaum
-Tangkal Fruit=Tangkalfrucht
-Sasaran Tree=Sarasanbaum
+Panasee=Panasee
+Sasaran=Sasaran
 Sasaran Cone=Sarasanzapfen
+Warungaree=Warungaree
+Warungaree Seed=Warungareesamen
+Yalovy=Yalovy
 Yalovy Shrub=Yalovybusch
 Yalovy Cone=Yalovyzapfen
-Kagum Tree=Kagumbaum
+Kagum=Kagum
 Kagum Pod=Kagumkapsel
-Panasee Tree=Panaseebaum
-Panasee Fruit=Panaseefrucht
-Amma Tree=Ammabaum
+Amma=Amma
 Amma nut=Ammanuss
-Daoja Tree=Daojabaum
+Daoja=Daoja
 Daoja Berry=Daojabeere
+Tulatula=Tulatula
+Tulatula Pods=Tulatulaschoten
+
 # data_rock.lua
 Sandstone=Sandstein
 Siltstone=Schluffstein
 Claystone=Tonstein
 Conglomerate=Konglomerat
+Coquina=Coquina
 Limestone=Kalkstein
 Ironstone=Eisenstein
 Granite=Granit
 Basalt=Basalt
+Scoria=Scoria
 Gneiss=Gneis
 Jade=Jade
-Clay Agricultural Soil=Tonackerboden
-Silty Agricultural Soil=Schluffiger Ackerboden
-Sandy Agricultural Soil=Sandiger Ackerboden
-Stony Agricultural Soil=Steiniger Ackerboden
-Loamy Agricultural Soil=Lehmiger Ackerboden
-# sediments (sediment_data.lua)
+# sediments:
 Sand=Sand
 Silt=Schluff
 Clay=Ton
 Gravel=Kies
 Loam=Lehm
 Red Ochre=Roter Ocker
-# biome sediments (sediment_data.lua)
+# biome sediments:
 Rich Forest Soil=Reichhaltiger Waldboden
 Rich Woodland Soil=Reichhaltiger Waldlandboden
 Forest Soil=Waldboden
 Woodland Soil=Waldlandboden
+Open Woodland Soil=
 Upland Forest Soil=Hochlandwaldboden
 Upland Woodland Soil=Hochwaldlandboden
 Marshland Soil=Moorboden
@@ -71,8 +75,16 @@ Barren Grassland Soil=Karger Graslandboden
 Duneland Soil=Dünenlandboden
 Highland Soil=Hochlandboden
 Dry Woodland Soil=Trockenwaldlandboden
+Clay Agricultural Soil=Tonackerboden
+Silty Agricultural Soil=Schluffiger Ackerboden
+Sandy Agricultural Soil=Sandiger Ackerboden
+Stony Agricultural Soil=Steiniger Ackerboden
+Loamy Agricultural Soil=Lehmiger Ackerboden
+
+# dripping_water.lua
 Water drop=Wassertropfen
-# interface
+
+# init.lua
 Threshing=Dreschen
 Crafting=Fertigung
 Bricks=Ziegel
@@ -80,10 +92,14 @@ Bricks & Mortar=Ziegel u. Mörtel
 Blocks=Blöcke
 Blocks & Mortar=Blöcke u. Mörtel
 Mixing=Mischen
-# Leaf Marker
+
+# leaf_mark.lua
 Leaf Marker=Blattmarkierer
+
+# life.lua
 Node is protected=Block ist geschützt
 Glow Worm=Glühwürmchen
+
 # liquids.lua
 Salt Water=Salzwasser
 Freshwater=Süßwasser
@@ -98,27 +114,32 @@ Ice=Eis
 Sea Ice=Meereis
 Lava Source=Lavaquelle
 Flowing Lava=Fließende Lava
-# life.lua
+
+# plant_api.lua
 Young @1=@1, jung
 Flowering @1=@1, blühend
 Fruiting @1=@1, früchtetragend
 Dead Fruitless @1=@1, tot, fruchtlos
 Dead @1=@1, tot
 Dead Fruiting @1=@1, tot, früchtetragend
-@1 Fruit=@1frucht
 @1 Dry Fruit=@1trockenfrucht
+@1 Fruit=@1frucht
 Fruitless @1=@1, fruchtlos
 @1 Spores=@1sporen
 @1 Seeds=@1samen
 @1 Root=@1wurzel
+
 # plants_and_mushrooms
 Barshocha=Barshocha
 Vortecha=Vortecha
 Wiha=Wiha
+Wiha Berries=Wihabeeren
 Momo=Momo
+Momo Pepper=Momoschote
 Galanta=Galanta
 Vansano=Vansano
 Anperla=Anperla
+Anperla tuber=Anperlaknolle
 Jepiha=Jepiha
 Hakimi=Hakimi
 Jarno=Jarno
@@ -133,6 +154,9 @@ Gevaari=Gevaari
 Obesa=Obesa
 Salia=Salia
 Fretin=Fretin
+Urimi=Urimi
+Rhuya=Rhuya
+Hardy Rhuya=Zähe Rhuya
 Lambakap=Lambakap
 Reshedaar=Reshedaar
 Mahal=Mahal
@@ -140,53 +164,56 @@ Merki=Merki
 Nebiyi=Nebiyi
 Marbhan=Marbhan
 Zufani=Zufani
+Zufani Amber=Zufanibernstein
 Tsaplop=Tsaplop
 Jogalan=Jogalan
 Gitiri=Gitiri
+Orylsar=Orylsar
 Badyl=Badyl
 Drapacho=Drapacho
 Bronach=Bronach
 Sari=Sari
 Tanai=Tanai
+Cantapo=Cantapo
+Kemta=Kemta
+Jalakin=Jalakin
 Thoka=Thoka
 Alaf=Alaf
 Muhle=Muhle
+Muhle Berries=Muhlebeeren
 Damo=Damo
 Tashvish=Tashvish
-# data_plant.lua
 Moss=Moos
 Cana=Cana
 Gemedi=Gemedi
 Chalin=Chalin
 Tiken=Tiken
 Saguati=Saguati
-Zufani Amber=Zufanibernstein
-Momo Pepper=Momoschote
-Wiha Berries=Wihabeeren
-Muhle Berries=Muhlebeeren
-Anperla tuber=Anperlaknolle
-# foody stuff (plants_and_mushrooms.lua, liquids.lua)
+# foody stuff
 This plant has a foul musty flavor.=Diese Pflanze hat einen faulen muffigen Geschmack.
 Your stomach hurts terribly.=Ihr Magen tut furchtbar weh.
+
+# rock.lua
 @1 Brick=@1ziegel
 @1 Block=@1block
 @1 Brick Stair=@1ziegeltreppe
 @1 Brick Slab=@1ziegelplatte
-# rocks.lua
 @1 Boulder=@1brocken
 @1 Block Stair=@1blocktreppe
 @1 Block Slab=@1blockplatte
 @1 Cobble=@1feldstein
+
+# season.lua
 <day>=<Tag>
 Sets date.=Setzt das Datum.
 I'm setting day, wait!=Ich setze den Tag, bitte warten!
 Wrong argument, needs a number!=Falsches Argument, es wird eine Zahl benötigt!
 Nothing to change, the date stays as is.=Nichts zu ändern, das Datum bleibt.
 Date change requested!=Datumsänderung angefragt!
-# sediment conditions (sediment_api.lua, sediment_data.lua)
+
+# sediment_api.lua
 Wet @1=@1, feucht
 Salty Wet @1=@1, salzig, feucht
-@1 Stair=@1treppe
 Frosty Winter @1=@1, Frostwinter
 Frosty Winter Wet @1=@1, Frostwinter, feucht
 Depleted @1=@1, erschöpft
@@ -202,26 +229,11 @@ Upland Barren Grassland Soil=Karger Hochgraslandboden
 Coastal Duneland Soil=Küstendünenlandboden
 Upland Duneland Soil=Hochdünenlandboden
 @1 With Roots=@1 mit Wurzeln
+
 # trees.lua
 Tree Marker=Baummarkierer
+@1 Leaves=@1blätter
+@1 Tree=@1baum
 @1 Log=@1-Stamm
 @1 Log Stair=@1-Stammtreppe
 @1 Log Slab=@1-Stammplatte
-@1 Leaves=@1blätter
-Sasaran=Sasaran
-Amma Nut=Ammanuss
-Tulatula=Tulatula
-Tulatula Pods=Tulatulaschoten
-Coquina=Coquina
-Scoria=Scoria
-Rhuya=Rhuya
-Hardy Rhuya=Zähe Rhuya
-Maraka=Maraka
-Amma=Amma
-Tangkal=Tangkal
-Kagum=Kagum
-Yalovy=Yalovy
-Daoja=Daoja
-Panasee=Panasee
-Urimi=Urimi
-@1 Tree=@1baum

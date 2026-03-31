@@ -1,23 +1,8 @@
 # textdomain: doors
+# init.lua
 Hidden Door Segment=Segmento di porta nascosto
 You can't open this door, =
 You do not own this locked door.=Non sei il proprietario di questa porta chiusa a chiave.
 a locked door=una porta chiusa a chiave
 You do not own this trapdoor.=Non sei il proprietario di questa botola.
 a locked trapdoor=una botola chiusa a chiave
-Apple Wood Fence Gate=Cancello della recinzione di legno di melo
-Acacia Wood Fence Gate=Cancello della recinzione di legno d'acacia
-Jungle Wood Fence Gate=Cancello della recinzione di legno della giungla
-Pine Wood Fence Gate=Cancello della recinzione di legno di pino
-Aspen Wood Fence Gate=Cancello della recinzione di legno di pioppo
-
-
-##### not used anymore #####
-
-Owned by @1=Di proprietà di @1
-Wooden Door=Porta di legno
-Steel Door=Porta d'acciacio
-Glass Door=Porta di vetro
-Obsidian Glass Door=Porta di vetro d'ossidiana
-Wooden Trapdoor=Botola di legno
-Steel Trapdoor=Botola d'acciaio

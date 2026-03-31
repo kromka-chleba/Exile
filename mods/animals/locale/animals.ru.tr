@@ -1,37 +1,49 @@
 # textdomain: animals
-# crafts.lua
-@1 Eggs=Яйца @1
+# api_capture.lua
 Slaughter the animal=Убить животное
 Live @1=Живой @1
+
+#api.lua
+@1 Eggs=Яйца @1
+
+# crafts.lua
 small invertebrate=Маленькая беспозвоночный
 large invertebrate=Большая беспозвоночный
 small bird=Маленькая птица
 large bird=Большая птица
 small fish=Маленькая рыба
 large fish=Большая рыба
-
 @1 Carcass=Туша @1
 Cooked @1=Приготовленный @1
 Burned @1=Сожжённый @1
+
+#chichasa.lua
 Female Chichasa=Самка чичаса
 Chichasa Egg=Яйцо чичаса
 Live Female Chichasa=Живая самка чичаса
 Male Chichasa=Самец чичаса
+
 # darkasthaan.lua
 Darkasthaan=Даркастаан
 Live Darkasthaan=Живой Даркастаан
+
 # gundu.lua
 Gundu=Гунду
+
 # impethu.lua
 Impethu=Импету
+
 # kubwakubwa.lua
 Kubwakubwa=Кубвакубва
-Female Pegasun=Самка Пегасуна
+
 # pegasun.lua
+Female Pegasun=Самка Пегасуна
 Pegasun Egg=Яйцо Пегасуна
 Live Female Pegasun=Живая самка Пегасуна
 Male Pegasun=Самец Пегасуна
+
 # sarkamos.lua
 Sarkamos=Саркамос
+
 # sneachan.lua
 Sneachan=Сничан

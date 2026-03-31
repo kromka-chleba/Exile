@@ -1,4 +1,5 @@
 # textdomain: doors
+# init.lua
 Hidden Door Segment=
 You can't open this door, =
 You do not own this locked door.=

@@ -1,14 +1,16 @@
 # textdomain: nodes_nature
-# dropping water
+# compost.lua
 Undecomposed Compost=
 Set to decompose=
 Compost=
 Fertilize soil=
 Wet Compost=
 Fertilize and soak soil=
-Wet Undecomposed Compost=
-# compost.lua
+@1 Stair=
 @1 Slab=
+Wet Undecomposed Compost=
+
+# data_plant.lua
 Riraemu=
 Opaeko=
 Aongao=
@@ -21,6 +23,8 @@ Maraka Nut=
 Panasee=
 Sasaran=
 Sasaran Cone=
+Warungaree=
+Warungaree Seed=
 Yalovy=
 Yalovy Shrub=
 Yalovy Cone=
@@ -32,6 +36,7 @@ Daoja=
 Daoja Berry=
 Tulatula=
 Tulatula Pods=
+
 # data_rock.lua
 Sandstone=
 Siltstone=
@@ -45,23 +50,19 @@ Basalt=
 Scoria=
 Gneiss=
 Jade=
-Clay Agricultural Soil=
-Silty Agricultural Soil=
-Sandy Agricultural Soil=
-Stony Agricultural Soil=
-Loamy Agricultural Soil=
-# sediments (sediment_data.lua)
+# sediments:
 Sand=
 Silt=
 Clay=
 Gravel=
 Loam=
 Red Ochre=
-# biome sediments (sediment_data.lua)
+# biome sediments:
 Rich Forest Soil=
 Rich Woodland Soil=
 Forest Soil=
 Woodland Soil=
+Open Woodland Soil=
 Upland Forest Soil=
 Upland Woodland Soil=
 Marshland Soil=
@@ -74,8 +75,16 @@ Barren Grassland Soil=
 Duneland Soil=
 Highland Soil=
 Dry Woodland Soil=
+Clay Agricultural Soil=
+Silty Agricultural Soil=
+Sandy Agricultural Soil=
+Stony Agricultural Soil=
+Loamy Agricultural Soil=
+
+# dripping_water.lua
 Water drop=
-# interface
+
+# init.lua
 Threshing=
 Crafting=
 Bricks=
@@ -83,10 +92,14 @@ Bricks & Mortar=
 Blocks=
 Blocks & Mortar=
 Mixing=
-# Leaf Marker
+
+# leaf_mark.lua
 Leaf Marker=
+
+# life.lua
 Node is protected=
 Glow Worm=
+
 # liquids.lua
 Salt Water=
 Freshwater=
@@ -101,7 +114,8 @@ Ice=
 Sea Ice=
 Lava Source=
 Flowing Lava=
-# life.lua
+
+# plant_api.lua
 Young @1=
 Flowering @1=
 Fruiting @1=
@@ -109,19 +123,23 @@ Dead Fruitless @1=
 Dead @1=
 Dead Fruiting @1=
 @1 Dry Fruit=
+@1 Fruit=
 Fruitless @1=
 @1 Spores=
 @1 Seeds=
 @1 Root=
-@1 Fruit=
-# plants_and_mushrooms
+
+# plants_and_mushrooms.lua
 Barshocha=
 Vortecha=
 Wiha=
+Wiha Berries=
 Momo=
+Momo Pepper=
 Galanta=
 Vansano=
 Anperla=
+Anperla tuber=
 Jepiha=
 Hakimi=
 Jarno=
@@ -146,53 +164,56 @@ Merki=
 Nebiyi=
 Marbhan=
 Zufani=
+Zufani Amber=
 Tsaplop=
 Jogalan=
 Gitiri=
+Orylsar=
 Badyl=
 Drapacho=
 Bronach=
 Sari=
 Tanai=
+Cantapo=
+Kemta=
+Jalakin=
 Thoka=
 Alaf=
 Muhle=
+Muhle Berries=
 Damo=
 Tashvish=
-# data_plant.lua
 Moss=
 Cana=
 Gemedi=
 Chalin=
 Tiken=
 Saguati=
-Zufani Amber=
-Momo Pepper=
-Wiha Berries=
-Muhle Berries=
-Anperla tuber=
-# foody stuff (plants_and_mushrooms.lua, liquids.lua)
+# foody stuff
 This plant has a foul musty flavor.=
 Your stomach hurts terribly.=
+
+# rocks.lua
 @1 Brick=
 @1 Block=
 @1 Brick Stair=
 @1 Brick Slab=
-# rocks.lua
 @1 Boulder=
 @1 Block Stair=
 @1 Block Slab=
 @1 Cobble=
+
+# season.lua
 <day>=
 Sets date.=
 I'm setting day, wait!=
 Wrong argument, needs a number!=
 Nothing to change, the date stays as is.=
 Date change requested!=
-# sediment conditions (sediment_api.lua, sediment_data.lua)
+
+# sediment_api.lua
 Wet @1=
 Salty Wet @1=
-@1 Stair=
 Frosty Winter @1=
 Frosty Winter Wet @1=
 Depleted @1=
@@ -208,6 +229,7 @@ Upland Barren Grassland Soil=
 Coastal Duneland Soil=
 Upland Duneland Soil=
 @1 With Roots=
+
 # trees.lua
 Tree Marker=
 @1 Leaves=

@@ -199,8 +199,9 @@ local function get_old_effects_list(player, list)
     local effects_list_str = meta:get_string("effects_list")
     local effects_list = minetest.deserialize(effects_list_str) or {}
     for no, effect in ipairs(effects_list) do
-        -- effect_list is only modified in health/health_effects.lua and health/init.lua,
-        -- so this translator should be fine
+        -- effect_list is only modified in health/health_effects.lua and
+        -- health/init.lua and texts there are marked for translation
+        -- (see NS("Food Poisoning"), ...), so this translator should be fine
         effect[1] = health_S(effect[1])
         effect[2] = label[tonumber(effect[2])] or ""
         table.insert(list, effect)

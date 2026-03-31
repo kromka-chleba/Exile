@@ -1,5 +1,8 @@
 # textdomain: creative
+# init.lua
 Allow player to use creative inventory=Разрешить игроку использовать творческий инвентарь
+
+# inventory.lua
 Search=Поиск
 Reset=Сброс
 Previous page=Предыдущая страница

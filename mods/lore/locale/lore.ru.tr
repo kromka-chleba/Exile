@@ -1,9 +1,9 @@
 # textdomain: lore
-#char_tab.lua
-# personality
-#  openness
-#char_tab.lua
-# personality
+# bio_gen.lua
+# gender:
+he=он
+she=она
+# personality:
 #  openness
 Conventional=обычный
 Unconventional=нетрадиционный
@@ -49,7 +49,7 @@ Self-satisfied=самоудовлетворенный
 Moody=унылый
 Complacent=самодовольный
 Paranoid=параноидальный
-# virtue
+# virtue:
 courageous=мужественный
 temperate=умеренный
 charitable=благотворительный
@@ -146,7 +146,7 @@ understanding=понимающий
 vigorous=энергичный
 wise=мудрый
 zealous=ревностный
-# life
+# life:
 #  Favorable
 a good=хорошую
 a happy=счастливую
@@ -206,7 +206,7 @@ a misspent=расточительную
 an eccentric=эксцентричную
 an oddball=чудаковатую
 a strange=странную
-# woe
+# woe:
 #  Bad Business
 made a bad bargain=заключил плохую сделку
 made a deal with the wrong people=заключил сделку не с теми людьми
@@ -308,18 +308,20 @@ received a vision from the other side=получил видение с того 
 had a dream that explained everything=увидел сон, который все объяснил
 built a perpetual-motion machine=построил вечный двигатель
 learned the meaning of life=узнал смысл жизни
-# bio_gen.lua
+# lore.generate_bio():
 @n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @3 @5 человек @1 и @2,@n который прожил @4 жизнь,@n но однажды @6....
-he=он
-she=она
+
+# char_tab.lua
+Health Effects=Воздействие на здоровье
 Name=Имя
 Days Survived=Дней выживания
 Lives=Жизни
 Biography=Биография
-Health Effects=Воздействие на здоровье
 Character=Характер
-# judger
-# monarchs, etc.
+
+# exile_letter.lua
+# judger:
+#  monarchs, etc.
 King=Короля
 Queen=Королевы
 Emperor=Императора
@@ -341,7 +343,7 @@ Prince=Принца
 Princess=Принцессы
 Regent=Регента
 Dictator=Диктатора
-# officials
+#  officials
 High Judge=Высокого судьи
 Tribunal=Трибунала
 Council=Совета
@@ -353,7 +355,7 @@ Sheriff=Шерифа
 Exarch=Экзарха
 Prefect=Префекта
 Seneschal=Сенешаля
-# cults
+#  cults
 Brotherhood=Братства
 Sisterhood=Сестринства
 High Priest=Верховного жреца
@@ -371,7 +373,7 @@ Priestesses=Жриц
 Enlightened Ones=Просветленных
 Great Sage=Великих мудрецов
 Shaman=Шамана
-# tribal
+#  tribal
 Elders=Старейшин
 Wise Ones=Мудрых людей
 Clan Council=Совета клана
@@ -380,7 +382,7 @@ Great Chieftain=Великого вождя
 United Clans=Объединенных кланов
 Wise Man=Мудрого мужчины
 Wise Woman=Мудрой женщины
-# republic
+#  republic
 Citizenry=Граждан
 People=Народа
 Senate=Сената
@@ -388,7 +390,7 @@ Consul=Консула
 Senators=Сенаторов
 Assembly=Собрания
 Chief Minister=Главного министра
-# Geographic/polity
+#  Geographic/polity
 City State=Города-штата
 Empire=Империи
 Kingdom=Королевства
@@ -407,7 +409,7 @@ Tribe=Племени
 Monastic Order=Монашеского ордена
 Merchant Republic=Купеческой республики
 Theocracy=Теократии
-# Military
+#  Military
 Generals=Генералов
 Champion=Чемпионов
 Mighty Warriors=Могучих воинов
@@ -416,14 +418,14 @@ Legion=Легионов
 Commander=Командиров
 Commandant=Комендантов
 Warlord=Военачальников
-# rogues
+#  rogues
 Pirates=Пиратов
 Bandits=Разбойников
 Company=Компании
 Horde=Орды
 Liberators=Освободителей
 Destroyers=Разрушителей
-# freaky
+#  freaky
 All Seeing Eye=Всевидящего глаза
 Old Children=Старых детей
 Spectre=Спектров
@@ -435,8 +437,8 @@ Eternal Pyramid=Вечной пирамиды
 Towering Tree=Башенного дерева
 Viridian Magister=Виридианского Магистра
 Thousand-tongued All-speaker=Тысячеязыкого Вседержителя
-# exile-worthy crime
-# crime1
+# exile-worthy crime:
+#  crime1
 treason=измену
 betrayal=предательство
 murder=убийство
@@ -455,8 +457,8 @@ espionage=шпионаж
 sabotage=саботаж
 treachery=предательство
 sedition=мятеж
-# flavour-text crime
-# crime2
+# flavour-text crime:
+#  crime2
 leading the youth astray=сбивание молодежи с пути
 smuggling contraband=доставку контрабанды
 vagabondage=бродяжничество
@@ -549,7 +551,7 @@ leading an unauthorised military campaign=ведение несанкциони�
 claiming that the world is round=утверждение, что мир круглый
 claiming that the world is not round=утверждение, что мир не круглый
 promoting belief in gravity=пропаганда веры в гравитацию
-#exile_letter.lua
+#
 He=Он
 She=Она
 Him=Ему
@@ -606,8 +608,8 @@ So it is written. So it is done.=Так написано. Так и есть.
 Even the dogs despise @1.=Даже собаки презирают @1.
 We break no bread with traitors.=Мы не преломляем хлеб с предателями.
 Let this be @1 journey to cleanse @2.=Пусть это будет путешествие @1, чтобы очистить @2.
-# Various corruptions of "Ozymandias"
-# local exile
+# Various corruptions of "Ozymandias":
+#  local exile
 Ochymadion=Очимадион
 Aseymedius=Асеймедиус
 Eshenadios=Эшенадиос
@@ -624,8 +626,8 @@ Caemandior=Каемандиор
 Oshaemediash=Ошаэмедиаш
 Otzakantas=Отзакантас
 Archanatus=Арханатус
-# What happened here? Lost to memory.
-# mythic_terror
+# What happened here? Lost to memory.:
+#  mythic_terror
 Great Calamity=Великое бедствие
 Collapse=Крах
 Unending Curse=Нескончаемое проклятие
@@ -673,13 +675,17 @@ Twisted Existence=Искаженное существование
 Twisted=Искаженние
 Warped=Искривленный
 Lost=Потерянные
+# generate_text:
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=По постановлению @1 из @2: @n@n @3 из @4 @n@n настоящим приговаривается к изгнанию за преступления @n@n @5 @n@n и @n@n @6 @n@n @7 настоящим изгоняется в землю @8 @n@n Земля - @9 @n@n
 Sentence of Exile=Приговор изгнания
-#login.lua
+
+# login.lua
 login_text=  Вы едва слышите, как они@n зачитывают список ваших преступлений под@n громкие издевательств ваших сородичей, но уже @n слишком поздно протестовать против своей невиновности.@n @n  Вас лишают всего имущества и вручают@n приказ, в котором описаны все ваши преступления и наказание,@n которое должно быть назначено, а затем вас@n вас проталкивают через врата, чтобы вы умерли в@n проклятой земле древних, как..
 Message of the Day:@n@n=Сообщение дня:@n@n
 This command shows the current message of the day.=Эта команда показывает текущее сообщение дня.
-#restart.lua
+This command prints the login queue for all players.=
+
+# restart.lua
 @1 gave up the ghost.=@1 отказался от призрака.
 POP!=ХОП!
 Restart in: @1 seconds.=Перезапуск через: @1 секунд.

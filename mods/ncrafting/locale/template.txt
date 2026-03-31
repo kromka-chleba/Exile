@@ -1,5 +1,5 @@
 # textdomain: nodecrafting
-@1 added to the @2=
+# dyes.lua
 red=
 crimson=
 yellow=
@@ -21,3 +21,9 @@ Dyer's Table@n(Used to create dyes)=
 Dump=
 Dye Pot=
 Dump the dye from the pot?=
+
+# fermentation.lua
+Fermenting @1=
+
+# microbial.lua
+@1 added to the @2=

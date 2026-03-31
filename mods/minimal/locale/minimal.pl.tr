@@ -1,32 +1,7 @@
 # textdomain: minimal
-#utility/general.lua
-@1's @2=
-#currentrevision.lua
+# currentrevision.lua
 Display the current git revision=
 This server is currently running git revision=
-#interface/infotext.lua
-Owner:=
-Label:=
-
-#playersettings.lua
-Enable wide HUDbar=
-Show numeric stats=
-Enable Break-taker popup=
-Allow digging with a full inventory=
-Recipe hints require pressing a button=
-Keep fixed order for recipes=
-Disable music=
-Temperature scale=
-GUI theme=
-HUD Opacity=
-Default=
-Antiglass=
-Antiblue=
-Legacy Grey=
-New Grey=
-Crafting mode=
-'Save this'=
-'Use this'=
 
 # protection.lua
 Access List=
@@ -34,14 +9,15 @@ Delete=
 Close=
 Access list empty.=
 Deleted @1 from access list.=
+Can't grant access to items you don't own=
 @1 already has access=
 @1 has been granted access=
-Can't grant access to items you don't own=
-Crafted by=
-Burnt Storage Pile=
 Label=
 Set=
-#triggers.lua
+Crafted by=
+Burnt Storage Pile=
+
+# triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=
 Reset player=
 Will reset player stats to full=
@@ -82,11 +58,11 @@ Value:=
 False=
 True=
 # triggers
+Unset=
 Exile trigger node=
 Configured trigger=
-Unset=
-Yes=
-No=
+
+# zones.lua
 Error in zone def ranges=
 Upper corner=
 ( North / Up / East )=
@@ -101,8 +77,37 @@ Copy=
 Values=
 Exile zone trigger node=
 
+# interface/infotext.lua
+Owner:=
+Label:=
 
-##### not used anymore #####
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=
+Show numeric stats=
+Enable Break-taker popup=
+Allow digging with a full inventory=
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=
+Temperature scale=
+GUI theme=
+HUD Opacity=
 
-# Stairs
-Inner @1=
+# interface/themes.lua
+Default=
+Antiglass=
+Antiblue=
+Legacy Grey=
+New Grey=
+Coal Black=
+
+# utility/general.lua
+Yes=
+No=
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=

@@ -1,23 +1,8 @@
 # textdomain: doors
+# init.lua
 Hidden Door Segment=Verborgenes Türsegment
 You can't open this door,=Sie können diese Tür nicht öffnen,
 You do not own this locked door.=Diese abgeschlossene Tür gehört Ihnen nicht.
 a locked door=eine abgeschlossene Tür
 You do not own this trapdoor.=Diese Falltür gehört Ihnen nicht.
 a locked trapdoor=eine abgeschlossene Falltür
-Apple Wood Fence Gate=Apfelholzzauntor
-Acacia Wood Fence Gate=Akazienholzzauntor
-Jungle Wood Fence Gate=Dschungelholzzauntor
-Pine Wood Fence Gate=Kiefernholzzauntor
-Aspen Wood Fence Gate=Espenholzzauntor
-
-
-##### not used anymore #####
-
-Owned by @1=Eigentum von @1
-Wooden Door=Holztür
-Steel Door=Stahltür
-Glass Door=Glastür
-Obsidian Glass Door=Obsidianglastür
-Wooden Trapdoor=Holzfalltür
-Steel Trapdoor=Stahlfalltür

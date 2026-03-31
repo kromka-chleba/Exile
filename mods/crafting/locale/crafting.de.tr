@@ -1,7 +1,12 @@
 # textdomain: crafting
+# api.lua
+@1's @2=@1s @2
+Missing required items!=Es fehlen benötigte Gegenstände!
+
+# groups.lua
 log=Holzstamm
 fibrous plant=faserige Pflanze
-sand=
+sand=Sand
 compostable=kompostierbar
 hard wood=Hartholz
 cana=Cana
@@ -16,41 +21,40 @@ basalt cobble=Basaltfeldstein
 granite cobble=Granitfeldstein
 ironstone cobble=Eisensteinfeldstein
 jade cobble=Jadefeldstein
-coquina cobble=Coquinafeldstein
-fruit=Frucht
-seed=Samen
-#api.lua
+Any empty @1=@1, beliebig
+# hint: unit of item like "Freshwater (Pot)":
 @1 (@2)=@1 (@2)
 Any @1=@1, beliebig
-Missing required items!=
 
-#gui.lua
-Missing required items!=Es fehlen benötigte Gegenstände!
-Main=Haupt
-Bag1=Tasche1
-Bag2=Tasche2
-Bag3=Tasche3
-Bag4=Tasche4
-Input Items=Eingabegegenstände
-Tool used=Verwendetes Werkzeug
-#Craft Type=Fertigungstyp
+# gui/crafting_FS.lua
+Filter=Filter
+Reset=Zurücksetzen
+Hint=Hinweis
+Save this=Nicht nutzen
+
+# gui/inventory_FS.lua
 Crafting?=Fertigung?
 
-Quantity=Menge
-Single=Einzel
-Stack=Stapel
-Maximum=Maximum
-Search=
+# gui/recipe_panel.lua
+@1:=@1:
+Will be crafted @1 times=Wird @1 Mal gefertigt
+Tool (=Werkzeug (
+will not be consumed=wird nicht verbraucht
 or=oder
-Crafted by: @1=Gefertigt durch
-You are using: @1=Sie verwenden: @1
-Flat, clear Surface=Ebene, freie Fläche
-Filter=
-Clear=
-Tool:=
-will not be consumed:=
-First, select an item to craft.=Wählen Sie zuerst, was Sie fertigen möchten.
-# ex. "Stick: Craft 5 x 2.":
+# ex.: "Stick: Craft 5 x 2.":
 @1: Craft @2@3.=@1: Fertige @2@3.
-Use this=Dies nutzen
-Save this=Nicht nutzen
+First, select an item to craft.=Wählen Sie zuerst, was Sie fertigen möchten.
+Not enough room to transfer everything=Nicht genug Platz um alles zu transferieren.
+
+# gui/stations_FS.lua
+Flat, clear Surface=Ebene, freie Fläche
+You are using: @1=Sie verwenden: @1
+Crafted by: @1=Gefertigt durch
+
+# gui/tools_and_types.lua
+Tool used=Verwendetes Werkzeug
+
+
+# commented
+Pot=Krug
+Ingredients=Zutaten

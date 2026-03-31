@@ -12,10 +12,16 @@ Select a place for crafting / Drink=
 You were given a hand!=
 Check your inventory!=
 
-# cloth_composing.lua
+# states.lua
+(mild)=(слабый)
+(moderate)=(умеренный)
+(severe)=(тяжелый)
+(extreme)=(экстремальный)
+
+# clothing/cloth_composing.lua
 Naked=Голый
 
-# cloth_definitions.lua
+# clothing/cloth_definitions.lua
 Head=Голова
 Upper=Верхняя
 Lower=Нижняя
@@ -31,16 +37,10 @@ Pink Bow=Розовый бант
 Classic Green Sweater=Классический зеленый свитер
 Fine Blue Pants=Изящные синие брюки
 
-# equip.lua
+# clothing/equip.lua
 Clothing=Одежда
 Min Temperature Tolerance: @1=Мин. допустимая температура: @1
 Max Temperature Tolerance: @1=Макс. допустимая температура: @1
 You can't equip a blanket outside of a bed.=Вы не можете использовать одеяло вне кровати.
 You already wear that!=Вы уже носите это!
 @1 equipped!=@1 Экипировано!
-
-# states.lua
-(mild)=(слабый)
-(moderate)=(умеренный)
-(severe)=(тяжелый)
-(extreme)=(экстремальный)

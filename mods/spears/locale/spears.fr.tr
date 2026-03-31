@@ -1,4 +1,5 @@
 # textdomain: spears
+# tools.lua
 @1 spear=lance en @1
 Stone=pierre
 Iron=fer

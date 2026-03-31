@@ -4,6 +4,9 @@
 Airboat=Luftboot
 [airboat] Cruise on=[Luftboot] Reisen ein
 [airboat] Cruise off=[Luftboot] Reisen aus
+
+# art.lua
+Moon Glass=Mondglas
 Jade=Jade
 Gold=Gold
 @1 Sculpture=@1skulptur
@@ -11,25 +14,32 @@ Gamepiece (black)=Spielstein (schwarz)
 Gamepiece (white)=Spielstein (weiß)
 Singing Stone=Singender Stein
 Drumming Stone=Trommelnder Stein
-# materials.lua
-Moon Glass=Mondglas
+
 # bell.lua
 Automated Bell=Auomatisierte Glocke
+
 # map.lua
 Geosurveyor@nUse with 'Minimap' key=Geovermesser@nVerwendung mit "Minikarten"-Taste
+
+# materials.lua
 Sun Stone=Sonnenstein
 Moon Stone=Mondstein
 Star Stone=Sternstein
+Antiquorium=Antiquorium
 @1 Ladder=@1leiter
 @1 Door=@1tür
 @1 Trapdoor=@1falltür
 Trampoline=Trampolin
 Conveyor=Förderband
-Antiquorium=Antiquorium
+
 # pandora.lua
 Meta-Stim Injector=Meta-Stim-Injektor
+Void Space=Leerer Raum
+
 # storage.lua
 @1 chest=@1truhe
+
+# tools.lua - probes
 LIGHT MEASUREMENT:=LICHTMESSUNG:
 LIGHT LEVEL @= @1=Lichtstärke @= @1
 Light Meter=Lichtmesser
@@ -38,9 +48,8 @@ OBJECT TEMPERATURE MEASUREMENT:=MESSUNG DER OBJEKT-TEMPERATUR:
 TEMPERATURE @= =Temperatur @= 
 Temperature Probe=Temperatursonde
 List temperature of node=Temperatur von Dingen auflisten
-# probes;
-NOT MEASURABLE!=NICHT MESSBAR!
 BURN UNITS REMAINING:=VERBLEIBENDE BRENNEINHEITEN:
+NOT MEASURABLE!=NICHT MESSBAR!
 Fuel Probe=Brennstoffsonde
 List fuel units of node=Brennstoffeinheiten des Blocks auflisten
 SMELTING UNITS REMAINING:=VERBLEIBENDE EINHEITEN FÜR VERHÜTTUNG:
@@ -53,14 +62,14 @@ COOKING UNITS REMAINING:=VERBLEIBENDE KOCHEINHEITEN:
 Chef's Probe=Chefkoch-Sonde
 List remaining cooking units of pointed food=Verbleibende Kocheinheiten von Nahrung auflisten
 GROUPS:=Gruppen:
-PLANT TYPE:=
+PLANT TYPE:=Pflanzenart:
 Wild=Wild
 Domesticated=Domestiziert
 Half-wild=Halbwild
-PLANT GROWTH NOT MEASURABLE!=PFLANZENWACHSTUM NICHT MESSBAR!
 GROWTH UNITS REMAINING:=VERBLEIBENDE WACHSTUMSEINHEITEN
-PLANT HEALTH NOT MEASURABLE!=GESUNDHEIT DER PFLANZE NICHT MESSBAR!
+PLANT GROWTH NOT MEASURABLE!=PFLANZENWACHSTUM NICHT MESSBAR!
 Health:=Gesundheit:
+PLANT HEALTH NOT MEASURABLE!=GESUNDHEIT DER PFLANZE NICHT MESSBAR!
 STATE:=ZUSTAND:
 wet=nass
 salty=salzig
@@ -70,58 +79,64 @@ ROOTS:=WURZELN:
 NOT MEASURABLE: NEEDS A PLANT OR SOIL=NICHT MESSBAR: PFLANZE ODER ERDE BENÖTIGT
 Farmer's Probe=Landwirtschaftliche Sonde
 List stats of plant or soil=Zustände einer Pflanze oder von Erde auflisten
-# tools.lua
+
+# tools.lua - more
 @1 Chisel=@1 Meißel
 Spyglass=Fernrohr
 View far distances=In weite Entfernung schauen
-# player + animal
-SELF=EIGEN
-ANIMAL=TIER
-EGG=EI
+
+# tools.lua - player/animal probe
+Gestation: @1%=Reifung: @1
+EGG IS DEAD=EI IST TOT
 @1 CONDITION:=@1-ZUSTAND
-@1 units=@1-Einheiten
+EGG=EI
+1 day old=1 Tag alt
+@1 days old=@1 Tage alt
+1 year old=1 Jahr alt
+@1 years old=@1 Jahre alt
 Health: @1=Gesundheit: @1
-# player energy vs animal energy
+@1 units=@1-Einheiten
+Age: @1=Alter: @1
+# hint: player values:
 Energy: @1%=Energie: @1%
-Energy: @1=Energie: @1
 Body Temp: @1=Körpertemperatur: @1
 Hunger: @1%=Hunger: @1%
 Thirst: @1%=Durst: @1%
 Effects: @1=Effekte: @1
-Age: @1=Alter: @1
-1 year old=1 Jahr alt
-@1 years old=@1 Jahre alt
-1 day old=1 Tag alt
-@1 days old=@1 Tage alt
+SELF=EIGEN
+# hint: animal values:
 @1 seconds=@1 Sekunden
+Energy: @1=Energie: @1
 Oxygen: @1%=Sauerstoff: @1%
-# binary
 Yes=Ja
 No=Nein
 Pregnant: @1=Trächtig: @1
-Gestation: @1%=Reifung: @1
-EGG IS DEAD=EI IST TOT
+ANIMAL=TIER
 Animal Probe=Tiersonde
 List stats of pointed animal or player=Zustände von Tieren oder Spielern auflisten
 Inspect self=Sich selbst inspizieren
 Admin's Probe=Admin-Sonde
 List groups of pointed node=Gruppen anvisierter Blöcke auflisten
+
+# transporter.lua
 KEY CAN ONLY SET DESTINATIONS FOR TRANSPORTER PAD=DER SCHLÜSSEL KANN NUR ZIELE FÜR TRANSPORTER PLATTFORMEN SETZEN
 Bond Transporter to Target=Transporter mit Ziel verknüpfen
 Replace Transporter Bond with NEW Target=Ersetze Transporter-Verbindung durch NEUES Ziel
 Target name=Name des Ziels
+Cancel=Abbrechen
 KEY IS BLANK!: use leftclick to save this location=SCHLÜSSEL IST UNBESCHRIEBEN!: nutze Links-Click, um diesen Ort zu sichern
-Destination: @1=Ziel: @1
-Location: @1=Ort: @1
 TRANSPORTER DESTINATION SET TO: @1 at @2=TRANSPORTERZIEL GESETZT AUF: @1 BEI @2
 KEY CAN ONLY SAVE FROM TRANSPORTER PAD=SCHLÜSSEL KANN NUR VON EINER TRANSPORTER-PLATTFORM SPEICHERN
 Key's target name=Zielname des Schlüssels
 Wipe Key=Schlüssel Löschen
+Destination name=Zielname
 Create Bonded Key=Gebundenen Schlüssel Erzeugen
 Transporter Key=Transporterschlüssel
 Transporter Key to =Transporterschlüssel nach 
 TRANSPORTER KEY CREATED TO: @1=TRANSPORTERSCHLÜSSEL NACH: @1 ERZEUGT
 Transporter Pad=Transporter-Plattform
+Location: @1=Ort: @1
+Destination: @1=Ziel: @1
 Transporter Pad (Charging)=Transporter-Plattform (Ladend)
 Transporter Pad (active)=Transporter-Plattform (aktiviert)
 Transporter Power Core (charged)=Transporter-Energie-Kern (geladen)
@@ -129,8 +144,7 @@ Transporter Power Core (depleted)=Transporter-Energie-Kern (entleert)
 Transporter Focalizer=Transporter-Fokussierer
 Transporter Stabilizer=Transporter-Stabilisierer
 Transporter Regulator=Transporter-Regulator
-Cancel=Abbrechen
-Destination name=Zielname
+
 # wayfinder.lua
 Wayfinder to @1=Wegweiser nach @1
 WAYFINDER BONDED TO: @1 @2=WEGWEISER VERBUNDEN MIT: @1 @2

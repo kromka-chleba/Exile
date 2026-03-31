@@ -1,39 +1,49 @@
 # textdomain: animals
-# crafts.lua
 # api_capture.lua
 Slaughter the animal=Das Tier schlachten
+Live @1=@1 Lebend
+
+#api.lua
+@1 Eggs=@1-Eier
+
+# crafts.lua
 small invertebrate=kleiner Wirbelloser
 large invertebrate=großer Wirbelloser
 small bird=kleiner Vogel
 large bird=großer Vogel
 small fish=kleiner Fisch
 large fish=großer Fisch
-
 @1 Carcass=@1kadaver
 Cooked @1=Gekochter @1
 Burned @1=Verbrannter @1
-# api_capture.lua + #api.lua
-@1 Eggs=@1-Eier
-Live @1=@1 Lebend
-# darkasthaan.lua
-Darkasthaan=Darkasthaan
-# gundu.lua
-Gundu=Gundu
-# impethu.lua
-Impethu=Impethu
-# kubwakubwa.lua
-Kubwakubwa=Kubwakubwa
-# pegasun.lua
-Pegasun Egg=Pegasun-Ei
-Live Female Pegasun=Weiblicher Pegasun Lebend
-Female Pegasun=Weiblicher Pegasun
-Male Pegasun=Männlicher Pegasun
-# sarkamos.lua
-Sarkamos=Sarkamos
-# sneachan.lua
-Sneachan=Sneachan
+
+#chichasa.lua
 Female Chichasa=Weibliche Chichasa
 Chichasa Egg=Chichasa-Ei
 Live Female Chichasa=Lebendige weibliche Chichasa
 Male Chichasa=Männliche Chichasa
+
+# darkasthaan.lua
+Darkasthaan=Darkasthaan
 Live Darkasthaan=Lebendiger Darkasthaan
+
+# gundu.lua
+Gundu=Gundu
+
+# impethu.lua
+Impethu=Impethu
+
+# kubwakubwa.lua
+Kubwakubwa=Kubwakubwa
+
+# pegasun.lua
+Female Pegasun=Weiblicher Pegasun
+Pegasun Egg=Pegasun-Ei
+Live Female Pegasun=Weiblicher Pegasun Lebend
+Male Pegasun=Männlicher Pegasun
+
+# sarkamos.lua
+Sarkamos=Sarkamos
+
+# sneachan.lua
+Sneachan=Sneachan

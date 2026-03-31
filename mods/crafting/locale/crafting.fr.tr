@@ -1,8 +1,9 @@
 # textdomain: crafting
-#General format with #
-@1:=@1 :
-Empty @1=@1 vide
+# api.lua
+@1's @2=
+Missing required items!=Il manque des objets requis!
 
+# groups.lua
 log=bûche
 fibrous plant=plante fibreuse
 sand=sable
@@ -11,52 +12,49 @@ hard wood=bois dur
 cana=canne
 woody plant=plante ligneuse
 woodslab=dalle de bois
-
 bioluminescent=bioluminescent
-
 pottery=poterie
 gravel=gravier
-
 bundleable fiber=fibre empaquetable
-#api.lua
-#unit of item like "Pot of Freshwater"
-@1 (@2)=@1 (@2)
-Any @1=Tout type de @1
-Missing required items!=Il manque des objets requis!
-
-#gui.lua
-Missing required items!=Il manque des objets requis!
-Main=Principal
-Bag1=Sac n°1
-Bag2=Sac n°2
-Bag3=Sac n°3
-Bag4=Sac n°4
-Use first:=Utiliser en priorité :
-Tool used=Outil utilisé
-Crafting?=Artisanat ?
-
-Quantity=Quantité
-Single=Un seul
-Stack=Une pile
-Maximum=Le maximum
-Search=Requête
-or=ou
-Crafted by: @1= Fabriqué(e) par : @1
-You are using: @1=Vous utilisez : @1
-Flat, clear Surface=Surface plane dégagée
-Filter=Filtrer
-Clear=Effacer
-Tool:=Outil :
-will not be consumed:=ne sera pas consommé
-First, select an item to craft.=
-# ex. "Stick: Craft 5 x 2.":
-@1: Craft @2@3.=
-Use this=
-Save this=
-
-#groups
 limestone cobble=caillou calcaire
 basalt cobble=caillou de basalte
 granite cobble=caillou de granite
 ironstone cobble=caillou ferreux
 jade cobble=caillou de jade
+Any empty @1=
+# hint: unit of item like "Freshwater (Pot)":
+@1 (@2)=@1 (@2)
+Any @1=Tout type de @1
+
+# gui/crafting_FS.lua
+Filter=Filtrer
+Reset=
+Hint=
+Save this=
+
+# gui/inventory_FS.lua
+Crafting?=Artisanat ?
+
+# gui/recipe_panel.lua
+@1:=@1 :
+Will be crafted @1 times=
+Tool (=
+will not be consumed=ne sera pas consommé
+or=ou
+# ex.: "Stick: Craft 5 x 2.":
+@1: Craft @2@3.=
+First, select an item to craft.=
+Not enough room to transfer everything=
+
+# gui/stations_FS.lua
+Flat, clear Surface=Surface plane dégagée
+You are using: @1=Vous utilisez : @1
+Crafted by: @1= Fabriqué(e) par : @1
+
+# gui/tools_and_types.lua
+Tool used=Outil utilisé
+
+
+# commented
+Pot=
+Ingredients=

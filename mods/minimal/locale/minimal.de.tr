@@ -1,61 +1,23 @@
 # textdomain: minimal
-#utility/general.lua
-@1's @2=
-#currentrevision.lua
+# currentrevision.lua
 Display the current git revision=Zeigt die aktuelle git-Version an
 This server is currently running git revision=Auf diesem Server läuft aktuell Git-Revision
-#interface/infotext.lua
-Owner=Eigentümer
-Missing required items!=Es fehlen benötigte Gegenstände!
-Main=Haupt
-Bag1=Tasche1
-Bag2=Tasche2
-Bag3=Tasche3
-Bag4=Tasche4
-Input Items=Eingabegegenstände
-Tool used=Benutztes Werkzeug
-#Craft Type=Fertigungstyp
-Crafting=Fertigung
-Quantity=Menge
-Single=Einzel
-Stack=Stapel
-Maximum=Maximum
-Search=Suche
-or=oder
 
-#playersettings.lua
-Enable wide HUDbar=Weite HUD-Leiste aktivieren
-Show numeric stats=Zahlenwerte anzeigen
-Enable Break-taker popup=Pausennehmer-Popup-Fenster aktivieren
-Allow digging with a full inventory=Graben mit vollen Inventar erlauben
-Recipe hints require pressing a button=Rezepturhinweise erfordern das Drücken eines Knopfs
-Keep fixed order for recipes=
-Disable music=
-Temperature scale=Temperaturskala
-GUI theme=GUI-Thema
-HUD Opacity=HUD-Undurchsichtigkeit
-Default=
-Antiglass=
-Antiblue=
-Legacy Grey=
-New Grey=
-Crafting mode=Fertigungsmodus
-'Save this'="Nicht nutzen"
-'Use this'="Dies nutzen"
 # protection.lua
 Access List=Zugriffsliste
 Delete=Löschen
 Close=Schließen
 Access list empty.=Zugriffsliste ist leer.
 Deleted @1 from access list.=@1 von Zugriffsliste gelöscht.
+Can't grant access to items you don't own=Zugriff zu Gegenständen, die Ihnen nicht gehören, kann nicht gewährt werden
 @1 already has access=@1 hat bereits Zugriff
 @1 has been granted access=@1 wurde Zugriff gewährt
-Can't grant access to items you don't own=Zugriff zu Gegenständen, die Ihnen nicht gehören, kann nicht gewährt werden
-Crafted by=Gefertigt von
-Burnt Storage Pile=Verbrannter Lagerhaufen
 Label=Beschriftung
 Set=Setzen
-#triggers.lua
+Crafted by=Gefertigt von
+Burnt Storage Pile=Verbrannter Lagerhaufen
+
+# triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=Ungültiger Teleportationsvektor, muss „(x,y,z)“ sein
 Reset player=Spieler zurücksetzen
 Will reset player stats to full=Wird Spielerwerte auffüllen
@@ -63,7 +25,7 @@ Hurt player=Spieler verletzen
 Hits player for <value> damage, 1-20=Richtet <Wert> Schaden an Spieler an (1-20)
 Set energy=Energie setzen
 Set player energy to <value> percent=Setzt Spielerenergie auf <Wert> Prozent
-Set HP=KP setzen
+Set HP=TP setzen
 Set player hp to <value>, 0-20=Setzt Spieler-KP auf <Wert> (0-20)
 Set hunger=Hunger setzen
 Set player hunger to <value> percent=Setzt Spielerhunger auf <Wert> Prozent
@@ -96,11 +58,11 @@ Value:=Wert:
 False=Falsch
 True=Wahr
 # triggers
+Unset=Nicht gesetzt
 Exile trigger node=Exile-Trigger-Node
 Configured trigger=Konfigurierter Trigger
-Unset=Nicht gesetzt
-Yes=Ja
-No=Nein
+
+# zones.lua
 Error in zone def ranges=Fehler in Reichweiten der Zonendefinition
 Upper corner=Obere Ecke
 ( North / Up / East )=(Norden/Oben/Osten)
@@ -115,17 +77,37 @@ Copy=Kopieren
 Values=Werte
 Exile zone trigger node=Exile-Zonen-Trigger-Node
 
+# interface/infotext.lua
+Owner:=Eigentümer:
+Label:=Beschriftung:
 
-##### not used anymore #####
-
-# Stairs
-Inner @1=Innere @1
+# playersettings.lua
+'Save this'="Nicht nutzen"
+'Use this'="Dies nutzen"
+Recipe hints require pressing a button=Rezepturhinweise erfordern das Drücken eines Knopfs
+Enable wide HUDbar=Weite HUD-Leiste aktivieren
+Show numeric stats=Zahlenwerte anzeigen
+Enable Break-taker popup=Pausennehmer-Popup-Fenster aktivieren
+Allow digging with a full inventory=Graben mit vollen Inventar erlauben
+Crafting mode=Fertigungsmodus
+Keep fixed order for recipes=Feste Reihenfolge für Rezepte beibehalten
 Disable music=Musik deaktivieren
+Temperature scale=Temperaturskala
+GUI theme=GUI-Thema
+HUD Opacity=HUD-Undurchsichtigkeit
+
+# interface/themes.lua
 Default=Standard
 Antiglass=Antiglas
 Antiblue=Antiblau
-Legacy grey=legacy-grau
-New Grey=neugrau
-Label:=Beschriftung:
-Owner:=Eigentümer:
 Legacy Grey=Altgrau
+New Grey=Neugrau
+Coal Black=Kohleschwarz
+
+# utility/general.lua
+Yes=Ja
+No=Nein
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=@1s @2

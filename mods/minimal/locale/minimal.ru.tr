@@ -1,44 +1,23 @@
 # textdomain: minimal
-#utility/general.lua
-@1's @2=
-#currentrevision.lua
+# currentrevision.lua
 Display the current git revision=Отображение текущей ревизии git
 This server is currently running git revision=На этом сервере в данный момент выполняется ревизия git
-#interface/infotext.lua
-Owner:=Владелец:
-Label:=Метка:
-#playersettings.lua
-Enable wide HUDbar=Включить широкую панель HUDbar
-Show numeric stats=Показывать числовую статистику
-Enable Break-taker popup=Включить всплывающее окно брейктейкера
-Allow digging with a full inventory=Разрешить копать с полным инвентарем
-Recipe hints require pressing a button=
-Disable music=Отключить музыку
-Temperature scale=Шкала температуры
-GUI theme=Тема графического интерфейса
-HUD Opacity=Уровень непрозрачности HUD
-Default=По умолчанию
-Antiglass=Прозрачный
-Antiblue=Темносиний
-Legacy Grey=Устаревший серый
-New Grey=Новый серый
-Crafting mode=
-'Save this'=
-'Use this'=
+
 # protection.lua
 Access List=Список доступа
 Delete=Удалить
 Close=Закрыть
 Access list empty.=Список доступа пуст.
 Deleted @1 from access list.=@1 удален из списка доступа.
+Can't grant access to items you don't own=Невозможно предоставить доступ к предметам, которые вам не принадлежат
 @1 already has access=У @1 уже есть доступ
 @1 has been granted access=@1 получил доступ
-Can't grant access to items you don't own=Невозможно предоставить доступ к предметам, которые вам не принадлежат
-Crafted by=Создано
-Burnt Storage Pile=Сгоревшая куча мусора
 Label=Метка
 Set=Уст.
-#triggers.lua
+Crafted by=Создано
+Burnt Storage Pile=Сгоревшая куча мусора
+
+# triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=Неверный вектор телепортации, должен быть '(x,y,z)'
 Reset player=Сбросить игрока
 Will reset player stats to full=Сбросит статистику игрока до полной
@@ -79,11 +58,11 @@ Value:=Значение:
 False=Ложь
 True=True
 # triggers
+Unset=Сброс
 Exile trigger node=Узел запуска изгнания
 Configured trigger=Настроенный триггер
-Unset=Сброс
-Yes=Да
-No=Нет
+
+# zones.lua
 Error in zone def ranges=Ошибка в диапазонах определения зон
 Upper corner=Верхний угол
 ( North / Up / East )=( Север / Верх / Восток )
@@ -97,3 +76,38 @@ Range=Диапазон
 Copy=Копирование
 Values=Значения
 Exile zone trigger node=Узел зоны запуска изгнания
+
+# interface/infotext.lua
+Owner:=Владелец:
+Label:=Метка:
+
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=Включить широкую панель HUDbar
+Show numeric stats=Показывать числовую статистику
+Enable Break-taker popup=Включить всплывающее окно брейктейкера
+Allow digging with a full inventory=Разрешить копать с полным инвентарем
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=Отключить музыку
+Temperature scale=Шкала температуры
+GUI theme=Тема графического интерфейса
+HUD Opacity=Уровень непрозрачности HUD
+
+# interface/themes.lua
+Default=По умолчанию
+Antiglass=Прозрачный
+Antiblue=Темносиний
+Legacy Grey=Устаревший серый
+New Grey=Новый серый
+Coal Black=
+
+# utility/general.lua
+Yes=Да
+No=Нет
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=

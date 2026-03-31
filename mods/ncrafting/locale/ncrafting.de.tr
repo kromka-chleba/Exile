@@ -1,5 +1,5 @@
 # textdomain: nodecrafting
-@1 added to the @2=
+# dyes.lua
 red=rot
 crimson=scharlachrot
 yellow=gelb
@@ -19,5 +19,11 @@ Treated bundle of plants=Behandeltes Pflanzenbündel
 Dyer's Table=Farbenmachertisch
 Dyer's Table@n(Used to create dyes)=Farbenmachertisch@n(Zur Farbherstellung verwendet)
 Dump=Abladen
-Dye Pot=Farbenvase
-Dump the dye from the pot?=Farbe aus der Vase schütten?
+Dye Pot=Farbenkrug
+Dump the dye from the pot?=Farbe aus der Krug schütten?
+
+# fermentation.lua
+Fermenting @1=Fermentierendes @1
+
+# microbial.lua
+@1 added to the @2=@1 zu @2 hinzugefügt

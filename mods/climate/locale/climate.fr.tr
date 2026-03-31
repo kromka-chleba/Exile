@@ -1,4 +1,5 @@
 # textdomain: climate
+# history.lua
 Birth=la Naissance
 Thirst=la Soif
 Retreat=la Retraite
@@ -8,4 +9,8 @@ evening=le soir
 afternoon=l'après-midi
 morning=le matin
 It is the @1 of day @2 of the season of @3, in the year of our exile @4=Nous sommes @1 du jour @2 de la saison de @3, dans l'année @4 de votre exil
+
+# temperature.lua
 Value:=Valeur :
+Temperature Effect Air=
+Temperature Effect Air (Visible)=

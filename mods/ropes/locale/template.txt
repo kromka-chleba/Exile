@@ -1,5 +1,8 @@
 # textdomain: ropes
+# ladder.lua
 Rope Ladder=
+
+# ropeboxes.lua
 @1 Ropebox @2m=
 Rope=
 Wooden=

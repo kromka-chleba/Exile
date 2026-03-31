@@ -10,11 +10,14 @@ Sleeping Mat=Tapis de sol
 Primitive Bed=Lit primitif
 Mattress=Matelas
 Bed=Lit
+
+# bricks_and_mortar.lua
 Crushed Lime=Chaux concassée
 Quicklime=Chaux vive
 Slaked Lime=Chaux hydratée
 Slaked Lime (ruined)=Chaux hydratée (abîmée)
 Lime Mortar Slab=Dalle de mortier de chaux
+Combine with another slab=Combiner avec une autre dalle
 Lime Mortar=Mortier de chaux
 Loose Bricks (unfired)=Briques détachées (non cuites)
 Loose Bricks=Briques détachées
@@ -43,15 +46,18 @@ Claystone=Argilite
 Siltstone=Lutite
 Sandstone=Grès
 Conglomerate=Conglomérat
-
-# bricks_and_mortar.lua
+Coquina=
 Limestone=Calcaire
 Ironstone=Fer
 Granite=granite
 Basalt=basalte
+Scoria=
 Gneiss=gneiss
 Jade=jade
-Combine with another slab=Combiner avec une autre dalle
+
+# chairs.lua
+Sitting Mat=
+Stool=
 
 # clothing.lua
 Woven Hat=Chapeau tissé
@@ -71,47 +77,35 @@ Light Fabric Tunic=Tunique en tissu léger
 Thick Fabric Tunic=Tunique en tissu épais
 
 # cooking_pot.lua
-Cooking Pot (unfired)=Marmite (non cuite)
-Bowl (unfired)=Bol (non cuit)
-Cooking Pot=Marmite
-Bowl=Bol
-Empty Bowl=Bol vide
-Bowl of @1 Stew=
 Bowl of @1 Soup=Bol de soupe de @1
-#; contents
+Bowl of @1 Stew=
+Bowl of @1=
+Empty Bowl=Bol vide
+Bowl=Bol
 Water=
 Contents: @1=Contenu: @1
-Contents: <EMPTY>=Contenu: <VIDE>
-Leftover: @1%=
-#; status
-Soup=Soupe
-Stew=
-Unprepared Pot=Marmite
-Soup Pot=Marmite
-Status: @1 pot=
-Status: @1 pot (cooking)=
 Status: @1 pot (finished)=
-#; note + questions
+Status: @1 pot (cooking)=
+Status: @1 pot=
+Cooking Pot=Marmite
 This pot is full and heavy. Spill it?=Cette marmite est pleine et lourde. La renverser?
+Unprepared Pot=Marmite
+Contents: <EMPTY>=Contenu: <VIDE>
 Note: Add water to pot to make soup=Remarque: Ajoutez de l'eau à la marmite pour faire de la soupe
-Note: Add food to the pot to make soup=Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe
 Note: Use a Bowl to Get!=
-# misc use tips
-Eat=Manger
-Drink=Boire
-Create=Créer
-# craft-stations.lua
+Leftover: @1%=
+Soup Pot=Marmite
+Note: Add food to the pot to make soup=Remarque: Ajoutez de la nourriture à la marmite pour faire de la soupe
+Cooking Pot (unfired)=Marmite (non cuite)
+Bowl (unfired)=Bol (non cuit)
+
+# craft_stations.lua
+# Craft stations:
 Crafting Spot=Artisanat de base
-# Craft station
 Weaving=Tissage
 Mixing=Mélange
 Grinding stone=Meule
 Mortar and Pestle=Mortier et pilon
-Limestone Mortar and Pestle=Mortier et pilon en calcaire
-Basalt Mortar and Pestle=Mortier et pilon en basalte
-Granite Mortar and Pestle=Mortier et pilon en granite
-@1 Mortar and Pestle=Mortier et pilon en @1
-Wooden Mortar and Pestle=
 Crafting=Artisanat
 Carpentry Bench=Établi de menuiserie
 Bricks=Briques
@@ -122,6 +116,7 @@ Glass furnace=Four à verre
 Pottery=Poterie
 Tools=Outils
 Stations=Stations
+Wattle=Clayonnage
 Agriculture=Agriculture
 Pickaxe=Pioche
 Breadmaking=Fabrication du pain
@@ -131,16 +126,20 @@ Threshing Spot=Emplacement pour le battage
 Weaving Spot=Emplacement pour le tissage
 Grinding Spot=Emplacement pour le meulage
 Hammering Spot=Emplacement pour le martelage
-Chopping Block=Bloc de coupe
+Wooden Mortar and Pestle=
+Limestone Mortar and Pestle=Mortier et pilon en calcaire
+Basalt Mortar and Pestle=Mortier et pilon en basalte
+Granite Mortar and Pestle=Mortier et pilon en granite
+Brick Maker's Bench=Établi de fabrication de briques
 Anvil=Enclume
 Masonry Bench=Établi de maçonnerie
-Brick Maker's Bench=Établi de fabrication de briques
 Weaving Frame=Métier à tisser
 Granite Grinding Stone=Meule en granite
 Limestone Grinding Stone=Meule en calcaire
 Basalt Grinding Stone=Meule en basalte
+Chopping Block=Bloc de coupe
 Hammering Block=Bloc de martelage
-Wattle=Clayonnage
+
 # doors.lua
 Wattle Door=Porte en clayonnage
 Wattle Trapdoor=Trappe en clayonnage
@@ -152,8 +151,10 @@ Glass Door=Porte en verre
 Glass Trapdoor=Trappe en verre
 Clear Glass Door=Porte en verre transparent
 Clear Glass Trapdoor=Tappe en verre transparent
+
 # drugs.lua
 Herbal Medicine=Médecine à base de plantes
+Eat=Manger
 Tiku (stimulant)=Tiku (stimulant)
 Vinegar=Vinaigre
 Tang Vinegar=Vinaigre de Tang
@@ -161,8 +162,10 @@ Tang Vinegar with Mother=Vinaigre de Tang avec mère
 Mother of Tang=Mère de Tang
 Infect Other Pots=Infecter d'autres pots
 Tang=Tang
+Drink=Boire
 Tang (unfermented)=Tang (non fermenté)
-# hearthen_building.lua
+
+# earthen_building.lua
 Drystack=Pierres sèches
 Drystack Stair=Escalier en pierres sèches
 Drystack Slab=Dalle en pierres sèches
@@ -173,12 +176,16 @@ Rammed Earth=Terre battue
 Rammed Earth Stair=Escalier en terre battue
 Rammed Earth Slab=Dalle en terre battue
 Wicker well lining=Doublure de puits en osier
+Wet wicker well lining=
+Salty wet wicker well lining=
 Reinforce a well wall=Renforcer le mur d'un puit
 Loose Wattle=Clayonnage distendu
+Wattle and Daub=
 Wattle Door Frame=Cadre de porte en clayonnage
 Thatch=Chaume
 Thatch Stair=Escalier en chaume
 Thatch Slab=Dalle en chaume
+
 # fibreworking.lua
 Unretted Cana Bundle=Fagot de canne non roui
 Retted Cana Bundle=Fagot de canne roui
@@ -186,9 +193,9 @@ Coarse Fibre=Fibre grossière
 Fine Fibre=Fibre fine
 Coarse Fabric=Tissu grossier
 Fine Fabric=Tissu fin
+
 # fires.lua
 Wood Ash Block=Bloc de cendre de bois
-Enrich depleted soil=Enrichir le sol appauvri
 Wood Ash=Cendre de bois
 Charcoal Block=Bloc de charbon
 Charcoal=Charbon
@@ -206,6 +213,53 @@ Small Wood Fire (extinguished)=Petit feu de bois (éteint)
 Large Wood Fire (extinguished)=Grand feu de bois (éteint)
 Small Charcoal Fire (extinguished)=Petit feu de charbon (éteint)
 Large Charcoal Fire (extinguished)=Grand feu de charbon (éteint)
+
+# food_crafts.lua
+Sea Salt=Sel de Mer
+Bitter Maraka Flour=Farine de Maraka amère
+Maraka Flour=Farine de Maraka
+Unbaked Maraka Cake=Gâteau de Maraka non cuit
+Maraka Cake=Gâteau de Maraka
+Maraka Cake Burned=Gâteau de Maraka brûlé
+Peeled Anperla Tuber=Tubercule d'Anperla pelé
+Burned Anperla Tuber=Tubercule d'Anperla brûlé
+Cooked Anperla Tuber=Tubercule d'Anperla cuit
+Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
+Mashed Anperla=Purée d'Anperla
+Burned Anperla=Anperla brûlé
+# groups of flours / doughs:
+flour=farine
+bread flour=farine à pain
+cake flour=farine à gâteau
+dough=pâte
+bread dough=pâte à pain
+cake dough=pâte à gâteau
+Raw Rhuya Flour=Farine de Rhuya crue
+Rhuya Flour=Farine de Rhuya
+Raw Hardy Rhuya Flour=Farine de Rhuya rustique crue
+Hardy Rhuya Flour=Farine de Rhuya rustique
+Burnt Rhuya Flour=Farine de Rhuya brûlée
+All-Purpose Flour=Farine tout usage
+Uncured Barshocha Flour=Farine de Barshocha non traitée
+Cured Barshocha Flour=Farine de Barshocha traitée
+Maraka Dough=Pâte de Maraka
+Rhuya Dough=Pâte de Rhuya
+Hardy Rhuya Dough=Pâte de Rhuya rustique
+All-Purpose Dough=Pâte tout usage
+Barshocha Dough=Pâte de Barshocha
+Ikippe Yeast=Levain Ikippe
+Infect Dough=Ensemencer la pâte
+Fermented @1=
+Black Bread=Pain noir
+Crumbly Bread=Pain friable
+Unleavened Bread=Pain azyme (sans levure)
+Fluffy Unleavened Bread=Pain azyme moelleux
+Basic Crackerbread=
+Soft Bread=
+Burned Bread=Pain brûlé
+Cracked Egg=Oeuf cassé
+Fried Egg=Œuf au Plat
+
 # glassworking.lua
 Green Glass Sand Mix=Mélange de sable pour verre vert
 Green Glass Ingot=Lingot de verre vert
@@ -225,12 +279,14 @@ Green Glass Pane=Carreau de verre vert
 Clear Glass Pane=Carreau de verre transparent
 Green Glass Window=Fenêtre en verre vert
 Clear Glass Window=Fenêtre en verre transparent
+
 # graffiti.lua
 Painting Kit (lime white)=Kit de peinture (blanc chaux)
 Painting Kit (glow paint)=Kit de peinture (peinture fluorescente)
 Stone Etcher=Graveur de pierre
 Flip to stone knife=Retourner pour couteau en pierre
 Painting Kit (ochre red)=Kit de peinture (ocre rouge)
+
 # ironworking.lua
 Crushed Iron Ore=Minerai de fer concassé
 Roasted Iron Ore=Minerai de fer grillé
@@ -249,7 +305,8 @@ Protection Nails=Clous de protection
 Protect Item=Protéger l'article
 Iron Key=Clé en fer
 Grant key owner access.=Accorder l'accès au propriétaire de la clé.
-# Lantern
+
+# lantern.lua
 Lantern Case=Boîtier de lanterne
 Status: needs a clear glass pane and a wick (coarse fibre)!=Statut: nécessite un carreau de verre transparent et une mèche (fibre grossière)!
 Lantern Case with a wick=Boîtier de lanterne avec une mèche
@@ -258,6 +315,7 @@ Lantern Case with Glass=Boîtier de lanterne avec verre
 Status: needs a wick (coarse fibre)!=Statut: nécessite une mèche (fibre grossière)!
 Unlit Lantern=Lanterne éteinte
 Lit Lantern=Lanterne allumée
+
 # lever.lua
 lever=Levier
 Rotate face=Tourner la face
@@ -267,81 +325,19 @@ alignment tool=Outil d'alignement
 Pick up a node's facing=Noter l'orientation d'un nœud
 Flip to lever=Retourner pour faire levier
 Apply facing to another node=Appliquer l'orientation à un autre nœud
+
+# lightsource_api.lua
 Empty=Vide
-fuel left=carburant restant
-Status: =Statut:
+@1% fuel left=
+Status: @1=Statut : @1
+
 # plant_crafts.lua
 Stick=Bâton
-Grass Fibre=Fibres végétales
+Plant Fibre=Fibres végétales
 Vegetable Oil=Huile végétale
 
-# food_crafts.lua
-#---------------
-Sea Salt=Sel de Mer
-Bitter Maraka Flour=Farine de Maraka amère
-Maraka Flour=Farine de Maraka
-Unbaked Maraka Cake=Gâteau de Maraka non cuit
-Maraka Cake=Gâteau de Maraka
-Maraka Cake Burned=Gâteau de Maraka brûlé
-Peeled Anperla Tuber=Tubercule d'Anperla pelé
-Burned Anperla Tuber=Tubercule d'Anperla brûlé
-Cooked Anperla Tuber=Tubercule d'Anperla cuit
-Mashed Anperla (uncooked)=Purée d'Anperla (non cuite)
-Mashed Anperla=Purée d'Anperla
-Burned Anperla=Anperla brûlé
-
-#flours and doughs
-
-#groups
-flour=farine
-bread flour=farine à pain
-cake flour=farine à gâteau
-dough=pâte
-bread dough=pâte à pain
-cake dough=pâte à gâteau
-
-Raw Rhuya Flour=Farine de Rhuya crue
-Raw Hardy Rhuya Flour=Farine de Rhuya rustique crue
-Rhuya Flour=Farine de Rhuya
-Hardy Rhuya Flour=Farine de Rhuya rustique
-Burnt Rhuya Flour=Farine de Rhuya brûlée
-Uncured Barshocha Flour=Farine de Barshocha non traitée
-Cured Barshocha Flour=Farine de Barshocha traitée
-All-Purpose Flour=Farine tout usage
-Maraka Dough=Pâte de Maraka
-Rhuya Dough=Pâte de Rhuya
-Hardy Rhuya Dough=Pâte de Rhuya rustique
-Barshocha Dough=Pâte de Barshocha
-All-Purpose Dough=Pâte tout usage
-@1 Fermenting=@1 en cours de fermentation
-@1 Fermented=@1 fermentée
-
-# regular breads ;
-Crumbly Bread=Pain friable
-Tiger Bread Dough=
-Tiger Bread=
-Baguette Dough=Pâte de baguette
-
-Black Bread=Pain noir
-Crumbly Bread=Pain friable
-Unleavened Bread=Pain azyme (sans levure)
-Fluffy Unleavened Bread=Pain azyme moelleux
-Basic Crackerbread=
-Soft Bread=
-Burned Bread=Pain brûlé
-Ikippe Yeast=Levain Ikippe
-
-# food_crafts tips/messages
-Infect Dough=Ensemencer la pâte
-Yeast added to the @1=Levain ajouté à la @1
-
-# animal food_crafts
-Cracked Egg=Oeuf cassé
-Fried Egg=Œuf au Plat
-
-# Pottery
-Broken Pottery Slab=Dalle de poterie cassée
 # pottery.lua
+Broken Pottery Slab=Dalle de poterie cassée
 Broken Pottery=Poterie cassée
 Clay Water Pot (unfired)=Cruche en argile (non cuite)
 Clay Storage Pot (unfired)=Pot de stockage en argile (non cuit)
@@ -352,6 +348,7 @@ Clay Oil Lamp (Lit)=Lampe à huile en argile (allumée)
 Hanging Oil Lamp=Lampe à huile suspendue
 Hanging Oil Lamp (Lit)=Lampe à huile suspendue (allumée)
 Clay Watering Can (unfired)=Arrosoir en argile (non cuit)
+
 # storage.lua
 Clay Storage Pot=Pot de stockage en argile
 Primitive Wooden Chest=Coffre en bois primitif
@@ -359,6 +356,7 @@ Wicker Storage Basket=Panier de stockage en osier
 Woven Storage Basket=Panier de stockage tissé
 Wooden Chest=Coffre en bois
 Iron Chest=Coffre en fer
+
 # tools.lua
 Bare Hands=Mains nues
 Flat Surface=Surface plane
@@ -370,28 +368,24 @@ Placed Stone Knife=Couteau en pierre placé
 Digging Stick=Bâton à fouir
 Dig hard earth=Creuser la terre dure
 Till soil slowly=Labourer le sol lentement
-Place tool for plant crafts=Placer l'outil pour travailler les plantes
+Place tool for farming crafts=
 Placed Digging Stick=Bâton à fouir placé
-Cut softwood logs=Couper du bois tendre
-Adze=Herminette
-Placed Granite Adze=Herminette en granite placée
-Placed Basalt Adze=Herminette en basalte placée
-Placed Jade Adze=Herminette en jade placée
-Basalt Adze=Herminette en basalte
-Jade Adze=Herminette en jade
-Granite Adze=Herminette en granite
-Placed @1 adze=Herminette en @1 placée
 @1 Adze=Herminette en @1
-Stone Club=Massue en pierre
+Cut softwood logs=Couper du bois tendre
+Place tool for woodworking crafts=
+Placed @1 adze=Herminette en @1 placée
+@1 Hammer=Marteau en @1
 Strike=Frapper
 Stun animals=Assommer les animaux
+Place tool for hammering crafts=
+Placed @1 Hammer=Marteau en @1 placé
+Stone Club=Massue en pierre
 Iron Axe=Hache en fer
 Cut any wood=Couper n'importe quel bois
 Placed Iron Axe=Hache en fer placée
 Iron Shovel=Pelle en fer
 Dig earth quickly=Creuser la terre rapidement
 Till soil=Labourer le sol
-Place for plant crafts=Placer pour travailler les plantes
 Placed Iron Shovel=Pelle en fer placée
 Iron Mace=Masse en fer
 Iron Pickaxe=Pioche en fer
@@ -400,53 +394,45 @@ Placed Iron Pickaxe=Pioche en fer placée
 Iron Hoe=Binette en fer
 Till soil quickly=Labourer le sol rapidement
 Placed Iron Hoe=Binette en fer placée
-@1 Hammer=Marteau en @1
-or Place on solid surface for hammering crafts=ou Placer sur une surface solide pour marteler
-Placed @1 Hammer=Marteau en @1 placé
-Placed Granite Hammer=Marteau en granite placé
-Placed Basalt Hammer=Marteau en basalte placé
-Basalt Hammer=Marteau en basalte
-Granite Hammer=Marteau en granite
+
 # torch.lua
 Torch=Torche
 
+# ucsigns.lua
+Signs=
+@1 Sign=
+Oiled Sign=
+Iron Sign=
+
 # waterworking.lua
+Empty Clay Water Pot=
+Empty Clay Watering Can=
+Empty Wooden Water Pot=
+Empty Wooden Watering Can=
+# group:
 Water Pot=Cruche
-Clay Water Pot=Cruche en argile
-Clay Water Pot with Salt Water=Cruche en argile avec eau salée
+# Filled with Freshwater:
 Clay Water Pot with Freshwater=Cruche en argile avec eau douce
-Salty Clay Water Pot=
-Wooden Water Pot=Cruche en bois
-Wooden Water Pot with Salt Water=Cruche en bois avec eau salée
 Wooden Water Pot with Freshwater=Cruche en bois avec eau douce
-Clay Watering Can=Arrosoir en argile
+# Filled with Salt Water:
+Clay Water Pot with Salt Water=Cruche en argile avec eau salée
+Wooden Water Pot with Salt Water=Cruche en bois avec eau salée
+Salty Clay Water Pot=
+# Watering can:
 Clay Watering Can with Freshwater=Arrosoir en argile avec eau douce
 Clay Watering Can with Salt Water=Arrosoir en argile avec eau salée
-Wooden Watering Can=Arrosoir en bois
 Wooden Watering Can with Freshwater=Arrosoir en bois avec eau douce
 Wooden Watering Can with Salt Water=Arrosoir en bois avec eau salée
+# empty glass bottles:
 Green Glass Bottle=Bouteille en verre vert
 Clear Glass Bottle=Bouteille en verre transparent
+# filled glass bottles:
 Green Glass Bottle With Salt Water=Bouteille en verre vert avec eau salée
 Clear Glass Bottle With Salt Water=Bouteille en verre transparent avec eau salée
-Green Glass Bottle With Fresh Water=Bouteille en verre vert avec eau douce
-Clear Glass Bottle With Fresh Water=Bouteille en verre transparent avec eau douce
+Green Glass Bottle With Freshwater=Bouteille en verre vert avec eau douce
+Clear Glass Bottle With Freshwater=Bouteille en verre transparent avec eau douce
 
 # woodworking.lua
 Wooden Ladder=Échelle en bois
 Wooden Floor Boards=Planches de plancher en bois
 Wooden Stairs=Escalier en bois
-
-
-
-Cannot place here ! Needs a whole block of : =Impossible de placer ici ! Besoin d'un bloc entier de :
-Status : needs a clear glass pane and a wick (coarse fibre) !=Statut : nécessite un carreau de verre clair et une mèche (fibre grossière) !
-Status : needs a clear glass pane !=Statut : nécessite un carreau de verre clair !
-Status : needs a wick (coarse fibre) !=Statut : nécessite une mèche (fibre grossière) !
-Status : =Statut :
-Clay Oil Lamp (lit)=Lampe à huile en argile (allumée)
-##### non utilisé ####
-# nodecrafting
-Dump=Décharge
-# dye
-red dye=Teinture rouge

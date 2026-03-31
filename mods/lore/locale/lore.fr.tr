@@ -1,7 +1,10 @@
 # textdomain: lore
-#char_tab.lua
-# personality
-# openness
+# bio_gen.lua
+# gender:
+he=il
+she=elle
+# personality:
+#  openness
 Conventional=Conventionnel(le)
 Unconventional=Non conventionnel(le)
 Practical=Terre à terre
@@ -46,8 +49,7 @@ Self-satisfied=Satisfait(e) de soi
 Moody=Lunatique
 Complacent=Complaisant(e)
 Paranoid=Paranoïaque
-#
-# virtue
+# virtue:
 courageous=courageux(se)
 temperate=tempéré(e)
 charitable=charitable
@@ -144,8 +146,7 @@ understanding=compréhensif(ve)
 vigorous=vigoureux(se)
 wise=sage
 zealous=zélé(e)
-#
-# life
+# life:
 #  Favorable
 a good=une belle vie
 a happy=une vie heureuse
@@ -205,7 +206,7 @@ a misspent=une vie improductive
 an eccentric=une vie excentrique
 an oddball=une vie fantasque
 a strange=une vie étrange
-# woe
+# woe:
 #  Bad Business
 made a bad bargain=fit une mauvaise affaire
 made a deal with the wrong people=passa un marché avec la mauvaise personne
@@ -307,19 +308,20 @@ received a vision from the other side=eut une vision de l'autre côté
 had a dream that explained everything=eut rêve qui expliquait tout
 built a perpetual-motion machine=construisit une machine de mouvement perpétuel
 learned the meaning of life=découvrit le sens de la vie
-#
-# bio_gen.lua
+# lore.generate_bio():
 @n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=@n @1 et @2,@n @3 vivait @4,@n jusqu'à ce qu'un jour @5 @6....
-he=il
-she=elle
+
+# char_tab.lua
+Health Effects=Santé
 Name=Nom 
 Days Survived=Jours survécus 
 Lives=Vies 
 Biography=Biographie 
-Health Effects=Santé 
 Character=Personnage
-# judger
-# monarchs, etc.
+
+# exile_letter.lua
+# judger:
+#  monarchs, etc.
 King=du Roi
 Queen=de la Reine
 Emperor=de l'Empereur
@@ -341,7 +343,7 @@ Prince=du Prince
 Princess=de la Princesse
 Regent=du Régent
 Dictator=du Dictateur
-# officials
+#  officials
 High Judge=du Haut Magistrat
 Tribunal=du Tribunal
 Council=du Conseil
@@ -353,7 +355,7 @@ Sheriff=du Shérif
 Exarch=de l'Exarque
 Prefect=du Préfet
 Seneschal=du Sénéchal
-# cults
+#  cults
 Brotherhood=de la Fraternité
 Sisterhood=de la Sororité
 High Priest=du Grand Prêtre
@@ -371,7 +373,7 @@ Priestesses=des Grandes Prêtresses
 Enlightened Ones=des Illuminés
 Great Sage=du Grand Sage
 Shaman=du Shaman
-# tribal
+#  tribal
 Elders=des Anciens
 Wise Ones=des Sages
 Clan Council=du Conseil du clan
@@ -380,7 +382,7 @@ Great Chieftain=du Grand chef
 United Clans=des Clans unifiés
 Wise Man=de l'Homme sage
 Wise Woman=de la Femme sage
-# republic
+#  republic
 Citizenry=
 People=du Peuple
 Senate=du Sénat
@@ -388,7 +390,7 @@ Consul=du Consul
 Senators=des Sénateurs
 Assembly=de l'Assemblée
 Chief Minister=du Premier ministre
-# Geographic/polity
+#  Geographic/polity
 City State=de l'État-cité
 Empire=de l'Empire
 Kingdom=du Royaume
@@ -407,7 +409,7 @@ Tribe=de la Tribu
 Monastic Order=de l'Ordre monastique
 Merchant Republic=de la République Marchande
 Theocracy=de la Théocratie
-# Military
+#  Military
 Generals=des Généraux
 Champion=du Champion
 Mighty Warriors=des Redoutables Guerriers
@@ -416,14 +418,14 @@ Legion=de la Légion
 Commander=du Commandant
 Commandant=du Commandant
 Warlord=du Seigneur de guerre
-# rogues
+#  rogues
 Pirates=des Pirates
 Bandits=des Bandits
 Company=de la Compagnie
 Horde=de la Horde
 Liberators=des Libérateurs
 Destroyers=des Destructeurs
-# freaky
+#  freaky
 All Seeing Eye=de Ceux qui voient tout
 Old Children=des Enfants Âgés
 Spectre=du Spectre
@@ -435,8 +437,8 @@ Eternal Pyramid=de la Pyramide Éternelle
 Towering Tree=de la Tour Végétale
 Viridian Magister=du Guide Viridin
 Thousand-tongued All-speaker=des Polyglottes aux cent langues
-# exile-worthy crime
-# crime1
+# exile-worthy crime:
+#  crime1
 treason=haute trahison
 betrayal=trahison
 murder=meurtre
@@ -455,8 +457,8 @@ espionage=espionnage
 sabotage=sabotage
 treachery=perfidie
 sedition=sédition
-# flavour-text crime
-# crime2
+# flavour-text crime:
+#  crime2
 leading the youth astray=avoir endoctriné la jeunesse
 smuggling contraband=trafic de contrebande
 vagabondage=vagabondage
@@ -549,8 +551,7 @@ leading an unauthorised military campaign=avoir conduit une campagne militaire n
 claiming that the world is round=avoir dit que le monde était rond
 claiming that the world is not round=avoir dit que le monde était n'était pas rond
 promoting belief in gravity=avoir défendu la croyance en la gravité
-
-#exile_letter.lua
+#
 He=Il
 She=Elle
 Him=Lui
@@ -607,8 +608,8 @@ So it is written. So it is done.=
 Even the dogs despise @1.=
 We break no bread with traitors.=
 Let this be @1 journey to cleanse @2.=
-# Various corruptions of "Ozymandias"
-# local exile
+# Various corruptions of "Ozymandias":
+#  local exile
 Ochymadion=
 Aseymedius=Aseymedius
 Eshenadios=Eshenadios
@@ -625,8 +626,8 @@ Caemandior=Caemandior
 Oshaemediash=Oshaemediash
 Otzakantas=Otzakantas
 Archanatus=Archanatus
-# What happened here? Lost to memory.
-# mythic_terror
+# What happened here? Lost to memory.:
+#  mythic_terror
 Great Calamity=
 Collapse=
 Unending Curse=
@@ -674,13 +675,17 @@ Twisted Existence=
 Twisted=
 Warped=
 Lost=
+# generate_text:
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=Par décret @1 de @2: @n @3 de @4 @n est par la présente condamné(e) à l'exil pour @n@n @5 @n et @n @6 @n@n @7 est banni(e) du pays de @9 et envoyé(e) sur les terres de @8. @n@n @n@n
 Sentence of Exile=Sentence d'exil
-#login.lua
+
+# login.lua
 login_text=  Vous pouvez à peine entendre le son de leur voix lisant la liste de vos crimes, noyé sous les huées plus fortes de vos pairs, mais il est déjà trop tard pour protester de votre innocence.@n  Vous êtes dépouillé de tous vos biens et recevez un mandat décrivant vos divers crimes et la punition qui doit être infligée, puis vous êtes poussé à travers une porte pour être abandonné sur la terre maudite des Anciens.@n Ici commence votre
 Message of the Day:@n@n=Message du jour :@n@n
 This command shows the current message of the day.=Cette commande montre le message du jour actuel.
-#restart.lua
+This command prints the login queue for all players.=
+
+# restart.lua
 @1 gave up the ghost.=
 POP!=POP !
 Restart in: @1 seconds.=Redémarrage dans : @1 secondes

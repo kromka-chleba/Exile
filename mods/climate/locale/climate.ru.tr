@@ -1,4 +1,5 @@
 # textdomain: climate
+# history.lua
 Birth=Рождения
 Thirst=Жажды
 Retreat=Отступления
@@ -8,4 +9,8 @@ evening=вечер
 afternoon=день
 morning=утро
 It is the @1 of day @2 of the season of @3, in the year of our exile @4=Это @1 @2 дня сезона @3, в @4 год нашего изгнания
+
+# temperature.lua
 Value:=Значение:
+Temperature Effect Air=
+Temperature Effect Air (Visible)=

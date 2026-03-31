@@ -1,65 +1,68 @@
 # textdomain: nodes_nature
-# dropping water
-# data_plant.lua
+# compost.lua
 Undecomposed Compost=
 Set to decompose=
 Compost=
 Fertilize soil=
 Wet Compost=
 Fertilize and soak soil=
-Wet Undecomposed Compost=
-# compost.lua
+@1 Stair=
 @1 Slab=
+Wet Undecomposed Compost=
+
+# data_plant.lua
 Riraemu=
 Opaeko=
 Aongao=
 Nagaeo=
 Koaeako=
 Imoaru=
-Maraka Tree=Árbol Maraka
+Tangkal=Tangkal
+Maraka=Maraka
 Maraka Nut=Nueces de Maraka
-Tangkal Tree=Árbol Tangkal
-Tangkal Fruit=Fruta de Tangkal
-Sasaran Tree=Árbol Sasaran
+Panasee=Panasee
+Sasaran=Sasaran
 Sasaran Cone=Estróbilo de Sasaran
+Warungaree=Warungaree
+Warungaree Seed=
+Yalovy=Yalovy
 Yalovy Shrub=
 Yalovy Cone=
-Kagum Tree=Árbol Kagum
+Kagum=Kagum
 Kagum Pod=Vaina de kagum
-Panasee Tree=
-Panasee Fruit=
-Amma Tree=
-Amma nut=
-Daoja Tree=
+Amma=Amma
+Amma Nut=
+Daoja=Daoja
 Daoja Berry=
+Tulatula=Tulatula
+Tulatula Pods=
+
 # data_rock.lua
 Sandstone=Arenisca
 Siltstone=Limolita
 Claystone=Argilita
 Conglomerate=Conglomerado
+Coquina=
 Limestone=Caliza
 Ironstone=Mineral de Hierro
 Granite=Granito
 Basalt=Basalto
+Scoria=
 Gneiss=Gneis
 Jade=Jade
-Clay Agricultural Soil=Terreno Agricola Arcilloso
-Silty Agricultural Soil=Terreno Agricola Limoso
-Sandy Agricultural Soil=Terreno Agricola Arenoso
-Stony Agricultural Soil=Terreno Agricola Rocoso
-Loamy Agricultural Soil=Terreno Agricola Margo
-# sediments (sediment_data.lua)
+# sediments:
 Sand=Arena
 Silt=Limo
 Clay=Arcilla
 Gravel=Grava
 Loam=Suelo Margo
 Red Ochre=
-# biome sediments (sediment_data.lua)
+# biome sediments:
 Rich Forest Soil=
 Rich Woodland Soil=
 Forest Soil=
 Woodland Soil=Suelo de Bosque
+Open Woodland Soil=
 Upland Forest Soil=
 Upland Woodland Soil=
 Marshland Soil=Suelo de Pantanal
@@ -72,8 +75,16 @@ Barren Grassland Soil=Suela de Pastizal Arido
 Duneland Soil=Suelo Arenoso
 Highland Soil=Suelo de Paramo
 Dry Woodland Soil=Suelo de Bosque Seco
+Clay Agricultural Soil=Terreno Agricola Arcilloso
+Silty Agricultural Soil=Terreno Agricola Limoso
+Sandy Agricultural Soil=Terreno Agricola Arenoso
+Stony Agricultural Soil=Terreno Agricola Rocoso
+Loamy Agricultural Soil=Terreno Agricola Margo
+
+# dripping_water.lua
 Water drop=
-# interface
+
+# init.lua
 Threshing=
 Crafting=
 Bricks=
@@ -81,10 +92,14 @@ Bricks & Mortar=
 Blocks=
 Blocks & Mortar=
 Mixing=
-# Leaf Marker
+
+# leaf_mark.lua
 Leaf Marker=
+
+# life.lua
 Node is protected=
 Glow Worm=Larvas Luminosas
+
 # liquids.lua
 Salt Water=Agua Salada
 Freshwater=Agua Fresca
@@ -99,27 +114,32 @@ Ice=Hielo
 Sea Ice=Hielo Marino
 Lava Source=Fuente de Lava
 Flowing Lava=
-# life.lua
+
+# plant_api.lua
 Young @1=Brote de @1
 Flowering @1=
 Fruiting @1=
 Dead Fruitless @1=
 Dead @1=
 Dead Fruiting @1=
-@1 Fruit=Fruta de @1
 @1 Dry Fruit=Fruta seca de @1
+@1 Fruit=Fruta de @1
 Fruitless @1=@1 sin fruta
 @1 Spores=Esporas de @1
 @1 Seeds=Semillas de @1
 @1 Root=
-# plants_and_mushrooms
+
+# plants_and_mushrooms.lua
 Barshocha= 
 Vortecha=
 Wiha=
+Wiha Berries=
 Momo=
+Momo Pepper=
 Galanta=
 Vansano=
 Anperla=
+Anperla Tuber=Tuberculo de Anperla
 Jepiha=
 Hakimi=
 Jarno=
@@ -134,6 +154,9 @@ Gevaari=
 Obesa=
 Salia=
 Fretin=
+Urimi=
+Rhuya=
+Hardy Rhuya=
 Lambakap=
 Reshedaar=
 Mahal=
@@ -141,54 +164,56 @@ Merki=
 Nebiyi=
 Marbhan=
 Zufani=
+Zufani Amber=
 Tsaplop=
 Jogalan=
 Gitiri=
+Orylsar=
 Badyl=
 Drapacho=
 Bronach=
 Sari=
 Tanai=
+Cantapo=
+Kemta=
+Jalakin=
 Thoka=
 Alaf=
 Muhle=
+Muhle Berries=
 Damo=
 Tashvish=
-# data_plant.lua
 Moss=Musgo
 Cana=Caña
 Gemedi=
 Chalin=
 Tiken=
 Saguati=
-Zufani Amber=
-Momo Pepper=
-Wiha Berries=
-Muhle Berries=
-Anperla tuber=
-# foody stuff (plants_and_mushrooms.lua, liquids.lua)
+# foody stuff
 This plant has a foul musty flavor.=
 Your stomach hurts terribly.=
+
+# rock.lua
 @1 Brick=Ladrillo de @1
 @1 Block=Bloque de @1
 @1 Brick Stair=
 @1 Brick Slab=
-# rocks.lua
 @1 Boulder=Roca de @1
 @1 Block Stair=
 @1 Block Slab=
 @1 Cobble=
+
+# season.lua
 <day>=
 Sets date.=
 I'm setting day, wait!=
 Wrong argument, needs a number!=
 Nothing to change, the date stays as is.=
 Date change requested!=
-# sediment conditions (sediment_api.lua, sediment_data.lua)
+
 # sediment.lua
 Wet @1=@1 Humedecido
 Salty Wet @1=@1 Salado Humedecido
-@1 Stair=
 Frosty Winter @1=
 Frosty Winter Wet @1=
 Depleted @1=@1 Agotado
@@ -204,25 +229,11 @@ Upland Barren Grassland Soil=
 Coastal Duneland Soil=
 Upland Duneland Soil=
 @1 With Roots=
+
 # trees.lua
 Tree Marker=Marcador de Arbol
+@1 Leaves=Ramas de @1
+@1 Tree=Árbol de @1
 @1 Log=Tronco de @1
 @1 Log Stair=
 @1 Log Slab=
-@1 Leaves=Ramas de @1
-
-
-##### not used anymore #####
-# groups
-Fruit=Fruta
-Seed=Semilla
-Compostable=Compostable
-Moss Spores=Esporas de Musgo
-Anperla Tuber=Tuberculo de Anperla
-Reshedaar Spores=Esporas de Reshedaar
-Mahal Spores=Esporas de Mahal
-Lambakap Spores=Esporas de Lambakap
-Kelp=Algas
-Seagrass=Hierba Marina
-Sea Lettuce=Lechuga de Mar
-Lava Flowing=Corriente de Lava

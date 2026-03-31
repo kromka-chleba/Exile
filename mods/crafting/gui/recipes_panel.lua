@@ -893,7 +893,7 @@ local function push_recipe(cache, id, player, player_name)
             -- if not everything could be transfered, leftover list is not empty
             if transfer and #transfer ~= 0 then
                 minimal.warn_message(player, player_name,
-                                     S("Not enough room in to transfer everything"))
+                                     S("Not enough room to transfer everything"))
             end
 
             -- not enough inputs?

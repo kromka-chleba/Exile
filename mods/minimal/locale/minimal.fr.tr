@@ -1,33 +1,7 @@
 # textdomain: minimal
-#utility/general.lua
-@1's @2=@2 de @1
-#currentrevision.lua
+# currentrevision.lua
 Display the current git revision=Afficher la révision git en cours
 This server is currently running git revision=Ce serveur fait actuellement tourner la révision git
-#interface/infotext.lua
-Owner:=Propriétaire :
-Label:=Label :
-
-#playersettings.lua
-Enable wide HUDbar=Autoriser l'élargissement de l'interface
-Show numeric stats=Montrer des stats numériques
-Enable Break-taker popup=Autoriser la pop-up de pause
-Allow digging with a full inventory=Autoriser le minage avec l'inventaire plein
-Recipe hints require pressing a button=
-Keep fixed order for recipes=
-Disable music=
-Disable music=Désactiver la musique
-Temperature scale=Échelle de température
-GUI theme=Thème de l'interface
-HUD Opacity=Opacité de l'interface
-Default=Par défaut
-Antiglass=Verre antique
-Antiblue=Bleu antique
-Legacy Grey=Gris minetest
-New Grey=Nouveau gris
-Crafting mode=
-'Save this'=
-'Use this'=
 
 # protection.lua
 Access List=Liste d'accès autorisés
@@ -35,14 +9,15 @@ Delete=Effacer
 Close=Fermer
 Access list empty.=Liste d'accès autorisés vide.
 Deleted @1 from access list.=@1 a été supprimé de la liste d'accès autorisés.
+Can't grant access to items you don't own=Impossible de donner l'accès à des objets dont vous n'êtes pas le propriétaire
 @1 already has access=@1 a déjà accès
 @1 has been granted access=@1 a obtenu l'accès
-Can't grant access to items you don't own=Impossible de donner l'accès à des objets dont vous n'êtes pas le propriétaire
-Crafted by=Fabriqué par
-Burnt Storage Pile=Pile d'objets brûlés
 Label=Label
 Set=Éditer
-#triggers.lua
+Crafted by=Fabriqué par
+Burnt Storage Pile=Pile d'objets brûlés
+
+# triggers.lua
 Invalid teleport vector, must be '(x,y,z)'=Vecteur de téléportation invalide, doit être de la forme '(x,y,z)'
 Reset player=Réinitialiser le joueur
 Will reset player stats to full=Remettra les stats du joueur à 100%
@@ -83,11 +58,11 @@ Value:=Valeur :
 False=Faux
 True=Vrai
 # triggers
+Unset=
 Exile trigger node=
 Configured trigger=
-Unset=
-Yes=Oui
-No=Non
+
+# zones.lua
 Error in zone def ranges=
 Upper corner=
 ( North / Up / East )=
@@ -101,3 +76,38 @@ Range=
 Copy=
 Values=
 Exile zone trigger node=
+
+# interface/infotext.lua
+Owner:=Propriétaire :
+Label:=Label :
+
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=Autoriser l'élargissement de l'interface
+Show numeric stats=Montrer des stats numériques
+Enable Break-taker popup=Autoriser la pop-up de pause
+Allow digging with a full inventory=Autoriser le minage avec l'inventaire plein
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=Désactiver la musique
+Temperature scale=Échelle de température
+GUI theme=Thème de l'interface
+HUD Opacity=Opacité de l'interface
+
+# interface/themes.lua
+Default=Par défaut
+Antiglass=Verre antique
+Antiblue=Bleu antique
+Legacy Grey=Gris minetest
+New Grey=Nouveau gris
+Coal Black=
+
+# utility/general.lua
+Yes=Oui
+No=Non
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=@2 de @1

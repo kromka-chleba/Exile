@@ -1,9 +1,10 @@
 # textdomain: bones
+# init.lua
 Bones=Ossements
 @1 of @2's bones=@1 des Ossements de @2
+@1's fresh bones=Ossements récents de @1
 @1's old bones=Ossements anciens de @1
+@1's bones=Ossements de @1
 @1 died at @2.=@1 est mort(e) en @2.
 @1 died at @2, and dropped their inventory.=@1 est mort(e) en @2 et a laissé tomber son inventaire.
 @1 died at @2, and bones were placed.=@1 est mort(s) en @2 et des ossements ont été placés.
-@1's fresh bones=Ossements récents de @1
-@1's bones=Ossements de @1

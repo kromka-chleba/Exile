@@ -1,22 +1,22 @@
 # textdomain: health
-# hud.lua
-# food.lua
-# hud.lua
 # food.lua
 This is inedible.=Esto no es comestible.
 Eat=Comer
+
+# health_effects.lua
 Food Poisoning=Intoxicación alimentaria
-Dust Fever=
+Dust Fever=Fiebre de Polvo
 Intestinal Parasites=Parásitos intestinales
-Tiku High=
+Tiku High=Dopado con Tiku
 Neurotoxicity=Neurotoxicidad
-Hepatotoxicity=
+Hepatotoxicity=Hepatoxicidad
 Photosensitivity=Fotosensibilidad
-Meta-Stim=
-Fungal Infection=
-Drunk=
+Meta-Stim=Meta-Stim
+Fungal Infection=Micosis
+Drunk=Beodo
 Hangover=Resaca
-body temp=
+
+# health_states.lua
 Caveman in ice=
 Frozen=
 Frostbitten=
@@ -40,17 +40,11 @@ Resting=Descansando
 poorly=
 comfortably=
 (Sweating)=(Sudando)
+
 #init.lua
 Hyperthermia=
 Hypothermia=
 
 
-##### not used anymore #####
-
-Health:=Salud:
-Energy:=Energía:
-Thirst:=Hidratación:
-Hunger:=Saciedad:
-Body Temp:=Temp. Corporal:
-Temp:=Temp.:
-Effects:=Efectos:
+# commented code
+body temp=

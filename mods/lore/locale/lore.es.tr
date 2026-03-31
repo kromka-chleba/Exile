@@ -1,8 +1,10 @@
 # textdomain: lore
-#char_tab.lua
-# personality
+# bio_gen.lua
+# gender:
+he=el
+she=ella
+# personality:
 #  openness
-#char_tab.lua
 Conventional=Convencional
 Unconventional=
 Practical=Práctico
@@ -47,7 +49,7 @@ Self-satisfied=Engreído
 Moody=Malhumorado
 Complacent=Complaciente
 Paranoid=Paranoico
-# virtue
+# virtue:
 courageous=valeroso
 temperate=comedido
 charitable=caritativo
@@ -144,7 +146,7 @@ understanding=comprensivo
 vigorous=vigoroso
 wise=sabio
 zealous=entusiasta
-# life
+# life:
 #  Favorable
 a good=una buena
 a happy=
@@ -204,7 +206,7 @@ a misspent=
 an eccentric=
 an oddball=
 a strange=
-# woe
+# woe:
 #  Bad Business
 made a bad bargain=
 made a deal with the wrong people=
@@ -306,18 +308,20 @@ received a vision from the other side=
 had a dream that explained everything=
 built a perpetual-motion machine=
 learned the meaning of life=
-# bio_gen.lua
+# lore.generate_bio():
 @n @1 and @2,@n @3 had lived @4 life,@n until one day @5 @6....=
-he=el
-she=ella
+
+# char_tab.lua
+Health Effects=Efectos en Salud
 Name=Nombre
 Days Survived=Días Sobreviviste
 Lives=Vidas
 Biography=Biografía
-Health Effects=Efectos en Salud
 Character=Personaje
-# judger
-# monarchs, etc.
+
+# exile_letter.lua
+# judger:
+#  monarchs, etc.
 King=
 Queen=
 Emperor=
@@ -339,7 +343,7 @@ Prince=
 Princess=
 Regent=
 Dictator=
-# officials
+#  officials
 High Judge=
 Tribunal=
 Council=
@@ -351,7 +355,7 @@ Sheriff=
 Exarch=
 Prefect=
 Seneschal=
-# cults
+#  cults
 Brotherhood=
 Sisterhood=
 High Priest=
@@ -369,7 +373,7 @@ Priestesses=
 Enlightened Ones=
 Great Sage=
 Shaman=
-# tribal
+#  tribal
 Elders=
 Wise Ones=
 Clan Council=
@@ -378,7 +382,7 @@ Great Chieftain=
 United Clans=
 Wise Man=
 Wise Woman=
-# republic
+#  republic
 Citizenry=
 People=
 Senate=
@@ -386,7 +390,7 @@ Consul=
 Senators=
 Assembly=
 Chief Minister=
-# Geographic/polity
+#  Geographic/polity
 City State=
 Empire=
 Kingdom=
@@ -405,7 +409,7 @@ Tribe=
 Monastic Order=
 Merchant Republic=
 Theocracy=
-# Military
+#  Military
 Generals=
 Champion=
 Mighty Warriors=
@@ -414,14 +418,14 @@ Legion=
 Commander=
 Commandant=
 Warlord=
-# rogues
+#  rogues
 Pirates=
 Bandits=
 Company=
 Horde=
 Liberators=
 Destroyers=
-# freaky
+#  freaky
 All Seeing Eye=
 Old Children=
 Spectre=
@@ -433,8 +437,8 @@ Eternal Pyramid=
 Towering Tree=
 Viridian Magister=
 Thousand-tongued All-speaker=
-# exile-worthy crime
-# crime1
+# exile-worthy crime:
+#  crime1
 treason=
 betrayal=
 murder=
@@ -453,8 +457,8 @@ espionage=
 sabotage=
 treachery=
 sedition=
-# flavour-text crime
-# crime2
+# flavour-text crime:
+#  crime2
 leading the youth astray=
 smuggling contraband=
 vagabondage=
@@ -547,7 +551,7 @@ leading an unauthorised military campaign=
 claiming that the world is round=
 claiming that the world is not round=
 promoting belief in gravity=
-#exile_letter.lua
+#
 He=El
 She=Ella
 Him=
@@ -604,8 +608,8 @@ So it is written. So it is done.=
 Even the dogs despise @1.=
 We break no bread with traitors.=
 Let this be @1 journey to cleanse @2.=
-# Various corruptions of Ozymandias
-# local exile
+# Various corruptions of Ozymandias:
+#  local exile
 Ochymadion=
 Aseymedius=
 Eshenadios=
@@ -622,8 +626,8 @@ Caemandior=
 Oshaemediash=
 Otzakantas=
 Archanatus=
-# What happened here? Lost to memory.
-# mythic_terror
+# What happened here? Lost to memory.:
+#  mythic_terror
 Great Calamity=
 Collapse=
 Unending Curse=
@@ -671,13 +675,17 @@ Twisted Existence=
 Twisted=
 Warped=
 Lost=
+# generate_text:
 By decree of the @1 of @2: @n@n @3 of @4 @n@n is hereby sentenced to exile for the crimes of @n@n @5 @n@n and @n@n @6 @n@n@n @7 is hereby banished to the land of @8 @n@n The land of the @9 @n@n=Por decreto del @1 de @2: @n@n @3 de @4 @n@n es condenado al exilio por los crimenes de @n@n @5 @n@n y @n@n @6 @n@n@n @7 está desterrado a la tierra de @8 @n@n La tierra de @9 @n@n
 Sentence of Exile=
-#login.lua
+
+# login.lua
 login_text=
-Message of the Day:@n@n=
+Message of the Day:@n@n=Mensaje del Dia:@n@n
 This command shows the current message of the day.=
-#restart.lua
+This command prints the login queue for all players.=
+
+# restart.lua
 @1 gave up the ghost.=@1 tiro la toalla.
 POP!=
 Restart in: @1 seconds.=Reanudar en @1 segundos.
@@ -688,22 +696,3 @@ Your inventory will be deleted.=Su inventario será eliminado.
 Are you sure?=Está seguro?
 Give up on your current character without leaving a trace. Everything you hold will be lost. Have a new Exile appear in this world in their stead and try your hand at survival again.=
 This command is an alias for /restart. See there for further information.=
-
-
-##### not used anymore #####
-
-mild=leve
-severe=severa
-extreme=extrema
-Food Poisoning=Comida envenenada
-Fungal Infection=Micosis
-Dust Fever=Fiebre de Polvo
-Intestinal Parasites=Parasitos Intestinales
-Drunk=Beodo
-Hangover=Resaca
-Tiku High=Dopado con Tiku
-Neurotoxicity=Neurotoxicidad
-Hepatotoxicity=Hepatoxicidad
-Photosensitivity=Fotosensibilidad
-Meta-Stim=Meta-Stim
-Message of the Day:=Mensaje del Dia:

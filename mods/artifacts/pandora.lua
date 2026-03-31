@@ -66,7 +66,7 @@ minetest.register_tool('artifacts:metastim', {
 --Exotic physics
 -- a patch of space at absolute zero
 local void_def = {
-    description = "Void Space",
+    description = S("Void Space"),
     tiles = {"artifacts_void_space.png"},
     light_source = 1,
     drawtype = "glasslike",

@@ -1,8 +1,9 @@
 # textdomain: health
-# hud.lua
 # food.lua
 This is inedible.=Dies ist ungenießbar.
 Eat=Essen
+
+# health_effects.lua
 Food Poisoning=Lebensmittelvergiftung
 Dust Fever=Staubfieber
 Intestinal Parasites=Darmparasiten
@@ -14,7 +15,8 @@ Meta-Stim=Meta-Stim
 Fungal Infection=Pilzinfektion
 Drunk=Betrunken
 Hangover=Kater
-body temp=Körpertemp.
+
+# health_states.lua
 Caveman in ice=Höhlenmensch im Eis
 Frozen=Eingefroren
 Frostbitten=Frostig
@@ -38,6 +40,11 @@ Resting=Ruhend
 poorly=schlecht
 comfortably=komfortabel
 (Sweating)=(Schwitzend)
+
 #init.lua
 Hyperthermia=Hyperthermie
 Hypothermia=Hypothermie
+
+
+# commented code
+body temp=Körpertemp.

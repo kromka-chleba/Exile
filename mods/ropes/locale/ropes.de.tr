@@ -1,5 +1,8 @@
 # textdomain: ropes
+# ladder.lua
 Rope Ladder=Strickleiter
+
+# ropeboxes.lua
 @1 Ropebox @2m=@1 Seilkasten @2m
 Rope=Seil
 Wooden=Hölzerner

@@ -6,7 +6,7 @@
 
 climate = climate
 local c_alpha = minimal.compat_alpha
-local S = core.get_translator("lore")
+local S = core.get_translator("climate")
 
 -------------------------------
 --OUTDOORS AND EXPOSED TO ELEMENTS
@@ -561,7 +561,7 @@ end
 --Air
 --these will move
 local air_def = {
-    description = "Temperature Effect Air",
+    description = S("Temperature Effect Air"),
     tiles = {"climate_air.png"},
     drawtype = "airlike",
     paramtype = "light",
@@ -582,7 +582,7 @@ local air_def = {
 minetest.register_node("climate:air_temp", air_def)
 
 local visible_air_def = table.copy(air_def)
-visible_air_def.description = "Temperature Effect Air (Visible)"
+visible_air_def.description = S("Temperature Effect Air (Visible)")
 visible_air_def.drawtype = "allfaces"
 visible_air_def.on_timer = function(pos, elapsed)
     return climate.heat_transfer(pos, "climate:air_temp_visible", 'air')

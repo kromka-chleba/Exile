@@ -250,7 +250,7 @@ minetest.register_chatcommand(
             end
             local tmp = disable_tutorial
             disable_tutorial = false
-            minetest.chat_send_player(name, "Starting tutorial")
+            minetest.chat_send_player(name, S("Starting tutorial"))
             tutorial.init(minetest.get_player_by_name(name), nil)
             disable_tutorial = tmp
         end
@@ -259,7 +259,7 @@ minetest.register_chatcommand(
     "quit_tutorial",{
         description = "Exit the tutorial",
         func = function(name,param)
-            minetest.chat_send_player(name, "Stopping tutorial")
+            minetest.chat_send_player(name, S("Stopping tutorial"))
             tutorial.exit(minetest.get_player_by_name(name))
         end
 })

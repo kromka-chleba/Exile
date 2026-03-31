@@ -1,5 +1,8 @@
 # textdomain: creative
+# init.lua
 Allow player to use creative inventory=Spieler erlauben, das Kreativinventar zu benutzen
+
+# inventory.lua
 Search=Suche
 Reset=Zurücksetzen
 Previous page=Vorherige Seite

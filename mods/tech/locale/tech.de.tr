@@ -3,17 +3,21 @@
 Woven Bag=Webtasche
 Wicker Bag=Weidentasche
 Fabric Bag=Stofftasche
+
 # beds.lua
 Sleeping Spot=Schlafplatz
 Sleeping Mat=Schlafmatte
 Primitive Bed=Primitives Bett
 Mattress=Matratze
 Bed=Bett
+
+# bricks_and_mortar.lua
 Crushed Lime=Zerdrückter Kalk
 Quicklime=Branntkalk
 Slaked Lime=Löschkalk
 Slaked Lime (ruined)=Löschkalk (ruiniert)
 Lime Mortar Slab=Kalkmörtelplatte
+Combine with another slab=Mit anderer Platte kombinieren
 Lime Mortar=Kalkmörtel
 Loose Bricks (unfired)=Lose Ziegel (ungebrannt)
 Loose Bricks=Lose Ziegel
@@ -42,14 +46,19 @@ Claystone=Tonstein
 Siltstone=Schluffstein
 Sandstone=Sandstein
 Conglomerate=Konglomerat
-# bricks_and_mortar.lua
+Coquina=Coquina
 Limestone=Kalkstein
 Ironstone=Eisenstein
 Granite=Granit
 Basalt=Basalt
+Scoria=Scoria
 Gneiss=Gneis
 Jade=Jade
-Combine with another slab=Mit anderer Platte kombinieren
+
+# chairs.lua
+Sitting Mat=Sitzmatte
+Stool=Hocker
+
 # clothing.lua
 Woven Hat=Webhut
 Sun Hat=Sonnenhut
@@ -68,47 +77,35 @@ Light Fabric Tunic=Leiche Stofftunika
 Thick Fabric Tunic=Dicke Stofftunika
 
 # cooking_pot.lua
-Bowl (unfired)=Schale (ungebrannt)
+Bowl of @1 Soup=Schale mit @1-Suppe
+Bowl of @1 Stew=Schale mit @1-Eintopf
+Bowl of @1=Schale mit @1
 Empty Bowl=Leere Schale
 Bowl=Schale
-Cooking Pot (unfired)=Kochtopf (ungebrannt)
-Cooking Pot=Kochtopf
-Bowl of @1 Stew=Schale mit @1-Eintopf
-Bowl of @1 Soup=Schale mit @1-Suppe
-#; contents
 Water=Wasser
 Contents: @1=Inhalt: @1
-Contents: <EMPTY>=Inhalt: <LEER>
-Leftover: @1%=Übrig: @1%
-#; status
-Soup=Suppen
-Stew=Eintopf
-Unprepared Pot=Unvorbereiteter Topf
-Soup Pot=Suppentopf
-Status: @1 pot=Status: @1topf
-Status: @1 pot (cooking)=Status: @1topf (kochend)
 Status: @1 pot (finished)=Status: @1topf (fertig)
-#; note + questions
+Status: @1 pot (cooking)=Status: @1topf (kochend)
+Status: @1 pot=Status: @1topf
+Cooking Pot=Kochtopf
 This pot is full and heavy. Spill it?=Dieser Topf ist voll und schwer. Ausschütten?
+Unprepared Pot=Unvorbereiteter Topf
+Contents: <EMPTY>=Inhalt: <LEER>
 Note: Add water to pot to make soup=Anmerkung: Wasser in Topf geben, um Suppe zu machen
-Note: Add food to the pot to make soup=Anmerkung: Nahrung hinzugeben, um Suppe zu machen
 Note: Use a Bowl to Get!=Verwende eine Schale zum Entnehmen
-# misc use tips
-Eat=Essen
-Drink=Trinken
-Create=Machen
-# craft-stations.lua
+Leftover: @1%=Übrig: @1%
+Soup Pot=Suppentopf
+Note: Add food to the pot to make soup=Anmerkung: Nahrung hinzugeben, um Suppe zu machen
+Cooking Pot (unfired)=Kochtopf (ungebrannt)
+Bowl (unfired)=Schale (ungebrannt)
+
+# craft_stations.lua
+# Craft stations:
 Crafting Spot=Fertigungsplatz
-# Craft station
 Weaving=Weben
 Mixing=Mischen
 Grinding stone=Schleifstein
 Mortar and Pestle=Mörser und Stößel
-Limestone Mortar and Pestle=Kalksteinmörser und Stößel
-Basalt Mortar and Pestle=Basaltmörser und Stößel
-Granite Mortar and Pestle=Granitmörser und Stößel
-@1 Mortar and Pestle=@1mörser und Stößel
-Wooden Mortar and Pestle=Holzmörser und -stößel
 Crafting=Fertigung
 Carpentry Bench=Schreinerbank
 Bricks=Ziegel
@@ -119,6 +116,7 @@ Glass furnace=Glasofen
 Pottery=Töpferei
 Tools=Werkzeuge
 Stations=Stationen
+Wattle=Flechtwerk
 Agriculture=Ackerbau
 Pickaxe=Spitzhacke
 Breadmaking=Brotherstellung
@@ -128,16 +126,20 @@ Threshing Spot=Dreschplatz
 Weaving Spot=Webplatz
 Grinding Spot=Schleifplatz
 Hammering Spot=Hammerplatz
-Chopping Block=Hackklotz
+Wooden Mortar and Pestle=Holzmörser und -stößel
+Limestone Mortar and Pestle=Kalksteinmörser und Stößel
+Basalt Mortar and Pestle=Basaltmörser und Stößel
+Granite Mortar and Pestle=Granitmörser und Stößel
+Brick Maker's Bench=Ziegelmacherbank
 Anvil=Amboss
 Masonry Bench=Steinmetzbank
-Brick Maker's Bench=Ziegelmacherbank
 Weaving Frame=Webrahmen
 Granite Grinding Stone=Granitschleifstein
 Limestone Grinding Stone=Kalksteinschleifstein
 Basalt Grinding Stone=Basaltschleifstein
+Chopping Block=Hackklotz
 Hammering Block=Hammerblock
-Wattle=Flechtwerk
+
 # doors.lua
 Wattle Door=Flechttür
 Wattle Trapdoor=Flechtfalltür
@@ -149,16 +151,21 @@ Glass Door=Glastür
 Glass Trapdoor=Glasfalltür
 Clear Glass Door=Klarglastür
 Clear Glass Trapdoor=Klarglasfalltür
+
 # drugs.lua
 Herbal Medicine=Pflanzliche Medizin
+Eat=Essen
 Tiku (stimulant)=Tiku (Stimulans)
+Vinegar=Essig
 Tang Vinegar=Tang-Essig
 Tang Vinegar with Mother=Tang-Essig mit Mutter
 Mother of Tang=Mutter von Tang
 Infect Other Pots=Andere Töpfe infizieren
 Tang=Tang
+Drink=Trinken
 Tang (unfermented)=Tang (unfermentiert)
-# hearthen_building.lua
+
+# earthen_building.lua
 Drystack=Trockenmauer
 Drystack Stair=Trockenmauertreppe
 Drystack Slab=Trockenmauerplatte
@@ -169,8 +176,11 @@ Rammed Earth=Gerammte Erde
 Rammed Earth Stair=Gerammte-Erde-Treppe
 Rammed Earth Slab=Gerammte-Erde-Platte
 Wicker well lining=Flechtbrunnenauskleidung
+Wet wicker well lining=Feuchte Flechtbrunnenauflage
+Salty wet wicker well lining=Salzige feuchte Flechtbrunnenauflage
 Reinforce a well wall=Eine Brunnenwand verstärken
 Loose Wattle=Loses Flechtwerk
+Wattle and Daub=Lehmputzwand
 Wattle Door Frame=Flechttürrahmen
 Thatch=Dachstroh
 Thatch Stair=Dachstrohtreppe
@@ -186,7 +196,6 @@ Fine Fabric=Dünner Stoff
 
 # fires.lua
 Wood Ash Block=Holzascheblock
-Enrich depleted soil=Ausgelaugten Boden aufbessern
 Wood Ash=Holzasche
 Charcoal Block=Holzkohleblock
 Charcoal=Holzkohle
@@ -205,6 +214,52 @@ Large Wood Fire (extinguished)=Großes Holzfeuer (gelöscht)
 Small Charcoal Fire (extinguished)=Kleines Holzkohlefeuer (gelöscht)
 Large Charcoal Fire (extinguished)=Großes Holzkohlefeuer (gelöscht)
 
+# food_crafts.lua
+Sea Salt=Seesalz
+Bitter Maraka Flour=Bitteres Marakamehl
+Maraka Flour=Marakamehl
+Unbaked Maraka Cake=Roher Marakakuchen
+Maraka Cake=Marakakuchen
+Maraka Cake Burned=Verbrannter Marakakuchen
+Peeled Anperla Tuber=Geschälte Anperlaknolle
+Burned Anperla Tuber=Verbrannte Anperlaknolle
+Cooked Anperla Tuber=Gebrannte Anperlaknolle
+Mashed Anperla (uncooked)=Gestampfte Anperla (roh)
+Mashed Anperla=Gestampfte Anperla
+Burned Anperla=Verbrannte Anperla
+# groups of flours / doughs:
+flour=Mehl
+bread flour=Brotmehl
+cake flour=Kuchenmehl
+dough=Teig
+bread dough=Brotteig
+cake dough=Kuchenteig
+Raw Rhuya Flour=Rohes Rhuyamehl
+Rhuya Flour=Rhuyamehl
+Raw Hardy Rhuya Flour=Rohes zähes Rhuyamehl
+Hardy Rhuya Flour=Zähes Rhuyamehl
+Burnt Rhuya Flour=Verbranntes Rhuyamehl
+All-Purpose Flour=Allzweckmehl
+Uncured Barshocha Flour=Unbehandeltes Barshochamehl
+Cured Barshocha Flour=Behandeltes Barshochamehl
+Maraka Dough=Marakateig
+Rhuya Dough=Rhuyateig
+Hardy Rhuya Dough=Zäher Rhuyateig
+All-Purpose Dough=Allzweckteig
+Barshocha Dough=Barshochateig
+Ikippe Yeast=Ikippehefe
+Infect Dough=zu Teig hinzugeben
+@1 Fermented=@1 fermentiert
+Black Bread=Schwarzbrot
+Crumbly Bread=Mürbes Brot
+Unleavened Bread=Ungesäuertes Brot
+Fluffy Unleavened Bread=Lockeres ungesäuertes Brot
+Basic Crackerbread=Einfaches Knäckebrot
+Soft Bread=Weiches Brot
+Burned Bread=Verbranntes Brot
+Cracked Egg=Aufgeschlagenes Ei
+Fried Egg=Setzei
+
 # glassworking.lua
 Green Glass Sand Mix=Grünglassandmischung
 Green Glass Ingot=Grünglasbarren
@@ -212,9 +267,9 @@ Potash Block=Pottascheblock
 Potash=Pottasche
 Potash Solution Source=Pottaschelösungsquelle
 Flowing Potash Solution=Fließende Pottaschelösung
-Clay Water Pot with Potash Solution=Tonwasservase mit Pottaschelösung
-Wooden Water Pot with Potash Solution=Holzwasservase mit Pottaschelösung
-Clay Water Pot With Potash=Tonwasservase mit Pottasche
+Clay Water Pot with Potash Solution=Tonwasserkrug mit Pottaschelösung
+Wooden Water Pot with Potash Solution=Holzwasserkrug mit Pottaschelösung
+Clay Water Pot With Potash=Tonwasserkrug mit Pottasche
 Clear Glass Sand Mix=Klarglassandmischung
 Clear Glass Ingot=Klasglasbarren
 Pane Casting Tray=Scheibengussschale
@@ -251,13 +306,13 @@ Protect Item=Gegenstand schützen
 Iron Key=Eisenschlüssel
 Grant key owner access.=Eigentümer des Schlüssels Zugang gewähren.
 
-# Lantern
+# Lantern.lua
 Lantern Case=Laternenrahmen
-Status: needs a clear glass pane and a wick (coarse fibre)!=Zustand: Benötigt eine Klarglasscheibe und einen Docht (grobe Faser)!
+Status: needs a @1 and a wick (@2)!=Status: Benötigt @1 und einen Docht (@2)!
 Lantern Case with a wick=Laternenrahmen mit einem Docht
-Status: needs a clear glass pane!=Zustand: Benötigt eine Klarglasscheibe!
+Status: needs a @1!=Status: Benötigt @1!
 Lantern Case with Glass=Laternenrahmen mit Glas
-Status: needs a wick (coarse fibre)!=Zustand: Benötigt einen Docht (grobe Faser)!
+Status: needs a wick (@1)!=Status: Benötigt einen Docht (@1)!
 Unlit Lantern=Nicht angezündete Laterne
 Lit Lantern=Angezündete Laterne
 
@@ -270,61 +325,21 @@ alignment tool=Ausrichtungswerkzeug
 Pick up a node's facing=Blockausrichtung erfassen
 Flip to lever=Zum Hebelarm umwandeln
 Apply facing to another node=Ausrichtung auf einen anderen Block anwenden
+
+# lightsource_api.lua
 Empty=Leer
-fuel left=verbleibender Brennstoff
-Status:=Zustand:
+@1% fuel left=@1% Brennstoff übrig
+Status: @1=Status: @1
 
 # plant_crafts.lua
 Stick=Stock
-Grass Fibre=Grasfaser
+Plant Fibre=Pflanzenfaser
 Vegetable Oil=Pflanzenöl
-Sea Salt=Seesalz
-Bitter Maraka Flour=Bitteres Marakamehl
-Maraka Flour=Marakamehl
-Unbaked Maraka Cake=Roher Marakakuchen
-Maraka Cake=Marakakuchen
-Maraka Cake Burned=Verbrannter Marakakuchen
-Peeled Anperla Tuber=Geschälte Anperlaknolle
-Burned Anperla Tuber=Verbrannte Anperlaknolle
-Cooked Anperla Tuber=Gebrannte Anperlaknolle
-Mashed Anperla (uncooked)=Gestampfte Anperla (roh)
-Mashed Anperla=Gestampfte Anperla
-Burned Anperla=Verbrannte Anperla
-Raw Rhuya Flour=Rohes Rhuyamehl
-Raw Hardy Rhuya Flour=Rohes zähes Rhuyamehl
-Rhuya Flour=Rhuyamehl
-Hardy Rhuya Flour=Zähes Rhuyamehl
-Burnt Rhuya Flour=Verbranntes Rhuyamehl
-Uncured Barshocha Flour=Unbehandeltes Barshochamehl
-Cured Barshocha Flour=Behandeltes Barshochamehl
-All-Purpose Flour=Allzweckmehl
-Maraka Dough=Marakateig
-Rhuya Dough=Rhuyateig
-Hardy Rhuya Dough=Zäher Rhuyateig
-Barshocha Dough=Barshochateig
-All-Purpose Dough=Allzweckteig
-@1 Fermenting=@1 fermentierend
-@1 Fermented=@1 fermentiert
-Black Bread=Schwarzbrot
-Crumbly Bread=Mürbes Brot
-Unleavened Bread=Ungesäuertes Brot
-Fluffy Unleavened Bread=Lockeres ungesäuertes Brot
-Basic Crackerbread=Einfaches Knäckebrot
-Soft Bread=Weiches Brot
-Burned Bread=Verbranntes Brot
-Ikippe Yeast=Ikippehefe
-# animal food_crafts
-Cracked Egg=Aufgeschlagenes Ei
-Fried Egg=Setzei
-# food_crafts tips/messages
-Infect Dough=zu Teig hinzugeben
-Yeast added to the @1=Hefe zum @1 hinzugegeben
-# Pottery
-Broken Pottery Slab=Zerbrochene Keramikplatte
 
 # pottery.lua
+Broken Pottery Slab=Zerbrochene Keramikplatte
 Broken Pottery=Zerbrochene Keramik
-Clay Water Pot (unfired)=Tonwasservase (ungebrannt)
+Clay Water Pot (unfired)=Tonwasserkrug (ungebrannt)
 Clay Storage Pot (unfired)=Tonvorratsgefäß (ungebrannt)
 Clay Oil Lamps (x4) (unfired)=Tonöllampen (×4) (ungebrannt)
 Clay Oil Lamps (x4)=Tonöllampen (×4)
@@ -348,31 +363,29 @@ Flat Surface=Ebene Fläche
 Stone Knife=Steinmesser
 Cut plants faster than bare hands=Schneidet Pflanzen schneller als mit den Händen
 Flip to stone etcher=Zum Steinkratzer umwandeln
-Place tool for cutting crafts=Werkzeug platzieren für Schnittrezepte
+Place tool for cutting crafts=Werkzeug platzieren für Schneidearbeiten
 Placed Stone Knife=Platziertes Steinmesser
 Digging Stick=Grabestock
 Dig hard earth=Harte Erde graben
 Till soil slowly=Boden langsam bestellen
-Place tool for plant crafts=Werkzeug platzieren für Pflanzenfertigungen
+Place tool for farming crafts=Werkzeug platzieren für landwirtschaftliches Handwerk
 Placed Digging Stick=Platzierter Grabestock
+@1 Adze=@1dechsel
 Cut softwood logs=Weichholzstämme fällen
-Adze=Dechsel
-Placed Granite Adze=Platzierte Granitdechsel
-Placed Basalt Adze=Platzierte Basaltdechsel
-Placed Jade Adze=Platzierte Jadedechsel
-Basalt Adze=Basaltdechsel
-Jade Adze=Jadedechsel
-Granite Adze=Granitdechsel
-Stone Club=Steinknüppel
+Place tool for woodworking crafts=Werkzeug platzieren für Holzbearbeitung
+Placed @1 adze=Platzierte @1dechsel
+@1 Hammer=@1hammer
 Strike=Zuschlagen
 Stun animals=Tiere betäuben
+Place tool for hammering crafts=Werkzeug platzieren für Hammerarbeiten
+Placed @1 Hammer=Platzierter @1hammer
+Stone Club=Steinknüppel
 Iron Axe=Eisenaxt
 Cut any wood=Jedes Holz fällen
 Placed Iron Axe=Platzierte Eisenaxt
 Iron Shovel=Eisenschaufel
 Dig earth quickly=Erde schnell graben
 Till soil=Boden bestellen
-Place for plant crafts=Platzieren für Pflanzenfertigungen
 Placed Iron Shovel=Platzierte Eisenschaufel
 Iron Mace=Eisenkeule
 Iron Pickaxe=Eisenspitzhacke
@@ -381,63 +394,45 @@ Placed Iron Pickaxe=Platzierte Eisenspitzhacke
 Iron Hoe=Eisenhacke
 Till soil quickly=Boden schnell bestellen
 Placed Iron Hoe=Platzierte Eisenhacke
-Hammer=Hammer
-or Place on solid surface for hammering crafts=oder auf festen Grund platzieren für Hammerfertigungen
-Placed Granite Hammer=Platzierter Granithammer
-Placed Basalt Hammer=Platzierter Basalthammer
-Basalt Hammer=Basalthammer
-Granite Hammer=Granithammer
 
 # torch.lua
 Torch=Fackel
 
+# ucsigns.lua
+Signs=Schild
+@1 Sign=@1-Schild
+Oiled Sign=Geöltes Schild
+Iron Sign=Eisenschild
+
 # waterworking.lua
+Empty Clay Water Pot=Leerer Tonwasserkrug
+Empty Clay Watering Can=Leere Tongießkanne
+Empty Wooden Water Pot=Leerer Holzwasserkrug
+Empty Wooden Watering Can=Leere Holzgießkanne
+# group:
 Water Pot=Krug
-Clay Water Pot=Tonwasservase
-Clay Water Pot with Salt Water=Tonwasservase mit Salzwasser
-Clay Water Pot with Freshwater=Tonwasservase mit Süßwasser
-Salty Clay Water Pot=Tonwasservase mit Salz
-Wooden Water Pot=Holzwasservase
-Wooden Water Pot with Salt Water=Holzwasservase mit Salzwasser
-Wooden Water Pot with Freshwater=Holzwasservase mit Süßwasser
-Clay Watering Can=Tongießkanne
+# Filled with Freshwater:
+Clay Water Pot with Freshwater=Tonwasserkrug mit Süßwasser
+Wooden Water Pot with Freshwater=Holzwasserkrug mit Süßwasser
+# Filled with Salt Water:
+Clay Water Pot with Salt Water=Tonwasserkrug mit Salzwasser
+Wooden Water Pot with Salt Water=Holzwasserkrug mit Salzwasser
+Salty Clay Water Pot=Tonwasserkrug mit Salz
+# Watering can:
 Clay Watering Can with Freshwater=Tongießkanne mit Süßwasser
 Clay Watering Can with Salt Water=Tongießkanne mit Salzwasser
-Wooden Watering Can=Holzgießkanne
 Wooden Watering Can with Freshwater=Holzgießkanne mit Süßwasser
 Wooden Watering Can with Salt Water=Holzgießkanne mit Salzwasser
+# empty glass bottles:
 Green Glass Bottle=Grünglasflasche
 Clear Glass Bottle=Klarglasflasche
+# filled glass bottles:
 Green Glass Bottle With Salt Water=Grünglasflasche mit Salzwasser
+Green Glass Bottle With Freshwater=Grünglasflasche mit Süßwasser
 Clear Glass Bottle With Salt Water=Klarglasflasche mit Salzwasser
-Green Glass Bottle With Fresh Water=Grünglasflasche mit Süßwasser
-Clear Glass Bottle With Fresh Water=Klarglasflasche mit Süßwasser
+Clear Glass Bottle With Freshwater=Klarglasflasche mit Süßwasser
 
 # woodworking.lua
 Wooden Ladder=Holzleiter
 Wooden Floor Boards=Holzbodenbretter
 Wooden Stairs=Holztreppen
-
-
-##### not used anymore #####
-
-# nodecrafting
-Dump=Abladen
-# dye
-red dye=roter Farbstoff
-Coquina=Coquina
-Scoria=Scoria
-Salty wet wicker well lining=Salzige feuchte Flechtbrunnenauflage
-Status: needs a @1!=Status: Benötigt @1!
-Status: needs a wick (@1)!=Status: Benötigt einen Docht (@1)!
-@1% fuel left=@1% Brennstoff übrig
-Status: @1=Status: @1
-Placed @1 adze=Platzierte @1dechsel
-@1 Adze=@1dechsel
-@1 Hammer=@1hammer
-Placed @1 Hammer=Platzierter @1hammer
-Status: needs a @1 and a wick (@2)!=Status: Benötigt @1 und einen Docht (@2)!
-Wet wicker well lining=Feuchte Flechtbrunnenauflage
-Breadmaking=Brotherstellung
-Fermented @1=Fermentierter @1
-Fermenting @1=Fermentierendes @1

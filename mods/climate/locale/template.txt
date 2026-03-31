@@ -1,4 +1,5 @@
 # textdomain: climate
+# history.lua
 Birth=
 Thirst=
 Retreat=
@@ -8,4 +9,8 @@ evening=
 afternoon=
 morning=
 It is the @1 of day @2 of the season of @3, in the year of our exile @4=
+
+# temperature.lua
 Value:=
+Temperature Effect Air=
+Temperature Effect Air (Visible)=
