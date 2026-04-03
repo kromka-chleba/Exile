@@ -253,14 +253,14 @@ local info = { -- #TODO: set up locales, template.txt etc
     ["crafting3"] = S("A flat surface to work on allows more crafts.@n"..
                       "Craft an adze to remove the log that's in the way."),
     ["crafting4"] = S("More crafts come with tools and stations.@n"..
-                      "Craft iron ingots for an iron pick to cut the "..
-                      "stone covering the exit."),
+                      "Craft an iron pick to cut the stone covering the exit."),
     ["crafting5"] = S("You'll need a ladder here. Put down your adze to make "..
                       "sticks from a log, then combine with the fiber from "..
                       "the pot. The ladder is made in the weaving tab of "..
                       "hand crafting."),
     ["crafting6"] = S("Some crafts need to be done by cooking with fire "..
-                      "or soaking things under a liquid." ),
+                      "or soaking things under a liquid, but they're not "..
+                      "covered here."),
     ["spirit1"] = S("Exile is a challenging game. Failure is normal, and "..
                     "a part of the fun!"),
     ["spirit2"] = S("Can you jump the gap?"),
