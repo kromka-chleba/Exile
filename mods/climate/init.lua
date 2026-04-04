@@ -266,7 +266,7 @@ local function set_sky_clouds(player,...)
         and wth.moon_data.texture == "moon.png") then
         wth.moon_data.texture = get_moon_texture(wth.moon_data,args[1])
     end
-    
+
     --activate!
     player:set_sky(wth.sky_data)
     player:set_clouds(clouds)
@@ -336,6 +336,28 @@ function climate.set_weather_override(p_name, p_obj, w_name)
 end
 
 -------------------------
+-- MOON PHASE CHECKING LOOP
+
+local mphl_interval = (5*60)
+-- moon_phase_loop_interval (25% an Exile day or 8 minutes)
+local function moon_phase_loop()
+    --local tod = minetest.get_timeofday() or 0
+
+    -- only set skies while the moon is not up
+    -- (nvm lol, keeping the old code lines just in case though)
+    --if not (tod < 0.23 or tod > 0.75) then
+    climate.update_skies()
+    --end
+
+    minetest.after(mphl_interval,moon_phase_loop)
+end
+
+minetest.after(mphl_interval,moon_phase_loop)
+-- sky is set on player join, check again after interval
+
+
+
+-------------------------
 --SAVE AND LOAD
 
 local function save_weather()
@@ -352,20 +374,27 @@ minetest.register_on_shutdown(function()
         save_weather()
 end)
 
-minetest.register_on_joinplayer(
-    function(player)
-        local p_name = player:get_player_name()
-        -- load any prior weather overrides
-        local ovr = player:get_meta():get_string("weather_override")
-        if ovr ~= "" then
-            climate.set_weather_override(p_name, player, ovr)
-        else
-            update_player_sounds(p_name)
+local function restore_override(player)
+    local p_name = player:get_player_name()
+    -- load any prior weather overrides
+    local meta = player:get_meta()
+    local ovr = meta:get_string("weather_override")
+    if ovr ~= "" then
+        climate.set_weather_override(p_name, player, ovr)
+        if not meta:contains("playtime_suspended") then
+            -- Overrides aren't normally used outside the tutorial, log it
+            core.log("warning",
+                     "Restoring weather override for player out of tutorial: "..
+                     p_name)
         end
-        set_sky_clouds(player)
-        --set weather effects for this player
-        minetest.chat_send_player(p_name, climate.datestring())
-end)
+    else
+        update_player_sounds(p_name)
+    end
+    set_sky_clouds(player)
+    --set weather effects for this player
+    minetest.chat_send_player(p_name, climate.datestring())
+end
+minetest.register_on_joinplayer(restore_override)
 
 --get weather from storage, override random start values
 local function load_saved_weather()
@@ -402,8 +431,8 @@ local function load_saved_weather()
     if stored.sea_temp then
         climate.active_sea_temp = tonumber(stored.sea_temp)
     end
-    climate.lock_temp = stored.lock_temp
-    climate.lock_weather = stored.lock_weather
+    climate.lock_temp = stored.lock_temp == "true"
+    climate.lock_weather = stored.lock_weather == "true"
     --same again, but for ran_walk
     if stored.ran_walk then
         ran_walk = tonumber(stored.ran_walk)
@@ -535,8 +564,31 @@ minetest.register_globalstep(function(dtime)
         end
 end)
 
+--------------------------------------------------------------------------
+-- Admin notices
+local function weather_notice(player)
+    local name = player:get_player_name()
+
+    if core.get_player_privs(name, { set_temp = true}) or
+        core.get_player_privs(name, { set_weather = true}) or
+        core.get_player_privs(name, { server = true}) then
+
+        local out = "Weather service notice:\n"
+        if not ( climate.lock_temp or climate.lock_weather) then return end
+        if climate.lock_temp then
+            out = out.."     World temperature is currently locked\n"
+        end
+        if climate.lock_weather then
+            out = out.."     World weather is currently locked\n"
+        end
+        core.chat_send_player(name, out)
+    end
+end
+
+core.register_on_joinplayer(weather_notice)
+
 --------------------------------------------------------------------
---CHAT COMMANDS
+-- CHAT COMMANDS
 
 
 local temp_priv = {
@@ -580,6 +632,7 @@ local cmd_lock_t = {
     func = function(name, param)
         climate.lock_temp = true
         store:set_string("lock_temp", "true")
+        return true, "Temperature is now locked."
     end,
 }
 minetest.register_chatcommand("lock_temp", cmd_lock_t)
@@ -591,6 +644,7 @@ local cmd_unlock_t = {
     func = function(name, param)
         climate.lock_temp = false
         store:set_string("lock_temp", "false")
+        return true, "Temperature is now unlocked."
     end,
 }
 minetest.register_chatcommand("unlock_temp", cmd_unlock_t)
@@ -653,6 +707,7 @@ local cmd_lock_w = {
     func = function(name, param)
         climate.lock_weather = true
         store:set_string("lock_weather", "true")
+        return true, "Weather is now locked."
     end,
 }
 minetest.register_chatcommand("lock_weather", cmd_lock_w)
@@ -664,6 +719,7 @@ local cmd_unlock_w = {
     func = function(name, param)
         climate.lock_weather = false
         store:set_string("lock_weather", "false")
+        return true, "Weather is now unlocked."
     end,
 }
 minetest.register_chatcommand("unlock_weather", cmd_unlock_w)
@@ -705,24 +761,4 @@ if minetest.get_modpath('beerchat') then -- we have beerchat installed
             end)
     end)
 end
-
-
--- MOON PHASE CHECKING LOOP
-
-local mphl_interval = (5*60)
--- moon_phase_loop_interval (25% an Exile day or 8 minutes)
-local function moon_phase_loop()
-    --local tod = minetest.get_timeofday() or 0
-
-    -- only set skies while the moon is not up
-    -- (nvm lol, keeping the old code lines just in case though)
-    --if not (tod < 0.23 or tod > 0.75) then
-    climate.update_skies()
-    --end
-
-    minetest.after(mphl_interval,moon_phase_loop)
-end
-
-minetest.after(mphl_interval,moon_phase_loop)
--- sky is set on player join, check again after interval
 
