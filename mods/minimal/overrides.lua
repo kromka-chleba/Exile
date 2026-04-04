@@ -356,7 +356,7 @@ function minetest.node_dig(pos, node, digger)
         and not minimal.player_in_creative(digger) then
 
         local witem = digger:get_wielded_item()
-        local drops = minetest.get_node_drops(node, witem)
+        local drops = core.get_node_drops(node, witem:get_name())
         local inv = digger:get_inventory()
         local full = inv:room_for_item("main", node.name)
         if drops then -- drops something else, maybe multiple items. handle them
