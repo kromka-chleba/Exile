@@ -39,7 +39,7 @@ function spears_register_spear(
     minetest.register_entity(
         "spears:spear_" .. spear_type .. "_entity", SPEAR_ENTITY)
 
-    if minetest.get_modpath("minimal") then
+    if minetest.get_modpath("exile_game") then
         crafting.register_recipe({
                 type = exilectype,
                 output = 'spears:spear_' .. spear_type,
@@ -50,7 +50,7 @@ function spears_register_spear(
     end
 end
 
-if minetest.get_modpath("minimal") then
+if minetest.get_modpath("exile_game") then
     --TODO Make spears_register_spear() allow registering multiple crafting stations
     spears_register_spear('stone', S('Stone'), 8, 20,
                           'tech:stone_chopper', "hand_tools")

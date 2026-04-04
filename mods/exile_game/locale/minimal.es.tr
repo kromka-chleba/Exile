@@ -1,0 +1,113 @@
+# textdomain: exile_game
+# currentrevision.lua
+Display the current git revision=Mostrar la revision actual de git
+This server is currently running git revision=Este servidor esta ejecutando actualmente la revision de git
+
+# protection.lua
+Access List=
+Delete=
+Close=
+Access list empty.=
+Deleted @1 from access list.=
+Can't grant access to items you don't own=
+@1 already has access=
+@1 has been granted access=
+Label=Etiqueta
+Set=
+Crafted by=Creado por
+Burnt Storage Pile=Almacenamiento Quemada
+
+# triggers.lua
+Invalid teleport vector, must be '(x,y,z)'=
+Reset player=
+Will reset player stats to full=
+Hurt player=
+Hits player for <value> damage, 1-20=
+Set energy=
+Set player energy to <value> percent=
+Set HP=
+Set player hp to <value>, 0-20=
+Set hunger=
+Set player hunger to <value> percent=
+Set thirst=
+Set player thirst to <value> percent=
+Teleport=
+Send player to an exact xyz position=
+Relaport=
+Send player a relative xyz distance=
+Clear inventory=
+Empties main inventory=
+Set inventory=
+Overwrite player inv with contents=
+Give item=
+Gives an item, in itemstring format=
+This requires a unique label.=
+Set weather=
+Changes weather displayed to player=
+Use /set_weather help to list available weather.=
+Reset weather=
+Restores normal weather for player=
+Hide hud elements=
+Hide health/energy/thirst/hunger/temp/=
+/enviro_temp/effects by names, or all=
+Show hud elements=
+Restore all hidden hud elements=
+Show hud splash=
+Display an image and text@n<icon name.png>,<text>=
+Value:=
+False=
+True=
+# triggers
+Unset=
+Exile trigger node=
+Configured trigger=
+
+# zones.lua
+Error in zone def ranges=
+Upper corner=
+( North / Up / East )=
+Here=
+Lower corner=
+( South / Down / West )=
+Range type:=
+( Absolute is either inside or out. )=
+( Radial and cubic fade towards the edge. )=
+Range=
+Copy=
+Values=
+Exile zone trigger node=
+
+# interface/infotext.lua
+Owner:=Poseedor :
+Label:=
+
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=Enciende la barra ancha del HUD
+Show numeric stats=Utilice estadisticas numericas
+Enable Break-taker popup=Activar el aviso de descanso
+Allow digging with a full inventory=
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=
+Temperature scale=Escala de temperatura
+GUI theme=GUI tema
+HUD Opacity=Opacidad del HUD
+
+# interface/themes.lua
+Default=
+Antiglass=
+Antiblue=
+Legacy Grey=
+New Grey=
+Coal Black=
+
+# utility/general.lua
+Yes=Si
+No=No
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=

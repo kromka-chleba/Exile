@@ -1,0 +1,113 @@
+# textdomain: exile_game
+# currentrevision.lua
+Display the current git revision=Отображение текущей ревизии git
+This server is currently running git revision=На этом сервере в данный момент выполняется ревизия git
+
+# protection.lua
+Access List=Список доступа
+Delete=Удалить
+Close=Закрыть
+Access list empty.=Список доступа пуст.
+Deleted @1 from access list.=@1 удален из списка доступа.
+Can't grant access to items you don't own=Невозможно предоставить доступ к предметам, которые вам не принадлежат
+@1 already has access=У @1 уже есть доступ
+@1 has been granted access=@1 получил доступ
+Label=Метка
+Set=Уст.
+Crafted by=Создано
+Burnt Storage Pile=Сгоревшая куча мусора
+
+# triggers.lua
+Invalid teleport vector, must be '(x,y,z)'=Неверный вектор телепортации, должен быть '(x,y,z)'
+Reset player=Сбросить игрока
+Will reset player stats to full=Сбросит статистику игрока до полной
+Hurt player=Повредить игрока
+Hits player for <value> damage, 1-20=Наносит игроку <значение> урона, 1-20
+Set energy=Установить энергию
+Set player energy to <value> percent=Устанавливает энергию игрока на <значение> процентов
+Set HP=Установить HP
+Set player hp to <value>, 0-20=Устанавливает хп игрока на <значение>, 0-20
+Set hunger=Установить голод
+Set player hunger to <value> percent=Установить голод игрока на <значение> процентов
+Set thirst=Установить жажду
+Set player thirst to <value> percent=Установить жажду игрока на <значение> процентов
+Teleport=Телепорт
+Send player to an exact xyz position=Отправить игрока в точную xyz-позицию
+Relaport=Переотправить
+Send player a relative xyz distance=Отправить игрока на относительное xyz расстояние
+Clear inventory=Очистить инвентарь
+Empties main inventory=Очищает основной инвентарь
+Set inventory=Установить инвентарь
+Overwrite player inv with contents=Переписать содержимое инвентаря игрока
+Give item=Дать предмет
+Gives an item, in itemstring format=Дает предмет в формате itemstring.
+This requires a unique label.=Для этого требуется уникальная метка.
+Set weather=Установить погоду
+Changes weather displayed to player=Изменяет погоду, отображаемую игроку.
+Use /set_weather help to list available weather.=Используйте справку /set_weather для получения списка доступных погодных условий.
+Reset weather=Сбросить погоду
+Restores normal weather for player=Восстанавливает нормальную погоду для игрока
+Hide hud elements=Скрыть элементы hud
+Hide health/energy/thirst/hunger/temp/=Скрыть здоровье/энергию/жажду/голод/температуру/
+/enviro_temp/effects by names, or all=/enviro_temp/эффекты по именам или все.
+Show hud elements=Показать элементы hud
+Restore all hidden hud elements=Восстановить все скрытые элементы hud
+Show hud splash=Показать hud splash
+Display an image and text@n<icon name.png>,<text>=Отображение изображения и текста@n<имя иконки.png>,<текст>
+Value:=Значение:
+False=Ложь
+True=True
+# triggers
+Unset=Сброс
+Exile trigger node=Узел запуска изгнания
+Configured trigger=Настроенный триггер
+
+# zones.lua
+Error in zone def ranges=Ошибка в диапазонах определения зон
+Upper corner=Верхний угол
+( North / Up / East )=( Север / Верх / Восток )
+Here=Тут
+Lower corner=Нижний угол
+( South / Down / West )=( Юг / Вниз / Запад )
+Range type:=Тип диапазона:
+( Absolute is either inside or out. )=( Абсолютный - внутри или снаружи.)
+( Radial and cubic fade towards the edge. )=( Радиальный и кубический затухают к краю. )
+Range=Диапазон
+Copy=Копирование
+Values=Значения
+Exile zone trigger node=Узел зоны запуска изгнания
+
+# interface/infotext.lua
+Owner:=Владелец:
+Label:=Метка:
+
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=Включить широкую панель HUDbar
+Show numeric stats=Показывать числовую статистику
+Enable Break-taker popup=Включить всплывающее окно брейктейкера
+Allow digging with a full inventory=Разрешить копать с полным инвентарем
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=Отключить музыку
+Temperature scale=Шкала температуры
+GUI theme=Тема графического интерфейса
+HUD Opacity=Уровень непрозрачности HUD
+
+# interface/themes.lua
+Default=По умолчанию
+Antiglass=Прозрачный
+Antiblue=Темносиний
+Legacy Grey=Устаревший серый
+New Grey=Новый серый
+Coal Black=
+
+# utility/general.lua
+Yes=Да
+No=Нет
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=

@@ -1,0 +1,113 @@
+# textdomain: exile_game
+# currentrevision.lua
+Display the current git revision=Afficher la révision git en cours
+This server is currently running git revision=Ce serveur fait actuellement tourner la révision git
+
+# protection.lua
+Access List=Liste d'accès autorisés
+Delete=Effacer
+Close=Fermer
+Access list empty.=Liste d'accès autorisés vide.
+Deleted @1 from access list.=@1 a été supprimé de la liste d'accès autorisés.
+Can't grant access to items you don't own=Impossible de donner l'accès à des objets dont vous n'êtes pas le propriétaire
+@1 already has access=@1 a déjà accès
+@1 has been granted access=@1 a obtenu l'accès
+Label=Label
+Set=Éditer
+Crafted by=Fabriqué par
+Burnt Storage Pile=Pile d'objets brûlés
+
+# triggers.lua
+Invalid teleport vector, must be '(x,y,z)'=Vecteur de téléportation invalide, doit être de la forme '(x,y,z)'
+Reset player=Réinitialiser le joueur
+Will reset player stats to full=Remettra les stats du joueur à 100%
+Hurt player=Blesser le joueur
+Hits player for <value> damage, 1-20=Taper le joueur pour <value> dommages, 1-20
+Set energy=Ajuster l'énergie
+Set player energy to <value> percent=Mettre l'énergie du joueur à <value>%
+Set HP=Régler les points de vie
+Set player hp to <value>, 0-20=Mettre les points de vie du joueur à <value>, 0-20
+Set hunger=Ajuster la faim
+Set player hunger to <value> percent=Mettre la faim du joueur à <value>%
+Set thirst=Ajuster la soif
+Set player thirst to <value> percent=Mettre la soif du joueur à <value>%
+Teleport=Téléporter
+Send player to an exact xyz position=Envoyer le joueur à une position exacte xyz
+Relaport=Relaporter
+Send player a relative xyz distance=Envoyer le joueur à une distance relative xyz
+Clear inventory=Vider l'inventaire
+Empties main inventory=
+Set inventory=Initialiser l'inventaire
+Overwrite player inv with contents=
+Give item=
+Gives an item, in itemstring format=
+This requires a unique label.=
+Set weather=
+Changes weather displayed to player=
+Use /set_weather help to list available weather.=
+Reset weather=Réinitialiser la météo
+Restores normal weather for player=
+Hide hud elements=
+Hide health/energy/thirst/hunger/temp/=
+/enviro_temp/effects by names, or all=
+Show hud elements=
+Restore all hidden hud elements=
+Show hud splash=
+Display an image and text@n<icon name.png>,<text>=
+Value:=Valeur :
+False=Faux
+True=Vrai
+# triggers
+Unset=
+Exile trigger node=
+Configured trigger=
+
+# zones.lua
+Error in zone def ranges=
+Upper corner=
+( North / Up / East )=
+Here=
+Lower corner=
+( South / Down / West )=
+Range type:=
+( Absolute is either inside or out. )=
+( Radial and cubic fade towards the edge. )=
+Range=
+Copy=
+Values=
+Exile zone trigger node=
+
+# interface/infotext.lua
+Owner:=Propriétaire :
+Label:=Label :
+
+# playersettings.lua
+'Save this'=
+'Use this'=
+Recipe hints require pressing a button=
+Enable wide HUDbar=Autoriser l'élargissement de l'interface
+Show numeric stats=Montrer des stats numériques
+Enable Break-taker popup=Autoriser la pop-up de pause
+Allow digging with a full inventory=Autoriser le minage avec l'inventaire plein
+Crafting mode=
+Keep fixed order for recipes=
+Disable music=Désactiver la musique
+Temperature scale=Échelle de température
+GUI theme=Thème de l'interface
+HUD Opacity=Opacité de l'interface
+
+# interface/themes.lua
+Default=Par défaut
+Antiglass=Verre antique
+Antiblue=Bleu antique
+Legacy Grey=Gris minetest
+New Grey=Nouveau gris
+Coal Black=
+
+# utility/general.lua
+Yes=Oui
+No=Non
+
+# utilitiy/node.lua
+# hint: creator's desc:
+@1's @2=@2 de @1
