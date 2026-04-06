@@ -78,7 +78,8 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
         return
     end
 
-    local area = VoxelArea:new({MinEdge=minp, MaxEdge=maxp})
+    local emin, emax = vm:get_emerged_area()
+    local area = VoxelArea:new({MinEdge=emin, MaxEdge=emax})
     vm:get_data(data)
 
     -- noise & randomness
