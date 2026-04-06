@@ -26,6 +26,8 @@ nn.trees = {
 }
 local trees = nn.trees
 
+core.ipc_set("nodes_nature:tree_list", trees.list)
+
 local random = math.random
 local seasons = nn.seasons
 minimal = minimal
