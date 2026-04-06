@@ -116,7 +116,7 @@ local function update_sound(player)
 
         if exotics >= 1 then
 
-            minimal.sound_play(posav(lpos, exotics), {
+            EXILE.sound_play(posav(lpos, exotics), {
                 name = "env_sounds_exotics", to_player = player_name,
                 pitch = {0.9, 1.1}, gain = min(0.3 + exotics * 0.01, 1)
             })
@@ -138,7 +138,7 @@ local function update_sound(player)
                 glow = 7,
         })
 
-        
+
         end
     end
 
@@ -148,7 +148,7 @@ local function update_sound(player)
         if ppos.y > -15 then
             --(if a more sophisticated way of handling wind is ever
             --   added then this check should move to climate mod)
-            local l = minimal.get_daylight({x=ppos.x,
+            local l = EXILE.get_daylight({x=ppos.x,
                                             y=ppos.y + 1,
                                             z=ppos.z}, 0.5)
                 or 0 --getting nil error?
@@ -219,38 +219,38 @@ local function update_sound(player)
         --disembodied voices breaking through from another dimension
         --memories of the past? Or are they trapped somewhere?
         if ran()< 0.2 then
-            
+
             local r = ran(-15,15)
             local ranpos = {x = ppos.x + r, y = ppos.y + r/10, z = ppos.z + r }
             local node = minetest.get_node(ranpos).name
-            
+
             if node ~= 'air' then return end
-            
+
             local l = minetest.get_node_light(ranpos)
             if l < 6 then
 
                 local roll = ran()
                 if roll < 0.25 then
 
-                    minimal.sound_play(ranpos, {
+                    EXILE.sound_play(ranpos, {
                         name = "env_sounds_haunt", to_player = player_name,
                         pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
                     })
-                    
+
                 elseif roll < 0.5 then
-                    minimal.sound_play(ranpos, {
+                    EXILE.sound_play(ranpos, {
                         name = "env_sounds_haunt2", to_player = player_name,
                         pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
                     })
 
                 elseif roll < 0.75 then
-                    minimal.sound_play(ranpos, {
+                    EXILE.sound_play(ranpos, {
                         name = "env_sounds_haunt3", to_player = player_name,
                         pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
                     })
 
                 else
-                    minimal.sound_play(ranpos, {
+                    EXILE.sound_play(ranpos, {
                         name = "env_sounds_haunt4", to_player = player_name,
                         pitch = {0.08, 0.4}, gain = 1.4-math.abs(r/15)
                     })

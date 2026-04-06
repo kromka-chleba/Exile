@@ -30,7 +30,7 @@ function ncrafting.register_sieve(name)
     local sieve_name = name.."_sieve"
     def.walkable = false
     def.groups["timer"] = 1 -- so the ABM will restart this if it dies
-    def.on_timer = function(pos, elapsed)
+    def.on_timer = function(pos, _elapsed)
         core.check_for_falling(pos)
         local this = core.get_node(pos)
         this.name = name -- Change the name, but keep param data
@@ -67,7 +67,7 @@ end
 local highest_support_value = 0
 
 local function calculate_highest_support_value()
-    for name, def in pairs(core.registered_nodes) do
+    for _, def in pairs(core.registered_nodes) do
         if def.groups.support and def.groups.support > highest_support_value then
             highest_support_value = def.groups.support
         end
@@ -182,7 +182,7 @@ local function check_attached_node(pos, newnode, point, old)
 end
 
 
-function ncrafting.placement_physics(pos, newnode, _placer, old, item, point)
+function ncrafting.placement_physics(pos, newnode, _placer, old, _item, point)
     -- Ignore salt water, because oceans, and players don't build with it
     if newnode.name == "nodes_nature:salt_water_source" then return end
 

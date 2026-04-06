@@ -5,9 +5,8 @@ local S = minetest.get_translator("creative")
 
 creative = {}
 creative.get_translator = S
-sfinv = sfinv
 
-local creative_mode_cache = minetest.settings:get_bool("creative_mode")
+--local creative_mode_cache = minetest.settings:get_bool("creative_mode")
 
 -- the strong hands you get from being in creative
 do
@@ -43,7 +42,7 @@ do
         },
         tiles = {"creative_hand.png"},
         wield_scale = {x=0.5,y=0.9,z=0.5},
-        on_secondary_use = function(itemstack, user, pointed_thing)
+        on_secondary_use = function(_itemstack, user, pointed_thing)
             -- must be a player not pointing at an object)
             if not core.is_player(user) or not pointed_thing
                 or (pointed_thing.type ~= "nothing") then
@@ -73,7 +72,7 @@ end
 -- give players the creative menu and funky strong hands
 -- onnew is if this is called when player is joining or respawning
 -- nonotif prevents message production
-local function update_creative_attributes(plr, granter_name, onnew, nonotif)
+local function update_creative_attributes(plr, _granter_name, onnew, nonotif)
     -- permit player or player name argument for plr, save name if string
     local name = type(plr) == "string" and plr
     plr = name and core.get_player_by_name(name) or core.is_player(plr) and plr
@@ -83,7 +82,7 @@ local function update_creative_attributes(plr, granter_name, onnew, nonotif)
     -- check if we're already doing this
     if ccuf(name, true) then return end -- already doing this, return!
     -----------------------------------------
-    local in_creative = minimal.player_in_creative(name)
+    local in_creative = EXILE.player_in_creative(name)
     -- if onnew and not in creative, don't run this
     if onnew and not in_creative then
         return ccuf(name, nil)
@@ -146,8 +145,7 @@ end)
 -- run on a delay so that the changes that change comfort temp on start don't cause this to run
 -- this changes whenever the player respawns, so serves as an alternative to register_on_respawnplayer lol
 core.after(1, function()
-    HEALTH = HEALTH
-    HEALTH.register_on_stat_change(function(player, name, value, meta)
+    HEALTH.register_on_stat_change(function(player, name, _value, _meta)
         if name == "clothing_temp_max" or name == "clothing_temp_min" then
             update_creative_attributes(player, nil, nil, true)
         end
@@ -166,17 +164,18 @@ minetest.register_privilege(
 dofile(minetest.get_modpath("creative") .. "/inventory.lua")
 
 -- Unlimited node placement
-minetest.register_on_placenode(function(pos, newnode, placer,
-                                        oldnode, itemstack)
+minetest.register_on_placenode(function(_pos, _newnode, placer,
+                                        _oldnode, _itemstack)
     if not core.is_player(placer) then return end
-    return minimal.player_in_creative(placer)
+    return EXILE.player_in_creative(placer)
 end)
 
 -- Don't pick up if the item is already in the inventory
 local old_handle_node_drops = minetest.handle_node_drops
-function minetest.handle_node_drops(pos, drops, digger)
+core = core -- hack: quiet luacheck because we're writing to a read-only global
+function core.handle_node_drops(pos, drops, digger)
     -- not a player or not in creative
-    if not core.is_player(digger) or not minimal.player_in_creative(digger) then
+    if not core.is_player(digger) or not EXILE.player_in_creative(digger) then
         return old_handle_node_drops(pos, drops, digger)
     end
     -- we're in CREATIVE BABYYYYYY

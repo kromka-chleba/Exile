@@ -1,5 +1,3 @@
-animals = animals
-
 -- TODO: see about rolling an egg about to get more precise egg sounds
 function animals.node_sound_egg_defaults(table)
     table = table or {}

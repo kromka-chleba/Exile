@@ -12,8 +12,6 @@
 ------------------------------------
 
 HEALTH = {}
-sfinv = sfinv
-player_monoids = player_monoids
 
 -- Internationalization
 HEALTH.S = minetest.get_translator("health")
@@ -25,11 +23,11 @@ end
 --frequency of updating and applying effects
 local interval = 60
 
-local is_meta = minimal.is_meta
+local is_meta = EXILE.is_meta
 
--- minimal/utility/general.lua
+-- exile_game/utility/general.lua
 local function math_clamp(num,min,max)
-    return minimal.math_clamp(num,min,max)
+    return EXILE.math_clamp(num,min,max)
 end
 
 ------------------------------------------------------------------
@@ -39,7 +37,7 @@ local player_sounds = {}
 
 -- does not remove sounds after they played
 function HEALTH.append_sound(player,handle)
-    if not minetest.is_player(player) or not type(handle) == "number" then
+    if not minetest.is_player(player) or not ( type(handle) == "number" ) then
         -- be certain that proper values are sent
         return
     end
@@ -129,7 +127,8 @@ end
 function HEALTH.get_meta_stats(meta)
     meta = is_meta(meta) and meta or core.is_player(meta) and meta:get_meta()
     if not meta then
-        error("HEALTH.get_meta_stats: invalid parameter given for meta/player (not active player or not valid metadata)")
+        error("HEALTH.get_meta_stats: invalid parameter given for meta/player"..
+              " (not active player or not valid metadata)")
     end
     -- stats
     return {
@@ -157,7 +156,8 @@ function HEALTH.set_meta_stats(player, stats, meta)
     end
     meta = is_meta(meta) and meta or player:get_meta()
     if not (type(stats) == "table" and stats.thirst) then
-        error("HEALTH.set_meta_stats: no stats or improper stats given, lacks 'thirst' field and got type '"..type(stats).."'")
+        error("HEALTH.set_meta_stats: no stats or improper stats given, "..
+              "lacks 'thirst' field and got type '"..type(stats).."'")
     end
     local reference = HEALTH.get_default_attributes() -- use to figure out what we should add and what not to add
     for stat,val in pairs(stats) do
@@ -211,7 +211,6 @@ end
 
 -- permit check for change of health by other mods
 local changed_callbacks = {}
-local changed_hp_callbacks = {}
 -- player, setting name, setting value, player's meta
 local function stat_changed(player, name, value, meta)
     for _, func in ipairs(changed_callbacks) do
@@ -804,7 +803,7 @@ minetest.register_on_respawnplayer(function(player)
         player_api.reset_equipment_effects(player)
 end)
 
-minetest.register_on_leaveplayer(function(player, timed_out)
+minetest.register_on_leaveplayer(function(player, _timed_out)
         --TODO: Find a way to save this on singleplayer or for 1st hosted player
         local meta = player:get_meta()
         local velo = player:get_velocity() or player:get_player_velocity()

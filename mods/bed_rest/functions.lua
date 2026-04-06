@@ -5,13 +5,7 @@
 local S = minetest.get_translator("bed_rest")
 
 local pi = math.pi
---silence luacheck warnings about accessing globals:
-bed_rest = bed_rest
 local store = bed_rest.store
-
-player_api = player_api
-player_monoids = player_monoids
-minimal = minimal
 
 -- after this many IRL days, beds in multiplayer will no longer be protected
 local days_until_timeout = 7
@@ -69,8 +63,8 @@ local function leave_blanket(player, bed_pos, leave_on_bed)
                 p_inv:add_item("main",blanket)
             else
                 core.item_drop(blanket, player, player:get_pos())
-                --minimal.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
-                minimal.warn_inv_full(player)
+                --EXILE.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
+                EXILE.warn_inv_full(player)
             end
         end
         -- in any case empty clothing slot
@@ -79,7 +73,7 @@ local function leave_blanket(player, bed_pos, leave_on_bed)
     -- else bed remain empty
     end
     bed_meta:set_string("blanket", meta_blanket)
-    minimal.infotext_set_new(bed_pos, bed_meta)
+    EXILE.infotext_set_new(bed_pos, bed_meta)
 end
 
 --[[ Dealing with my blanket when going into bed
@@ -104,7 +98,7 @@ local function equip_blanket(player, bed_pos)
         bedInv:set_stack('main',1,ItemStack(''))
         -- blanket is on me (or no blanket) and not in the bed's inv anymore
         bed_meta:set_string("blanket","")
-        minimal.infotext_set_new(bed_pos, bed_meta)
+        EXILE.infotext_set_new(bed_pos, bed_meta)
 
     -- else, try to take one from inventory
     else
@@ -228,7 +222,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
         if bedp ~= nil then
             local bed_meta = minetest.get_meta(bedp)
             bed_meta:set_string('status','') -- remove status
-            minimal.infotext_clear(bedp, bed_meta)
+            EXILE.infotext_clear(bedp, bed_meta)
         end
         bed_rest.player[name] = nil
         bed_rest.level[name] = nil
@@ -241,7 +235,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
             return
         end
 
-        if p and minimal.safe_landing_spot(p) then
+        if p and EXILE.safe_landing_spot(p) then
             player:set_pos(p)
         elseif bed_rest.bed_position[name] then
             player:set_pos(bed_rest.bed_position[name])
@@ -277,7 +271,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
                     minetest.chat_send_player(name, S("This seat is already occupied!"))
                 end
                 local meta = minetest.get_meta(bed_pos)
-                minimal.infotext_set_new(bed_pos, meta,
+                EXILE.infotext_set_new(bed_pos, meta,
                                          {status=S('Status: Occupied by @1',nm)})
                 return false
             end
@@ -289,7 +283,7 @@ local function lay_down(player, level, pos, bed_pos, state, skip, seating)
 
         st:add("resting")
         if not minetest.is_singleplayer() then
-            minimal.infotext_set_new(bed_pos, nil,
+            EXILE.infotext_set_new(bed_pos, nil,
                                      {status=S('Status: Occupied by @1', name)})
             minetest.get_node_timer(bed_pos):start(60 * 60 * 24 *
                                                    days_until_timeout)
@@ -393,7 +387,7 @@ function bed_rest.on_timer(pos, elapsed)
         if vector.distance(pos, other_pos) < 0.1 then
             bed_rest.bed_position[nm] = nil
             if not minetest.is_singleplayer() then
-                minimal.infotext_set_new(pos, meta,
+                EXILE.infotext_set_new(pos, meta,
                                          {status=S('Status: Occupied by @1 (old)',
                                                    nm)})
             end

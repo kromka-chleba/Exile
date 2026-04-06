@@ -1,5 +1,3 @@
-player_api = player_api
-
 local states = {} -- table of all defined or registered states
 local playerstates = {} -- holds all player state objects, indexed by pname
 -- { playername = pstate }
@@ -68,7 +66,7 @@ local function load_states(player, pname)
     blank_states(player, pname)
 end
 
-function player_api.get_state_by_name(playername, modname)
+function player_api.get_state_by_name(playername, _modname)
     local state = playerstates[playername]
     if not state then
         minetest.log('error', "No state found for "..playername)
@@ -141,9 +139,9 @@ function pstate.set_severity(self, state, sev)
     local stbl = self.list[state] -- current state table
     stbl.severity = sev
 end
-function pstate.raise_severity(self, state)
+function pstate.raise_severity(_self, _state)
 end
-function pstate.lower_severity(self, state)
+function pstate.lower_severity(_self, _state)
 end
 function pstate.read_severity(self, state)
     -- Returns a text label version of severity
@@ -198,7 +196,7 @@ local function get_old_effects_list(player, list)
     local meta = player:get_meta()
     local effects_list_str = meta:get_string("effects_list")
     local effects_list = minetest.deserialize(effects_list_str) or {}
-    for no, effect in ipairs(effects_list) do
+    for _, effect in ipairs(effects_list) do
         -- effect_list is only modified in health/health_effects.lua and
         -- health/init.lua and texts there are marked for translation
         -- (see NS("Food Poisoning"), ...), so this translator should be fine
@@ -253,7 +251,7 @@ minetest.register_on_newplayer(function(player)
         blank_states(player, pname)
 end)
 
-minetest.register_on_joinplayer(function(player, lastlogin)
+minetest.register_on_joinplayer(function(player, _lastlogin)
         local pname = player:get_player_name()
         load_states(player, pname)
 end)

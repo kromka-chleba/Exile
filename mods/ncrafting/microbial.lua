@@ -1,4 +1,3 @@
-ncrafting = ncrafting
 local S = ncrafting.S
 
 local function microbial_infection(player, pos, nodedef, itemstack, idef)
@@ -8,7 +7,7 @@ local function microbial_infection(player, pos, nodedef, itemstack, idef)
     -- we can derive these from player and pos
     -- nodedef can be gotten node table, string, or grabbed from pos
     nodedef = type(nodedef) == "table" and nodedef or
-      type(nodedef) == "string" and core.registered_nodes[nodedef] or minimal.get_nodedef(pos)
+      type(nodedef) == "string" and core.registered_nodes[nodedef] or EXILE.get_nodedef(pos)
     -- can't ferment or no infection function
     if not (nodedef and nodedef._ferment_to
             and nodedef.on_microbial_infection) then return end
@@ -23,13 +22,13 @@ local function microbial_infection(player, pos, nodedef, itemstack, idef)
     local infect_sound = nodedef.sounds and nodedef.sounds.place_infect or
       idef.sounds and idef.sounds.infect
     if infect_sound then
-        minimal.sound_play(pos, infect_sound)
+        EXILE.sound_play(pos, infect_sound)
     end
     -- successfully infected, take away item and run on_successful_infection
     if type(idef.on_successful_infection) == "function" then
         idef.on_successful_infection(player, pos, nodedef, itemstack, idef)
     end
-    if not minimal.player_in_creative(player) then
+    if not EXILE.player_in_creative(player) then
         itemstack:take_item()
         return itemstack
     end
@@ -46,7 +45,7 @@ function ncrafting.register_spreadable_microbe(name, def)
     def.mod_origin = core.get_current_modname()
     name = not name:match(":") and def.mod_origin..":"..name or name
     -- now for definition stuff
-    def.stack_max = def.stack_max or minimal.stack_max_medium * 4
+    def.stack_max = def.stack_max or EXILE.stack_max_medium * 4
     def.inventory_image = def.inventory_image or "tech_yeast_dough_spores.png" -- default to yeast image
     def.description = def.description or name
     -- set up sounds
@@ -59,9 +58,9 @@ function ncrafting.register_spreadable_microbe(name, def)
     -- functions
     -- ditto to sound, false to prevent registration
     def.on_successful_infection = def.on_successful_infection or def.on_success_infection ~= false and
-      function(player, pos, nodedef, itemstack, idef)
+      function(player, _pos, nodedef, itemstack, _idef)
           -- get short description of item and nodedef
-          minimal.send_message(player, nil,
+          EXILE.send_message(player, nil,
             S("@1 added to the @2", itemstack:get_short_description(), ItemStack(nodedef.name):get_short_description()))
       end or nil
     -- the function that'll handle infecting stuff

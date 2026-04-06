@@ -10,8 +10,6 @@
     Search for "NotPegasun" to find values unique to chichasa
 ]]
 ---------------------------------------------------------------------
-animals = animals
-mobkit = mobkit
 
 -- Internationalization
 local S = animals.S
@@ -330,7 +328,7 @@ local self_data = {
     egg = {
         description = S('Chichasa Egg'),
         tiles = {"animals_gundu_eggs.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         node_box = {
             type = "fixed",
             fixed = {-0.125, -0.5, -0.125,  0.125, -0.25, 0.125}, --NotPegasun (smaller)

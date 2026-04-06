@@ -15,8 +15,6 @@
     cabbage   240 kcal/kg =  4.8 units/kg   10.5 per lb.
 ]] --
 
-HEALTH = HEALTH
-
 HEALTH.food_table = {
 --[[ name: {hp=0,th=0,hu=0,en=0,temp=0,rwi='replaceme',eat_sound=''}
     * `hp` is a player's health:

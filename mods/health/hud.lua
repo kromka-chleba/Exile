@@ -2,15 +2,13 @@
 --HUD
 ----------------------------------------------------------------------
 
-HEALTH = HEALTH
-
 local hud = {}
 local hudupdateseconds = tonumber(minetest.settings:get("exile_hud_update"))
 -- global setting for whether to show stats
 local mtshowstats = minetest.settings:get_bool("exile_hud_show_stats") or true
 local mthudopacity = minetest.settings:get("exile_hud_icon_transparency") or 127
 
-local hud_type = minimal.hud_type
+local hud_type = EXILE.hud_type
 
 -- These are color values for the various status levels. They have to be modified
 -- per-function below because textures expect one color format and text another.
@@ -317,7 +315,7 @@ local function health_hud_change(player, hud_data, htype, colorval, textval)
     end
 end
 
-local function do_overlay(player, pname, pos, overlay)
+local function do_overlay(player, pname, _pos, overlay)
     local handle = player:hud_add({
             name = overlay,
             [hud_type] = "image",
@@ -333,11 +331,11 @@ end
 
 local stat_funcs = {
     -- we don't use meta or v for health stat_func, but all stat_funcs are called with it provided
-    health = function(player, hud_data, meta, v, forceupdate)
+    health = function(player, hud_data, _meta, _, forceupdate)
         local data = hud_data.health
         if not data then return end -- no health hud data
         -- get value percentage (we don't accept as a function parameter)
-        v = player:get_hp()
+        local v = player:get_hp()
         if not forceupdate and data.prev_v == v then return end -- no need to update, return (if not forceupdate)
         data.prev_v = v -- update for future checks
         v = (v/20)*100
@@ -399,7 +397,7 @@ local stat_funcs = {
             player:hud_change(hudtext, "text", "")
         end
     end,
-    oxygen = function(player, hud_data, meta, v)
+    oxygen = function(player, hud_data, _meta, v)
         -- get value percentage
         v = v or player:get_breath()
         v = v * 10  -- 10 is max (Luanti's default), 100%
@@ -612,7 +610,7 @@ end
 
 -- update placement of hud icons when hud16 (longbar) is modified
 -- value will be false or true
-minimal.register_on_player_setting_change(function(player, setting, value, meta)
+EXILE.register_on_player_setting_change(function(player, setting, value, meta)
     local name = player:get_player_name()
     local hud_data = hud[name]
     if not hud_data then return end
@@ -637,7 +635,7 @@ minimal.register_on_player_setting_change(function(player, setting, value, meta)
             hud_data.showstats = value
         end
         -- iterate over each hud
-        for nm,data in pairs(hud_data) do
+        for nm,_ in pairs(hud_data) do
             -- if we have a function for it, call it!
             if stat_funcs[nm] then
                 -- carry over value got from change
@@ -672,7 +670,7 @@ local timer = 0
 minetest.register_globalstep(function(dtime)
         timer = timer + dtime
         if timer > hudupdateseconds then
-            for _0, player in ipairs(minetest.get_connected_players()) do
+            for _, player in ipairs(minetest.get_connected_players()) do
 
                 local name = player:get_player_name()
                 local hud_data = hud[name]

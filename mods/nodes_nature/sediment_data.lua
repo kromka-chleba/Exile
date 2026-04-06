@@ -8,8 +8,7 @@
 local S = nodes_nature.S
 ---------------------------------------------
 
-local c_alpha = minimal.compat_alpha
-nodes_nature = nodes_nature
+local c_alpha = EXILE.compat_alpha
 local nn = nodes_nature
 
 local sediment = nn.sediment
@@ -120,7 +119,7 @@ local soil_list = {
               sediment = sediment_list.silt}),
     soil.new({name = "open_woodland_soil",
               description = S("Open Woodland Soil"),
-              sediment = sediment_list.clay}),          
+              sediment = sediment_list.clay}),
     soil.new({name = "upland_forest_soil",
               description = S("Upland Forest Soil"),
               sediment = sediment_list.clay}),
@@ -259,7 +258,7 @@ for i = 1, #registered_sediments do
     props._dry_name = props._dry_name.."_roots"
     props._wet_name = props._wet_name.."_roots"
     if not props.on_dig then
-        props.on_dig = function(pos, node, digger)
+        props.on_dig = function(pos, _node, digger)
             if not minetest.is_player(digger) then return false end
             if minetest.is_protected(pos, digger:get_player_name()) then
                 return false
@@ -275,7 +274,7 @@ for i = 1, #registered_sediments do
             else
                 minetest.add_item(pos, root_stack)
             end
-            if not minimal.is_group(w_item:get_name(),"hoe") then
+            if not EXILE.is_group(w_item:get_name(),"hoe") then
                 local sed_stack = ItemStack(props.drop)
                 if player_inv:room_for_item("main", sed_stack) then
                     player_inv:add_item("main", sed_stack)
@@ -288,7 +287,7 @@ for i = 1, #registered_sediments do
             end
 
             if ( w_item:get_name() ~= ""
-                 and not minimal.player_in_creative(digger) ) then
+                 and not EXILE.player_in_creative(digger) ) then
                 -- checks for empty hand as to avoid accidental
                 --  wielded item override (clearing)
 

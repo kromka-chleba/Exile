@@ -6,11 +6,9 @@ local S = nodes_nature.S
 
 ---------------------------------------
 
-nodes_nature = nodes_nature
 local nn = nodes_nature
 
 local add_food_hooks = HEALTH.add_food_hooks
-wielded_light = wielded_light
 
 ----------------------------------------------------------------------
 --SEA LIFE
@@ -20,7 +18,7 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name,
     -- Call on_rightclick if the pointed node defines it
     if ( pointed_thing.type == "node" and minetest.is_player(placer)
          and not placer:get_player_control().sneak ) then
-        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+        local on_click = EXILE.on_rightclick(itemstack, placer, pointed_thing)
         if on_click ~= false then
             return on_click
         end
@@ -33,19 +31,19 @@ local function rooted_place(itemstack, placer, pointed_thing, node_name,
 
     local height = math.random(height_min, height_max)
     local pos_top = {x = pos.x, y = pos.y + height, z = pos.z}
-    local def_top = minimal.get_nodedef(pos_top)
+    local def_top = EXILE.get_nodedef(pos_top)
     local player_name = ""
     if minetest.is_player(placer) then
         player_name = placer:get_player_name()
     end
 
     if (def_top and def_top.liquidtype == "source" and
-        minimal.is_group(def_top.name, "water") ) then
+        EXILE.is_group(def_top.name, "water") ) then
         if not minetest.is_protected(pos, player_name) and
             not minetest.is_protected(pos_top, player_name) then
             minetest.swap_node(pos, {name = node_name,
                                      param2 = height * 16})
-            if not (minimal.player_in_creative(player_name)) then
+            if not (EXILE.player_in_creative(player_name)) then
                 itemstack:take_item()
             end
         else
@@ -109,7 +107,7 @@ for i in ipairs(searooted_list) do
                         selbox,
                     },
                 },
-                stack_max = minimal.stack_max_medium,
+                stack_max = EXILE.stack_max_medium,
                 node_dig_prediction = substrate,
                 node_placement_prediction = "",
                 sounds = sound_table,
@@ -124,7 +122,7 @@ for i in ipairs(searooted_list) do
                                         height_max)
                 end,
 
-                after_destruct  = function(pos, oldnode)
+                after_destruct  = function(pos, _oldnode)
                     minetest.swap_node(pos, {name = substrate})
                 end
         })
@@ -149,7 +147,7 @@ for i in ipairs(searooted_list) do
                         selbox,
                     },
                 },
-                stack_max = minimal.stack_max_medium,
+                stack_max = EXILE.stack_max_medium,
                 node_dig_prediction = substrate,
                 node_placement_prediction = "",
                 sounds = sound_table,
@@ -164,7 +162,7 @@ for i in ipairs(searooted_list) do
                                         height_max)
                 end,
 
-                after_destruct  = function(pos, oldnode)
+                after_destruct  = function(pos, _oldnode)
                     minetest.swap_node(pos, {name = substrate})
                 end,
         })
@@ -182,7 +180,7 @@ minetest.register_node(
         visual_scale = 1,
         light_source = 2,
         tiles = {"nodes_nature_glow_worm.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         inventory_image = "nodes_nature_glow_worm.png",
         wield_image = "nodes_nature_glow_worm.png",
         paramtype = "light",

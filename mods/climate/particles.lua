@@ -79,7 +79,7 @@ local is_outdoor = function(pos, offset_y)
         offset_y = 0
     end
 
-    if minimal.get_daylight({x=pos.x,
+    if EXILE.get_daylight({x=pos.x,
                              y=pos.y + offset_y,
                              z=pos.z}, 0.5) == 15 then
         return true

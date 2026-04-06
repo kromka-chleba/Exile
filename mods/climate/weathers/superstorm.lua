@@ -85,7 +85,6 @@ superstorm.particle_function = function(player)
     local ext = 6
     local size = 20
     local tex = "heavy_rain_drops.png"
-    local sound = ""
 
     climate.add_particle(vel, acc, ext, size, tex, player)
 

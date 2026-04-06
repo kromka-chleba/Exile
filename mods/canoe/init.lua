@@ -88,12 +88,12 @@ end
 
 
 -- If driver leaves server while driving canoe
-function canoe.on_detach_child(self, child)
+function canoe.on_detach_child(self, _child)
     self.driver = nil
 end
 
 
-function canoe.on_activate(self, staticdata, dtime_s)
+function canoe.on_activate(self, staticdata, _dtime_s)
     self.object:set_armor_groups({immortal = 1})
     if staticdata then
         self.v = tonumber(staticdata)
@@ -137,7 +137,7 @@ local function canoe_anim(self, anim)
 end
 
 -- check if the wobble pseudo-animation is playing, return if so
--- play the wobble pseudo-animation if it's not playing :D 
+-- play the wobble pseudo-animation if it's not playing :D
 local function check_and_play_canoe_anim(self)
     if self.is_hit_anim then return end
     self.is_hit_anim = true -- we're playing the animation, prevent it from playing again while it runs
@@ -146,7 +146,7 @@ end
 
 --!!change this for keeping an inventory in canoe ? no picking up canoe?
 function canoe.on_punch(self, puncher, time_from_last_punch,
-    tool_capabilities, dir)
+    tool_capabilities, _dir)
     if self.removed or not puncher then -- if we're being removed already or puncher doesn't even exist!
         return
     end
@@ -156,7 +156,7 @@ function canoe.on_punch(self, puncher, time_from_last_punch,
 
     -- get name and check if in creative
     local name = is_player and puncher:get_player_name()
-    local in_creative = is_player and minimal.player_in_creative(puncher)
+    local in_creative = is_player and EXILE.player_in_creative(puncher)
 
     -- play a pseudo-animation for being hit
     check_and_play_canoe_anim(self)
@@ -370,22 +370,22 @@ local canoe_def = {
 
     on_place = function(itemstack, placer, pointed_thing)
         local under = pointed_thing.under
-        local node = minetest.get_node(under)
-        local udef = minetest.registered_nodes[node.name]
+        --local node = minetest.get_node(under)
+        --local udef = minetest.registered_nodes[node.name]
 
         if pointed_thing.type ~= "node" then
             return itemstack
         end
-        if not is_water(pointed_thing.under) then
+        if not is_water(under) then
             return itemstack
         end
-        pointed_thing.under.y = pointed_thing.under.y + 0.5
-        canoe = minetest.add_entity(pointed_thing.under, "canoe:canoe")
+        under.y = under.y + 0.5
+        canoe = minetest.add_entity(under, "canoe:canoe")
         if canoe then
             if placer then
                 canoe:set_yaw(placer:get_look_horizontal())
             end
-            if not (minimal.player_in_creative(placer)) then
+            if not (EXILE.player_in_creative(placer)) then
                 itemstack:take_item()
             end
         end

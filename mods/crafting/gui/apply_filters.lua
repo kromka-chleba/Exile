@@ -103,7 +103,7 @@ crafting.register_cache_function("apply_filters", cache_apply_filters)
 -- change Search field and reset formspec accordingly
 -- return true is any change, to trigger formspec redraw
 crafting.register_cache_function("set_text_search_to", function(self, s)
-    local transformed = minimal.make_search_string(s)
+    local transformed = EXILE.make_search_string(s)
     -- if I changed the text in the search field, reset recipes
     if self.sSearch ~= transformed then
         -- update cache with new search text

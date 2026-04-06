@@ -4,10 +4,8 @@ local mod_name = core.get_current_modname()
 
 -- Internationalization
 local S = tech.S
-local FS = tech.FS
 
 -- Globals
-local minimal = minimal
 local nn = nodes_nature
 
 --------------------------------------------------------------------------
@@ -17,7 +15,7 @@ bed_rest.register_seat(
         description = S("Sitting Mat"),
         -- inventory_image = "tech_sleeping_mat.png",
         -- wield_image = "tech_sleeping_mat.png",
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         tiles = {
                 "tech_thatch.png^[transformR90",
                 "tech_thatch.png",
@@ -63,7 +61,7 @@ local function stool_registration(log_name, tile_def)
             selectionbox = {-5/16, -8/16, -5/16, 5/16, 0/16, 5/16},
             tiles = tile_def,
             paramtype2 = "none",
-            stack_max = minimal.stack_max_bulky,
+            stack_max = EXILE.stack_max_bulky,
             groups = {dig_immediate=3, craftedby = 1, bed = 1,
                       flammable = 8, not_in_creative_inventory = creative },
             sounds = nn.node_sound_wood_defaults(),

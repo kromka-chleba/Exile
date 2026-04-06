@@ -41,7 +41,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 -- Pre-roast  functions
 local function set_roast(pos, length, interval)
@@ -73,7 +73,7 @@ local function roast(pos, selfname, name, heat)
 
     if roasting <= 0 then
         --finished firing
-        minimal.switch_node(pos, name)
+        EXILE.switch_node(pos, name)
         if minetest.get_item_group(name,"heatable") > 0 then
             meta:set_float("temp", temp)
         end
@@ -124,7 +124,7 @@ minetest.register_node(
     {
         description = S("Green Glass Sand Mix"),
         tiles = {"tech_sand_mix.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1, heatable = 20},
         sounds = nodes_nature.node_sound_sand_defaults(),
@@ -132,7 +132,7 @@ minetest.register_node(
             --length(i.e. difficulty of firing), interval for checks (speed)
             set_roast(pos, 40, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, heat, smelt
             return roast(pos, "tech:green_glass_mix",
                          "tech:green_glass_ingot", 1500)
@@ -151,7 +151,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3, 0.3, -0.1, 0.3},
         },
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         paramtype = "light",
         groups = {cracky = 3, oddly_breakable_by_hand = 3,
                   falling_node = 1, temp_pass = 1, heatable = 20},
@@ -189,7 +189,7 @@ minetest.register_node(
     "tech:potash_block", {
         description = S("Potash Block"),
         tiles = {"tech_potash.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         groups = {crumbly = 3, falling_node = 1, fertilizer = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
 })
@@ -199,7 +199,7 @@ minetest.register_node(
     "tech:potash", {
         description = S("Potash"),
         tiles = {"tech_potash.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         drawtype = "nodebox",
         node_box = {
             type = "fixed",
@@ -307,7 +307,7 @@ for _, mat in pairs ({"clay", "wooden"}) do
 end
 
 -- Soak Ash
-local function potash_soak_check(pos, node)
+local function potash_soak_check(pos, _node)
 
     local p_water = minetest.find_node_near(pos, 1,
                                             {"nodes_nature:freshwater_source"})
@@ -353,7 +353,7 @@ minetest.register_node(
             "tech_pottery.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         node_box = {
             type = "fixed",
@@ -385,7 +385,7 @@ minetest.override_item(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(math.random(10,20))
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             if climate.get_point_temp(pos) > 100 then
                 minetest.swap_node(pos, {name = "tech:dry_potash_pot"})
                 return false
@@ -403,7 +403,7 @@ minetest.override_item("tech:wooden_water_pot_potash",
         on_burn = function(pos)
             minetest.swap_node(pos, {name = "tech:potash"})
         end,
-	on_timer = function(pos, elapsed)
+	on_timer = function(pos, _elapsed)
 		if climate.get_point_temp(pos) > 100 then
 			minetest.swap_node(pos, {name = "tech:potash"})
 			return false
@@ -422,7 +422,7 @@ minetest.register_node(
     {
         description = S("Clear Glass Sand Mix"),
         tiles = {"tech_sand_mix.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1, heatable = 20},
         sounds = nodes_nature.node_sound_sand_defaults(),
@@ -430,7 +430,7 @@ minetest.register_node(
             --length(i.e. difficulty of firing), interval for checks (speed)
             set_roast(pos, 40, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, heat, smelt
             return roast(pos, "tech:clear_glass_mix",
                          "tech:clear_glass_ingot", 1500)
@@ -449,7 +449,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3, 0.3, -0.1, 0.3},
         },
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         paramtype = "light",
         groups = {cracky = 3, oddly_breakable_by_hand = 3,
                   falling_node = 1, temp_pass = 1, heatable = 20},
@@ -498,7 +498,7 @@ minetest.register_node(
                 }
 
             },
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
@@ -526,13 +526,13 @@ minetest.register_node(
                 }
 
             },
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {dig_immediate = 3, falling_node = 1},
         sunlight_propagates = true,
-        on_dig = function(pos, node, digger)
+        on_dig = function(pos, _node, digger)
             minetest.sound_play("tech_glass_dug",{
                                     pos = pos,
                                     gain = 1,
@@ -542,7 +542,7 @@ minetest.register_node(
             if inv:room_for_item("main", "tech:pane_green") then
                 inv:add_item("main", "tech:pane_green")
                 minetest.swap_node(pos, {name = "tech:pane_tray"})
-            elseif not minimal.stop_on_inv_full(digger) then
+            elseif not EXILE.stop_on_inv_full(digger) then
                 minetest.add_item(pos, "tech:pane_green")
                 minetest.swap_node(pos, {name = "tech:pane_tray"})
             end
@@ -569,13 +569,13 @@ minetest.register_node(
                 }
 
             },
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         sounds = tech.node_sound_metal_hollow_defaults(),
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {dig_immediate = 3, falling_node = 1},
         sunlight_propagates = true,
-        on_dig = function(pos, node, digger)
+        on_dig = function(pos, _node, digger)
             minetest.sound_play("tech_glass_dug",{
                                     pos = pos,
                                     gain = 1,
@@ -585,7 +585,7 @@ minetest.register_node(
             if inv:room_for_item("main", "tech:pane_clear") then
                 inv:add_item("main", "tech:pane_clear")
                 minetest.swap_node(pos, {name = "tech:pane_tray"})
-            elseif not minimal.stop_on_inv_full(digger) then
+            elseif not EXILE.stop_on_inv_full(digger) then
                 minetest.add_item(pos, "tech:pane_clear")
                 minetest.swap_node(pos, {name = "tech:pane_tray"})
             end
@@ -617,14 +617,14 @@ minetest.register_node(
                 type = "fixed",
                 fixed = {{-1/2 + 1/10, -1/2, -1/32, 1/2 - 1/10, 1/2 - 2/10, 1/32}}, -- Modified from xpanes
             },
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
-        after_place_node = minimal.protection_after_place_node,
+        after_place_node = EXILE.protection_after_place_node,
 })
 
 minetest.register_node(
@@ -639,14 +639,14 @@ minetest.register_node(
                 type = "fixed",
                 fixed = {{-1/2 + 1/10, -1/2, -1/32, 1/2 - 1/10, 1/2 - 2/10, 1/32}}, -- Modified from xpanes
             },
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, falling_node = 1},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
-        after_place_node = minimal.protection_after_place_node,
+        after_place_node = EXILE.protection_after_place_node,
 })
 
 -- Windows - glass panes with framing
@@ -665,16 +665,16 @@ minetest.register_node(
                 type = "fixed",
                 fixed = {{-1/2, -1/2, -1/32, 1/2, 1/2, 1/32}}, -- From xpanes
             },
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, flammable = 15},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
-        after_place_node = minimal.protection_after_place_node,
+        after_place_node = EXILE.protection_after_place_node,
         on_burn = function(pos)
-            minetest.add_item(pos, ItemStack("tech:pane_green"))    
+            minetest.add_item(pos, ItemStack("tech:pane_green"))
             minetest.set_node(pos, {name = 'air'})
             minetest.check_for_falling(pos)
         end,
@@ -694,16 +694,16 @@ minetest.register_node(
                 type = "fixed",
                 fixed = {{-1/2, -1/2, -1/32, 1/2, 1/2, 1/32}}, -- From xpanes
             },
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, flammable = 15},
         use_texture_alpha = c_alpha.blend,
         sunlight_propagates = true,
         sounds = tech.node_sound_glass_defaults(),
-        after_place_node = minimal.protection_after_place_node,
+        after_place_node = EXILE.protection_after_place_node,
         on_burn = function(pos)
-            minetest.add_item(pos, ItemStack("tech:pane_clear"))    
+            minetest.add_item(pos, ItemStack("tech:pane_clear"))
             minetest.set_node(pos, {name = 'air'})
             minetest.check_for_falling(pos)
         end,
@@ -729,5 +729,5 @@ crafting.register_recipe({
         always_known = true,
 })
 
---TODO: recycle doors back into windows and fittings somehow?. 
+--TODO: recycle doors back into windows and fittings somehow?.
 -- Don't want to add them as options into window as should also get iron back.

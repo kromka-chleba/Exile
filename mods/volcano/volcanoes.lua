@@ -205,7 +205,7 @@ local p2data = {}
 
 
 -----------------------------------------------------------
-minetest.register_on_generated(function(minp, maxp, seed)
+minetest.register_on_generated(function(minp, maxp, _seed)
         --outside range
         if minp.y > max_height or maxp.y < depth_root then
             return
@@ -443,7 +443,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
                     if data[vi + area.ystride] == c_air and c_dust ~= nil then
                         local die = math.random()
-                        if c_dust ~= c_boulder then
+                        if c_dust ~= c_boulder then -- #FIXME: No such thing?
                             if die > 0.98 then
                                 c_dust = c_boulder_basalt
                             elseif die > 0.95 then

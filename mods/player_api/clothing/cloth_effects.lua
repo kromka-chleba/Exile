@@ -1,9 +1,6 @@
 -- Regroup all non visual effects of clothes
 --------------------------------------------------------------------------------
 
-player_api = player_api
-sfinv = sfinv
-
 -- temperatures dealing --------------------------------------------------------
 
 -- set clothing and update comfortable temperature range

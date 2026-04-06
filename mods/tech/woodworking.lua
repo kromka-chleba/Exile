@@ -45,7 +45,7 @@ minetest.register_node(
             }
         },
         tiles = { "tech_stick.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "facedir",
         climbable = true,
@@ -56,7 +56,7 @@ minetest.register_node(
         drop = "tech:wooden_ladder",
         sounds = nodes_nature.node_sound_wood_defaults(),
 
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, _itemstack, _pointed_thing)
             local node = minetest.get_node(pos)
             local pos_under = {x = pos.x, y = pos.y - 1, z = pos.z}
             local under = minetest.get_node(pos_under)
@@ -66,14 +66,14 @@ minetest.register_node(
             end
         end,
         -- to handle other nodes being placed against us via item_place()
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(pos, _node, clicker, itemstack, pointed_thing)
             local itemname = itemstack:get_name()
             if minetest.get_item_group(itemname, "ladder") > 0 then
                 local pos_over = {x = pos.x, y = pos.y + 1, z = pos.z}
                 local over = minetest.get_node(pos_over)
                 if over.name == "air" then
                     minetest.place_node(pos_over, {name = itemname})
-                    if not minimal.player_in_creative(clicker) then
+                    if not EXILE.player_in_creative(clicker) then
                         itemstack:take_item()
                     end
                 end
@@ -119,7 +119,7 @@ minetest.register_node(
             "tech_wooden_floor_boards_front.png",
             "tech_wooden_floor_boards_front.png"
         },
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {choppy=2, flammable=3, craft_ground = 1},
@@ -158,7 +158,7 @@ minetest.register_node(
                 {-0.5, 0.25, 0.3125, 0.5, 0.375, 0.5},
             }
         },
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "facedir",
         sunlight_propagates = true,

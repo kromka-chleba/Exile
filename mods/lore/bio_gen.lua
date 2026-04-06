@@ -16,8 +16,6 @@
     until one day [he][picked a fight with the wrong people].... "
 ]]
 
-lore = lore
-
 local random = math.random
 local S = lore.S
 local NS = function(s) return s end

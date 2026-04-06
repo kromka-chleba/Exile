@@ -7,9 +7,6 @@
 
 ---------------------------------------------------------------------
 
-animals = animals
-mobkit = mobkit
-
 -- Internationalization
 local S = animals.S
 
@@ -234,7 +231,7 @@ local self_data = {
             fixed = {-0.0625, -0.5, -0.0625,  0.0625, -0.375, 0.0625},
         },
         egg_conditions_correct = function(pos,data)
-            data = data or minimal.get_nodedef(pos)
+            data = data or EXILE.get_nodedef(pos)
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)

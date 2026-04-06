@@ -1,11 +1,11 @@
 ----------------------------------------------------------
---CLOTHING 
+--CLOTHING
 --This file only defines clothes and their recipe
 
 -- Internationalization
 local S = tech.S
 
-local cloth_stack_max = minimal.stack_max_bulky
+local cloth_stack_max = EXILE.stack_max_bulky
 
 -- Register function in player_api/cloths.lua, groups[cloth] codes are :
 -- 1 = Head, 2 = Upper, 3 = Lower, 4 = Footwear, 5 = Cape, 6 = Blanket
@@ -141,7 +141,11 @@ player_api.register_cloth(
         inventory_image = "tech_woven_blanket_thumb.png",
         texture = "tech_woven_blanket.png",
         stack_max = cloth_stack_max,
-        groups = {blanket=1, cloth=6}, -- #TODO cloth =6 and blanket = 1 means EXACTLY the same right now, we could simplify that, especially since cloth=6 is an expetion in each cloths.lua function. code 6 is used in temperature managementn bleket in finding blanket
+        groups = {blanket=1, cloth=6},
+        --[[ #TODO cloth =6 and blanket = 1 means EXACTLY the same right now,
+            we could simplify that, especially since cloth=6 is an expetion
+            in each cloths.lua function. code 6 is used in temperature
+            managementn bleket in finding blanket ]]--
         customfields = {temp_min = 3, temp_max = -2}
 })
 crafting.register_recipe({

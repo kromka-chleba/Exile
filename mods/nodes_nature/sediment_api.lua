@@ -6,13 +6,10 @@
 -- Internationalization
 local S = nodes_nature.S
 
-mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 local c = nodes_nature.replacement_types
-tgcr = tgcr
-nodes_nature = nodes_nature
 local nn = nodes_nature
 
 nn.sediment = {}
@@ -32,7 +29,7 @@ do
             naturalslopeslib.register_slope(node_name, {}, slopechance)
         end
     else
-        do_slopes_for_node_name = function(node_name) end
+        do_slopes_for_node_name = function(_node_name) end
     end
 end
 
@@ -77,7 +74,7 @@ sediment.sounds = {
 -- Utility functions
 -----------------------------------
 
-local merge_tables = minimal.merge_tables
+local merge_tables = EXILE.merge_tables
 
 -- Soil erosion and fertilizers
 -----------------------------------
@@ -198,23 +195,23 @@ end
 
 function sediment.get_base_props(sed)
     local props = {
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         _dry_name = sediment.get_dry_name(sed.name),
         _wet_name = sediment.get_wet_name(sed.name),
         _wet_salty_name = sediment.get_wet_salty_name(sed.name),
         use_texture_alpha = c_alpha.clip,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, _itemstack, _pointed_thing)
             if pos.y < -15 then
                 -- No labels when underground
                 return
             end
             local labels = {}
             local remove_labels = {"no_soil"}
-            if minimal.pos_group(pos, "spreading") then
+            if EXILE.pos_group(pos, "spreading") then
                 table.insert(labels, "spring_soil")
                 table.insert(remove_labels, "no_spring_soil")
                 table.insert(remove_labels, "bare_soil")
-            elseif minimal.pos_group(pos, "winter_soil") then
+            elseif EXILE.pos_group(pos, "winter_soil") then
                 table.insert(labels, "winter_soil")
                 table.insert(remove_labels, "no_winter_soil")
                 table.insert(remove_labels, "bare_soil")
@@ -313,7 +310,7 @@ function sediment.register_stair_and_slab(sed)
         {sediment.get_dry_texture_name(sed.name)},
         S("@1 Stair", sed.description),
         S("@1 Slab", sed.description),
-        minimal.stack_max_bulky * 2,
+        EXILE.stack_max_bulky * 2,
         sed.sound
     })
 end
@@ -328,7 +325,7 @@ function sediment.register_slab(sed)
         sed.groups,
         {sediment.get_dry_texture_name(sed.name)},
         S("@1 Slab", sed.description),
-        minimal.stack_max_bulky * 2,
+        EXILE.stack_max_bulky * 2,
         sed.sound
     })
 end
@@ -362,7 +359,7 @@ function soil.get_wet_side_texture_name(basename, sedname)
     return soil.get_side_texture_name(basename, sedname).."^"..textures.wet
 end
 
-function soil.get_winter_texture_name(basename, sedname)
+function soil.get_winter_texture_name(basename, _sedname)
     return soil.get_dry_texture_name(basename).."^[colorize:#3b2914:150"
 end
 
@@ -390,7 +387,7 @@ function soil.new(args)
 end
 
 --Till soil
-function soil.till(itemstack, puncher, pointed_thing)
+function soil.till(_itemstack, _puncher, pointed_thing)
     --agriculture
     if pointed_thing.type ~= "node" then
         return
@@ -406,7 +403,7 @@ function soil.till(itemstack, puncher, pointed_thing)
         minetest.get_item_group(node_name, "fertile_soil") >= 1 then
         --figure out what soil it is from dropped
         local ag_soil = nodedef._ag_soil
-        minimal.switch_node(pointed_thing.under, ag_soil)
+        EXILE.switch_node(pointed_thing.under, ag_soil)
     end
 end
 
@@ -797,7 +794,7 @@ function agricultural_soil.get_dry_node_props(ag_soil)
                 _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_dry_name(sed.name..
                                                                "_fertile_soil"),
-                on_timer = function(pos, elapsed)
+                on_timer = function(pos, _elapsed)
                     return erode_deplete_ag_soil(pos)
                 end,
         })
@@ -834,7 +831,7 @@ function agricultural_soil.get_wet_node_props(ag_soil)
                 _depleted_name = depleted_name,
                 _fertile_name = agricultural_soil.get_wet_name(sed.name..
                                                                "_fertile_soil"),
-                on_timer = function(pos, elapsed)
+                on_timer = function(pos, _elapsed)
                     return erode_deplete_ag_soil(pos)
                 end,
         })

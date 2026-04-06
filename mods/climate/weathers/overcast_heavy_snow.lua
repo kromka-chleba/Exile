@@ -101,7 +101,6 @@ overcast_heavy_snow.particle_function = function(player)
     local ext = 7
     local size = 3
     local tex = random_texture()
-    local sound = ""
 
     climate.add_blizzard_particle(velxz, vely, accxz, accy, ext, size,
                                   tex, player)

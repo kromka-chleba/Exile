@@ -13,14 +13,14 @@ function spears_register_spear(
             on_secondary_use = function(itemstack, user, pointed_thing)
                 local thrown = spears_throw(itemstack, user,
                                             pointed_thing)
-                if thrown == true and not minimal.player_in_creative(user) then
+                if thrown == true and not EXILE.player_in_creative(user) then
                     itemstack:take_item()
                 end
                 return itemstack
             end,
             on_place = function(itemstack, user, pointed_thing)
                 local thrown = spears_throw(itemstack, user, pointed_thing)
-                if thrown == true and not minimal.player_in_creative(user) then
+                if thrown == true and not EXILE.player_in_creative(user) then
                     itemstack:take_item()
                 end
                 return itemstack

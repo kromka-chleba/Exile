@@ -94,7 +94,6 @@ overcast_light_rain.particle_function = function(player)
     local ext = 5
     local size = 1
     local tex = random_texture()
-    local sound = ""
 
     climate.add_particle(vel, acc, ext, size, tex, player)
 end

@@ -4,10 +4,6 @@
 --  other than enter/exit, and it calls the mapchunk shepherd to show off
 --  the seasons.
 
-tutorial = tutorial
-minimal = minimal
-climate = climate
-zone = zone
 stage = ...
 local mstore = tutorial.mstore -- mod storage
 
@@ -49,7 +45,7 @@ local w_steps = {
     { name = "clear", temp = 22 },
 }
 
-local function show_weather(inum, player_out)
+local function show_weather(inum, _player_out)
     local _, player = get_player_from_instance(inum)
     if not core.is_player(player) then return end -- disconnected?
     local new_weather = weather[inum].name
@@ -166,7 +162,7 @@ local function tracking()
         if not core.is_player(player) then -- Disconnected
             remove_instance_weather(name)
         else
-            local daylight = minimal.get_daylight(player:get_pos(), 0.5)
+            local daylight = EXILE.get_daylight(player:get_pos(), 0.5)
             if daylight and daylight < 12 then
                 OpenTheGate(player)
             end
@@ -204,7 +200,7 @@ local function TutorialShelterFire(pos)
     for _, o in pairs(objs) do
         if core.is_player(o) then player = o ; break ; end
     end
-    minimal.switch_node(pos, "tech:small_wood_fire")
+    EXILE.switch_node(pos, "tech:small_wood_fire")
     local meta = core.get_meta(pos)
     meta:set_string("hot_air", "Y")
     minetest.check_for_falling(pos)
@@ -283,7 +279,7 @@ local function enter(stage, player, name, instance)
     create_instance_weather(instance, stage)
     show_weather(instance.number)
 end
-local function exit(stage, player, name, instance)
+local function exit(_stage, player, name, _instance)
     HEALTH.show_hud_elements(player, nil, "all")
     climate.set_weather_override(player:get_player_name(), nil, "")
     remove_instance_weather(name)

@@ -10,16 +10,16 @@ lever = {}
 
 lever.ROTATE_FACE = 1
 lever.ROTATE_AXIS = 2
-lever.disallow = function(pos, node, user, mode, new_param2)
+lever.disallow = function(_pos, _node, _user, _mode, _new_param2)
     return false
 end
-lever.rotate_simple = function(pos, node, user, mode, new_param2)
+lever.rotate_simple = function(_, _, _, mode, _)
     if mode ~= lever.ROTATE_FACE then
         return false
     end
 end
 
-local function should_rotate(ndef, node, pos, itemstack, user, new_param2, mode)
+local function should_rotate(ndef, node, pos, _itemstack, user, new_param2, mode)
     -- Node provides a handler, so let the handler decide instead if the node can be rotated
     if ndef.groups then
         local plants = { "flora", "seed", "cane_plant",
@@ -80,7 +80,7 @@ local facedir_tbl = {
     },
 }
 
-lever.rotate.facedir = function(pos, node, mode)
+lever.rotate.facedir = function(_pos, node, mode)
     local rotation = node.param2 % 32 -- get first 5 bits
     local other = node.param2 - rotation
     rotation = facedir_tbl[mode][rotation] or 0
@@ -100,7 +100,7 @@ lever.rotate.wallmounted = function(pos, node, mode)
     rotation = wallmounted_tbl[mode][rotation] or 0
     if minetest.get_item_group(node.name, "attached_node") ~= 0 then
         -- find an acceptable orientation
-        for i = 1, 5 do
+        for _ = 1, 5 do
             if not check_attached_node(pos, rotation) then
                 rotation = wallmounted_tbl[mode][rotation] or 0
             else
@@ -151,7 +151,7 @@ lever.handler = function(itemstack, user, pointed_thing, mode)
             node.param2 = new_param2
             minetest.swap_node(pos, node)
             minetest.check_for_falling(pos)
-            if not (minimal.player_in_creative(user)) then
+            if not (EXILE.player_in_creative(user)) then
                 itemstack:add_wear(65535 / ((ndef._uses or 200) - 1))
             end
         end
@@ -173,8 +173,8 @@ minetest.register_tool(
             lever.handler(itemstack, user, pointed_thing, lever.ROTATE_FACE)
             return itemstack
         end,
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            minimal.swap_tool(player, wielded_item, "tech:aligner")
+        _on_use_item = function(player, wielded_item, _pointed_thing)
+            EXILE.swap_tool(player, wielded_item, "tech:aligner")
             return false
         end,
         on_place = function(itemstack, user, pointed_thing)
@@ -236,7 +236,7 @@ local function aligner(itemstack, user, pointed_thing, grab)
         if should_rotate(ndef, node, pos, itemstack, user, new_param2) then
             node.param2 = new_param2
             minetest.swap_node(pos, node) -- and set it
-            if not minimal.player_in_creative(user) then
+            if not EXILE.player_in_creative(user) then
                 itemstack:add_wear(65535 / ((ndef._uses or 200) - 1))
             end
         end
@@ -257,8 +257,8 @@ minetest.register_tool(
             aligner(itemstack, user, pointed_thing, false)
             return itemstack
         end,
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            minimal.swap_tool(player, wielded_item, "tech:lever")
+        _on_use_item = function(player, wielded_item, _pointed_thing)
+            EXILE.swap_tool(player, wielded_item, "tech:lever")
             return false
         end,
         on_use = function(itemstack, user, pointed_thing)

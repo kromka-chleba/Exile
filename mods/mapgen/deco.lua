@@ -62,20 +62,20 @@ local function do_after_generation(deco_name, fun, extra_args)
         function(minp, maxp, blockseed)
             local gennotify = minetest.get_mapgen_object("gennotify")
             local pos_list = gennotify["decoration#"..id] or {}
-            for _, pos in ipairs(pos_list) do
-                local pos = minimal.get_pos_above(pos)
+            for _, bpos in ipairs(pos_list) do
+                local pos = EXILE.get_pos_above(bpos)
                 fun(pos, minp, maxp, blockseed, extra_args)
             end
         end
     )
 end
 
-local function start_egg_timers(pos, minp, maxp, blockseed, extra_args)
+local function start_egg_timers(pos, _minp, _maxp, _blockseed, _extra_args)
     minetest.get_node_timer(pos):start(1)
 end
 
-local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
-    if minimal.pos_group(pos, "cane_plant") then
+local function remove_floating_canes(pos)
+    if EXILE.pos_group(pos, "cane_plant") then
         return
     end
     local pos_top = {x = pos.x, y = pos.y + 8, z = pos.z}
@@ -86,14 +86,14 @@ local function remove_floating_canes(pos, minp, maxp, blockseed, extra_args)
     end
 end
 
-local function add_roots(pos, minp, maxp, blockseed, extra_args)
-    local plant_nodedef = minimal.get_nodedef(pos)
+local function add_roots(pos)
+    local plant_nodedef = EXILE.get_nodedef(pos)
     if not plant_nodedef
         or not plant_nodedef.groups.plant_with_roots
         or plant_nodedef.groups.plant_with_roots == 0 then
         return
     end
-    local pos_under = minimal.get_pos_under(pos)
+    local pos_under = EXILE.get_pos_under(pos)
     local name_under = minetest.get_node(pos_under).name
     if minetest.get_item_group(name_under, "sediment") == 0 then
         return

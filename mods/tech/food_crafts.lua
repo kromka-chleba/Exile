@@ -7,7 +7,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 
 ------ MINERAL PRODUCTS
@@ -18,7 +18,7 @@ minetest.register_node("tech:salt_sea", {
     tiles = {"tech_salt_refined.png"},
     inventory_image = "tech_salt_refined_icon.png",
     wield_image = "tech_salt_refined_icon.png",
-    stack_max = minimal.stack_max_medium * 3,
+    stack_max = EXILE.stack_max_medium * 3,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -42,7 +42,7 @@ minetest.register_node(
     'tech:maraka_flour_bitter', {
         description = S('Bitter Maraka Flour'),
         tiles = {"tech_flour_bitter.png"},
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         paramtype = "light",
         groups = {crumbly = 3, dig_immediate = 3,
                   falling_node = 1, flammable = 1},
@@ -63,7 +63,7 @@ minetest.register_node(
     'tech:maraka_flour', {
         description = S('Maraka Flour'),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         paramtype = "light",
         groups = {crumbly = 3, dig_immediate = 3,
                   falling_node = 1, flammable = 1},
@@ -76,7 +76,7 @@ minetest.register_node(
     "tech:maraka_bread", {
         description = S("Unbaked Maraka Cake"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "wallmounted",
         sunlight_propagates = true,
@@ -94,7 +94,7 @@ minetest.register_node(
     "tech:maraka_bread_cooked", {
         description = S("Maraka Cake"),
         tiles = {"tech_flour_strong.png"},
-        stack_max = minimal.stack_max_medium * 4,
+        stack_max = EXILE.stack_max_medium * 4,
         paramtype = "light",
         sunlight_propagates = true,
         --paramtype2 = "wallmounted",
@@ -114,7 +114,7 @@ minetest.register_node(
     "tech:maraka_bread_burned", {
         description = S("Maraka Cake Burned"),
         tiles = {"tech_flour_burned.png"},
-        stack_max = minimal.stack_max_medium * 4,
+        stack_max = EXILE.stack_max_medium * 4,
         paramtype = "light",
         sunlight_propagates = true,
         --paramtype2 = "wallmounted",
@@ -135,7 +135,7 @@ minetest.register_node(
     "tech:peeled_anperla", {
         description = S("Peeled Anperla Tuber"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         sunlight_propagates = true,
         drawtype = "nodebox",
@@ -152,7 +152,7 @@ minetest.register_node(
     "tech:peeled_anperla_burned", {
         description = S("Burned Anperla Tuber"),
         tiles = {"tech_flour_burned.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         sunlight_propagates = true,
         drawtype = "nodebox",
@@ -170,7 +170,7 @@ minetest.register_node(
     "tech:peeled_anperla_cooked", {
         description = S("Cooked Anperla Tuber"),
         tiles = {"tech_tuber_cooked.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         paramtype = "light",
         sunlight_propagates = true,
         drawtype = "nodebox",
@@ -189,7 +189,7 @@ minetest.register_node(
     "tech:mashed_anperla", {
         description = S("Mashed Anperla (uncooked)"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_medium/6,
+        stack_max = EXILE.stack_max_medium/6,
         paramtype = "light",
         --sunlight_propagates = true,
         drawtype = "nodebox",
@@ -206,7 +206,7 @@ minetest.register_node(
     "tech:mashed_anperla_cooked", {
         description = S("Mashed Anperla"),
         tiles = {"tech_tuber_cooked.png"},
-        stack_max = minimal.stack_max_medium/3,
+        stack_max = EXILE.stack_max_medium/3,
         paramtype = "light",
         --sunlight_propagates = true,
         drawtype = "nodebox",
@@ -224,7 +224,7 @@ minetest.register_node(
     "tech:mashed_anperla_burned", {
         description = S("Burned Anperla"),
         tiles = {"tech_flour_burned.png"},
-        stack_max = minimal.stack_max_medium/3,
+        stack_max = EXILE.stack_max_medium/3,
         paramtype = "light",
         --sunlight_propagates = true,
         drawtype = "nodebox",
@@ -255,7 +255,7 @@ minetest.register_node(
     "tech:rhuya_flour", {
         description = S("Raw Rhuya Flour"),
         tiles = {"tech_rhuya_flour.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -271,7 +271,7 @@ minetest.register_node(
     "tech:rhuya_flour_cooked",  {
         description = S("Rhuya Flour"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -289,7 +289,7 @@ minetest.register_node(
     "tech:rhuya_wintery_flour", {
         description = S("Raw Hardy Rhuya Flour"),
         tiles = {"tech_rhuya_flour_wintery.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -306,7 +306,7 @@ minetest.register_node(
     "tech:rhuya_wintery_flour_cooked",  {
         description = S("Hardy Rhuya Flour"),
         tiles = {"tech_flour_strong.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -327,7 +327,7 @@ minetest.register_node(
     "tech:rhuya_flour_burned",  {
         description = S("Burnt Rhuya Flour"),
         tiles = {"tech_flour_burned.png"},
-        stack_max = minimal.stack_max_medium * 3,
+        stack_max = EXILE.stack_max_medium * 3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -344,7 +344,7 @@ minetest.register_node(
         description = S("All-Purpose Flour"),
         -- texture should always be an equal mix of cake flour and bread flour (tech_flour vs tech_flour_strong)
         tiles = {"tech_flour_all.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -361,7 +361,7 @@ minetest.register_node(
     "tech:barszcz_flour_raw", {
         description = S("Uncured Barshocha Flour"),
         tiles = {"tech_flour_bitter.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -389,7 +389,7 @@ minetest.register_node(
     "tech:barszcz_flour", {
         description = S("Cured Barshocha Flour"),
         tiles = {"tech_flour_strong.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -415,7 +415,7 @@ minetest.register_node(
     "tech:maraka_dough",  {
         description = S("Maraka Dough"),
         tiles = {"tech_dough_strong.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -441,7 +441,7 @@ minetest.register_node(
     "tech:rhuya_dough",  {
         description = S("Rhuya Dough"),
         tiles = {"tech_dough.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -467,7 +467,7 @@ minetest.register_node(
     "tech:rhuya_wintery_dough",  {
         description = S("Hardy Rhuya Dough"),
         tiles = {"tech_dough_strong.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -494,7 +494,7 @@ minetest.register_node(
         description = S("All-Purpose Dough"),
         -- likewise to all-purpose flour, texture must be a mix of regular and strong dough
         tiles = {"tech_dough_all.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -520,7 +520,7 @@ minetest.register_node(
     "tech:barszcz_dough",  {
         description = S("Barshocha Dough"),
         tiles = {"tech_dough_strong.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -558,7 +558,7 @@ minetest.register_node(
     "tech:maraka_dough_fermented",  {
         description = S("Fermented @1",S("Maraka Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -575,7 +575,7 @@ minetest.register_node(
     "tech:rhuya_dough_fermented",  {
         description = S("Fermented @1",S("Rhuya Dough")),
         tiles = {"tech_dough.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -592,7 +592,7 @@ minetest.register_node(
     "tech:rhuya_wintery_dough_fermented",  {
         description = S("Fermented @1",S("Hardy Rhuya Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -603,7 +603,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata,
-        breads_get_microbes = function(pos, oldnode, nodedef)
+        breads_get_microbes = function(_pos, _oldnode, _nodedef)
             return math.random(2,5)
         end
 })
@@ -612,7 +612,7 @@ minetest.register_node(
     "tech:barszcz_dough_fermented",  {
         description = S("Fermented @1",S("Barshocha Dough")),
         tiles = {"tech_dough_strong.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -623,7 +623,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata,
-        breads_get_microbes = function(pos, oldnode, nodedef)
+        breads_get_microbes = function(_pos, _oldnode, _nodedef)
             return math.random(1,6)
         end
 })
@@ -632,7 +632,7 @@ minetest.register_node(
     "tech:all_dough_fermented",  {
         description = S("Fermented @1",S("All-Purpose Dough")),
         tiles = {"tech_dough_all.png^tech_dough_aerated_mask.png^tech_yeast_dough_overlay.png"},
-        stack_max = minimal.stack_max_medium * 2,
+        stack_max = EXILE.stack_max_medium * 2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -642,7 +642,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_dirt_defaults(),
         paramtype = "light",
         preserve_metadata = ferm_dough_preserve_metadata,
-        breads_get_microbes = function(pos, oldnode, nodedef)
+        breads_get_microbes = function(_pos, _oldnode, _nodedef)
             return math.random(2,4)
         end
 })
@@ -655,7 +655,7 @@ minetest.register_node(
         description = S("Black Bread"),
         groups = {dig_immediate = 3, falling_node=1, baked_bread=1},
         tiles = {"tech_bread_black.png"},
-        stack_max = minimal.stack_max_medium*2,
+        stack_max = EXILE.stack_max_medium*2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -675,7 +675,7 @@ minetest.register_node(
         description = S("Crumbly Bread"),
         groups = {dig_immediate = 3, falling_node=1, crumbly_bread=1},
         tiles = {"tech_bread_crumbly.png"},
-        stack_max = minimal.stack_max_medium*2,
+        stack_max = EXILE.stack_max_medium*2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -693,7 +693,7 @@ minetest.register_node(
     "tech:bread_unleavened",  {
         description = S("Unleavened Bread"),
         tiles = {"tech_bread_unleavened.png"},
-        stack_max = minimal.stack_max_medium*3,
+        stack_max = EXILE.stack_max_medium*3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -709,7 +709,7 @@ minetest.register_node(
     "tech:bread_unleavened_crumbly",  {
         description = S("Fluffy Unleavened Bread"),
         tiles = {"tech_bread_unleavened_crumbly.png"},
-        stack_max = minimal.stack_max_medium*3,
+        stack_max = EXILE.stack_max_medium*3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -726,7 +726,7 @@ minetest.register_node(
     "tech:bread_unleavened_all",  {
         description = S("Basic Crackerbread"),
         tiles = {"tech_bread_unleavened_all.png"},
-        stack_max = minimal.stack_max_medium*3,
+        stack_max = EXILE.stack_max_medium*3,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -743,7 +743,7 @@ minetest.register_node(
         description = S("Soft Bread"),
         groups = {dig_immediate = 3, falling_node=1, baked_bread=1},
         tiles = {"tech_bread_all.png"},
-        stack_max = minimal.stack_max_medium*2,
+        stack_max = EXILE.stack_max_medium*2,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -763,7 +763,7 @@ minetest.register_node(
         description = S("Burned Bread"),
         groups = {dig_immediate = 3, falling_node=1, compostable=1},
         tiles = {"tech_flour_burned.png"},
-        stack_max = minimal.stack_max_medium*4,
+        stack_max = EXILE.stack_max_medium*4,
         drawtype = "nodebox",
         node_box = {
           type = "fixed",
@@ -915,7 +915,8 @@ for dough,flour in pairs(
   ["tech:rhuya_dough"] = "tech:rhuya_flour_cooked", ["tech:rhuya_wintery_dough"] = "tech:rhuya_wintery_flour_cooked",
   ["tech:all_dough"] = "tech:all_flour", ["tech:barszcz_dough"] = "tech:barszcz_flour"}) do
     -- get count from itemstring
-    local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space behind any that fits "%d" - number, "+" gets all numbers
+    local count = tonumber(flour:match"%s%d+") -- "%s" checks for a space
+    -- behind any that fits "%d" - number, "+" gets all numbers
     if not count then
         -- otherwise set one and add it to flour
         count = 8
@@ -949,7 +950,7 @@ minetest.register_node(
         tiles = {"tech_yolkandalbumen.png"},
         inventory_image = "tech_yolkandalbumen_icon.png",
         groups = {dig_immediate=3, falling_node=1, heatable=60, edible = 1},
-        stack_max = math.floor(minimal.stack_max_medium*1.5),
+        stack_max = math.floor(EXILE.stack_max_medium*1.5),
         drawtype = "mesh",
         mesh = "yolkalbumen.obj",
         selection_box = {
@@ -973,7 +974,7 @@ minetest.register_node(
         tiles = {"tech_fried_egg.png"},
         inventory_image = "tech_fried_egg_icon.png",
         groups = {dig_immediate=3, falling_node=1, heatable=110, edible=1},
-        stack_max = minimal.stack_max_medium*2,
+        stack_max = EXILE.stack_max_medium*2,
         drawtype = "mesh",
         mesh = "yolkalbumen.obj",
         selection_box = {

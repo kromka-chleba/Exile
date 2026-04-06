@@ -8,7 +8,7 @@ local ucsigns_available = minetest.get_modpath("ucsigns")
 if not ucsigns_available then return end
 
 print("UCSIGNS AVAILABLE: ",ucsigns_available)
-screwdriver = lever
+
 -- colours the inventory image of the signs
 local signcolors = {
     tangkal = "#8a7362",
@@ -32,7 +32,7 @@ local signdef = {
     groups = {oddly_breakable_by_hand = 1, ucsign = 1, choppy = 2},
     sounds = nodes_nature.node_sound_wood_defaults(),
     -- custom on_rightclick function for sign text editing and colouring
-    on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+    on_rightclick = function(pos, _node, clicker, itemstack, _pointed_thing)
         local meta = core.get_meta(pos)
         -- can't colour or change text (protected)
         if core.is_protected(pos, clicker, meta) then return end
@@ -44,7 +44,7 @@ local signdef = {
             if meta:get_string("color") == color then return end
             meta:set_string("color", color)
             ucsigns.update_sign(pos)
-            if not minimal.player_in_creative(clicker) then
+            if not EXILE.player_in_creative(clicker) then
                 itemstack:take_item()
             end
         -- rewrite history!
@@ -53,7 +53,7 @@ local signdef = {
         end
     end,
     -- save text and text colouring
-    preserve_metadata = function(pos, oldnode, oldmeta, drops) -- preserve_metadata
+    preserve_metadata = function(_pos, _oldnode, oldmeta, drops)
         local stack = drops[1]
         -- not going to using much of meta, save what we want
         oldmeta = {color=oldmeta.color, text=oldmeta.text}
@@ -66,7 +66,7 @@ local signdef = {
         local imeta = stack:get_meta()
         imeta:from_table({fields = oldmeta})
     end,
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
+    after_place_node = function(pos, _placer, itemstack, _pointed_thing)
         local oldmeta = itemstack:get_meta()
         oldmeta = oldmeta:to_table()
         if not oldmeta then return end -- nothing we can do here
@@ -82,7 +82,7 @@ local signdef = {
         ucsigns.update_sign(pos)
     end,
     -- prevent rotation with levers until either it's fixed upstream or we fixed it
-    on_rotate = function(pos, node, user, mode, new_param2)
+    on_rotate = function(_pos, _node, _user, _mode, _new_param2)
         return
     end
 }
@@ -91,7 +91,7 @@ if ucsigns.merge_itemdef then
     signdef.on_rotate = nil
 end
 -- make a unique sign for every tree type
-for nname, ndef in pairs(core.registered_nodes) do
+for _, ndef in pairs(core.registered_nodes) do
     if ndef.groups and ndef.groups.log and ndef.tiles and
       -- if tree variant exists
       core.registered_nodes[ndef.name:gsub("_log","_tree")] then
@@ -113,7 +113,7 @@ for nname, ndef in pairs(core.registered_nodes) do
         -- permit custom "average_color" (what the node color theoretically should be on a minimap)
         local signcolor = ndef.average_color or signcolors[name] or nil
         name = "exile_"..name
-        ucsigns.register_sign(name, signcolor, minimal.merge_tables(signdef, {
+        ucsigns.register_sign(name, signcolor, EXILE.merge_tables(signdef, {
             description = S("@1 Sign", ndef.description),
             tiles = tiles
         }))
@@ -145,7 +145,7 @@ for nname, ndef in pairs(core.registered_nodes) do
     end
 end
 -- oiled sign (previous default)
-ucsigns.register_sign("exile", nil, minimal.merge_tables(signdef, {
+ucsigns.register_sign("exile", nil, EXILE.merge_tables(signdef, {
     description = S("Oiled Sign"),
     tiles = { "tech_oiled_wood.png" }
 }))
@@ -181,7 +181,7 @@ for ind,tile in ipairs(iron_tiles) do
     end
     iron_tiles[ind] = newtile
 end
-ucsigns.register_sign("exile_iron", "#686868", minimal.merge_tables(signdef, {
+ucsigns.register_sign("exile_iron", "#686868", EXILE.merge_tables(signdef, {
     description = S("Iron Sign"),
     tiles = iron_tiles,
     groups = {choppy=0, oddly_breakable_by_hand=0, handy=0, axey=0, ucsign=1, not_in_creative_inventory=1, cracky=3},

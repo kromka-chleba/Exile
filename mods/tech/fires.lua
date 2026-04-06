@@ -45,12 +45,12 @@ local function can_smolder(pos, meta, fire_name, ash_name)
 
         f = f - wet_loss
         if f <= 0 then
-            minimal.switch_node(pos, ash_name)
+            EXILE.switch_node(pos, ash_name)
         else
             local ext_name = minetest.get_node(pos).name:gsub(
                 "_smoldering",
                 "_ext")
-            minimal.switch_node(pos, ext_name)
+            EXILE.switch_node(pos, ext_name)
         end
         minetest.sound_play("nodes_nature_cool_lava",
                             {pos = pos, max_hear_distance = 16, gain = 0.25})
@@ -60,7 +60,7 @@ local function can_smolder(pos, meta, fire_name, ash_name)
     --check for the presence of air
     if minetest.find_node_near(pos, 1, {"air"}) then
         --air, roar back to full flame
-        minimal.switch_node(pos, fire_name)
+        EXILE.switch_node(pos, fire_name)
         return false
     else
         return true
@@ -76,10 +76,10 @@ local function can_burn_air(pos, meta, smolder_name, ash_name)
 
         f = f - wet_loss
         if f <= 0 then
-            minimal.switch_node(pos, ash_name)
+            EXILE.switch_node(pos, ash_name)
         else
             local ext_name = minetest.get_node(pos).name.."_ext"
-            minimal.switch_node(pos, ext_name)
+            EXILE.switch_node(pos, ext_name)
         end
         minetest.sound_play("nodes_nature_cool_lava",
                             {pos = pos, max_hear_distance = 16, gain = 0.25})
@@ -91,7 +91,7 @@ local function can_burn_air(pos, meta, smolder_name, ash_name)
         return true
     else
         --smolder
-        minimal.switch_node(pos, smolder_name)
+        EXILE.switch_node(pos, smolder_name)
         return false
     end
 end
@@ -187,7 +187,7 @@ minetest.register_node(
     "tech:wood_ash_block", {
         description = S("Wood Ash Block"),
         tiles = {"tech_wood_ash.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
@@ -202,7 +202,7 @@ minetest.register_node(
             end
         end,
         _splits_by_hand = "tech:wood_ash",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _fertilize_replace_with = "tech:wood_ash",
 })
 
@@ -211,7 +211,7 @@ minetest.register_node(
     "tech:wood_ash", {
         description = S("Wood Ash"),
         tiles = {"tech_wood_ash.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         drawtype = "nodebox",
         paramtype = "light",
         node_box = {
@@ -233,14 +233,14 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:wood_ash_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+                                         EXILE.get_usable_position(pointed_thing))
         end
 })
 
 -- splitting a node block into a half node and half itemstack
 -- split fuel of node block
-local function split_fuel(player, itemstack, pos, ndef, split_def)
+local function split_fuel(_player, itemstack, pos, _ndef, _split_def)
     local meta = core.get_meta(pos)
     if not meta:contains("fuel") then return end -- no fuel value
     local fuel = meta:get_int("fuel") / 2
@@ -251,7 +251,7 @@ end
 
 -- combining a half node and a half itemstack to make a block
 -- combine their fuels
-local function combine_fuel(player, itemstack, def, pos, node, swap_def)
+local function combine_fuel(_player, itemstack, _def, pos, _node, _swap_def)
     local imeta = itemstack:get_meta()
     if not imeta:contains("fuel") then return end -- no fuel in itemstack
     local nmeta = core.get_meta(pos) -- node meta
@@ -266,14 +266,14 @@ minetest.register_node(
         description = S("Charcoal Block"),
         tiles = {"tech_charcoal.png"},
         paramtype = "light",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         groups = {crumbly = 3, falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         _splits_by_hand = "tech:charcoal",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, "tech:large_charcoal_fire")
+            EXILE.switch_node(pos, "tech:large_charcoal_fire")
             minetest.check_for_falling(pos)
         end,
 })
@@ -289,18 +289,18 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
         },
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
         on_burn = function(pos)
-            minimal.switch_node(pos, "tech:small_charcoal_fire")
+            EXILE.switch_node(pos, "tech:small_charcoal_fire")
             minetest.check_for_falling(pos)
         end,
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:charcoal_block",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+                                         EXILE.get_usable_position(pointed_thing))
         end,
         _combined_by_hand = combine_fuel
 })
@@ -325,7 +325,7 @@ local function extinguish_fire(pos, puncher, ext_name)
 
     if minetest.get_item_group(ist_name, "sediment") >= 1
     then
-        minimal.switch_node(pos, ext_name)
+        EXILE.switch_node(pos, ext_name)
         minetest.sound_play("nodes_nature_cool_lava",   {pos = pos, max_hear_distance = 16, gain = 0.25})
 
     else
@@ -349,7 +349,7 @@ minetest.register_node(
             fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
         },
         tiles = {"tech_wood_fire_unlit.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         paramtype = "light",
         groups = {oddly_breakable_by_hand = 3, choppy = 3,
                   falling_node = 1, flammable = 1},
@@ -357,12 +357,12 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_wood_fire_unlit",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+                                         EXILE.get_usable_position(pointed_thing))
         end,
         _combined_by_hand = combine_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, "tech:small_wood_fire")
+            EXILE.switch_node(pos, "tech:small_wood_fire")
             minetest.check_for_falling(pos)
         end
 })
@@ -371,16 +371,16 @@ minetest.register_node(
     'tech:large_wood_fire_unlit', {
         description = S('Large Wood Fire (unlit)'),
         tiles = {"tech_wood_fire_unlit.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         groups = {oddly_breakable_by_hand = 3, choppy = 3,
                   falling_node = 1, flammable = 1},
         sounds = nodes_nature.node_sound_wood_defaults(),
         _splits_by_hand = "tech:small_wood_fire_unlit",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
-            minimal.switch_node(pos, "tech:large_wood_fire")
+            EXILE.switch_node(pos, "tech:large_wood_fire")
             minetest.check_for_falling(pos)
         end
 })
@@ -406,7 +406,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:small_wood_fire_ext')
         end,
 
@@ -421,11 +421,11 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(
                 math.random(base_burn_rate-1,base_burn_rate+1))
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash")
+                EXILE.switch_node(pos, "tech:wood_ash")
                 return false
             elseif can_burn_air(pos, meta, "tech:small_wood_fire_smoldering",
                                 "tech:wood_ash" ) then
@@ -456,7 +456,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:large_wood_fire_ext')
         end,
 
@@ -470,11 +470,11 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(
                 math.random(base_burn_rate-1,base_burn_rate+1))
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash_block")
+                EXILE.switch_node(pos, "tech:wood_ash_block")
                 return false
             elseif can_burn_air(pos, meta, "tech:large_wood_fire_smoldering",
                                 "tech:wood_ash_block") then
@@ -515,7 +515,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:small_wood_fire_ext')
         end,
 
@@ -580,7 +580,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:large_wood_fire_ext')
         end,
 
@@ -645,7 +645,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:small_charcoal_fire_ext')
         end,
 
@@ -658,11 +658,11 @@ minetest.register_node(
             --fire effects...more consistent burn.
             minetest.get_node_timer(pos):start(base_burn_rate)
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash")
+                EXILE.switch_node(pos, "tech:wood_ash")
                 return false
             elseif can_burn_air(pos, meta,
                                 "tech:small_charcoal_fire_smoldering",
@@ -695,7 +695,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:large_charcoal_fire_ext')
         end,
 
@@ -709,11 +709,11 @@ minetest.register_node(
             --fire effects
             minetest.get_node_timer(pos):start(base_burn_rate)
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash_block")
+                EXILE.switch_node(pos, "tech:wood_ash_block")
                 return false
             elseif can_burn_air(
                 pos, meta, "tech:large_charcoal_fire_smoldering",
@@ -755,7 +755,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:small_charcoal_fire_ext')
         end,
 
@@ -764,11 +764,11 @@ minetest.register_node(
             --checks
             minetest.get_node_timer(pos):start(base_burn_rate * 1.5)
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash")
+                EXILE.switch_node(pos, "tech:wood_ash")
                 return false
             else
                 if can_smolder(pos, meta, 'tech:small_charcoal_fire',
@@ -800,7 +800,7 @@ minetest.register_node(
         --damage_per_second = 1,
         sounds = nodes_nature.node_sound_dirt_defaults(),
 
-        on_punch = function(pos, node, puncher, pointed_thing)
+        on_punch = function(pos, _node, puncher, _pointed_thing)
             extinguish_fire(pos, puncher, 'tech:large_charcoal_fire_ext')
         end,
 
@@ -808,11 +808,11 @@ minetest.register_node(
             --duration of burn
             minetest.get_node_timer(pos):start(base_burn_rate * 1.5)
         end,
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
-                minimal.switch_node(pos, "tech:wood_ash_block")
+                EXILE.switch_node(pos, "tech:wood_ash_block")
                 return false
             else
                 if can_smolder(pos, meta, 'tech:large_charcoal_fire',
@@ -859,14 +859,14 @@ local on_dig_fire = function(pos, node, digger)
     if digger_inv:room_for_item("main", new_stack) then
         digger_inv:add_item("main", new_stack)
         minetest.remove_node(pos)
-    elseif not minimal.stop_on_inv_full(digger) then
+    elseif not EXILE.stop_on_inv_full(digger) then
         minetest.add_item(pos, new_stack)
         minetest.remove_node(pos)
     end
 end
 
 --set saved fuel
-local after_place_fire = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+local after_place_fire = function(pos, _placer, itemstack, _pt, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
     local fuel = imeta:get_int("fuel")
@@ -894,8 +894,8 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_wood_fire_ext",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+                                         EXILE.get_usable_position(pointed_thing))
         end,
         _combined_by_hand = combine_fuel,
         after_place_node = after_place_fire,
@@ -917,7 +917,7 @@ minetest.register_node(
         on_dig = on_dig_fire,
         after_place_node = after_place_fire,
         _splits_by_hand = "tech:small_wood_fire_ext",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
             inferno.ignite(pos)
@@ -944,8 +944,8 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:large_charcoal_fire_ext",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-                                         minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+                                         EXILE.get_usable_position(pointed_thing))
         end,
         _combined_by_hand = combine_fuel,
         on_dig = on_dig_fire,
@@ -968,7 +968,7 @@ minetest.register_node(
         on_dig = on_dig_fire,
         after_place_node = after_place_fire,
         _splits_by_hand = "tech:small_charcoal_fire_ext",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _split_by_hand = split_fuel,
         on_burn = function(pos)
             inferno.ignite(pos)

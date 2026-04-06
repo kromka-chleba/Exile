@@ -1,6 +1,3 @@
-
-lore = lore
-
 local random = math.random
 
 -- syllables

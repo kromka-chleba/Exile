@@ -15,7 +15,6 @@
     --
     leather, Bone, skin, sinews, feathers?
 ]]
-animals = animals
 
 -- Internationalization
 local S = animals.S
@@ -72,35 +71,35 @@ local list = {
         "invert_small",
         S("small invertebrate"),
         box_small_invert,
-        minimal.stack_max_medium,
+        EXILE.stack_max_medium,
         80,
     },
     {
         "invert_large",
         S("large invertebrate"),
         box_large_invert,
-        minimal.stack_max_medium/4,
+        EXILE.stack_max_medium/4,
         70,
     },
     {
         "bird_small",
         S("small bird"),
         box_small_bird,
-        minimal.stack_max_medium/4,
+        EXILE.stack_max_medium/4,
         70,
     },
     {
         "fish_small",
         S("small fish"),
         box_small_fish,
-        minimal.stack_max_medium/4,
+        EXILE.stack_max_medium/4,
         70,
     },
     {
         "fish_large",
         S("large fish"),
         box_large_fish,
-        minimal.stack_max_bulky,
+        EXILE.stack_max_bulky,
         65,
     },
 }

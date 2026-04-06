@@ -9,7 +9,7 @@ local S = artifacts.S
 
 
 local function update_hud_flags(player)
-    local minimap_enabled = minimal.player_in_creative(player) or
+    local minimap_enabled = EXILE.player_in_creative(player) or
         player:get_inventory():contains_item("main", "artifacts:mapping_kit")
     --local radar_enabled = creative_enabled
 
@@ -47,7 +47,7 @@ local mapkit = {
     stack_max = 1,
     --groups = {flammable = 1},
 
-    on_use = function(itemstack, user, pointed_thing)
+    on_use = function(_itemstack, user, _pointed_thing)
         update_hud_flags(user)
     end,
 }

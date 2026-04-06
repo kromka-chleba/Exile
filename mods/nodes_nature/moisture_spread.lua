@@ -3,10 +3,6 @@
 --move wettness through sediment
 --other water effects
 
-mapchunk_shepherd = mapchunk_shepherd
-nodes_nature = nodes_nature
-tgcr = tgcr
-
 local nn = nodes_nature
 local rt = nn.replacement_types
 local ms = mapchunk_shepherd
@@ -81,7 +77,7 @@ local function water_erode(pos, node)
         local zpos2 = { x = pos.x , y = pos.y, z = pos.z + 1}
         local zfind =  minetest.find_nodes_in_area(zpos1, zpos2,
                                                    {"group:sediment"})
-        local pos_flow = minimal.concat_tables(xfind, zfind)
+        local pos_flow = EXILE.concat_tables(xfind, zfind)
 
         if #pos_flow > 0 then
             --select a random one
@@ -608,7 +604,7 @@ local function moisture_spread(pos)
         -- evaporation
         local pos_above = vector.new(pos)
         pos_above.y = pos_above.y + 1
-        local light = minimal.get_daylight(pos, 0.5) or 0
+        local light = EXILE.get_daylight(pos, 0.5) or 0
         if math.random() < evap_chance *
             (moisture_spread_interval / evap_interval) *
             (light / 15) * temperature_cofactor() then
@@ -682,7 +678,7 @@ local function water_source_down(pos)
         -- evaporation
         local pos_above = vector.new(pos)
         pos_above.y = pos_above.y + 1
-        local light = minimal.get_daylight(pos, 0.5) or 0
+        local light = EXILE.get_daylight(pos, 0.5) or 0
         if math.random() < evap_chance *
             (moisture_spread_interval / evap_interval) *
             (light / 15) * 1/15 * temperature_cofactor()
@@ -718,7 +714,7 @@ local function water_source_down(pos)
         {x = pos.x, y = pos.y - 1, z = pos.z + 1},
         buildable_to)
 
-    local air_table = minimal.concat_tables(air_table1, air_table2)
+    local air_table = EXILE.concat_tables(air_table1, air_table2)
 
     if #air_table > 0 then
         --select a random one

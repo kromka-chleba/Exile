@@ -9,9 +9,6 @@
 
 -- Dealing with crafting tab in inventory formspec
 
-local minimal = minimal
-local crafting = crafting
-
 local S = minetest.get_translator("crafting")
 local tofstring = function(t) return table.concat(t,"") end
 
@@ -437,7 +434,7 @@ function crafting.set_station(player, station, cache, no_default)
 end
 
 -- register action in case order field is changed in player_setting
-minimal.register_on_player_setting_change(
+EXILE.register_on_player_setting_change(
     function(player, meta_name, value, meta)
         if meta_name == "crafting:mode" then
             local cache = crafting.get_FS_cache(player)

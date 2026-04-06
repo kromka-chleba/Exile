@@ -87,7 +87,7 @@ local lpdef = {
     sounds = nodes_nature.node_sound_stone_defaults(),
     groups = { not_in_creative_inventory = 1,
                oddly_breakable_by_hand = 1},
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
+    after_place_node = function(_pos, _placer, itemstack, _pointed_thing)
         local name = itemstack:get_name()
         local pfx = "tutorial_exile:tut_lighted_path"
         local num = tonumber((name:gsub(pfx,"")))
@@ -345,7 +345,7 @@ local function do_exit(exiting, _, player)
 end
 
 local function exit_prompt(player)
-    minimal.yes_or_no(player:get_player_name(),
+    EXILE.yes_or_no(player:get_player_name(),
                       S("Exit the tutorial?"),
                       do_exit)
 end
@@ -362,11 +362,11 @@ ncrafting.register_switch(
         _on_use_node = function(player, _, _)
             exit_prompt(player)
         end,
-        on_rightclick = function(pos, _, puncher)
+        on_rightclick = function(_pos, _, puncher)
             if not minetest.is_player(puncher) then return end
             exit_prompt(puncher)
         end,
-        on_punch = function(pos, _, puncher)
+        on_punch = function(_pos, _, puncher)
             if not minetest.is_player(puncher) then return end
             exit_prompt(puncher)
         end,

@@ -1,5 +1,5 @@
 -- Bones for deco.lua
--- Globals
+
 local _EXILE_DEBUG = minetest.settings:get("exile_debug") == "true"
 
 local S = minetest.get_translator("mapgen")
@@ -76,7 +76,7 @@ local bones_formspec = -- #TODO: get the bones mod to set this?
 local counts = { light = 0, dark = 0 }
 
 function replace(pos)
-    local light = minimal.get_daylight(pos)
+    local light = EXILE.get_daylight(pos)
     if _EXILE_DEBUG then
         minetest.log("action", "EXILED BONES LOOT "..
                      minetest.pos_to_string(pos)..
@@ -130,9 +130,9 @@ minetest.register_node("mapgen:exile_bones", {
                            wield_image = "bones_inv.png",
                            drop = "bones:bones",
                            tiles = {"bones_bone.png"},
-                           stack_max = minimal.stack_max_bulky,
+                           stack_max = EXILE.stack_max_bulky,
                            drawtype = "nodebox",
-                           node_box = minimal.nodebox["bones"],
+                           node_box = EXILE.nodebox["bones"],
                            paramtype = "light",
                            paramtype2 = "facedir",
                            sunlight_propagates = true,
@@ -154,9 +154,9 @@ end
 local path = minetest.get_modpath("mapgen")
 local sna = dofile(path.."/soils_and_altitudes.lua")
 
-local on = minimal.concat_tables({ sna.all_soils_on,
-                                   sna.cave_mushrooms_on,
-                                   sna.clay_on })
+local on = EXILE.concat_tables({ sna.all_soils_on,
+                                 sna.cave_mushrooms_on,
+                                 sna.clay_on })
 
 local bones = {
     {

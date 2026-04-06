@@ -3,7 +3,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 --interval
 local base_burn_rate = 6
@@ -36,13 +36,13 @@ local on_dig = function(pos, node, digger)
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("fuel", fuel)
 
-    minimal.protection_on_dig(pos, node, digger, meta)
+    EXILE.protection_on_dig(pos, node, digger, meta)
 
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
         player_inv:add_item("main", new_stack)
         minetest.remove_node(pos)
-    elseif not minimal.stop_on_inv_full(digger) then
+    elseif not EXILE.stop_on_inv_full(digger) then
         minetest.add_item(pos, new_stack)
         minetest.remove_node(pos)
     end
@@ -54,7 +54,7 @@ end
 
 -- not used by thrown torches
 
-local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+local after_place_node = function(pos, _placer, itemstack, _pt, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
     --[[if item placed had a "fuel" meta value,
@@ -69,7 +69,7 @@ end
 -------------------------------------------
 --drop dead torch. Fuel used up or damaged somehow.
 local function drop_dead_torch(pos)
-    minetest.add_item(pos, ItemStack('tech:stick'))    
+    minetest.add_item(pos, ItemStack('tech:stick'))
     minetest.set_node(pos, {name = 'air'})
 end
 
@@ -133,7 +133,7 @@ local torch_entity = {
     },
     fuel = 60 -- default to a new torch
 }
-function torch_entity:on_step(dtime, moveresult)
+function torch_entity:on_step(_dtime, _moveresult)
     local vel = self.object:get_velocity()
     if vel.y == 0 then
 
@@ -173,7 +173,7 @@ minetest.register_entity("tech:torch_entity", torch_entity)
 
 -------------------------------------------
 
-local function on_flood(pos, oldnode, newnode)
+local function on_flood(pos, _oldnode, _newnode)
     drop_dead_torch(pos)
     --minetest.add_item(pos, ItemStack("tech:torch 1"))
     -- Play flame-extinguish sound if liquid is not an 'igniter'
@@ -240,7 +240,7 @@ local function register_torch_node (name, given_def)
 
         after_place_node = after_place_node,
 
-        on_timer =function(pos, elapsed)
+        on_timer =function(pos, _elapsed)
             local meta = minetest.get_meta(pos)
             local fuel = meta:get_int("fuel")
             if fuel < 1 then
@@ -280,12 +280,12 @@ register_torch_node("tech:torch", {
     description = S("Torch"),
     inventory_image = "tech_torch_on_floor.png",
     wield_image = "tech_torch_on_floor.png",
-    stack_max = minimal.stack_max_medium,
+    stack_max = EXILE.stack_max_medium,
     liquids_pointable = false,
 
     on_drop = function(itemstack, dropper, pos)
         on_throw(itemstack, dropper, pos)
-        if not minimal.player_in_creative(dropper) then
+        if not EXILE.player_in_creative(dropper) then
             itemstack:take_item()
             return itemstack
         end
@@ -295,16 +295,16 @@ register_torch_node("tech:torch", {
         local under = pointed_thing.under
         local above = pointed_thing.above
 
-        if minimal.pos_group(above, "water") then
+        if EXILE.pos_group(above, "water") then
             on_throw(itemstack, placer, pointed_thing.under)
-            if not minimal.player_in_creative(placer) then
+            if not EXILE.player_in_creative(placer) then
                 itemstack:take_item(1)
             end
             return itemstack
         end
         if ( minetest.is_player(placer)
              and not placer:get_player_control().sneak) then
-            local on_click = minimal.on_rightclick(itemstack, placer,
+            local on_click = EXILE.on_rightclick(itemstack, placer,
                                                    pointed_thing)
             if on_click ~= false then
                 return on_click or itemstack

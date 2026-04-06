@@ -56,17 +56,10 @@
 local NS = function (s) return s end
 
 local random = math.random
-player_monoids = player_monoids
-HEALTH = HEALTH
 
 ------------------------------------------------------------------
 -- FUNCTION DUMP
 ------------------------------------------------------------------
-
--- minimal/utility/general
-local function math_clamp(...) -- num, min, max
-    return minimal.math_clamp(...)
-end
 
 -- health/init.lua
 local function get_life_num(...) -- player/meta
@@ -74,9 +67,6 @@ local function get_life_num(...) -- player/meta
 end
 local function modify_hp(...) -- player, hp_amt
     return HEALTH.modify_hp(...)
-end
-local function modify_int(...) -- player, int_name, int_value
-    return HEALTH.modify_int(...)
 end
 local function append_sound(...)
     return HEALTH.append_sound(...)
@@ -117,7 +107,7 @@ local function vomit(player, meta, repeat_min, repeat_max, delay_min, delay_max,
 
     local randel = 0
 
-    for i=1, ranrep do
+    for _=1, ranrep do
         randel = randel + random(delay_min, delay_max)
         minetest.after(
             randel, function()
@@ -152,7 +142,7 @@ local function stagger(player, meta, repeat_min, repeat_max,
     local ranrep = random(repeat_min, repeat_max)
     local randel = 0
 
-    for i=1, ranrep do
+    for _=1, ranrep do
         randel = randel + random(delay_min, delay_max)
         minetest.after(
             randel, function()
@@ -183,7 +173,7 @@ local function organ_failure(player, repeat_min, repeat_max,
 
     local randel = 0
 
-    for i=1, ranrep do
+    for _=1, ranrep do
         randel = randel + random(delay_min, delay_max)
         minetest.after(randel, function()
                            if not is_illness_valid(player,nil,life_num) then
@@ -209,7 +199,7 @@ local function auditory_hallucination(player, repeat_min, repeat_max,
 
     local randel = 0
 
-    for i=1, ranrep do
+    for _=1, ranrep do
         randel = randel + random(delay_min, delay_max)
         minetest.after(
             randel, function()
@@ -851,7 +841,7 @@ end
 ]]--
 
 
-function HEALTH.intestinal_parasites(order, player, meta, effects_list, stats)
+function HEALTH.intestinal_parasites(_order, player, meta, effects_list, stats)
     local r_rate = stats.recovery_rate
     local hun_rate = stats.hunger_rate
     --no orders, or progression.
@@ -1463,12 +1453,13 @@ function HEALTH.add_new_effect(player, name)
     effects_list = minetest.deserialize(effects_list) or {}
 
     --effect already present. call function to decide how to progress it
-    for i, effect in ipairs(effects_list) do
+    for _, effect in ipairs(effects_list) do
 
         if effect[1] == name[1] then
             if not name[2] then name[2] = 1 end -- Fix broken illness
 
-            --min timer, max timer (for extensions), max order, chance of adding an equal or lower boosting to a higher order
+            --min timer, max timer (for extensions), max order, chance of
+            -- adding an equal or lower boosting to a higher order
             if name[1] == "Food Poisoning" then
                 default_timer_progress(player, "Food Poisoning", 3, 6, 4, 0.2, meta,
                                        effects_list, effect[2], name[2])
@@ -1530,7 +1521,7 @@ function HEALTH.remove_new_effect(player, name)
     effects_list = minetest.deserialize(effects_list) or {}
 
     --effect is present. call function to decide how to regress it
-    for i, effect in ipairs(effects_list) do
+    for _, effect in ipairs(effects_list) do
 
         if effect[1] == name[1] then
             --min timer, max timer,
@@ -1568,7 +1559,8 @@ function HEALTH.remove_new_effect(player, name)
                 --elseif name[1] == "Meta-Stim" then
                 --note, this wont remove flying effects. Not needed at this point,
                 -- but will need something better if want to have an item that removes meta-stim
-                --  default_timer_regress(player, "Meta-Stim", 12, 24, meta, effects_list, effect[2], name[2], {"Neurotoxicity", meta:get_int("max_metastim") or 1})
+                --  default_timer_regress(player, "Meta-Stim", 12, 24, meta, effects_list, effect[2], name[2],
+                -- {"Neurotoxicity", meta:get_int("max_metastim") or 1})
 
             end
 
@@ -1603,7 +1595,7 @@ if __DEBUG__ then
         if i < #effects then
             minetest.after(
                 0.1, function()
-                    minimal.yes_or_no(playername,
+                    EXILE.yes_or_no(playername,
                                       (" Do you want to add "..effects[i].."?"),
                                       add_effect,
                                       i)
@@ -1619,9 +1611,9 @@ if __DEBUG__ then
             groups = {flammable = 1},
 
 
-            on_use = function(itemstack, user, pointed_thing)
+            on_use = function(_itemstack, user, _pointed_thing)
 
-                minimal.yes_or_no(user:get_player_name(),
+                EXILE.yes_or_no(user:get_player_name(),
                                   (" Do you want to add "..effects[1].."?"),
                                   add_effect,
                                   1)
@@ -1636,7 +1628,7 @@ if __DEBUG__ then
             groups = {flammable = 1},
 
 
-            on_use = function(itemstack, user, pointed_thing)
+            on_use = function(_itemstack, user, _pointed_thing)
 
                 local meta = user:get_meta()
                 meta:set_int("effects_num", 0 )

@@ -3,16 +3,13 @@
 --for capturing and respawing unique animals
 --
 
-animals = animals
-mobkit = mobkit
-
 local S = animals.S
 
 local pi = math.pi
 
 
 local function math_clamp(...) -- num, min, max
-    return minimal.math_clamp(...)
+    return EXILE.math_clamp(...)
 end
 
 local create_mob = function(placer, itemstack, name, pos)
@@ -34,7 +31,7 @@ local create_mob = function(placer, itemstack, name, pos)
         end
     end
     -- if player isn't in creative
-    if not (minimal.player_in_creative(placer)) then
+    if not (EXILE.player_in_creative(placer)) then
         itemstack:take_item() -- since mob is unique we remove egg once spawned
     end
     -- make sure young animals do not start with properties of fully grown ones
@@ -351,7 +348,7 @@ animals.try_stun_mob = function(self, clicker, time_from_last_click, damage,
     end
 
     -- exception for creative -> 100%, why not? Use other weapons to kill!
-    if minimal.player_in_creative(clicker) then
+    if EXILE.player_in_creative(clicker) then
         sr = 1
         damage = 0
     end
@@ -409,7 +406,7 @@ animals.register_spawnegg = function(name, def, animal)
       (animal._desc and S("Live @1",animal._desc)) or name
   -- get inventory_image or convert name into an image string expecting png
   def.inventory_image = def.inventory_image or name:gsub(":","_").."_item.png"
-  def.stack_max = def.stack_max or minimal.stack_max_medium
+  def.stack_max = def.stack_max or EXILE.stack_max_medium
   if animal.class == 2 and type(def.liquids_pointable) ~= "boolean" then
     def.liquids_pointable = true
   end
@@ -431,13 +428,13 @@ animals.register_spawnegg = function(name, def, animal)
       if not s_animal then return end -- no spawn animal
       local spawn_pos = pointed_thing.above
       -- am I clicking on something with an existing on_rightclick function?
-      local nodedef = minimal.get_nodedef(pointed_thing.under)
+      local nodedef = EXILE.get_nodedef(pointed_thing.under)
       -- don't run rightclick function if sneaking
       if (minetest.is_player(placer) and not placer:get_player_control().sneak) and
       (nodedef and nodedef.drawtype ~= "liquid" and -- ignore liquids
           pointed_thing.type ~= nil) then
           -- prevent running on_rightclick function upon custom item drop
-          local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+          local on_click = EXILE.on_rightclick(itemstack, placer, pointed_thing)
           if on_click ~= false then
               return on_click
           end
@@ -484,7 +481,7 @@ animals.register_spawnegg = function(name, def, animal)
       if not itemdef then return end
       -- get and play slaughter sound
       if itemdef.sounds.slaughter then
-          minimal.sound_play(player:get_pos(), itemdef.sounds.slaughter)
+          EXILE.sound_play(player:get_pos(), itemdef.sounds.slaughter)
       end
       -- convert to drops
       local inv = player.get_inventory and player:get_inventory()
@@ -495,7 +492,7 @@ animals.register_spawnegg = function(name, def, animal)
           else
               minetest.add_item(player:get_pos() + vector.new(0,1,0), item)
               if itemdef.sounds.slaughter_drop then
-                  minimal.sound_play(player:get_pos(), itemdef.sounds.slaughter_drop)
+                  EXILE.sound_play(player:get_pos(), itemdef.sounds.slaughter_drop)
               end
           end
       end
@@ -528,7 +525,7 @@ animals.capture = function(self, clicker)
             self.object:remove()
         end)
     else
-        minimal.warn_inv_full(clicker)
+        EXILE.warn_inv_full(clicker)
     end
 
     return stack_meta

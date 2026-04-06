@@ -33,12 +33,12 @@ local stick_def =
         ]]
 
         tiles = {"tech_stick.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "wallmounted",
         climbable = true,
         floodable = true,
-        on_flood = function(pos, oldnode, newnode)
+        on_flood = function(pos, _oldnode, _newnode)
             minetest.add_item(pos, ItemStack("tech:stick"))
             pos.y = pos.y + 1
             minetest.after(0, function()
@@ -102,7 +102,7 @@ ncrafting.register_sieve("tech:stick")
 minetest.register_craftitem("tech:grass_fibre",{
                                 description = S('Plant Fibre'),
                                 inventory_image = "tech_fibrous_bundle.png",
-                                stack_max = minimal.stack_max_medium,
+                                stack_max = EXILE.stack_max_medium,
                                 groups = {flammable=1, fibrous_plant=1, compostable = 1}
 })
 
@@ -116,7 +116,7 @@ minetest.register_craftitem(
     "tech:vegetable_oil", {
         description = S("Vegetable Oil"),
         inventory_image = "tech_vegetable_oil.png",
-        stack_max = minimal.stack_max_medium *2,
+        stack_max = EXILE.stack_max_medium *2,
         groups = {flammable = 1},
 
         --yes... we are letting you drink cooking oil...

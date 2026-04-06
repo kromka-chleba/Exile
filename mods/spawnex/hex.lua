@@ -6,7 +6,7 @@
 -- total +/0 30,000 nodes north/south, +/- 29,444 west/east, 255 hexes total
 
 math = math
-local clamp = minimal.math_clamp
+local clamp = EXILE.math_clamp
 
 
 local apothem = 2000 -- height of triangle, distance from center edge to point

@@ -50,8 +50,8 @@ function lightsource.update_fuel_infotext(desc, pos, meta)
         --fuel_string = math.floor(fuel / desc.max_fuel * 100).."% "..("fuel left")
     end
     meta:set_string("status",S("Status: @1",fuel_string))
-    minimal.infotext_set_new(pos, meta)
-    --minimal.infotext_merge(pos, ("Status: ")..fuel_string, meta)
+    EXILE.infotext_set_new(pos, meta)
+    --EXILE.infotext_merge(pos, ("Status: ")..fuel_string, meta)
 end
 
 function lightsource.save_to_inventory(desc, pos, digger, lit)
@@ -75,7 +75,7 @@ function lightsource.save_to_inventory(desc, pos, digger, lit)
     if player_inv:room_for_item("main", new_stack) then
         player_inv:add_item("main", new_stack)
         minetest.remove_node(pos)
-    elseif not minimal.stop_on_inv_full(digger) then
+    elseif not EXILE.stop_on_inv_full(digger) then
         minetest.add_item(pos, new_stack)
         minetest.remove_node(pos)
     end
@@ -99,7 +99,7 @@ function lightsource.extinguish(desc, pos)
 end
 
 -- FIXME: needs to actually spawn particles
-function lightsource.spawn_particles(desc, pos)
+function lightsource.spawn_particles(_desc, _pos)
     -- if math.random() < 0.8 then
     --     minetest.sound_play("tech_fire_small",{pos = pos, max_hear_distance = 10, loop = false, gain = 0.1})
     --     --Smoke
@@ -132,7 +132,7 @@ function lightsource.ignite(desc, pos, meta)
     if fuel > 0 then
         local node = minetest.get_node(pos)
         node.name = desc.lit_name
-        minimal.switch_node(pos, node) -- preserve param2
+        EXILE.switch_node(pos, node) -- preserve param2
         meta:set_int("fuel", fuel)
     end
     lightsource.update_fuel_infotext(desc, pos)
@@ -151,7 +151,7 @@ function lightsource.refill(desc, pos, clicker, itemstack)
             end
             meta:set_int("fuel", fuel)
             local name = clicker:get_player_name()
-            if not minimal.player_in_creative(name) then
+            if not EXILE.player_in_creative(name) then
                 itemstack:take_item()
             end
             lightsource.update_fuel_infotext(desc, pos, meta)
@@ -162,9 +162,9 @@ function lightsource.refill(desc, pos, clicker, itemstack)
 end
 
 -- for new infotext function handling
-function lightsource.infotext_get(pos, nodedef, meta, params)
-    params = minimal.infotext_update_params(meta, params)
+function lightsource.infotext_get(_pos, nodedef, meta, params)
+    params = EXILE.infotext_update_params(meta, params)
     params.description = nodedef.description
-    local infotext = minimal.infotext_get_base_string(nil, meta, params)
+    local infotext = EXILE.infotext_get_base_string(nil, meta, params)
     return infotext..(params.status and "\n"..params.status or "")
 end

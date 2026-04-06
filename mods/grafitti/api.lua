@@ -1,4 +1,4 @@
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 grafitti = {
     _palettes = {}
@@ -177,7 +177,7 @@ function g.palette_build(formspec_name)
         function(painter, formname, fields)
             if formname ~= formspec_name then return end
 
-            for item,v in pairs(fields) do
+            for item,_ in pairs(fields) do
                 if core.registered_items[item] then
                     local itemstack = painter:get_wielded_item()
 
@@ -255,7 +255,7 @@ function g.paint(itemstack, user, pointed_thing, palette)
                         {pos = pointed_thing.above,
                          max_hear_distance = 4, gain = 1})
 
-    if not (minimal.player_in_creative(user)) then
+    if not (EXILE.player_in_creative(user)) then
         itemstack:add_wear(65535/(2000-1))
     end
 
@@ -270,11 +270,11 @@ function g.register_brush(brush_name, def)
             wield_image = def.wield_image,
             groups = { brush=1 },
 
-            on_place = function(itemstack, placer, pointed_thing)
+            on_place = function(_itemstack, placer, _pointed_thing)
                 grafitti.show_palette(placer, def.palette)
             end,
 
-            on_secondary_use = function(itemstack, user, pointed_thing)
+            on_secondary_use = function(_itemstack, user, _pointed_thing)
                 grafitti.show_palette(user, def.palette)
             end,
 

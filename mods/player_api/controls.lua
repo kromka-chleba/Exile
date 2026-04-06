@@ -1,5 +1,3 @@
-triggers = triggers
-player_monoids =  player_monoids
 local fire_trigger = triggers.activate
 local set_anim = player_api.set_animation
 local get_anim = player_api.get_animation
@@ -162,7 +160,7 @@ local function check_player_surroundings(player, pos, name)
 end
 
 local a_timelimit = {}
-local function handle_use_key(player, name, held)
+local function handle_use_key(player, name, _held)
     if a_timelimit[name] ~= nil
         and minetest.get_us_time() - a_timelimit[name] < aux_fire_rate then
         return end
@@ -170,7 +168,7 @@ local function handle_use_key(player, name, held)
 
     local using_tool = false -- whether we've done a thing yet
     local witem = player:get_wielded_item()
-    local pointed_thing = minimal.get_pointed_thing(player, nil, true)
+    local pointed_thing = EXILE.get_pointed_thing(player, nil, true)
     if pointed_thing and pointed_thing.type == "node" then
         local pointed_node = minetest.get_node(pointed_thing.under)
         local pdef = minetest.registered_nodes[pointed_node.name]
@@ -195,7 +193,7 @@ local function handle_use_key(player, name, held)
             using_tool = wdef._on_use_item(player, witem, pointed_thing)
         end
     end
-    if using_tool and not minimal.player_in_creative(player) then
+    if using_tool and not EXILE.player_in_creative(player) then
         player:set_wielded_item(using_tool)
     end
     return
@@ -324,7 +322,7 @@ local function controls(dtime)
                         if p_controls.sneak and not csm_players[name] then
                             -- Double tap to crawl
                             if ( not player_crawl[name] and cancrawl and
-                                 minimal.click_count_ready(name, "crawl",
+                                 EXILE.click_count_ready(name, "crawl",
                                                            2, 1) ) then
                                 toggle_crawl(player, name, true)
                             elseif ( not cant_stand ) and player_crawl[name] then

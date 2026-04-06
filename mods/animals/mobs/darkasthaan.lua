@@ -7,9 +7,6 @@
 ]]
 ---------------------------------------------------------------------
 
-animals = animals
-mobkit = mobkit
-
 -- Internationalization
 local S = animals.S
 

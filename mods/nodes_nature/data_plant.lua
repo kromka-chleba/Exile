@@ -1,7 +1,6 @@
 -- Internationalization
 local S = nodes_nature.S
 
-nodes_nature = nodes_nature
 local nn = nodes_nature
 local trees = nn.trees
 
@@ -82,7 +81,7 @@ local tree_list = {
             dyecandidate = true,
             dominantcolor = "crimson",
             --tangkal fruit is good food, but bulky
-            stack_max = minimal.stack_max_medium/2
+            stack_max = EXILE.stack_max_medium/2
         },
         leaf_def = {}
     },

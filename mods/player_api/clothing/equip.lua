@@ -10,8 +10,6 @@ Temperatures and formspec are updated at each equip/unequip action.
 
 -- #TODO regrouping with the action on form effects ?
 -- like where do we refresh ? I would like to keep in memory the rotation of the model
-player_api = player_api
-sfinv = sfinv
 
 -- Internationalization---------------------------------------------------------
 local S = minetest.get_translator("player_api")
@@ -53,7 +51,7 @@ end
 -- Generate the page container
 local clothing_page = {
     title = S("Clothing"),
-    get = function(self, player, context)
+    get = function(_self, player, context)
         local meta = player:get_meta()
         local cur_tmin = climate.get_temp_string(meta:get_int("clothing_temp_min"), meta)
         local cur_tmax = climate.get_temp_string(meta:get_int("clothing_temp_max"), meta)
@@ -114,7 +112,7 @@ local clothing_page = {
                                    table.concat(formspec), true)
     end,
     -- selecting the tab from an other tab or using sfinv.set_page
-    on_enter = function(self, player, context)
+    on_enter = function(_self, _player, _context)
         -- WARNING:
         -- 1) it is called even if sfinv is closed, so we can't assume formspec is open.
         -- 2) it is called before `get` function so formspec will be generated AFTER on_enter call
@@ -146,7 +144,7 @@ local function allow_cloth_equip (player, inventory, stack, to_slot)
         end
         -- else refuse if this is a blanket and I am not in bed
         if item_group == 6 and player_api.get_state(player, "health"):is("resting") == false then
-            minimal.send_message(
+            EXILE.send_message(
                 player, nil,
                 S("You can't equip a blanket outside of a bed."))
             return 0 -- no move is allowed
@@ -158,7 +156,7 @@ local function allow_cloth_equip (player, inventory, stack, to_slot)
         end
         -- else, if I am already wearing the same thing
         if inventory:get_stack(rightplace, 1):get_name() == stack:get_name() then
-            minimal.send_message(
+            EXILE.send_message(
                 player, nil,
                 S("You already wear that!"))
             return 0 -- no move is allowed
@@ -216,7 +214,7 @@ local function redirect(player, inventory, from_list, from_index, fromslot)
     end
     -- at this step we checked before that has a correct cloth group
     -- and there is only 1 item in stack
-    local item_group = minimal.is_group(stack:get_name(),"cloth")
+    local item_group = EXILE.is_group(stack:get_name(),"cloth")
     local destination = player_api.get_inv_name_from_group(item_group)
     -- take cloth already in spot if there is some
     local in_dest = inventory:get_stack(destination, 1)
@@ -227,15 +225,15 @@ local function redirect(player, inventory, from_list, from_index, fromslot)
         inventory:add_item(from_list,in_dest)
     else
         minetest.item_drop(in_dest, player, player:get_pos())
-        --minimal.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
-        minimal.warn_inv_full(player)
+        --EXILE.send_message(player, nil, ("Inventory is full : the clothing you wore was thrown on the floor."),2)
+        EXILE.warn_inv_full(player)
     end
     -- empty cloths slot
     inventory:set_stack(fromslot,1,ItemStack(""))
 end
 
 -- Update player's inventory and settings if cloths change
-minetest.register_on_player_inventory_action(function(player, action,
+minetest.register_on_player_inventory_action(function(player, _action,
     inventory, inventory_info)
     local from_list = inventory_info.from_list
     local to_list = inventory_info.to_list
@@ -264,7 +262,7 @@ minetest.register_on_player_inventory_action(function(player, action,
 end)
 
 -- This is used to equip cloths from HUD main inventory
-function player_api._on_use_item(itemstack, user, pointed_thing)
+function player_api._on_use_item(itemstack, user, _pointed_thing)
     -- deletes items (or reproduces if programmed differently - gotta fix)
     if not (minetest.is_player(user) and itemstack) then
         return
@@ -280,7 +278,7 @@ function player_api._on_use_item(itemstack, user, pointed_thing)
 
     -- else, equip and return modified itemstack if needed
     if not destination then -- shouldn't happen, but well..
-        local item_group = minimal.is_group(itemstack:get_name(),"cloth")
+        local item_group = EXILE.is_group(itemstack:get_name(),"cloth")
         destination = player_api.get_inv_name_from_group(item_group)
     end
 
@@ -298,7 +296,7 @@ function player_api._on_use_item(itemstack, user, pointed_thing)
 
     -- add our new clothing in destination
     p_inv:add_item(destination, new_cloth)
-    minimal.send_message(user, nil, S("@1 equipped!", new_cloth:get_short_description()))
+    EXILE.send_message(user, nil, S("@1 equipped!", new_cloth:get_short_description()))
     -- update player settings (temperature and formspec)
     player_api.update_player(user)
 
@@ -314,8 +312,8 @@ function player_api._on_use_item(itemstack, user, pointed_thing)
             return itemstack
         else
             minetest.item_drop(in_dest, user, user:get_pos())
-            --minimal.send_message(user, nil, ("Inventory is full : the clothing you wore was thrown on the floor."))
-            minimal.warn_inv_full(user)
+            --EXILE.send_message(user, nil, ("Inventory is full : the clothing you wore was thrown on the floor."))
+            EXILE.warn_inv_full(user)
             return itemstack
         end
     else

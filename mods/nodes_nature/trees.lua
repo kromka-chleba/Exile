@@ -36,7 +36,7 @@ minimal = minimal
 
 
 -- Leafdecay
-local function leafdecay_after_destruct(pos, oldnode, def)
+local function leafdecay_after_destruct(pos, _oldnode, def)
     for _, v in pairs(minetest.find_nodes_in_area(
                           vector.subtract(pos, def.radius),
                           vector.add(pos, def.radius), def.leaves)) do
@@ -143,10 +143,10 @@ local function get_mark_timer_data(data, dtype)
          or mark_timer.randtime[1])
         or mark_timer.min
     -- syntactic sugar functions
-    function mark_timer:get_new_time()
+    function mark_timer.get_new_time()
         return random(mark_timer.randtime[1], mark_timer.randtime[2])
     end
-    function mark_timer:mutate_time(old_time)
+    function mark_timer.mutate_time(old_time)
         if type(old_time) ~= "number" then return old_time end
         return math.max(old_time - random(1, 1200), mark_timer.min)
     end
@@ -300,7 +300,7 @@ minetest.register_node(
         buildable_to = true,
         drop = "",
         groups = {not_in_creative_inventory = 1},
-        on_construct = function(pos)
+        on_construct = function(_pos)
 
         end,
         on_timer = tree_mark_timer
@@ -324,7 +324,7 @@ minetest.register_node(
 
 -- save dug tree part as a tree mark
 -- by_player parameter is currently unused (why did we have this?)
-local function save_to_tree_mark(pos, oldnode, by_player)
+local function save_to_tree_mark(pos, oldnode, _by_player)
     minetest.set_node(pos, {name = "nodes_nature:tree_mark",
                             param2 = oldnode.param2})
     local meta = minetest.get_meta(pos)
@@ -377,7 +377,7 @@ function trees.register_leaves(name, def, tree)
 
     -- functions
     def.after_place_node = def.after_place_node or function(pos, placer,
-                                                            itemstack)
+                                                            _itemstack)
         if minimal.player_in_creative(placer)
             or not minetest.is_player(placer) then
 
@@ -411,7 +411,7 @@ function trees.register_leaves(name, def, tree)
     end
 
     def.after_dig_node = def.after_dig_node or function(pos, oldnode,
-                                                        oldmetadata, digger)
+                                                        _oldmetadata, _digger)
         -- wild
         if oldnode.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, oldnode, true)
@@ -501,7 +501,7 @@ function trees.register_fruit(name, def, tree)
 
     -- functions
     def.after_place_node = def.after_place_node or function(pos, placer,
-                                                            itemstack)
+                                                            _itemstack)
         if minimal.player_in_creative(placer)
             or not minetest.is_player(placer) then
 
@@ -512,7 +512,7 @@ function trees.register_fruit(name, def, tree)
     end
 
     def.after_destruct = def.after_destruct or function(pos, node,
-                                                        oldmetadata, digger)
+                                                        _oldmetadata, _digger)
         if node.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, node, false)
             local season, day = seasons.get_season_and_day()
@@ -532,7 +532,7 @@ function trees.register_fruit(name, def, tree)
     end
 
     def.after_dig_node = def.after_dig_node or function(pos, oldnode,
-                                                        oldmetadata, digger)
+                                                        _oldmetadata, _digger)
         if oldnode.param2 < 128 and minetest.is_creative_enabled() == false then
             save_to_tree_mark(pos, oldnode, true)
             local timer_data = get_mark_timer_data(def,"fruit")
@@ -619,8 +619,8 @@ function trees.register_tree(name,def)
     def.sounds = def.sounds or nodes_nature.node_sound_wood_defaults()
     -- functions
     def.on_place = def.on_place or minetest.rotate_node
-    def.after_place_node = def.after_place_node or function(pos, placer,
-                                                            itemstack)
+    def.after_place_node = def.after_place_node or function(pos, _placer,
+                                                            _itemstack)
         minetest.set_node(pos, {name=def.name, param2 = 1 + 128})
     end
     def.after_dig_node = def.after_dig_node or function(pos, node)

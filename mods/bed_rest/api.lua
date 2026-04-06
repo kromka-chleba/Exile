@@ -1,6 +1,4 @@
-bed_rest = bed_rest
-
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 local function destruct_bed(pos, n)
     local node = minetest.get_node(pos)
@@ -14,7 +12,7 @@ local function destruct_bed(pos, n)
         other = vector.add(pos, dir)
     end
 
-    if minimal.pos_group(other,"bed") then
+    if EXILE.pos_group(other,"bed") then
         -- Swap node leaves meta, but doesn't call destruct_bed again
         minetest.swap_node(other, {name = "air"})
         minetest.remove_node(other) -- Now clear meta
@@ -30,7 +28,7 @@ local function is_invalid_pos(pos, player_name)
         return true
     end
 
-    local node_def = minimal.get_nodedef(pos)
+    local node_def = EXILE.get_nodedef(pos)
     if not node_def or not node_def.buildable_to
         or string.match(node_def.drawtype, "liquid")
         or node_def.drawtype == "plantlike"
@@ -77,7 +75,7 @@ function bed_rest.register_bed(name, def)
         on_place = function(itemstack, placer, pointed_thing)
             local under = pointed_thing.under
             local node = minetest.get_node(under)
-            local udef = minimal.get_nodedef(under)
+            local udef = EXILE.get_nodedef(under)
             if udef and udef.on_rightclick and
                 not (placer and placer:is_player() and
                      placer:get_player_control().sneak) then
@@ -110,10 +108,10 @@ function bed_rest.register_bed(name, def)
 
             minetest.set_node(pos, {name = name .. "_bottom", param2 = dir})
             -- adds infotext
-            minimal.infotext_set_new(pos)
+            EXILE.infotext_set_new(pos)
             minetest.set_node(botpos, {name = name .. "_top", param2 = dir})
 
-            if not (minimal.player_in_creative(placer)) then
+            if not (EXILE.player_in_creative(placer)) then
                 itemstack:take_item()
             end
             return itemstack
@@ -184,8 +182,8 @@ function bed_rest.register_bed(name, def)
         end,
         on_infotext = function(pos, nodedef, meta, params)
             params.description = def.description
-            params = minimal.infotext_update_params(meta, params)
-            local infotext = minimal.infotext_get_base_string(nil, meta, params)
+            params = EXILE.infotext_update_params(meta, params)
+            local infotext = EXILE.infotext_get_base_string(nil, meta, params)
             infotext = infotext..
                 (params.blanket and "\n"..params.blanket or "")..
                 (params.status and "\n"..params.status or "")
@@ -266,7 +264,7 @@ function bed_rest.register_seat(name, def)
         on_place = function(itemstack, placer, pointed_thing)
             local under = pointed_thing.under
             local node = minetest.get_node(under)
-            local udef = minimal.get_nodedef(under)
+            local udef = EXILE.get_nodedef(under)
             if udef and udef.on_rightclick and
                 not (placer and placer:is_player() and
                      placer:get_player_control().sneak) then
@@ -295,9 +293,9 @@ function bed_rest.register_seat(name, def)
 
             minetest.set_node(pos, {name = name, param2 = dir})
             -- adds infotext
-            minimal.infotext_set_new(pos)
+            EXILE.infotext_set_new(pos)
 
-            if not (minimal.player_in_creative(placer)) then
+            if not (EXILE.player_in_creative(placer)) then
                 itemstack:take_item()
             end
             return itemstack
@@ -318,8 +316,8 @@ function bed_rest.register_seat(name, def)
         end,
         on_infotext = function(pos, nodedef, meta, params)
             params.description = def.description
-            params = minimal.infotext_update_params(meta, params)
-            local infotext = minimal.infotext_get_base_string(nil, meta, params)
+            params = EXILE.infotext_update_params(meta, params)
+            local infotext = EXILE.infotext_get_base_string(nil, meta, params)
             infotext = infotext..
                 (params.blanket and "\n"..params.blanket or "")..
                 (params.status and "\n"..params.status or "")

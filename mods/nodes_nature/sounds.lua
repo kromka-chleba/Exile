@@ -2,7 +2,6 @@
 --
 -- Sounds
 --
-nodes_nature = nodes_nature
 
 function nodes_nature.node_sound_defaults(table)
     table = table or {}

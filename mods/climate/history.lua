@@ -202,7 +202,7 @@ local datecmd = {
     params = "",
     description = "Shows the current date and year of exile.",
     privs = {},
-    func = function(name, param)
+    func = function(name, _param)
         minetest.chat_send_player(name, climate.datestring())
     end,
 }

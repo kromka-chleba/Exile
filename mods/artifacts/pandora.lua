@@ -5,7 +5,7 @@
 ------------------------------------
 
 local S = artifacts.S
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 ------------------------------------
 --BAD GOOD IDEAS and GOOD BAD IDEAS
 --things that might even be useful, but are slightly problematic
@@ -13,7 +13,7 @@ local c_alpha = minimal.compat_alpha
 
 --Meta-Stim Injector
 -- because you want to be a god
-local function inject_metastim(itemstack, player, pointed_thing)
+local function inject_metastim(itemstack, player, _pointed_thing)
     --local meta = player:get_meta()
     player:set_hp(1)
     local pos = player:get_pos()
@@ -39,7 +39,7 @@ local function inject_metastim(itemstack, player, pointed_thing)
             glow = 15,
     })
 
-    if not (minimal.player_in_creative(player)) then
+    if not (EXILE.player_in_creative(player)) then
         itemstack:add_wear(65535/(20-1))
     end
 

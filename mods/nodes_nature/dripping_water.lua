@@ -39,7 +39,7 @@ local drop_entity = {
         }
     },
 
-    on_activate = function(self, staticdata)
+    on_activate = function(self, _staticdata)
         self.object:set_sprite({x=0,y=0}, 1, 1, true)
         self.object:set_armor_groups({immortal=1})
         self.ownpos = self.object:get_pos() -- we literally only need this once (until we fall), so save it!
@@ -81,9 +81,9 @@ local drop_entity = {
             -- check above somewhat regularly
             self.check_above = self.check_above - dtime
             if self.check_above < 0 then
-                local above = minimal.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z})
+                local above = EXILE.get_nodedef({x=ownpos.x, y=ownpos.y+0.5,z=ownpos.z})
                 -- we're falling!!!! aaaaa!!!
-                if above and above.name and minimal.is_group(above.name, "air") then
+                if above and above.name and EXILE.is_group(above.name, "air") then
                     return self:fall_detach()
                 end
                 self.check_above = 0.8 -- reset counter
@@ -91,9 +91,9 @@ local drop_entity = {
             -- check within somewhat regularly
             self.check_in = self.check_in - dtime
             if self.check_in < 0 then
-                local inside = minimal.get_nodedef(ownpos)
+                local inside = EXILE.get_nodedef(ownpos)
                 -- hey! you placed a block into me!!! no drip for u
-                if not (inside and inside.name and minimal.is_group(inside.name, "air") ) then
+                if not (inside and inside.name and EXILE.is_group(inside.name, "air") ) then
                     self.object:remove()
                     drip_count = drip_count - 1
                 end
@@ -108,20 +108,20 @@ local drop_entity = {
             node_pos = node_pos and node_pos.node_pos
             -- dripped onto something
             if node_pos then
-                local nodedef, node = minimal.get_nodedef(node_pos)
+                local nodedef, node = EXILE.get_nodedef(node_pos)
                 -- will not play sound automatically for any nodes with this callback
                 if nodedef and nodedef.on_water_drop_hit then
                     nodedef.on_water_drop_hit(node_pos, node, nodedef, self)
                 -- drip drop
                 elseif self.sounds and self.sounds.drip then
-                    minimal.sound_play(minimal.merge_tables(self.sounds.drip, {pos=ownpos}))
+                    EXILE.sound_play(EXILE.merge_tables(self.sounds.drip, {pos=ownpos}))
                 end
                 drip_count = drip_count - 1
                 return self.object:remove()
             end
         end
         -- let's just keep checking what we're in
-        local inside, node = minimal.get_nodedef(ownpos)
+        local inside, node = EXILE.get_nodedef(ownpos)
         -- splish splash
         if inside and (inside.drawtype == "liquid" or inside.drawtype == "flowingliquid") then
             -- ditto for node hits
@@ -129,7 +129,7 @@ local drop_entity = {
                 -- ownpos will be the position hit, not the exact node pos!
                 inside.on_water_drop_splash(ownpos, node, inside, self)
             elseif self.sounds and self.sounds.sploosh then
-                minimal.sound_play(minimal.merge_tables(self.sounds.sploosh, {pos=ownpos}))
+                EXILE.sound_play(EXILE.merge_tables(self.sounds.sploosh, {pos=ownpos}))
             end
             drip_count = drip_count - 1
             return self.object:remove()
@@ -146,8 +146,8 @@ local drop_entity = {
         end
     end,
 
-    on_punch=function(self, puncher, time_from_last_punch,
-                      tool_capabilities, dir)
+    on_punch=function(self, puncher, _time_from_last_punch,
+                      _tool_capabilities, _dir)
         --drink
         if not core.is_player(puncher) then return end -- not player, begoneth!
         local meta = puncher:get_meta()
@@ -158,7 +158,7 @@ local drop_entity = {
 
             HEALTH.modify_int(puncher, meta, "thirst", self.thirst)
             if self.sounds and self.sounds.consume then
-                minimal.sound_play(minimal.merge_tables(self.sounds.consume, {object = puncher}))
+                EXILE.sound_play(EXILE.merge_tables(self.sounds.consume, {object = puncher}))
             end
             self.object:remove()
             drip_count = drip_count - 1

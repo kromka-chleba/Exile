@@ -12,21 +12,15 @@
 
 ]]
 
--- Declare globals
-minimal = minimal
-crafting = crafting
-nodes_nature = nodes_nature
-tech = tech
-
 
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 local soil = nodes_nature.soil
 
 local base_use = 500
-local base_punch_int = minimal.hand_punch_int
+local base_punch_int = EXILE.hand_punch_int
 
 -----------------------------------
 
@@ -35,7 +29,7 @@ local base_punch_int = minimal.hand_punch_int
 --Places a tool
 local function place_tool(itemstack, placer, pointed_thing)
     -- check if the pointed item has on_rightclick ... (will run it automatically)
-    local to_return = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    local to_return = EXILE.on_rightclick(itemstack, placer, pointed_thing)
     if to_return ~= false then
         -- if not false then return the result (rightclick ran successfully)
         return to_return
@@ -45,8 +39,8 @@ local function place_tool(itemstack, placer, pointed_thing)
     local place_item = ItemStack(placed_name)
     if not core.registered_nodes[placed_name] then return end -- don't do anything if we can't actually place it
     local above = pointed_thing.above
-    local abdef = minimal.get_nodedef(above) -- above def
-    local ufdef = minimal.get_nodedef(above + vector.new(0,-1,0)) -- under_front def
+    local abdef = EXILE.get_nodedef(above) -- above def
+    local ufdef = EXILE.get_nodedef(above + vector.new(0,-1,0)) -- under_front def
     if not (abdef and ufdef) then return end -- not a defined node
     -- check if not walkable - there's empty space over the node
     --  (air, water, etc.) if not, return
@@ -95,7 +89,7 @@ local function on_dig_tool(pos, node, digger)
     if minetest.is_protected(pos, digger, meta) then
         return -- can't dig tools you don't own
     end
-    minimal.protection_on_dig(pos,node,digger,meta)
+    EXILE.protection_on_dig(pos,node,digger,meta)
     -- get data from
     local ndata = meta:to_table()
     if not ndata then return end -- could not get data, return
@@ -116,7 +110,7 @@ local function on_dig_tool(pos, node, digger)
     if player_inv:room_for_item("main", stack) then
         minetest.remove_node(pos)
         player_inv:add_item("main", stack)
-    elseif not minimal.stop_on_inv_full(digger) then
+    elseif not EXILE.stop_on_inv_full(digger) then
         minetest.add_item(pos, stack)
         minetest.remove_node(pos)
     end
@@ -227,26 +221,26 @@ minetest.register_tool("tech:hand",
 --1st level -- Crude emergency tools ------------------------------------------
 --------------------------------------------------------------------------------
 
-local hand_max_lvl = minimal.hand_max_lvl
+local hand_max_lvl = EXILE.hand_max_lvl
 local crude = 0.8
 --local crude_use = base_use
 local crude_max_lvl = hand_max_lvl
 
 --damage
-local crude_dmg = minimal.hand_dmg * 2
+local crude_dmg = EXILE.hand_dmg * 2
 --snappy
-local crude_snap3 = minimal.hand_snap * crude
-local crude_snap2 = crude_snap3 * minimal.t_scale2
-local crude_snap1 = crude_snap3 * minimal.t_scale1
+local crude_snap3 = EXILE.hand_snap * crude
+local crude_snap2 = crude_snap3 * EXILE.t_scale2
+local crude_snap1 = crude_snap3 * EXILE.t_scale1
 --local crude_snap0 = 100 -- really long dig time - effectively disabled
 --crumbly
-local crude_crum3 = minimal.hand_crum * crude
-local crude_crum2 = crude_crum3 * minimal.t_scale2
-local crude_crum1 = crude_crum3 * minimal.t_scale1
+local crude_crum3 = EXILE.hand_crum * crude
+local crude_crum2 = crude_crum3 * EXILE.t_scale2
+local crude_crum1 = crude_crum3 * EXILE.t_scale1
 local crude_crum0 = 100 -- really long dig time - effectively disabled
 --choppy
-local crude_chop3 = minimal.hand_chop * crude
-local crude_chop2 = crude_chop3 * minimal.t_scale2
+local crude_chop3 = EXILE.hand_chop * crude
+local crude_chop2 = crude_chop3 * EXILE.t_scale2
 --local crude_chop0 = 100 -- really long dig time - effectively disabled
 --cracky
 --none at this level
@@ -277,8 +271,8 @@ minetest.register_tool("tech:stone_chopper",
         _use_tip = S("Flip to stone etcher"),
         _place_tip = S("Place tool for cutting crafts"),
         sound = {breaks = "tech_tool_breaks"},
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            minimal.swap_tool(player, wielded_item, "tech:stone_etcher")
+        _on_use_item = function(player, wielded_item, _pointed_thing)
+            EXILE.swap_tool(player, wielded_item, "tech:stone_etcher")
             return false
         end,
         on_place = function(itemstack, placer, pointed_thing)
@@ -379,7 +373,7 @@ local function till_soil(player, wielded_item, pointed_thing)
     if minetest.get_item_group(node.name, "spreading") == 1 or
         minetest.get_item_group(node.name, "fertile_soil") >= 1 then
         local uses = wielded_item:get_tool_capabilities().groupcaps.tilling.uses
-        if false or not (minimal.player_in_creative(player)) then
+        if false or not (EXILE.player_in_creative(player)) then
             wielded_item:add_wear(65535 / uses)
         end
         if not tilling[posstr] then
@@ -658,7 +652,7 @@ local function register_hammer(suffix, desc)
         -- it works with core.get_color_escape_sequence(color)
         -- then text (even with \n)
         -- then core.get_color_escape_sequence(white)
-        -- so we changed it in minimaltooltips.lua already
+        -- so we changed it in exile_game:tooltips.lua already
         -- but in case someone wants to put colorize again,
         -- I changed it here too
         -- please leave that comment so that next one doesn't loose time discovering again this behavior
@@ -787,11 +781,11 @@ local iron_crum1 = stone_crum1 * iron
 --choppy
 local iron_chop3 = stone_chop3 * iron
 local iron_chop2 = stone_chop2 * iron
-local iron_chop1 = (minimal.hand_chop * minimal.t_scale1) * crude * stone * iron
+local iron_chop1 = (EXILE.hand_chop * EXILE.t_scale1) * crude * stone * iron
 --cracky
-local iron_crac3 = minimal.hand_crac * crude * stone * iron
-local iron_crac2 = (minimal.hand_crac * minimal.t_scale2) * crude * stone * iron
---local iron_crac1 = (minimal.hand_crac * minimal.t_scale1) * crude * stone * iron
+local iron_crac3 = EXILE.hand_crac * crude * stone * iron
+local iron_crac2 = (EXILE.hand_crac * EXILE.t_scale2) * crude * stone * iron
+--local iron_crac1 = (EXILE.hand_crac * EXILE.t_scale1) * crude * stone * iron
 
 -- Axe ----------------------------------------------------
 
@@ -1025,6 +1019,7 @@ minetest.register_node("tech:pickaxe_iron_placed",
         exile_crafting = {
             craft_types = {"hammer", "hammer_mixing"},
             craft_level = 1,
+            -- #FIXME: What the heck happened to this material feature?
             material = suffix,
             good_on = {
                 {"stone", 1}, {"masonry", 1},

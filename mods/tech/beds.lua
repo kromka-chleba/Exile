@@ -5,7 +5,6 @@
 
 -- Internationalization
 local S = tech.S
-local FS = tech.FS
 
 --------------------------------
 --Free and ineffective bed
@@ -48,7 +47,7 @@ bed_rest.register_bed(
         walkable = true,
         buildable_to = true,
         floodable = true,
-        on_punch = function(pos, node, player)
+        on_punch = function(pos, _node, player)
             local name = player:get_player_name()
             if bed_rest.player[name] == nil then
                 minetest.remove_node(pos)
@@ -67,7 +66,7 @@ bed_rest.register_bed(
         description = S("Sleeping Mat"),
         inventory_image = "tech_sleeping_mat.png",
         wield_image = "tech_sleeping_mat.png",
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         tiles = {
             bottom = {
                 "tech_thatch.png^[transformR90",
@@ -104,7 +103,7 @@ bed_rest.register_bed(
         description = S("Primitive Bed"),
         inventory_image = "tech_primitive_bed.png",
         wield_image = "tech_primitive_bed.png",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         tiles = {
             bottom = {
                 "tech_thatch.png^[transformR90",
@@ -147,7 +146,7 @@ bed_rest.register_bed(
         description = S("Mattress"),
         inventory_image = "tech_mattress.png",
         wield_image = "tech_mattress.png",
-        stack_max = minimal.stack_max_medium/4,
+        stack_max = EXILE.stack_max_medium/4,
         tiles = {
             bottom = {
                 "tech_fine_fabric.png^[transformR90",
@@ -185,7 +184,7 @@ bed_rest.register_bed(
         description = S("Bed"),
         inventory_image = "tech_bed.png",
         wield_image = "tech_bed.png",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         tiles = {
             bottom = {
                 "tech_fine_fabric.png^[transformR90",

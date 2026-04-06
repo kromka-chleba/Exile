@@ -1,21 +1,19 @@
 -- Trees for deco.lua
 
 -- Globals
-minimal = minimal
 deco = deco or {}
 
 -- Import
 local path = minetest.get_modpath("mapgen")
 local sna = dofile(path.."/soils_and_altitudes.lua")
 
-local tree_list = {
-    -- this is empty
-    -- trees are added at the bottom of the file!
+local tree_list
+    -- trees are added at the bottom of the file
     -- list names:
     -- daoja_swamp_trees, forest_trees, woodland_trees
     -- open_woodland_trees
     -- grassland_trees, shrubland_trees, water_trees
-}
+
 
 ------------------------------------------
 
@@ -498,7 +496,7 @@ local barrenland_trees = {
 -- All together
 -- this gets imported in
 tree_list =
-    minimal.concat_tables({
+    EXILE.concat_tables({
             daoja_swamp_trees,
             forest_trees,
             woodland_trees,

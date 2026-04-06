@@ -19,7 +19,7 @@ local oldonrec = minetest.registered_nodes[tablenode].on_receive_fields
 minetest.override_item(
     tablenode,
     {
-        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, _imeta)
             if pos.y < 9000 then
                 oldafter(pos, placer, itemstack, pointed_thing)
                 return

@@ -5,9 +5,6 @@
 -----------------------------
 local random = math.random
 
-sfinv = sfinv
-HEALTH = HEALTH
-
 local function modify_hp(...) -- player, hp_amt
     return HEALTH.modify_hp(...)
 end
@@ -75,11 +72,11 @@ function HEALTH.use_item(itemstack, user, f_table) -- itemstack, user, food_tabl
         local pos = user:get_pos()
         local sound = f_table.sound
         if sound.name ~= "" then
-            minetest.sound_play(sound.name, minimal.merge_tables(sound,{pos=pos}))
+            minetest.sound_play(sound.name, EXILE.merge_tables(sound,{pos=pos}))
         end
         local replace_item = f_table.rwi
         --replace/take (non-creative)
-        if not minimal.player_in_creative(user) then
+        if not EXILE.player_in_creative(user) then
             itemstack:take_item()
             if itemstack:get_count() == 0 then
                 itemstack:add_item(replace_item)
@@ -169,7 +166,7 @@ local function fast_interval(dtime)
                 --Environmental temperature
                 local player_pos = player:get_pos()
 
-                local water = minimal.pos_group(player_pos,"water")
+                local water = EXILE.pos_group(player_pos,"water")
                 player_pos.y = player_pos.y + 0.6
                 --adjust to body height (for radiant heat)
 
@@ -344,7 +341,7 @@ local function fast_interval(dtime)
                     local posu = player_pos
                     posu.y = posu.y - 1.6
 
-                    if minimal.pos_group(posu, "wet_sediment") then
+                    if EXILE.pos_group(posu, "wet_sediment") then
                         HEALTH.add_new_effect(player, {"Fungal Infection", 1})
                     end
                 end

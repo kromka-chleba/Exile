@@ -7,7 +7,7 @@ local S = nodes_nature.S
 
 local ran = math.random
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 --Water
 local list = {
@@ -59,7 +59,7 @@ local function get_after_destruct(name, renewable)
         local function to_the_surface()
             if state.replaced then return end
             local new_pos = vector.new(pos)
-            for i = 1, 100 do
+            for _ = 1, 100 do
                 new_pos.y = new_pos.y + 1
                 local newnode = minetest.get_node(new_pos)
                 if newnode.name == "air" or
@@ -210,7 +210,7 @@ fwgroups["sievable"] = 1
 minetest.override_item(
     "nodes_nature:freshwater_source", {
         groups = fwgroups,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(pos, _node, clicker, _itemstack, _pt)
             if not minetest.is_player(clicker) then
                 return
             end
@@ -260,7 +260,7 @@ minetest.override_item(
 minetest.override_item(
     "nodes_nature:salt_water_source", {
         color = "#90ff95",
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(_pos, _node, clicker, _itemstack, _pt)
             if not minetest.is_player(clicker) then
                 return
             end
@@ -283,7 +283,7 @@ minetest.register_node(
     "nodes_nature:snow", {
         description = S("Snow"),
         tiles = {"nodes_nature_snow.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         paramtype = "light",
         floodable = true,
         drawtype = "nodebox",
@@ -307,7 +307,7 @@ minetest.register_node(
                 return
             end
 
-            return minimal.slabs_combine(player, wielded_item, minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item, EXILE.get_usable_position(pointed_thing))
             or wielded_item:get_definition()._on_consume(player,
                                                          wielded_item,
                                                          pointed_thing)
@@ -318,11 +318,11 @@ minetest.register_node(
     "nodes_nature:snow_block", {
         description = S("Snow Block"),
         tiles = {"nodes_nature_snow.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         temp_effect = -4,
         temp_effect_max = 0,
         _splits_by_hand = "nodes_nature:snow",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _use_tip = S("Eat if you're desperate"),
         groups = {crumbly = 3, falling_node = 1, temp_effect = 1,
                   puts_out_fire = 1, cools_lava = 1,
@@ -371,7 +371,7 @@ minetest.register_node(
     "nodes_nature:ice", {
         description = S("Ice"),
         tiles = {"nodes_nature_ice.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         use_texture_alpha = c_alpha.blend,
         temp_effect = -4,
@@ -574,7 +574,7 @@ local erupt = function(pos, aname, h)
           {"nodes_nature:scoria"})
     if scpos then
           minetest.set_node(scpos, {name = "nodes_nature:lava_flowing"})
-    end                    
+    end
     --erupt
     while (aname == "air" or aname == "climate:air_temp"
            or aname == "nodes_nature:lava_flowing") and height < h do
@@ -664,8 +664,8 @@ local lava_actions = function(pos, node)
     ]]
 
 
-    if (minetest.get_item_group(aname, "cracky") > 0 
-       or minetest.get_item_group(aname, "crumbly") > 0) 
+    if (minetest.get_item_group(aname, "cracky") > 0
+       or minetest.get_item_group(aname, "crumbly") > 0)
        and nodename == "nodes_nature:lava_source" then
 
        --check it has "force" nearby
@@ -681,8 +681,8 @@ local lava_actions = function(pos, node)
                                         {pos = pos, max_hear_distance = 16,
                                          gain = 0.25})
          end
-    end   
-                                 
+    end
+
     if pos_air then
 
         --do eruption
@@ -722,7 +722,7 @@ local lava_actions = function(pos, node)
                 minetest.set_node(pos, {name = "nodes_nature:basalt"})
                 minetest.sound_play("nodes_nature_cool_lava",
                                     {pos = pos, max_hear_distance = 16,
-                                     gain = 0.25})                
+                                     gain = 0.25})
             end
 
             --flowing will solidy the air node and leave tunnels

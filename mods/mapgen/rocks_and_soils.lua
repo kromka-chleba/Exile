@@ -2,7 +2,6 @@
 
 -- Globals
 deco = deco or {}
-nodes_nature = nodes_nature
 
 -- Import
 local path = minetest.get_modpath("mapgen")
@@ -212,7 +211,7 @@ function generate_cobbles(name, fill_ratio, place_on)
 end
 
 -- This thing goes to deco.lua
-local cobbles = minimal.concat_tables(
+local cobbles = EXILE.concat_tables(
     {
         generate_cobbles("cave", cobble_cave_fill_ratio, {}),
         generate_cobbles("beach", cobble_beach_fill_ratio, beach_cobble_on),

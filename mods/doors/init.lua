@@ -1,6 +1,6 @@
 -- doors/init.lua
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 -- our API object
 doors = {}
@@ -161,7 +161,7 @@ function doors.door_toggle(pos, node, clicker, itemstack)
         if cdir == node.param2 and state == 0 then
             -- ^^ are we behind a closed, barred door? Unbar it
             meta:set_int("barred", 0)
-            if not minimal.player_in_creative(clicker) then
+            if not EXILE.player_in_creative(clicker) then
                 if itemstack and ( itemstack:is_empty() or
                                    itemstack:get_name() == "tech:stick" ) then
                     itemstack:add_item("tech:stick")
@@ -184,7 +184,7 @@ function doors.door_toggle(pos, node, clicker, itemstack)
         if cdir == node.param2 and state == 0 then
             meta:set_int("barred", 1)
             minetest.chat_send_player(cname, "You bar the door.")
-            if not (minimal.player_in_creative(clicker)) then
+            if not (EXILE.player_in_creative(clicker)) then
                 itemstack:take_item()
             end
             if not def.protected then -- ensure the door can't be dug
@@ -260,12 +260,12 @@ function doors.register(name, def)
             description = def.description,
             inventory_image = def.inventory_image,
             groups = table.copy(def.groups),
-            stack_max = def.stack_max or minimal.stack_max_bulky,
+            stack_max = def.stack_max or EXILE.stack_max_bulky,
 
             on_place = function(itemstack, placer, pointed_thing)
                 local pos
 
-                if not pointed_thing.type == "node" then
+                if not (pointed_thing.type == "node") then
                     return itemstack
                 end
 
@@ -352,10 +352,10 @@ function doors.register(name, def)
 
                 if def.protected then
                     meta:set_string("owner", pn)
-                    minimal.infotext_set_new(pos,meta)
+                    EXILE.infotext_set_new(pos,meta)
                 end
 
-                if not (minimal.player_in_creative(placer)) then
+                if not (EXILE.player_in_creative(placer)) then
                     itemstack:take_item()
                 end
 
@@ -398,16 +398,16 @@ function doors.register(name, def)
         sounds = { def.sound_close, def.sound_open },
     }
     if not def.on_rightclick then
-        def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        def.on_rightclick = function(pos, node, clicker, itemstack)
             doors.door_toggle(pos, node, clicker, itemstack)
             return itemstack
         end
     end
-    def.after_dig_node = function(pos, node, meta, digger)
+    def.after_dig_node = function(pos, _node, _meta, _digger)
         minetest.remove_node(vector.new(pos.x, pos.y + 1, pos.z))
         minetest.check_for_falling(vector.new(pos.x, pos.y + 1, pos.z))
     end
-    def.on_rotate = function(pos, node, user, mode, new_param2)
+    def.on_rotate = function(_pos, _node, _user, _mode, _new_param2)
         return false
     end
 
@@ -440,7 +440,7 @@ function doors.register(name, def)
         end
         def.node_dig_prediction = ""
     else
-        def.on_blast = function(pos, intensity)
+        def.on_blast = function(pos, _intensity)
             minetest.remove_node(pos)
             -- hidden node doesn't get blasted away.
             minetest.remove_node(vector.new(pos.x, pos.y + 1, pos.z))
@@ -512,7 +512,7 @@ function doors.trapdoor_toggle(pos, node, clicker)
     end
 end
 
-local function Seek(pos, node, clicker, transform, func, skip)
+local function Seek(pos, node, clicker, _transform, func, skip)
     local npos = pos
     if skip == true then npos = vector.add(pos, transform) end
     local newnode = minetest.get_node(npos)
@@ -532,8 +532,7 @@ function doors.register_trapdoor(name, def)
     local name_closed = name
     local name_opened = name.."_open"
 
-    def.on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-        local def = minetest.registered_nodes[node.name]
+    def.on_rightclick = function(pos, node, clicker, itemstack, _pointed_thing)
         local cname = clicker:get_player_name()
         if def.protected and minetest.is_protected(pos, cname) then
             minetest.chat_send_player(cname,"You can't open this door, ",cname)
@@ -556,20 +555,20 @@ function doors.register_trapdoor(name, def)
     end
 
     -- Common trapdoor configuration
-    def.stack_max = def.stack_max or minimal.stack_max_bulky *2
+    def.stack_max = def.stack_max or EXILE.stack_max_bulky *2
     def.drawtype = "nodebox"
     def.paramtype = "light"
     def.paramtype2 = "facedir"
     def.is_ground_content = false
 
     if def.protected then
-        def.after_place_node = function(pos, placer, itemstack, pointed_thing)
+        def.after_place_node = function(pos, placer, _itemstack, _pointed_thing)
             local pn = placer:get_player_name()
             local meta = minetest.get_meta(pos)
             meta:set_string("owner", pn)
-            minimal.infotext_set_new(pos,meta)
+            EXILE.infotext_set_new(pos,meta)
 
-            return minimal.player_in_creative(placer)
+            return EXILE.player_in_creative(placer)
         end
 
         def.on_blast = function() end
@@ -599,7 +598,7 @@ function doors.register_trapdoor(name, def)
         end
         def.node_dig_prediction = ""
     else
-        def.on_blast = function(pos, intensity)
+        def.on_blast = function(pos, _intensity)
             minetest.remove_node(pos)
             return {name}
         end

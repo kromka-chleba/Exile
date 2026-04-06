@@ -6,8 +6,6 @@
     Dislikes bright light, eats sediment, plants,
 ]]
 ---------------------------------------------------------------------
-animals = animals
-mobkit = mobkit
 
 -- Internationalization
 local S = animals.S
@@ -239,7 +237,7 @@ self_data = {
     egg = {
         tiles = {"animals_sneachan_eggs.png"},
         egg_conditions_correct = function(pos,data)
-            data = data or minimal.get_nodedef(pos)
+            data = data or EXILE.get_nodedef(pos)
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)

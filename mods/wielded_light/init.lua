@@ -229,7 +229,7 @@ local function reset_lighting_node(pos)
 end
 
 -- Will be run once the node timer expires
-local function cleanup_timer_callback(pos, elapsed)
+local function cleanup_timer_callback(pos, _elapsed)
 	local pos_str = minetest.pos_to_string(pos)
 	local lights = active_lights[pos_str]
 	-- If no active lights for this position, remove itself
@@ -257,7 +257,7 @@ local function recalc_light(pos)
 	-- Calculate the light level of the node
 	local any_light = false
 	local max_light = 0
-	for id, light_level in pairs(active_lights[pos]) do
+	for _, light_level in pairs(active_lights[pos]) do
 		any_light = true
 		if light_level > max_light then
 			max_light = light_level
@@ -416,7 +416,9 @@ function wielded_light.register_lightable_node(node_name, property_overrides, cu
 	-- Decide the prefix for the lighting node
 	local prefix = custom_prefix or node_name:gsub(":", "_", 1, true) .. "_"
 	if lighting_prefixes[prefix] then
-		error_log("The lighting prefix '%s' cannot be used for '%s' as it is already used for '%s'.", prefix, node_name, lighting_prefixes[prefix])
+            error_log("The lighting prefix '%s' cannot be used for '%s' "..
+                      "as it is already used for '%s'.",
+                      prefix, node_name, lighting_prefixes[prefix])
 		return
 	end
 	lighting_prefixes[prefix] = node_name

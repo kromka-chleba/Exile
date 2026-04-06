@@ -1,4 +1,3 @@
-tutorial = tutorial
 local stage = ...
 
 local S = core.get_translator("tutorial_exile")
@@ -21,7 +20,7 @@ return
             splashtext = S("Welcome to the tutorial"),
 
             -- examples for entry/exit functions:
-            entry = function(self, player, name, instance)
+            entry = function(self, _player, name, _instance)
                 -- self is this stage data, instance is the instance data +offset
                 print(name," is entering ",self.name)
                 local privs = core.get_player_privs(name)
@@ -29,7 +28,7 @@ return
                 core.set_player_privs(name, privs)
                 --player:set_armor_groups({ immortal = 1})
             end,
-            exit = function(self, player, name, instance)
+            exit = function(_self, _player, name, _instance)
                 local privs = core.get_player_privs(name)
                 privs.interact = true
                 core.set_player_privs(name, privs)
@@ -43,7 +42,7 @@ return
             location = vector.new(0,0,0),
             start = vector.new(3,5,15),
             facing = 4.07,
-            entry = function(self, player, name, instance)
+            entry = function(_self, _player, _name, instance)
                 local tgt = instance.offset -- absolute map location
                     + vector.new(6,4.5,9) -- where to put the entity
                 local ent = minetest.get_objects_inside_radius(tgt, 1)
@@ -59,7 +58,7 @@ return
             location = vector.new(80,0,0),
             start = vector.new(5,2,16),
             facing = 2.023,
-            exit = function(self, player, name, instance)
+            exit = function(_self, _player, _name, _instance)
                 --minetest.chat_send_player(name, "Area complete")
             end,
         },
@@ -81,7 +80,7 @@ return
             location = vector.new(80,0,80),
             start = vector.new(5,3,39),
             facing = 3.25,
-            entry = function(self, player, name, instance)
+            entry = function(_self, _player, name, _instance)
                 climate.set_weather_override(name, nil, "")
             end,
             splashicon = "tech_paint_lw_weave.png^[resize:32x32",

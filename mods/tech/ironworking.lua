@@ -37,9 +37,7 @@ local function set_roast(pos, length, interval)
     minetest.get_node_timer(pos):start(interval)
 end
 
-
-
-local function roast(pos, selfname, name, length, heat, smelt)
+local function do_roast(pos, selfname, name, _length, heat, smelt)
     local meta = minetest.get_meta(pos)
     local roast = meta:get_int("roast")
 
@@ -62,12 +60,12 @@ local function roast(pos, selfname, name, length, heat, smelt)
         --for others doesn't matter
         if name == "tech:iron_and_slag" then
             temp = meta:get_float("temp")
-            minimal.switch_node(pos, name)
+            EXILE.switch_node(pos, name)
             meta:set_float("temp", temp)
             minetest.check_for_falling(pos)
             return false
         else
-            minimal.switch_node(pos, name)
+            EXILE.switch_node(pos, name)
             minetest.check_for_falling(pos)
             return false
         end
@@ -158,7 +156,7 @@ minetest.register_node(
     "tech:crushed_iron_ore", {
         description = S("Crushed Iron Ore"),
         tiles = {"tech_crushed_iron_ore.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1, heatable =10},
         sounds = nodes_nature.node_sound_gravel_defaults(),
@@ -166,9 +164,9 @@ minetest.register_node(
             --length(i.e. difficulty of firing), interval for checks (speed)
             set_roast(pos, 10, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --selfname, finished product, length, heat, smelt
-            return roast(pos, "tech:crushed_iron_ore", "tech:roasted_iron_ore", 10, 300, false)
+            return do_roast(pos, "tech:crushed_iron_ore", "tech:roasted_iron_ore", 10, 300, false)
         end,
 })
 
@@ -195,7 +193,7 @@ minetest.register_node(
     "tech:roasted_iron_ore", {
         description = S("Roasted Iron Ore"),
         tiles = {"tech_roasted_iron_ore.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_gravel_defaults(),
@@ -207,7 +205,7 @@ minetest.register_node(
     "tech:roasted_iron_ore_powder", {
         description = S("Roasted Iron Ore Powder"),
         tiles = {"tech_roasted_iron_ore_powder.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_gravel_defaults(),
@@ -229,7 +227,7 @@ minetest.register_node(
     "tech:iron_smelting_mix", {
         description = S("Iron Smelting Mix"),
         tiles = {"tech_iron_smelting_mix.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         paramtype = "light",
         groups = {crumbly = 3, falling_node = 1, heatable = 20, timer = 10},
         sounds = nodes_nature.node_sound_gravel_defaults(),
@@ -237,9 +235,9 @@ minetest.register_node(
             --length(i.e. difficulty of firing), interval for checks (speed)
             set_roast(pos, 2, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, heat, smelt
-            return roast(pos, "tech:iron_smelting_mix",
+            return do_roast(pos, "tech:iron_smelting_mix",
                          "tech:iron_and_slag", 2, 1350, false)
         end,
 })
@@ -267,21 +265,21 @@ local on_dig_iron_and_slag = function(pos, node, digger)
     local stack_meta = new_stack:get_meta()
     stack_meta:set_int("roast", roast)
 
-    minimal.protection_on_dig(pos, node, digger, meta) -- give back nails if protected
+    EXILE.protection_on_dig(pos, node, digger, meta) -- give back nails if protected
 
     local player_inv = digger:get_inventory()
     if player_inv:room_for_item("main", new_stack) then
         player_inv:add_item("main", new_stack)
         minetest.remove_node(pos)
-    elseif not minimal.stop_on_inv_full(digger) then
+    elseif not EXILE.stop_on_inv_full(digger) then
         minetest.add_item(pos, new_stack)
         minetest.remove_node(pos)
     end
 end
 
 --set saved
-local after_place_iron_and_slag = function(pos, placer, itemstack,
-                                           pointed_thing, nmeta, imeta)
+local after_place_iron_and_slag = function(pos, _placer, itemstack,
+                                           _pointed_thing, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
     local roast = imeta:get_int("roast")
@@ -296,7 +294,7 @@ minetest.register_node(
     "tech:iron_and_slag", {
         description = S("Iron and Slag"),
         tiles = {"tech_iron_and_slag.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         groups = {cracky = 3, crumbly = 1, falling_node = 1, heatable = 20,
                   timer = 10},
@@ -305,9 +303,9 @@ minetest.register_node(
             --length(i.e. difficulty of firing), interval for checks (speed)
             set_roast(pos, 50, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, heat, smelt
-            return roast(pos, "tech:iron_and_slag",
+            return do_roast(pos, "tech:iron_and_slag",
                          "tech:iron_bloom", 50, 1350, true)
         end,
         on_dig = on_dig_iron_and_slag,
@@ -327,7 +325,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.3, -0.5, -0.3, 0.3, -0.1, 0.3},
         },
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         paramtype = "light",
         groups = {cracky = 3, falling_node = 1, oddly_breakable_by_hand = 2,
                   temp_pass = 1},
@@ -347,7 +345,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.1, -0.5, -0.2, 0.1, -0.3, 0.2},
         },
-        stack_max = minimal.stack_max_bulky * 8,
+        stack_max = EXILE.stack_max_bulky * 8,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate=3, temp_pass = 1},
@@ -371,7 +369,7 @@ minetest.register_node(
     "tech:slag", {
         description = S("Slag"),
         tiles = {"tech_iron_and_slag.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         groups = {cracky = 3, falling_node = 1, crumbly = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
@@ -387,7 +385,7 @@ stairs.register_stair_and_slab({
     {"tech_iron_and_slag.png"},
     S("Slag Stair"),
     S("Slag Slab"),
-    minimal.stack_max_bulky * 8,
+    EXILE.stack_max_bulky * 8,
     nodes_nature.node_sound_stone_defaults()
 })
 
@@ -445,7 +443,7 @@ minetest.register_node(
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             if math.random()>0.87 then
                 minetest.sound_play("nodes_nature_cool_lava",
                                     {pos = pos, max_hear_distance = 8,
@@ -515,7 +513,7 @@ minetest.register_node(
             -- with evaluation of node timers)
             minetest.get_node_timer(pos):start(0.1)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             local chance = math.random()
             -- Chances for solidification into slag:
             -- With 1 timeout per molten slag and 50 molten slag per mix one
@@ -545,7 +543,7 @@ minetest.register_node(
 minetest.register_craftitem("tech:iron_fittings", {
                                 description = S("Iron Fittings"),
                                 inventory_image = "tech_iron_fittings.png",
-                                stack_max = minimal.stack_max_medium *2,
+                                stack_max = EXILE.stack_max_medium *2,
 })
 
 
@@ -571,7 +569,7 @@ minetest.register_craftitem(
     "tech:nails", {
         description = S("Protection Nails"),
         inventory_image = "tech_iron_nails.png",
-        stack_max = minimal.stack_max_light,
+        stack_max = EXILE.stack_max_light,
         _use_tip = S("Protect Item"),
         sounds = {
             nail_down = {
@@ -582,7 +580,7 @@ minetest.register_craftitem(
             }
         },
         _on_use_item = function(user, itemstack, pointed_thing)
-            return minimal.protection_nail_use(user, itemstack, minimal.get_usable_position(pointed_thing))
+            return EXILE.protection_nail_use(user, itemstack, EXILE.get_usable_position(pointed_thing))
         end
 })
 
@@ -590,16 +588,16 @@ minetest.register_craftitem(
     "tech:iron_key", {
         description = S("Iron Key"),
         inventory_image = "tech_iron_key.png",
-        stack_max = minimal.stack_max_light,
+        stack_max = EXILE.stack_max_light,
         groups = { craftedby = 1 },
         _use_tip = S("Grant key owner access."),
         _on_use_item = function(user, itemstack, pointed_thing)
-            minimal.protection_key_use(itemstack, user, minimal.get_usable_position(pointed_thing))
+            EXILE.protection_key_use(itemstack, user, EXILE.get_usable_position(pointed_thing))
             --XXX Need a sound to play
         end,
         on_use = function(itemstack, clicker, pointed_thing)
-            return minimal.protection_key_click(itemstack, clicker,
-                                                minimal.get_usable_position(pointed_thing))
+            return EXILE.protection_key_click(itemstack, clicker,
+                                                EXILE.get_usable_position(pointed_thing))
         end,
 })
 

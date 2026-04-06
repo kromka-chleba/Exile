@@ -8,9 +8,7 @@ local S = nodes_nature.S
 ---------------------------------------
 
 local nsl = naturalslopeslib
-mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
-nodes_nature = nodes_nature
 local nn = nodes_nature
 
 nn.seasons = {}
@@ -63,7 +61,7 @@ minetest.register_chatcommand(
         params = S("<day>"),
         description = S("Sets date."),
         privs = {settime = true},
-        func = function(name, param)
+        func = function(_name, param)
             if set_day_pending then
                 return false, S("I'm setting day, wait!")
             end
@@ -455,7 +453,7 @@ minetest.register_lbm({
         label = "Spring soil finder for mapchunk shepherd",
         nodenames = spring_soils,
         run_at_every_load = false,
-        action = function(pos, node)
+        action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, spring_labels) then
                 ms.save_mapchunk(hash, true)
@@ -475,7 +473,7 @@ minetest.register_lbm({
         label = "Winter soil finder for mapchunk shepherd",
         nodenames = winter_soils,
         run_at_every_load = false,
-        action = function(pos, node)
+        action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
             if not ms.contains_labels(hash, winter_labels) then
                 ms.save_mapchunk(hash, true)

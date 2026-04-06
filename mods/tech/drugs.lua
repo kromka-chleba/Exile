@@ -9,9 +9,6 @@ local S = tech.S
 
 local random = math.random
 
--- Globals
-ncrafting = ncrafting
-
 -----------------------------------
 --MEDICAL
 
@@ -25,7 +22,7 @@ minetest.register_craftitem(
     "tech:herbal_medicine", {
         description = S("Herbal Medicine"),
         inventory_image = "tech_herbal_medicine.png",
-        stack_max = minimal.stack_max_medium *2,
+        stack_max = EXILE.stack_max_medium *2,
         groups = {flammable = 1, edible = 1},
         _use_tip = S("Eat"),
 })
@@ -61,7 +58,7 @@ minetest.register_craftitem(
     "tech:tiku", {
         description = S("Tiku (stimulant)"),
         inventory_image = "tech_tiku.png",
-        stack_max = minimal.stack_max_medium *2,
+        stack_max = EXILE.stack_max_medium *2,
         groups = {flammable = 1, drug = 1, edible = 1},
         _use_tip = S("Eat"),
 })
@@ -186,7 +183,7 @@ local function drink_tang(pos, node, clicker, itemstack, pointed_thing, ininv)
     end
 end
 
-local function mother_infection(player, pos, nodedef, itemstack, idef)
+local function mother_infection(_player, pos, _nodedef, _itemstack, idef)
     if not (idef.groups and idef.groups.tang_mother) then return end
     local meta = minetest.get_meta(pos)
     if meta:contains("mothering") then return end -- already infected

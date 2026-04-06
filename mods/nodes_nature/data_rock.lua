@@ -1,5 +1,3 @@
-nodes_nature = nodes_nature
-
 -- Internationalization
 local S = nodes_nature.S
 

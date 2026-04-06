@@ -370,7 +370,7 @@ local function return_inputs_to_main(player)
                 -- drop item
                 core.item_drop(stack, player, player:get_pos())
                 -- warns the player it went on the ground
-                minimal.warn_inv_full(player)
+                EXILE.warn_inv_full(player)
             end
             -- Set stack to empty stack in input_items inventory
             pInv:set_stack("input_items",i,ItemStack(""))
@@ -892,13 +892,13 @@ local function push_recipe(cache, id, player, player_name)
 
             -- if not everything could be transfered, leftover list is not empty
             if transfer and #transfer ~= 0 then
-                minimal.warn_message(player, player_name,
+                EXILE.warn_message(player, player_name,
                                      S("Not enough room to transfer everything"))
             end
 
             -- not enough inputs?
             if not p_recipe.possible then
-                minimal.warn_message(player, player_name,
+                EXILE.warn_message(player, player_name,
                                      S("Missing required items!"))
 
                 return true -- changes: we pushed things back to main
@@ -906,7 +906,7 @@ local function push_recipe(cache, id, player, player_name)
         else
             -- not enough inputs to craft?
             if not p_recipe.craftable then
-                minimal.warn_message(player, player_name,
+                EXILE.warn_message(player, player_name,
                                      S("Missing required items!"))
             end
 

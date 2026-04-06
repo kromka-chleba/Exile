@@ -21,10 +21,9 @@
 
 ]]
 
-artifacts = artifacts
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 local S = artifacts.S
-local FS = artifacts.FS
+--local FS = artifacts.FS
 ------------------------------------
 local rand = math.random
 --minimum distance transporters muct be apart (nodes)
@@ -95,8 +94,8 @@ local function teleport_effects(target_pos, pos, player, player_name,
     transporter_particles(pos, stretch)
 
     --swap out power core
-    minimal.switch_node(power, "artifacts:transporter_power_dep")
-    minimal.infotext_set_new(power) -- set node description and owner
+    EXILE.switch_node(power, "artifacts:transporter_power_dep")
+    EXILE.infotext_set_new(power) -- set node description and owner
     set_charging(power, 5, 20)
     --go to target
     send_objects(target_pos, pos)
@@ -165,7 +164,7 @@ local function check_teleport_distance(dest, pos, range)
 end
 
 --ensure destination is usable
-local function check_teleport_dest(dest, pos, range, random)
+local function check_teleport_dest(dest, _pos, _range, random)
     local dest_ok  = true
     -- check the destination node for pad, and the two nodes
     -- above for "walkthrough"
@@ -347,7 +346,7 @@ local function assess_transporter(pos)
 end
 
 local function transporter_power_rightclick(pos, node, player,
-                                            itemstack, pointed_thing)
+                                            itemstack, _pointed_thing)
     local iName = itemstack:get_name()
     local nName = node.name
     local power = "artifacts:transporter_power"
@@ -369,8 +368,8 @@ local function transporter_power_rightclick(pos, node, player,
     local new = ItemStack(swap_b)
 
     itemstack:take_item()
-    minimal.switch_node(pos, swap_a)
-    minimal.infotext_set_new(pos) -- Set description and owner of swapped core
+    EXILE.switch_node(pos, swap_a)
+    EXILE.infotext_set_new(pos) -- Set description and owner of swapped core
     if pInv:room_for_item("main", new) then
         pInv:add_item("main", new)
         return itemstack
@@ -380,7 +379,7 @@ local function transporter_power_rightclick(pos, node, player,
 end
 
 --
-local function finish_emerge(blockpos, action, calls_remaining, pad_table)
+local function finish_emerge(_blockpos, action, calls_remaining, pad_table)
     local pos, start_time = unpack(pad_table)
     if ( action == minetest.EMERGE_ERRORED
          or action == minetest.EMERGE_CANCELLED ) then
@@ -390,7 +389,7 @@ local function finish_emerge(blockpos, action, calls_remaining, pad_table)
     end
     if calls_remaining <= 0 then
         local function charge_pad()
-            minimal.switch_node(pos, "artifacts:transporter_pad_active")
+            EXILE.switch_node(pos, "artifacts:transporter_pad_active")
             minetest.sound_play("artifacts_transport_charged",
                                 {pos = pos, gain = 2, max_hear_distance = 20})
             local color = tonumber(minetest.get_meta(pos):get("stretch") or 0)
@@ -408,8 +407,8 @@ local function finish_emerge(blockpos, action, calls_remaining, pad_table)
     end
 end
 
-local function transporter_rightclick(pos, node, player,
-                                      itemstack, pointed_thing)
+local function transporter_rightclick(pos, _node, _player,
+                                      itemstack, _pointed_thing)
     if itemstack:get_name() == "artifacts:transporter_key" then
         --don't conflict with key
         return
@@ -466,7 +465,7 @@ local function transporter_rightclick(pos, node, player,
         --create charging pad and copy over meta data
         local meta_tran = minetest.get_meta(pos)
 
-        minimal.switch_node(pos, "artifacts:transporter_pad_charging")
+        EXILE.switch_node(pos, "artifacts:transporter_pad_charging")
         minetest.sound_play("artifacts_transport_charge",
                             {pos = pos, gain = 2, max_hear_distance = 20})
         meta_tran:set_string("tmp_dest", dest)
@@ -481,8 +480,8 @@ local function transporter_rightclick(pos, node, player,
 end
 
 
-local function active_transporter_rightclick(pos, node, player,
-                                             itemstack, pointed_thing)
+local function active_transporter_rightclick(pos, _node, player,
+                                             _itemstack, _pointed_thing)
     local timer = core.get_node_timer(pos)
     if not timer:is_started() then
         timer:start(5) -- Timer died, restart it but quicker
@@ -533,7 +532,7 @@ local function set_from_key(itemstack, placer, pointed_thing)
 
     if node == "artifacts:transporter_pad" then
         local meta_tran = minetest.get_meta(pt_under)
-        local _, range, _, _  = assess_transporter(pt_under)
+        --local _, range, _, _  = assess_transporter(pt_under)
         -- really just need range (for what?)
         local ok_string = S("Bond Transporter to Target")
 
@@ -600,7 +599,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             local meta_tran = minetest.get_meta(pos_tran)
             meta_tran:set_string("target_name", target_name)
             meta_tran:set_string("target_pos", target_pos)
-            minimal.infotext_set_new(pos_tran, meta_tran)
+            EXILE.infotext_set_new(pos_tran, meta_tran)
 
             local player_name = player:get_player_name()
             minetest.sound_play( 'artifacts_key',
@@ -746,7 +745,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             target = minetest.string_to_pos(target)
             local meta_tran = minetest.get_meta(target)
             meta_tran:set_string("tran_name", target_name)
-            minimal.infotext_set_new(target, meta_tran)
+            EXILE.infotext_set_new(target, meta_tran)
 
             minetest.chat_send_player(
                 player_name,
@@ -805,7 +804,7 @@ end)
 
 
 
-local function charge_power(pos, selfname, name, length)
+local function charge_power(pos, selfname, name, _length)
     local meta = minetest.get_meta(pos)
     local charging = meta:get_int("charging")
 
@@ -819,8 +818,8 @@ local function charge_power(pos, selfname, name, length)
 
     if charging <= 0 then
         --finished
-        minimal.switch_node(pos, name)
-        minimal.infotext_set_new(pos,meta) -- Set Description and Owner
+        EXILE.switch_node(pos, name)
+        EXILE.infotext_set_new(pos,meta) -- Set Description and Owner
         meta:set_float("temp", 14)
         return false
     elseif temp < charge_temp then
@@ -855,19 +854,19 @@ local pad_nodebox = {
 minetest.register_node('artifacts:transporter_pad', {
     description = S('Transporter Pad'),
     tiles = {'artifacts_antiquorium.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     node_box = pad_nodebox,
     groups = { cracky = 2 },
     on_rightclick = transporter_rightclick,
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
     sounds = nodes_nature.node_sound_glass_defaults(),
-    on_infotext = function(pos, nodedef, meta, params)
-        params = minimal.infotext_update_params(meta, params)
+    on_infotext = function(_pos, nodedef, meta, params)
+        params = EXILE.infotext_update_params(meta, params)
         -- update to current meta
         params.description = nodedef.description
-        local infotext = minimal.infotext_get_base_string(nil, meta, params)
+        local infotext = EXILE.infotext_get_base_string(nil, meta, params)
         -- transporter options
         local loc = params.tran_name and S("Location: @1",params.tran_name) -- location
         local dest = params.target_name and S("Destination: @1",params.target_name) -- destination
@@ -883,7 +882,7 @@ minetest.register_node('artifacts:transporter_pad', {
 minetest.register_node('artifacts:transporter_pad_charging',  {
     description = S('Transporter Pad (Charging)'),
     tiles = {'artifacts_antiquorium.png^artifacts_moon_glass.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     light_source = 3,
@@ -908,7 +907,7 @@ minetest.register_node('artifacts:transporter_pad_charging',  {
 minetest.register_node('artifacts:transporter_pad_active', {
     description = S('Transporter Pad (active)'),
     tiles = {'artifacts_antiquorium.png^artifacts_sun_stone.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     light_source = 6,
     drawtype = "nodebox",
     paramtype = "light",
@@ -932,8 +931,8 @@ minetest.register_node('artifacts:transporter_pad_active', {
     on_construct = function(pos)
         minetest.get_node_timer(pos):start(30)
     end,
-    on_timer = function(pos, elapsed)
-        minimal.switch_node(pos, "artifacts:transporter_pad")
+    on_timer = function(pos, _elapsed)
+        EXILE.switch_node(pos, "artifacts:transporter_pad")
         minetest.sound_play("artifacts_transport_fail",
                             {pos = pos, gain = 1, max_hear_distance = 6})
     end,
@@ -964,14 +963,14 @@ minetest.register_node('artifacts:transporter_power', {
         'artifacts_sun_stone.png',
     },
     light_source = 2,
-    stack_max = minimal.stack_max_bulky *2,
+    stack_max = EXILE.stack_max_bulky *2,
     drawtype = "nodebox",
     paramtype = "light",
     use_texture_alpha = c_alpha.clip,
     node_box = power_core_nodebox,
     groups = { oddly_breakable_by_hand = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
     on_rightclick = transporter_power_rightclick,
 })
 
@@ -980,7 +979,7 @@ minetest.register_node('artifacts:transporter_power_dep', {
     tiles = {
         'artifacts_moon_glass.png',
     },
-    stack_max = minimal.stack_max_bulky *2,
+    stack_max = EXILE.stack_max_bulky *2,
     drawtype = "nodebox",
     paramtype = "light",
     use_texture_alpha = c_alpha.clip,
@@ -991,18 +990,18 @@ minetest.register_node('artifacts:transporter_power_dep', {
         --length(i.e. difficulty), interval for checks (speed)
         set_charging(pos, 5, 20)
     end,
-    on_timer = function(pos, elapsed)
+    on_timer = function(pos, _elapsed)
         --finished product, length
         return charge_power(pos, "artifacts:transporter_power_dep", "artifacts:transporter_power", 5)
     end,
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
     on_rightclick = transporter_power_rightclick,
 })
 
 minetest.register_node('artifacts:transporter_focalizer', {
     description = S('Transporter Focalizer'),
     tiles = {'artifacts_antiquorium.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     node_box = {
@@ -1023,13 +1022,13 @@ minetest.register_node('artifacts:transporter_focalizer', {
     },
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 })
 
 minetest.register_node('artifacts:transporter_stabilizer', {
     description = S('Transporter Stabilizer'),
     tiles = {'artifacts_antiquorium.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     node_box = {
@@ -1046,13 +1045,13 @@ minetest.register_node('artifacts:transporter_stabilizer', {
     },
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 })
 
 minetest.register_node('artifacts:transporter_regulator', {
     description = S('Transporter Regulator'),
     tiles = {'artifacts_antiquorium.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     node_box = {
@@ -1073,7 +1072,7 @@ minetest.register_node('artifacts:transporter_regulator', {
     },
     groups = { cracky = 3 },
     sounds = nodes_nature.node_sound_glass_defaults(),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 })
 
 minetest.register_tool('artifacts:transporter_key', {

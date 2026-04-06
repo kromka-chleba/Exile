@@ -1,7 +1,6 @@
 -- Fibrous and woody plants for deco.lua
 
 -- Globals
-minimal = minimal
 deco = deco or {}
 
 -- Import

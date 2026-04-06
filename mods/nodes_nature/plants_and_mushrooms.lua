@@ -3,7 +3,6 @@
 
 -- Internationalization
 local S = nodes_nature.S
-nodes_nature = nodes_nature
 local nn = nodes_nature
 local plant = nodes_nature.plant
 

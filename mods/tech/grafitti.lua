@@ -18,9 +18,6 @@
 -- Internationalization
 local S = tech.S
 
-grafitti = grafitti
-
-
 --lime White
 
 local wgraffiti = {
@@ -84,7 +81,7 @@ local wgraffiti = {
     "lw_chrysalis"
 }
 
-for i, name in ipairs(wgraffiti) do
+for _, name in ipairs(wgraffiti) do
     grafitti.register_grafitti("tech:"..name,
                                { image = "tech_paint_"..name..".png"})
 end
@@ -195,8 +192,8 @@ grafitti.register_brush(
 minetest.override_item(
     "tech:stone_etcher", {
         _use_tip = S("Flip to stone knife"),
-        _on_use_item = function(player, wielded_item, pointed_thing)
-            minimal.swap_tool(player, wielded_item, "tech:stone_chopper")
+        _on_use_item = function(player, wielded_item, _pointed_thing)
+            EXILE.swap_tool(player, wielded_item, "tech:stone_chopper")
             return false
         end
 })
@@ -254,7 +251,7 @@ local ograffiti = { "lw_axe",
                     "wh_water"
 }
 
-for i, name in ipairs(ograffiti) do
+for _, name in ipairs(ograffiti) do
     grafitti.register_grafitti("tech:"..name,
                                { image = "tech_paint_"..name..".png"..ochre})
 end

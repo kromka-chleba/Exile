@@ -9,11 +9,7 @@ local S = nodes_nature.S
 
 ---------------------------------------------------------
 
-local c_alpha = minimal.compat_alpha
-
--- Globals
-nodes_nature = nodes_nature
-wielded_light = wielded_light
+local c_alpha = EXILE.compat_alpha
 
 local nn = nodes_nature
 local seasons = nn.seasons
@@ -29,7 +25,7 @@ local plant = nodes_nature.plant
 -- itemstack or the return value of on_rightclick() of the pointed thing.
 function plant.place_live_prohibited(itemstack, placer, pointed_thing)
     -- precedence of on_rightclick() of pointed_thing
-    local on_click = minimal.pointed_thing_on_rightclick(itemstack, placer,
+    local on_click = EXILE.pointed_thing_on_rightclick(itemstack, placer,
                                                          pointed_thing)
     if on_click ~= false then
         return on_click or itemstack
@@ -41,15 +37,15 @@ function plant.place_live_prohibited(itemstack, placer, pointed_thing)
     if not def_under or def_under.buildable_to then return itemstack end
     -- implies: item_place_node() will put the plant below pointed_thing.above
     -- even when pointed_thing.under is not below pointed_thing.above
-    
+
     -- no placing if not on sediment
-    local pos_below = minimal.get_pos_under(pointed_thing.above)
-    local is_sediment = minimal.pos_group(pos_below, "sediment")
+    local pos_below = EXILE.get_pos_under(pointed_thing.above)
+    local is_sediment = EXILE.pos_group(pos_below, "sediment")
     if not is_sediment then return itemstack end
     -- also, no placing if not air above pos_below
     local above = minetest.get_node(pointed_thing.above)
-    if not minimal.is_group(above.name, "air") then return itemstack end
-    
+    if not EXILE.is_group(above.name, "air") then return itemstack end
+
     -- not prohibited
     return false
 end
@@ -61,7 +57,7 @@ local on_place_plant = function(itemstack, placer, pointed_thing)
         return on_prohibited or itemstack
     end
     -- not prohibited -> do place
-    minimal.recognize_rapid_placing(itemstack, placer)
+    EXILE.recognize_rapid_placing(itemstack, placer)
     return minetest.item_place_node(itemstack, placer, pointed_thing)
 end
 
@@ -275,8 +271,9 @@ function plant.get_name(basename, var, nr)
     if type(basename) ~= "string" then
         error("plant.get_name: got non-string plant name for getting name, got '"..type(basename).."'")
     elseif type(var) ~= "string" then
-        error("plant.get_name: plant variant for '"..basename.."' has to be a string or nil, got type '"..type(var).."'")
-    end  
+        error("plant.get_name: plant variant for '"..basename
+              .."' has to be a string or nil, got type '"..type(var).."'")
+    end
     -- remove underscore from beginning if found (incase underscore is provided)
     -- underscore is used to check if we got a valid variant
     var = var ~= "" and var:sub(1,1) == "_" and var:sub(2) or var
@@ -309,7 +306,8 @@ function plant.get_name(basename, var, nr)
         -- error if invalid variant (check if has "_" at beginning)
         -- print valid variants out by concat'ing table
         if var:sub(1,1) ~= "_" then
-            error("plant.get_name: invalid plant variant for "..basename..", got '"..var.."', needs to be following:\n"..
+            error("plant.get_name: invalid plant variant for "..basename
+                  ..", got '"..var.."', needs to be following:\n"..
                 table.concat(vars,", "))
         end
     end
@@ -372,52 +370,52 @@ function plant.get_groups(plant_def)
     local groups = plant_groups[plant_type]
     local base = base_groups.base
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(base, base_groups.mushroom)
+        base = EXILE.merge_tables(base, base_groups.mushroom)
     end
     if plant_def.bioluminescence then
-        base = minimal.merge_tables(base, {bioluminescent = 1})
+        base = EXILE.merge_tables(base, {bioluminescent = 1})
     end
     if plant_def.roots then
-        base = minimal.merge_tables(base, {plant_with_roots = plant_def.roots})
+        base = EXILE.merge_tables(base, {plant_with_roots = plant_def.roots})
     end
     if plant_def.extra_groups then
-        base = minimal.merge_tables(base, plant_def.extra_groups)
+        base = EXILE.merge_tables(base, plant_def.extra_groups)
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = EXILE.merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(groups, base))
+    return table.copy(EXILE.merge_tables(groups, base))
 end
 
 function plant.get_seedling_groups(plant_def)
     local base = plant.get_groups(plant_def)
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(
+        base = EXILE.merge_tables(
             plant_groups["mushroom"],
             base_groups.mushroom)
     end
     if plant_def.plant_type == "fibrous_plant" then
-        base = minimal.merge_tables(base, {fibrous_plant = 1})
+        base = EXILE.merge_tables(base, {fibrous_plant = 1})
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = EXILE.merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(base, base_groups.seedling))
+    return table.copy(EXILE.merge_tables(base, base_groups.seedling))
 end
 
 function plant.get_seed_groups(plant_def)
     local base
     if plant_def.lifeform_type == "mushroom" then
-        base = minimal.merge_tables(
+        base = EXILE.merge_tables(
             base_groups.spore,
             base_groups.mushroom)
     else
         base = base_groups.seed
     end
     if plant_def.seasons or plant_def.seasonal_type then
-        base = minimal.merge_tables(base, {seasonal = 1})
+        base = EXILE.merge_tables(base, {seasonal = 1})
     end
-    return table.copy(minimal.merge_tables(base, base_groups.seed))
+    return table.copy(EXILE.merge_tables(base, base_groups.seed))
 end
 
 function plant.get_sounds(plant_def)
@@ -430,17 +428,17 @@ end
 
 function plant.get_seasonal_props(plant_def)
     local name = get_name(plant_def.name)
-    local seasons = plant_def.seasons
-    if seasons then
+    local pdseasons = plant_def.seasons
+    if pdseasons then
         return {
-            _spring_early = name..seasons._spring_early,
-            _spring_late = name..seasons._spring_late,
-            _summer_early = name..seasons._summer_early,
-            _summer_late = name..seasons._summer_late,
-            _fall_early = name..seasons._fall_early,
-            _fall_late = name..seasons._fall_late,
-            _winter_early = name..seasons._winter_early,
-            _winter_late = name..seasons._winter_late,
+            _spring_early = name..pdseasons._spring_early,
+            _spring_late = name..pdseasons._spring_late,
+            _summer_early = name..pdseasons._summer_early,
+            _summer_late = name..pdseasons._summer_late,
+            _fall_early = name..pdseasons._fall_early,
+            _fall_late = name..pdseasons._fall_late,
+            _winter_early = name..pdseasons._winter_early,
+            _winter_late = name..pdseasons._winter_late,
             _dead_name = get_name(plant_def.name, "dead"),
         }
     end
@@ -451,7 +449,7 @@ function plant.get_base_props(plant_def)
     local props = {
         description = plant_def.description,
         tiles = {get_texture(plant_def.name)},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         visual_scale = plant_def.texture_scale,
         light_source = plant_def.bioluminescence,
@@ -476,15 +474,15 @@ function plant.get_base_props(plant_def)
         -- soil prefs
         plant_soil_preferences = plant_def.soil_preferences,
 
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, placer, _itemstack, _pointed_thing)
             if minetest.is_player(placer) and
-                not (minimal.player_in_creative(placer)) then
+                not (EXILE.player_in_creative(placer)) then
                 plant.death_chance_on_replant(pos) -- becomes domesticated in function
             end
         end,
         -- custom parameters
         _root_name = plant_def.roots and get_name(plant_def.name,"root") or nil,
-        on_punch = plant_def.thorns and function(pos, node, puncher, pointed_thing)
+        on_punch = plant_def.thorns and function(_pos, _node, puncher, _pt)
             local itemstack = puncher:get_wielded_item()
             local item_name = itemstack:get_name()
             if core.get_item_group(item_name, "hand") > 0 then
@@ -495,13 +493,13 @@ function plant.get_base_props(plant_def)
         end or plant_def.on_punch,
     }
     if plant_def.fruit and plant_def.winter_fruit then
-        props = minimal.merge_tables(
+        props = EXILE.merge_tables(
             props, {
                 _dead_fruitless_name =
                     get_name(plant_def.name,"dead_fruitless"),
         })
     end
-    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
+    return EXILE.merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 function plant.get_plantlike_props(plant_def)
@@ -514,7 +512,7 @@ function plant.get_plantlike_props(plant_def)
         waving = plant_def.waving,
         groups = plant.get_groups(plant_def)
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+    return table.copy(EXILE.merge_tables(plant.get_base_props(plant_def),
                                            props))
 end
 
@@ -534,7 +532,7 @@ function plant.get_canelike_props(plant_def)
     }
     base.groups.attached_node = 0
     base.on_dig = function(pos, node, digger)
-        return minimal.dig_up(pos, node, digger)
+        return EXILE.dig_up(pos, node, digger)
     end
     base.floodable = false
     local plant_name = get_name(plant_def.name)
@@ -560,7 +558,7 @@ function plant.get_canelike_props(plant_def)
         local face = vector.direction(pointed_thing.above,
                                       pointed_thing.under)
         if face.y == -1 then
-            minimal.recognize_rapid_placing(itemstack, placer)
+            EXILE.recognize_rapid_placing(itemstack, placer)
             minetest.item_place_node(itemstack, placer,
                                      pointed_thing)
             return itemstack
@@ -606,12 +604,12 @@ function plant.get_seedling_base_props(plant_def)
             plant.start_growing_plant(pos)
         end,
     }
-    return table.copy(minimal.merge_tables(plant.get_base_props(plant_def),
+    return table.copy(EXILE.merge_tables(plant.get_base_props(plant_def),
                                            props))
 end
 
 function plant.get_plantlike_seedling_props(plant_def)
-    local base = minimal.merge_tables(
+    local base = EXILE.merge_tables(
         plant.get_plantlike_props(plant_def),
         plant.get_seedling_base_props(plant_def))
     local texture = get_texture(plant_def.name, "seedling")
@@ -620,7 +618,7 @@ function plant.get_plantlike_seedling_props(plant_def)
         inventory_image = texture,
         wield_image = texture,
     }
-    return table.copy(minimal.merge_tables(base, props))
+    return table.copy(EXILE.merge_tables(base, props))
 end
 
 function plant.register_plantlike_seedlings(plant_def)
@@ -659,7 +657,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     base._next_life_stage = get_name(plant_def.name,"fruiting")
     base.inventory_image = texture
     base.wield_image = texture
-    base.groups = minimal.merge_tables(base.groups, {flowering_plant = 1})
+    base.groups = EXILE.merge_tables(base.groups, {flowering_plant = 1})
     base.on_timer = function(pos, elapsed)
         return plant.grow_plant(pos, elapsed)
     end
@@ -675,7 +673,7 @@ function plant.get_plantlike_flowering_props(plant_def)
     return table.copy(base)
 end
 
-local function fruiting_on_punch(pos, node, puncher, pointed_thing)
+local function fruiting_on_punch(pos, node, puncher, _pointed_thing)
     local nodedef = minetest.registered_nodes[minetest.get_node(pos).name]
     -- what, we're just going to let you constantly grab fruit??
     if not nodedef._fruitless_name then return end
@@ -683,14 +681,14 @@ local function fruiting_on_punch(pos, node, puncher, pointed_thing)
         if node.param2 < 64 then
             plant.set_to_half_wild(pos)
         end
-        minimal.force_place_keep_param2(pos, nodedef._fruitless_name)
+        EXILE.force_place_keep_param2(pos, nodedef._fruitless_name)
     end
     local inv = puncher and puncher:get_inventory()
     local new_stack = ItemStack(nodedef._fruit_name)
     if inv and inv:room_for_item("main", new_stack) then
         replace()
         inv:add_item("main", new_stack)
-    elseif not minimal.stop_on_inv_full(puncher) then
+    elseif not EXILE.stop_on_inv_full(puncher) then
         replace()
         minetest.add_item(pos, new_stack)
     end
@@ -726,12 +724,12 @@ function plant.get_plantlike_dead_fruitless_props(plant_def)
     base.tiles = {texture}
     base.groups.compostable = 1
     base.after_place_node = function(pos)
-        if minimal.get_param2(pos) < 64 then
+        if EXILE.get_param2(pos) < 64 then
             plant.set_to_domesticated(pos)
         end
     end
     base.on_construct = function(pos)
-        if minimal.get_param2(pos) >= 128 then
+        if EXILE.get_param2(pos) >= 128 then
             plant.set_to_wild(pos)
         end
     end
@@ -766,7 +764,7 @@ function plant.get_plantlike_dead_props(plant_def)
     base._next_life_stage = false
     base.description = S("Dead @1", plant_def.description)
     base.after_place_node = function(pos)
-        if minimal.get_param2(pos) < 64 then
+        if EXILE.get_param2(pos) < 64 then
             plant.set_to_domesticated(pos)
         end
     end
@@ -797,7 +795,7 @@ function plant.register_fruit(plant_def)
         inventory_image = get_texture(plant_def.name,"fruit"),
         groups = {fruit=1},
         wield_image = get_texture(plant_def.name,"fruit"),
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
     }
     if plant_def.dye_candidate then
         props.groups.ncrafting_dye_candidate = 1
@@ -861,7 +859,7 @@ function plant.get_3D_props(plant_def)
             fixed = plant_def.nodebox,
         },
     }
-    return minimal.merge_tables(plant.get_base_props(plant_def), props)
+    return EXILE.merge_tables(plant.get_base_props(plant_def), props)
 end
 
 function plant.register_3D(plant_def)
@@ -876,7 +874,7 @@ function plant.register_3D(plant_def)
 end
 
 function plant.get_3D_seedling_props(plant_def)
-    local base = minimal.merge_tables(
+    local base = EXILE.merge_tables(
         plant.get_3D_props(plant_def),
         plant.get_seedling_base_props(plant_def))
     local props = {
@@ -890,7 +888,7 @@ function plant.get_3D_seedling_props(plant_def)
             fixed = plant_def.seedling_nodebox,
         },
     }
-    return table.copy(minimal.merge_tables(base, props))
+    return table.copy(EXILE.merge_tables(base, props))
 end
 
 function plant.register_3D_seedling(plant_def)
@@ -919,7 +917,8 @@ end
 
 function plant.get_seed_base_props(plant_def)
     local next_life_stage = get_name(plant_def.name,"seedling", 1)
-    -- [[get dead fruiting texture if only_dead_fruit, get fruiting texture if fruiting, or otherwise use regular plant texture]]
+    --[[get dead fruiting texture if only_dead_fruit, get fruiting texture
+        if fruiting, or otherwise use regular plant texture]]
     local plant_img = plant_def.only_dead_fruit and get_texture(plant_def.name, "dead") or
         plant_def.fruit and get_texture(plant_def.name, "fruiting") or
         plant.get_base_image(plant_def)
@@ -948,7 +947,7 @@ function plant.get_seed_base_props(plant_def)
         inventory_image = inventory_seed_image,
         wield_image = seed_texture,
         use_texture_alpha = c_alpha.clip,
-        stack_max = minimal.stack_max_light,
+        stack_max = EXILE.stack_max_light,
         paramtype = "light",
         drawtype = "nodebox",
         floodable = true,
@@ -1010,11 +1009,11 @@ function plant.get_seed_base_props(plant_def)
             end
             return return_itmstk
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, _itemstack, _pointed_thing)
             plant.set_to_domesticated(pos)
         end,
     }
-    return minimal.merge_tables(props, plant.get_seasonal_props(plant_def))
+    return EXILE.merge_tables(props, plant.get_seasonal_props(plant_def))
 end
 
 function plant.register_seed(plant_def)
@@ -1035,7 +1034,7 @@ function plant.register_root(plant_def)
         fixed = {-0.15, -0.5, -0.15,  0.15, -0.35, 0.15},
     }
     props.selection_box = nil -- clear seed selection_box
-    props.stack_max = minimal.stack_max_medium
+    props.stack_max = EXILE.stack_max_medium
     props.walkable = true
     minetest.register_node(
         get_name(plant_def.name,"root"),
@@ -1066,10 +1065,12 @@ local function get_seed_recipe_display(plant_def, source)
     if plant_def.lifeform_type == "mushroom" or
         plant_def.plant_type == "moss" then
 
-        return "((".. source_img.."^[resize:32x32)^[opacity:100)^[combine:32x32:12,0=nodes_nature_spores.png\\^[resize\\:20x20"
+        return "((".. source_img.."^[resize:32x32)^[opacity:100)"..
+            "^[combine:32x32:12,0=nodes_nature_spores.png\\^[resize\\:20x20"
     else
         -- #TODO I fear some perf issue with the resize, on loading recipe panel
-        return "((".. source_img.."^[resize:32x32)^[opacity:140)^[combine:32x32:12,0=nodes_nature_seeds.png\\^[resize\\:20x20"
+        return "((".. source_img.."^[resize:32x32)^[opacity:140)"..
+            "^[combine:32x32:12,0=nodes_nature_seeds.png\\^[resize\\:20x20"
     end
 end
 

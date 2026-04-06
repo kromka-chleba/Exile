@@ -4,16 +4,10 @@
 -----------------------------------
 -------------------------------------------------
 
--- Declare globals
-minimal = minimal
-crafting = crafting
-nodes_nature = nodes_nature
-tech = tech
-
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 local legacy_stations = true
 local legacy_station_recipes = false
 
@@ -231,7 +225,7 @@ local function on_place_loclim_spot(itemstack, placer, pointed_thing,
 
         if not (minetest.is_player(placer)
                 and placer:get_player_control().sneak) then
-            local on_click = minimal.on_rightclick(itemstack, placer,
+            local on_click = EXILE.on_rightclick(itemstack, placer,
                                                    pointed_thing)
             if on_click ~= false then
                 return on_click or itemstack
@@ -279,7 +273,7 @@ minetest.register_node(
                                                        itemstack,pointed_thing)
         end,
         -- on_rightclick = crafting.make_on_rightclick("crafting_spot", 2, { x = 8, y = 3 }),
-        on_punch      = function(pos, node, player)
+        on_punch      = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -317,7 +311,7 @@ minetest.register_node(
                                                        itemstack,pointed_thing)
         end,
         --on_rightclick = crafting.make_on_rightclick("mixing_spot", 2, { x = 8, y = 3 }),
-        on_punch      = function(pos, node, player)
+        on_punch      = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -361,7 +355,7 @@ minetest.register_node(
                                      {}, "dry ground",
                                      {{'puts_out_fire', 1}}, {})
         end,
-        on_punch          = function(pos, node, player)
+        on_punch          = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -407,7 +401,7 @@ minetest.register_node(
                                         {}, "dry ground",
                                         {{'puts_out_fire', 1}}, {})
         end,
-        on_punch      = function(pos, node, player)
+        on_punch      = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -452,7 +446,7 @@ minetest.register_node(
                                         {'nodes_nature:sandstone'},
                                         "hard stone, masonry, or sandstone")
         end,
-        on_punch      = function(pos, node, player)
+        on_punch      = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -497,7 +491,7 @@ minetest.register_node(
                     {'soft_stone', 1}, {'tree', 1}, {'log', 1}},
                 {}, "stone, masonry, tree, or a log")
         end,
-        on_punch      = function(pos, node, player)
+        on_punch      = function(pos, _node, _player)
             minetest.remove_node(pos)
         end
 })
@@ -527,7 +521,7 @@ minetest.register_node(
 --IB            type  = "fixed",
 --IB            fixed = {-0.43, -0.5, -0.43, 0.43, 0.38, 0.43},
 --IB            },
---IB    stack_max     = minimal.stack_max_bulky,
+--IB    stack_max     = EXILE.stack_max_bulky,
 --IB    paramtype     = "light",
 --IB    groups        = {dig_immediate = 3, falling_node = 1, temp_pass = 1, craftedby = 1},
 --IB    sounds        = nodes_nature.node_sound_wood_defaults(),
@@ -536,14 +530,14 @@ minetest.register_node(
 --IB
 
 -- used for transferring meta between placeable stations and their itemstacks to save creator meta
-local function station_preserve_metadata(pos, oldnode, oldmeta, drops, imeta)
+local function station_preserve_metadata(_pos, _oldnode, oldmeta, drops, imeta)
     local item = drops[1]
     imeta = imeta or item:get_meta()
     -- just steal meta from oldmeta (which will be fields)
     imeta:from_table({fields = oldmeta})
 end
 -- ditto to above
-local function station_after_place(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+local function station_after_place(pos, _placer, itemstack, _pointed_thing, nmeta, imeta)
     imeta = imeta or itemstack:get_meta()
     nmeta = nmeta or core.get_meta(pos)
     -- transfer from itemstack to node
@@ -579,7 +573,7 @@ function tech.register_mortar_pestle(name, def)
     exile_crafting.craft_level = exile_crafting.craft_level or 1
     def.exile_crafting = exile_crafting
     -- node parameters
-    def.stack_max = def.stack_max or minimal.stack_max_bulky *2
+    def.stack_max = def.stack_max or EXILE.stack_max_bulky *2
     def.paramtype = def.paramtype or "light"
     def.paramtype2 = def.paramtype2 or "facedir"
     -- now for actual node things
@@ -748,7 +742,7 @@ minetest.register_node(
                 { 0.1875,  0.125, -0.3125,  0.2500,  0.1875, -0.1250}, -- NodeBox14
             }
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1, temp_pass = 1,
@@ -799,7 +793,7 @@ minetest.register_node(
                 {-0.35, -0.1, -0.20, 0.35,  0.1, 0.20},
             },
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1,
@@ -845,7 +839,7 @@ minetest.register_node(
                 {-0.4375, -0.500, -0.2500, -0.3125, -0.125, -0.1250},
             }
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1, temp_pass = 1,
@@ -893,7 +887,7 @@ minetest.register_node(
                 {-0.3750, -0.1875,  0.3125,  0.3750, 0.00,  0.4375},
             }
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1,
@@ -943,7 +937,7 @@ minetest.register_node(
                 { 0.3750, -0.2500, -0.0625,  0.5000, -0.1250,  0.0625}, -- NodeBox7
             }
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1, temp_pass = 1,
@@ -1042,7 +1036,7 @@ minetest.register_node(
             type  = "fixed",
             fixed = {-0.47, -0.5, -0.47, 0.47, 0.31, 0.47},
         },
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {dig_immediate=3, falling_node = 1,
@@ -1081,7 +1075,7 @@ minetest.register_node(
         },
         drawtype      = "nodebox",
         tiles         = {"tech_stick.png"},
-        stack_max     = minimal.stack_max_bulky,
+        stack_max     = EXILE.stack_max_bulky,
         paramtype     = "light",
         paramtype2    = "facedir",
         groups        = {falling_node = 1, dig_immediate = 3, craftedby = 1},
@@ -1147,7 +1141,7 @@ minetest.register_node(
         drawtype = "mesh",
         mesh = "grinding_stone.obj",
         tiles = {"tech_grinding_stone_granite.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
@@ -1187,7 +1181,7 @@ minetest.register_node(
         drawtype = "mesh",
         mesh = "grinding_stone.obj",
         tiles = {"tech_grinding_stone_limestone.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
@@ -1228,7 +1222,7 @@ minetest.register_node(
         drawtype = "mesh",
         mesh = "grinding_stone.obj",
         tiles = {"tech_grinding_stone_basalt.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {falling_node = 1, dig_immediate = 3, craftedby = 1},
@@ -1280,7 +1274,7 @@ if legacy_stations == true then
                 type  = "fixed",
                 fixed = {-0.43, -0.5, -0.43, 0.43, 0.38, 0.43},
             },
-            stack_max     = minimal.stack_max_bulky,
+            stack_max     = EXILE.stack_max_bulky,
             paramtype     = "light",
             groups        = {dig_immediate = 3, falling_node = 1,
                              temp_pass = 1, craftedby = 1},
@@ -1318,7 +1312,7 @@ if legacy_stations == true then
                 type  = "fixed",
                 fixed = {-0.47, -0.5, -0.47, 0.47, 0.31, 0.47},
             },
-            stack_max     = minimal.stack_max_bulky,
+            stack_max     = EXILE.stack_max_bulky,
             paramtype     = "light",
             groups        = {dig_immediate=3, falling_node = 1,
                              temp_pass = 1, craftedby = 1},

@@ -1,10 +1,6 @@
 --login.lua
 --A login screen to show to new players
 
-tutorial = tutorial
-HEALTH = HEALTH
-lore = lore
-region = region
 local S = lore.S
 
 local newplayer = {}
@@ -201,7 +197,7 @@ end
 
 
 -- stop music if setting changes
-minimal.register_on_player_setting_change(function(player, setting, value, meta)
+EXILE.register_on_player_setting_change(function(player, setting, value)
     if setting ~= "disable_music" or value ~= true then return end
     lore.stopmusic(player:get_player_name())
 end)
@@ -226,7 +222,7 @@ local function first_spawn(player)
     end)
 end
 
-local function annoy_ihirc(player, name, meta)
+local function annoy_ihirc(_, name, meta)
     if not minetest.settings:get_bool("exile_always_play_theme") then
         return
     end
@@ -362,7 +358,7 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+minetest.register_on_player_receive_fields(function(player, formname, _)
         if formname == "lore:login" or formname == "lore:motd" then
             minetest.after(0.1, function() queue_start(player) end)
         end
@@ -372,7 +368,7 @@ end)
 minetest.register_chatcommand(
     "motd",{
         description = S("This command shows the current message of the day."),
-        func = function(name, param)
+        func = function(name)
             show_motd(minetest.get_player_by_name(name))
         end
 })
@@ -385,7 +381,7 @@ minetest.register_chatcommand(
     "dumpqueue",{
         description = S("This command prints the login queue for all players."),
         privs = "server",
-        func = function(name,param)
+        func = function(name)
             if core.check_player_privs(name, "server") == false then return end
             print("Queue: ",dump(player_queue))
             print("Waiting: ",dump(waiting))

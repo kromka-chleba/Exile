@@ -57,7 +57,7 @@ local function archable(node)
     end
 end -- nil: all other nodes
 
-local function fill_arch(nodetable, axis, mod)
+local function fill_arch(nodetable, _axis, mod)
     local center = nodetable[3].node
     center.param2 = mod + 1 -- center is 1 suspended node
     center.name = archname

@@ -49,12 +49,12 @@ minetest.register_node(
     'tech:unretted_cana_bundle', {
         description = S('Unretted Cana Bundle'),
         tiles = {"tech_unretted_cana_bundle.png"},
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         groups = {snappy=3, flammable=1, falling_node=1 },
         sounds = nodes_nature.node_sound_leaves_defaults(),
         on_burn = function(pos)
             if math.random()<0.5 then
-                minimal.switch_node(pos, "tech:small_wood_fire")
+                EXILE.switch_node(pos, "tech:small_wood_fire")
                 minetest.check_for_falling(pos)
             else
                 minetest.remove_node(pos)
@@ -77,7 +77,7 @@ minetest.register_node(
     'tech:retted_cana_bundle', {
         description = S('Retted Cana Bundle'),
         tiles = {"tech_retted_cana_bundle.png"},
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         groups = {snappy=3, flammable=1, falling_node=1 },
         sounds = nodes_nature.node_sound_leaves_defaults(),
 })
@@ -96,7 +96,7 @@ minetest.register_craftitem(
     "tech:coarse_fibre", {
         description = S("Coarse Fibre"),
         inventory_image = "tech_coarse_fibre.png",
-        stack_max = minimal.stack_max_medium *4,
+        stack_max = EXILE.stack_max_medium *4,
         groups = {flammable = 1, fibrous_plant = 1},
 })
 
@@ -105,7 +105,7 @@ minetest.register_craftitem(
     "tech:fine_fibre", {
         description = S("Fine Fibre"),
         inventory_image = "tech_fine_fibre.png",
-        stack_max = minimal.stack_max_medium *4,
+        stack_max = EXILE.stack_max_medium *4,
         groups = {flammable = 1, fibrous_plant = 1},
 })
 
@@ -116,7 +116,7 @@ minetest.register_craftitem(
     "tech:coarse_fabric", {
         description = S("Coarse Fabric"),
         inventory_image = "tech_coarse_fabric_thumb.png",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         groups = {flammable = 1},
 })
 
@@ -125,7 +125,7 @@ minetest.register_craftitem(
     "tech:fine_fabric", {
         description = S("Fine Fabric"),
         inventory_image = "tech_fine_fabric_thumb.png",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         groups = {flammable = 1},
 })
 

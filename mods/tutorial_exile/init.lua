@@ -244,7 +244,7 @@ end
 minetest.register_chatcommand(
     "tutorial",{
         description = "Start or restart the tutorial",
-        func = function(name,param)
+        func = function(name, _param)
             if pstore[name] then
                 tutorial.exit(core.get_player_by_name(name))
             end
@@ -258,7 +258,7 @@ minetest.register_chatcommand(
 minetest.register_chatcommand(
     "quit_tutorial",{
         description = "Exit the tutorial",
-        func = function(name,param)
+        func = function(name, _param)
             minetest.chat_send_player(name, S("Stopping tutorial"))
             tutorial.exit(minetest.get_player_by_name(name))
         end
@@ -288,7 +288,7 @@ if minetest.get_modpath("worldedit") then
                     return false, "Invalid positions, use worldedit //1 and //2"
                 end
                 minetest.chat_send_player(name, "Saving region named "..param)
-                return minimal.save_region(pos1, pos2, param)
+                return EXILE.save_region(pos1, pos2, param)
             end
     })
 end
@@ -304,7 +304,7 @@ minetest.register_chatcommand(
             local player = minetest.get_player_by_name(name)
             local pos = player:get_pos()
             local file = io.open(worldpath.."/"..param..".ex_schm","rb")
-            return minimal.load_region(pos, file)
+            return EXILE.load_region(pos, file)
         end
 })
 
@@ -316,7 +316,7 @@ minetest.register_chatcommand(
         func = function(name,param)
             if core.check_player_privs(name, "server") == false then return end
             local fname = modpath.."/schematics/"..param..".ex_schm"
-            local input, err = minimal.load_region_raw(fname)
+            local input, err = EXILE.load_region_raw(fname)
             if not input then return nil, err end
             local _, range = unpack(input)
             if not range then return false, err end
@@ -336,7 +336,7 @@ minetest.register_chatcommand(
 minetest.register_chatcommand(
     "tutr_startpos",{
         privs = "server",
-        func = function(name,param)
+        func = function(name, _param)
             if core.check_player_privs(name, "server") == false then return end
             local pos, err = stage.distance_to_base(name)
             if not pos then return err end
@@ -347,7 +347,7 @@ minetest.register_chatcommand(
 core.register_chatcommand(
     "get_facing",{
         privs = "server",
-        func = function(name, param)
+        func = function(name, _param)
             if core.check_player_privs(name, "server") == false then return end
             local plyr = core.get_player_by_name(name)
             local facing = plyr:get_look_horizontal()

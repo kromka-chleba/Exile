@@ -4,8 +4,6 @@
 local S = minetest.get_translator("player_api")
 --------------------------------------------------------------------------------
 
-player_api = player_api
-
 -- defines cloth groups and inventories
 -- [groupe_code] = {inv_name, tooltip}
 local cloth_groups = {
@@ -99,9 +97,9 @@ local function migrate_cloths(player, pinv)
     local cloths_list = pinv:get_list("cloths")
     if cloths_list then
         -- erased new inventory if there is any
-        for index,stack in ipairs(cloths_list) do
+        for _,stack in ipairs(cloths_list) do
             if stack and stack ~= ItemStack("") then
-                local slot_nb = minimal.is_group(stack:get_name(),"cloth")
+                local slot_nb = EXILE.is_group(stack:get_name(),"cloth")
                 if slot_nb then
                     pinv:set_stack(cloth_groups[slot_nb]["name"],1, stack)
                 end

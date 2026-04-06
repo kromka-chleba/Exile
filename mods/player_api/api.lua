@@ -4,10 +4,6 @@
 -- Internationalization
 local S = player_api.S
 
-player_monoids = player_monoids
-
-player_api = player_api
-
 -- Player animation blending
 -- Note: This is currently broken due to a bug in Irrlicht, leave at 0
 local animation_blend = 0
@@ -135,8 +131,7 @@ minetest.register_on_leaveplayer(function(player)
         player_api.player_attached[name] = nil
 end)
 
--- isn't that unused ?
-function player_api.get_gender_formspec(name)
+function player_api.get_gender_formspec(_name)
     local text = S("Select your gender")
 
     local formspec = {

@@ -17,12 +17,9 @@
 --
 -- modified by various Exile devs, lately Izzy for performing craft, and lili for refactoring.
 
--- Warning: this is a circular dependency; minimal depends on crafting, too
---minimal = minimal
-
 local S = minetest.get_translator("crafting")
 -- for @1's @2 translation
-local mS = minetest.get_translator("minimal")
+local mS = minetest.get_translator("exile_game")
 
 --[[#TODO comment better
  table where functions to launch at craft are stored, like unlocking recipes, level, awards..
@@ -284,7 +281,7 @@ local function perform_craft(r, name, inv, listname, outlistname, craft_count, s
     local player = minetest.get_player_by_name(name)
     -- if not craftable, stop
     if not r.craftable then
-        minimal.warn_message(player, name, S("Missing required items!"))
+        EXILE.warn_message(player, name, S("Missing required items!"))
         return false
     end
 
@@ -354,12 +351,12 @@ local function perform_craft(r, name, inv, listname, outlistname, craft_count, s
     for _, stack in ipairs(items_to_add) do
         warn = split_and_add (stack, inv, outlistname, pos) or warn
     end
-    if warn then minimal.warn_inv_full(player) end
+    if warn then EXILE.warn_inv_full(player) end
 
     -- play sound ----------------------------------------------------
     sound  = sound or r.recipe.sound
     if sound then
-        minimal.sound_play(minimal.merge_tables(sound, {pos = pos}))
+        EXILE.sound_play(EXILE.merge_tables(sound, {pos = pos}))
     end
 
     --[[ #TODO comment more : seems to play all function in the table,

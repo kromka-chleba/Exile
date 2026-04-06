@@ -1,7 +1,4 @@
 
-nodes_nature = nodes_nature
-tgcr = tgcr
-
 nodes_nature.replacement_types = {
     REPLACEMENT_WET = "wet", -- fresh water soaks in
     REPLACEMENT_DRY = "dry", -- water dries out

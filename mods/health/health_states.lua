@@ -1,6 +1,3 @@
-HEALTH = HEALTH
-player_api = player_api
-
 local S = minetest.get_translator("health")
 
 HEALTH.internal_temp_table = {

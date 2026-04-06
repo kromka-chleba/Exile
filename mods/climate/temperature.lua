@@ -5,7 +5,7 @@
 -- for use by other mods (e.g. health)
 
 climate = climate
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 local S = core.get_translator("climate")
 
 -------------------------------
@@ -17,7 +17,7 @@ local S = core.get_translator("climate")
 --i.e. will expose to significant water, put out fires etc
 climate.get_rain = function(pos, light)
     --check if raining and outside
-    local l = light or minimal.get_daylight(
+    local l = light or EXILE.get_daylight(
         vector.new(pos.x, pos.y + 1, pos.z), 0.5) or 0
     if l < 15 or pos.y < -30 then
         return false
@@ -54,7 +54,7 @@ climate.get_snow = function(pos, l)
     end
     --check if raining and outside
     if not l then
-        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+        l = EXILE.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
     end
 
     local w = climate.active_weather.name
@@ -80,7 +80,7 @@ climate.can_evaporate = function(pos, l)
     end
 
     if not l then
-        l = minimal.get_daylight(posa, 0.5)
+        l = EXILE.get_daylight(posa, 0.5)
     end
 
     --not when raining, i.e high humidity
@@ -184,7 +184,7 @@ climate.get_exhausting_weather = function(pos, l)
     end
     --check if a exhausting weather and outside
     if not l then
-        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+        l = EXILE.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
     end
 
     if l == 15 and climate.active_weather.exhausting then
@@ -203,7 +203,7 @@ climate.get_damage_weather = function(pos, l)
     end
     --check if a damage weather and outside
     if not l then
-        l = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+        l = EXILE.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
     end
 
     if l == 15 and climate.active_weather.damage then
@@ -216,8 +216,7 @@ end
 -------------------------------
 --TEMPERATURE ZONES
 
-zone = zone
-local zonecheck = zone.zonecheck
+zone = zone -- defined in exile_game
 
 local function zonespec(def)
     local mode = def["mode"] or "relative"
@@ -294,7 +293,7 @@ end
 local adjust_for_shelter = function(pos, temp, av_temp)
     --Shelter. Brings temp closer to average
     --daytime dark is the closest proxy for shelter.
-    local light = minimal.get_daylight({x=pos.x, y=pos.y+1, z=pos.z}, 0.5)
+    local light = EXILE.get_daylight({x=pos.x, y=pos.y+1, z=pos.z}, 0.5)
     if light and light <= 14 then
         if light <= 10 then     -- 1-10
             temp = (temp*0.25)+(av_temp*0.75)
@@ -421,7 +420,7 @@ end
 
 
 --For air_temp. Heat based movement. returns if moved or not
-local move_air_nodes = function(pos, meta, temp_m)
+local move_air_nodes = function(pos, _meta, temp_m)
     --heat rises         -cold sink
     local pos_new
     if temp_m > 0 then
@@ -521,7 +520,7 @@ function climate.heat_transfer(pos, nodename, replace)
     --dissappation..lose heat to environment
     local pos_max = {x=pos.x +1, y=pos.y +1, z=pos.z +1}
     local pos_min = {x=pos.x -1, y=pos.y -1, z=pos.z -1}
-    local air, cn = minetest.find_nodes_in_area(
+    local air, _ = minetest.find_nodes_in_area(
         pos_min, pos_max,
         { 'group:air', 'group:water' })
     --including group:temp_pass causes problems for doing pottery etc in groups
@@ -572,7 +571,7 @@ local air_def = {
     buildable_to = true,
     floodable = true,
     groups = {temp_pass = 1, heatable = 100, air = 1, timer = 11 },
-    on_timer =function(pos, elapsed)
+    on_timer =function(pos, _elapsed)
         return climate.heat_transfer(pos, "climate:air_temp", 'air')
     end,
     post_effect_color = {a = 5, r = 254, g = 254, b = 254},
@@ -584,7 +583,7 @@ minetest.register_node("climate:air_temp", air_def)
 local visible_air_def = table.copy(air_def)
 visible_air_def.description = S("Temperature Effect Air (Visible)")
 visible_air_def.drawtype = "allfaces"
-visible_air_def.on_timer = function(pos, elapsed)
+visible_air_def.on_timer = function(pos, _elapsed)
     return climate.heat_transfer(pos, "climate:air_temp_visible", 'air')
 end
 minetest.register_node("climate:air_temp_visible", visible_air_def)
@@ -783,7 +782,7 @@ local radiate_temp = function(target_pos, source_pos, temp_effect)
     local sight_lines = get_los(source_pos, target_pos)
     local los = false
 
-    for k, v in pairs(sight_lines) do
+    for _, v in pairs(sight_lines) do
         if v[1] then
             los = true
             break
@@ -840,7 +839,7 @@ climate.get_point_temp = function(pos, full)
         return temp
     end
 
-    for i, no in pairs(a) do
+    for _, no in pairs(a) do
         local name = minetest.get_node(no).name
         local effect = minetest.registered_nodes[name].temp_effect
         --adjust by distance

@@ -16,7 +16,7 @@ local function item_does_match (search, lang_code, name, desc)
         return
     end
 
-    search = minimal.make_search_string(search) -- already done in cache.sSearch
+    search = EXILE.make_search_string(search) -- already done in cache.sSearch
 
     -- in case "search" is exactly the output/item's name
     if name == search then
@@ -34,8 +34,8 @@ local function item_does_match (search, lang_code, name, desc)
     if desc then
         -- #TODO warning maybe not compatible with old clients
         local tr_desc =  core.get_translated_string(lang_code or "en", desc)
-        -- search should have had  minimal.make_search_string applied already
-        if string.find(minimal.make_search_string(tr_desc), search) then
+        -- search should have had  EXILE.make_search_string applied already
+        if string.find(EXILE.make_search_string(tr_desc), search) then
             return true
         end
     else

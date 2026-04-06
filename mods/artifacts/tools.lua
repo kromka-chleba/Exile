@@ -4,9 +4,7 @@
 --for debug, and gameplay
 ------------------------------------
 
-mobkit = mobkit
-minimal = minimal
-local hud_type = minimal.hud_type
+local hud_type = EXILE.hud_type
 
 local S = artifacts.S
 
@@ -61,16 +59,16 @@ minetest.register_craftitem("artifacts:light_meter", {
     inventory_image = "artifacts_light_meter.png",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         light_meter(user, pointed_thing)
     end,
     _dig_tip = S("List light level of node or self"),
     -- probe light of self
-    _on_use_item = function(user, itemstack, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    _on_use_item = function(user, _itemstack, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         light_meter(user, {ref = user, type = "object"})
@@ -136,8 +134,8 @@ minetest.register_craftitem("artifacts:temp_probe", {
     wield_image = "artifacts_temp_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         temp_probe(user, pointed_thing)
@@ -169,8 +167,8 @@ minetest.register_craftitem("artifacts:fuel_probe", {
     wield_image = "artifacts_fuel_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         fuel_probe(user, pointed_thing)
@@ -202,8 +200,8 @@ minetest.register_craftitem("artifacts:smelter_probe", {
     wield_image = "artifacts_smelter_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         smelter_probe(user, pointed_thing)
@@ -236,8 +234,8 @@ minetest.register_craftitem("artifacts:potters_probe", {
     wield_image = "artifacts_potters_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         potters_probe(user, pointed_thing)
@@ -269,8 +267,8 @@ minetest.register_craftitem("artifacts:chefs_probe", {
     wield_image = "artifacts_chefs_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         chefs_probe(user, pointed_thing)
@@ -283,7 +281,7 @@ minetest.register_craftitem("artifacts:chefs_probe", {
 ------------------------------------
 
 local admins_probe = function(user, pointed_thing)
-    local name, meta, ndef, param2 =
+    local name, _, ndef, _ =
         init_probe(user, pointed_thing)
     if not name then
         return
@@ -371,8 +369,8 @@ minetest.register_craftitem("artifacts:farmers_probe", {
     wield_image = "artifacts_farmers_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         farmers_probe(user, pointed_thing)
@@ -478,23 +476,23 @@ local spyglass_def = {
     inventory_image = "artifacts_spyglass.png",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
+    on_use = function(_itemstack, user, _pointed_thing)
         use_spyglass(user)
     end,
     _dig_tip = S("View far distances"),
-    _on_use_item = function(user, itemstacked, pointed_thing)
+    _on_use_item = function(user, _itemstacked, _pointed_thing)
         use_spyglass(user)
     end,
     _use_tip = S("View far distances"),
     -- right clicking
     on_place = function(itemstack, placer, pointed_thing)
-        local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+        local on_click = EXILE.on_rightclick(itemstack, placer, pointed_thing)
         if on_click ~= false then
             return on_click
         end
         use_spyglass(placer)
     end,
-    on_secondary_use = function(itemstack, user, pointed_thing)
+    on_secondary_use = function(_itemstack, user, _pointed_thing)
         use_spyglass(user)
     end,
     _place_tip = S("View far distances"),
@@ -512,7 +510,7 @@ local animal_probe = function(user, pointed_thing)
     -- permit getting stats of eggs
     local pos = pointed_thing.type == "node" and pointed_thing.under
     if pos then
-        local nodedef = minimal.get_nodedef(pos)
+        local nodedef = EXILE.get_nodedef(pos)
         -- not a node, has no groups, or isn't an egg
         if not (nodedef and nodedef.groups and nodedef.groups.egg) then return end
         local timer = minetest.get_node_timer(pos)
@@ -605,7 +603,7 @@ local animal_probe = function(user, pointed_thing)
             stats[#stats + 1] = S("Pregnant: @1", preg)
         end
         -- now to send the info!
-        chat_display(name, S("@1 CONDITION:", S("ANIMAL")), 
+        chat_display(name, S("@1 CONDITION:", S("ANIMAL")),
             table.concat(stats, "    "))
     end
 end
@@ -617,15 +615,15 @@ minetest.register_craftitem("artifacts:animal_probe", {
     wield_image = "artifacts_animal_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         animal_probe(user, pointed_thing)
     end,
     _dig_tip = S("List stats of pointed animal or player"),
     -- probe self
-    _on_use_item = function(user, itemstack, pointed_thing)
+    _on_use_item = function(user, _itemstack, _pointed_thing)
         -- let's play doctor doctor
         animal_probe(user, {ref = user, type = "object"})
     end,
@@ -639,8 +637,8 @@ minetest.register_craftitem("artifacts:admins_probe", {
     wield_image = "artifacts_admins_probe.png^[transformR90",
     stack_max = 1,
 
-    on_use = function(itemstack, user, pointed_thing)
-        if minimal.item_pickup(user, pointed_thing) then
+    on_use = function(_itemstack, user, pointed_thing)
+        if EXILE.item_pickup(user, pointed_thing) then
             return
         end
         admins_probe(user, pointed_thing)

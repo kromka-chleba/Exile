@@ -3,7 +3,8 @@
 Reducing noise to zero at the center creates a perfect spike as a summit.
 Constant noise throughout often creates floating islands at the summit.
 Choosing zero noise throughout creates a smooth geometric conical shape.
-There is a parameter CONVEX to control whether the basic conical structure bulges outwards or is pinched inwards in the middle.
+There is a parameter CONVEX to control whether the basic conical structure
+bulges outwards or is pinched inwards in the middle.
 
 ]]
 
@@ -66,8 +67,8 @@ local cxmax = math.floor((XMAX + 32) / 80)
 local czmax = math.floor((ZMAX + 32) / 80)
 local cxav = (cxmin + cxmax) / 2 -- spawn area midpoint in chunk co-ordinates
 local czav = (czmin + czmax) / 2
-local xnom = (cxmax - cxmin) / 4 -- noise multipliers
-local znom = (czmax - czmin) / 4
+--local xnom = (cxmax - cxmin) / 4 -- noise multipliers
+--local znom = (czmax - czmin) / 4
 
 
 -- Initialize noise objects to nil
@@ -77,7 +78,7 @@ local nobj_biome = nil
 
 
 -- On generated function
-minetest.register_on_generated(function(minp, maxp, seed)
+minetest.register_on_generated(function(minp, maxp, _seed)
     if maxp.x < XMIN or minp.x > XMAX
     or maxp.z < ZMIN or minp.z > ZMAX then
         return
@@ -112,7 +113,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
     local z1 = maxp.z
 
     local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-    local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
+    local genarea = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
     local data = vm:get_data()
 
     local c_stone = minetest.get_content_id("rings:antiquorium")
@@ -137,7 +138,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     for z = z0, z1 do
         for y = y0, y1 do
-            local vi = area:index(x0, y, z)
+            local vi = genarea:index(x0, y, z)
             for x = x0, x1 do
 
                 local n_structure = nvals_structure[nixyz]

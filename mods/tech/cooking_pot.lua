@@ -3,9 +3,6 @@
 
 local S = tech.S
 
-minimal = minimal
-liquid_store = liquid_store
-
 local random = math.random
 
 --[[
@@ -84,11 +81,11 @@ end
 local function get_empty_become(empty, become)
     -- get definition of empty
     local edef = type(empty) == "userdata" and empty.get_definition and empty:get_definition() or
-        vector.check(empty) and minimal.get_nodedef(empty) or core.registered_nodes[empty]
+        vector.check(empty) and EXILE.get_nodedef(empty) or core.registered_nodes[empty]
     if not edef then return end
     -- get definition of become
     local bdef = type(become) == "userdata" and become.get_definition and become:get_definition() or
-        vector.check(become) and minimal.get_nodedef(become) or core.registered_nodes[become]
+        vector.check(become) and EXILE.get_nodedef(become) or core.registered_nodes[become]
     if not bdef then return end
     -- get "soup kind" from either bdef's soup_kind, groups, or grabbing the last 4 characters of its name
     -- which should either be "soup" or "stew"
@@ -144,7 +141,7 @@ end
 -- transferring node soup/stew/filled bowl to an empty bowl itemstack
 local function soup_on_bowl_empty(pos, user, itemstack, p_inv, nodemeta)
     -- used for getting soup_no_meta_transfer
-    local nodedef = minimal.get_nodedef(pos)
+    local nodedef = EXILE.get_nodedef(pos)
     if not nodedef then return end
     -- get empty of soup at pos, become of empty bowl itemstack
     local empty, become = get_empty_become(itemstack, nodedef.name)
@@ -168,7 +165,7 @@ end
 local function soup_on_use(itemstack, user, pointed_thing, is_soup)
     local pos = pointed_thing and pointed_thing.under
     if not pos then return end
-    local nodedef = minimal.get_nodedef(pos)
+    local nodedef = EXILE.get_nodedef(pos)
     local itemdef = itemstack and itemstack.get_definition and itemstack:get_definition()
     if not (itemdef and nodedef) then return end -- how you get no node or itemstack definition???
     if type(is_soup) ~= "boolean" then
@@ -194,14 +191,14 @@ end
 
 -- soup/stew functionality
 -- preserves node meta into itemstack
-local function soup_preserve_metadata(pos, oldnode, oldmeta, drops)
+local function soup_preserve_metadata(_pos, _oldnode, oldmeta, drops)
     local item_meta = drops[1]:get_meta()
     item_meta:from_table({ fields = oldmeta})
 end
 
 -- soup/stew functionality
 -- preserves item meta into node
-local function soup_after_place(pos, placer, itemstack, pointed_thing)
+local function soup_after_place(pos, _placer, itemstack, _pointed_thing)
     local meta = core.get_meta(pos)
     local item_meta = itemstack and itemstack:get_meta()
     if not item_meta then return end
@@ -372,10 +369,10 @@ local function register_food_bowl_filled(name, def, empty, food_table, transfer,
           end
           -- play eating sound
          if ft.sound then
-           minimal.sound_play(minimal.merge_tables(ft.sound, {pos = pos}))
+           EXILE.sound_play(EXILE.merge_tables(ft.sound, {pos = pos}))
          end
 
-          minimal.switch_node(pos, node) -- save any meta
+          EXILE.switch_node(pos, node) -- save any meta
       end or nil
     -- misc extra stuff
     def.paramtype = def.paramtype or empty.paramtype or "light"
@@ -403,7 +400,7 @@ local function register_food_bowl(name, def)
     def.bowl_variant = (type(def.bowl_variant) == "string" and def.bowl_variant:lower()) or "clay"
     local variant = def.bowl_variant
     -- base def
-    def.stack_max = def.stack_max or minimal.stack_max_medium
+    def.stack_max = def.stack_max or EXILE.stack_max_medium
     def.paramtype = def.paramtype or "light"
     def.description = def.description or S("Empty Bowl")
     -- base groups
@@ -501,11 +498,11 @@ end
 -- clears all meta, refreshes formspec
 local function clear_pot(pos)
     core.get_node_timer(pos):stop()
-    local ndef = minimal.get_nodedef(pos)
+    local ndef = EXILE.get_nodedef(pos)
     if not ndef then return end -- can't do anything with a nil node
     local meta = core.get_meta(pos)
     meta:from_table() -- clear out meta
-    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+    EXILE.infotext_set_new(pos, meta, nil, nil, ndef)
     local inv = meta:get_inventory()
     inv:set_size("main", 8)
 end
@@ -585,7 +582,7 @@ local function adjust_baking(meta, total)
 end
 
 -- On dig, ask if the player wants to dump the pot, losing the contents
-local function spill_pot(returnedyes, data, player, playername)
+local function spill_pot(returnedyes, data, player, _playername)
     if returnedyes then
         local pot = core.get_node(data.spillpos)
         local potmeta = core.get_meta(data.spillpos)
@@ -597,7 +594,7 @@ end
 -- spawn steam particles
 -- pos, amount, timedelay
 local function spawn_steam(pos,def)
-    local ndef = minimal.get_nodedef(pos)
+    local ndef = EXILE.get_nodedef(pos)
     -- utilize collision box for proper node interactions
     local collbox = (ndef and ndef.collision_box)
                     or {-0.5,-0.5,-0.5, 0.5,0.5,0.5}
@@ -640,7 +637,7 @@ local function spawn_steam(pos,def)
         }
     }
     local denied = 0 -- utilized to determine how many spawnpos variants are ignored
-    for i,spinfo in pairs(spawnpos) do
+    for _,spinfo in pairs(spawnpos) do
         def.texture = "tech_steam_particles.png^[opacity:"..random(160,255)
         -- allow particle pos customization with spawnpos
         local ppos = {x=(spinfo.x or pos.x),y=(pos.y+collbox[5]),z=(spinfo.z or pos.z)}
@@ -666,16 +663,16 @@ local function spawn_steam(pos,def)
 end
 
 -- functionality for determining if a player is looking in a pot
--- look at minimal/storage_watcher_api.lua for more info
-local get_watchers = minimal.get_watchers
-local add_watcher = minimal.add_watcher
-local remove_watcher = minimal.remove_watcher
+-- look at exile_game/storage_watcher_api.lua for more info
+local get_watchers = EXILE.get_watchers
+local add_watcher = EXILE.add_watcher
+local remove_watcher = EXILE.remove_watcher
 
 
 -- PRIMARY POT FUNCTIONS
 
 -- pot_rightclick - what happens when you open the pot!
-local function pot_rightclick(pos, node, clicker, itemstack, pointed_thing)
+local function pot_rightclick(pos, node, clicker, _itemstack, _pointed_thing)
     if not core.is_player(clicker) then return end
     local meta = core.get_meta(pos)
     local fspec = meta:get_string("formspec")
@@ -721,11 +718,11 @@ end
 -- ;note is changed to be nil
 -- ;baking meta is set
 -- plays close sound
-local function pot_receive_fs_closed(pos, formname, fields, sender)
+local function pot_receive_fs_closed(pos, _formname, _fields, sender)
     local meta = core.get_meta(pos)
     if core.is_protected(pos, sender, meta) then return end
 
-    local ndef = minimal.get_nodedef(pos) -- used to get sounds and for infotext setting
+    local ndef = EXILE.get_nodedef(pos) -- used to get sounds and for infotext setting
     -- closing pot, 1 less player looking inside (done purposefully before all return checks)
     -- play a sound if we're the last to close the pot
     remove_watcher(pos, sender)
@@ -799,7 +796,7 @@ local function pot_receive_fs_closed(pos, formname, fields, sender)
     meta:set_string("contents_string",S("Contents: @1",contents))
     meta:set_string("note","nil") -- clear note about adding food
     -- pos, meta, meta_params, custom_func, nodedef
-    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+    EXILE.infotext_set_new(pos, meta, nil, nil, ndef)
     -- set soup satiation
     meta:set_string("pot_contents", core.serialize(total))
 end
@@ -811,10 +808,10 @@ local function pot_receive_fields(pos, formname, fields, sender)
     end
 end
 
-local function pot_cook(pos, elapsed)
+local function pot_cook(pos, _elapsed)
     local meta = core.get_meta(pos)
     -- node definition used to get name, sounds, and determine portions
-    local ndef = minimal.get_nodedef(pos)
+    local ndef = EXILE.get_nodedef(pos)
     if not ndef then return end
     -- commit heat transfer
     climate.heat_transfer(pos, ndef.name)
@@ -882,7 +879,7 @@ local function pot_cook(pos, elapsed)
                 -- complete final steps
                 spawn_steam(pos,{amt={22,45}})
                 if sounds.frying_final then
-                    minimal.sound_play(pos, sounds.frying_final)
+                    EXILE.sound_play(pos, sounds.frying_final)
                 end
                 -- stew is when hunger content is greater than thirst content
                 kind = total.hu > total.th and "Stew" or kind
@@ -904,7 +901,7 @@ local function pot_cook(pos, elapsed)
                 meta:set_string("contents_string",S("Contents: @1",desc))
                 meta:set_string("status_string",S("Status: @1 pot (finished)",S(kind)))
                 -- pos, meta, meta_params, custom_func, nodedef
-                minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+                EXILE.infotext_set_new(pos, meta, nil, nil, ndef)
             -- we're gonna cook!
             elseif temp >= 100 then
                 if inv:is_empty("main") then return end -- no inventory weird
@@ -912,10 +909,10 @@ local function pot_cook(pos, elapsed)
                 if status ~= 'cooking' then
                     meta:set_string('status', 'cooking')
                     meta:set_string('status_string',S("Status: @1 pot (cooking)", S(kind)))
-                    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+                    EXILE.infotext_set_new(pos, meta, nil, nil, ndef)
                     spawn_steam(pos,{amt={14,24}})
                     if sounds.frying_start then
-                        minimal.sound_play(pos, sounds.frying_start)
+                        EXILE.sound_play(pos, sounds.frying_start)
                     end
                     return true
                 -- already cookin'
@@ -925,10 +922,10 @@ local function pot_cook(pos, elapsed)
                     if sounds.frying then
                         -- play a sound indicating we're opened!
                         if opened and sounds.frying_open then
-                            minimal.sound_play(pos, sounds.frying_open)
+                            EXILE.sound_play(pos, sounds.frying_open)
                         -- play as normal
                         else
-                            minimal.sound_play(pos, sounds.frying)
+                            EXILE.sound_play(pos, sounds.frying)
                         end
                     end
                 end
@@ -938,7 +935,7 @@ local function pot_cook(pos, elapsed)
                 if status ~= 'prepared' and status ~= 'cooling' then
                     meta:set_string("status", "cooling")
                     meta:set_string("status_string",S('Status: @1 pot', S(kind)))
-                    minimal.infotext_set_new(pos, meta, nil, nil, ndef)
+                    EXILE.infotext_set_new(pos, meta, nil, nil, ndef)
                 end
             end -- baking/temp if statements
             -- check if we should decrease baking
@@ -979,7 +976,7 @@ core.register_node("tech:cooking_pot",{
     "tech_pottery.png",
     "tech_pottery.png"},
     drawtype = "nodebox",
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     paramtype = "light",
     paramtype2 = "facedir",
     node_box = {
@@ -1002,7 +999,7 @@ core.register_node("tech:cooking_pot",{
         local pottype = meta:get_string("type")
         if ( not inv:is_empty("main")
              or pottype ~= "") then -- type is empty on uprepared pot
-            minimal.yes_or_no(playername,
+            EXILE.yes_or_no(playername,
                               S("This pot is full and heavy. "..
                                 "Spill it?"), spill_pot,
                               { spillpos = pos } )
@@ -1049,7 +1046,7 @@ core.register_node("tech:cooking_pot",{
         end
         return count
     end,
-    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+    allow_metadata_inventory_take = function(pos, _listname, _index, stack, player)
         local meta = core.get_meta(pos)
         if core.is_protected(pos, player, meta) then return 0 end
         local status = meta:get_string("status")
@@ -1061,11 +1058,11 @@ core.register_node("tech:cooking_pot",{
         local count = stack:get_count()
         return count
     end,
-    on_infotext = function(pos, nodedef, meta, params)
-        params = minimal.infotext_update_params(meta, params)
+    on_infotext = function(_pos, nodedef, meta, params)
+        params = EXILE.infotext_update_params(meta, params)
         params.description = nodedef.description -- don't get description in get_base_params
         -- get proper owner string
-        params = minimal.infotext_get_base_params(nil, meta, params)
+        params = EXILE.infotext_get_base_params(nil, meta, params)
         -- get base status'
         params.status_string = params.status_string or S("Unprepared Pot")
         params.contents_string = params.contents_string or S("Contents: <EMPTY>")
@@ -1096,15 +1093,15 @@ core.register_node("tech:cooking_pot",{
         meta:set_string("status_string",S("Soup Pot"))
         meta:set_string("contents_string",S("Contents: @1",S("Water")))
         meta:set_string("note",S("Note: Add food to the pot to make soup"))
-        minimal.infotext_set_new(pos, meta, nil, nil, selfdef)
+        EXILE.infotext_set_new(pos, meta, nil, nil, selfdef)
         meta:set_string("formspec", get_formspec())
         -- play pour sounds if provided
         local pourdef = itemstack:get_definition()
         if pourdef and pourdef.sounds and pourdef.sounds.pour then
-            minimal.sound_play(pos, pourdef.sounds.pour)
+            EXILE.sound_play(pos, pourdef.sounds.pour)
         end
         -- drain or keep pot depending on if in creative
-        if not minimal.player_in_creative(user) then
+        if not EXILE.player_in_creative(user) then
             return liquid_store.drain_store(user, itemstack)
         end
         return itemstack
@@ -1165,11 +1162,11 @@ core.register_node("tech:cooking_pot",{
               clear_pot(pos)
           else -- otherwise lower soup percent
               meta:set_int("soup_percent", soup_perc)
-              minimal.infotext_set_new(pos, meta)
+              EXILE.infotext_set_new(pos, meta)
           end
       end
       -- inventory management
-      local plr_creative = minimal.player_in_creative(user)
+      local plr_creative = EXILE.player_in_creative(user)
       local deplete_bowl = false
       -- original itemstack cannot be replaced (more than 1 or player in creative)
       if itemstack:get_count() > 1 or plr_creative then
@@ -1179,7 +1176,7 @@ core.register_node("tech:cooking_pot",{
               modify_pot()
           -- no room, abort
           else
-              minimal.warn_inv_full(user)
+              EXILE.warn_inv_full(user)
           end
       -- last bowl used, replace instead
       else
@@ -1204,7 +1201,7 @@ core.register_node(
                  "nodes_nature_clay.png",
                  "nodes_nature_clay.png"},
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         paramtype2 = "facedir",
         node_box = {
@@ -1222,7 +1219,7 @@ core.register_node(
             return ncrafting.on_dig_pottery(pos, node, digger,
                                             ncrafting.base_firing)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length
             return ncrafting.fire_pottery(pos, "tech:cooking_pot_unfired",
                                           "tech:cooking_pot",
@@ -1257,7 +1254,7 @@ core.register_node(
                  "nodes_nature_clay.png",
                  "nodes_nature_clay.png"},
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         node_box = {
             type = "fixed",
@@ -1274,7 +1271,7 @@ core.register_node(
             return ncrafting.on_dig_pottery(pos, node, digger,
                                             math.floor(ncrafting.base_firing*0.25))
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, temperature
             --it'd be more realistic for the temp to be 440+, but sometimes we have to suspend reality for convenience
             return ncrafting.fire_pottery(pos, "tech:food_bowl_clay_unfired",

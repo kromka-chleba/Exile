@@ -6,11 +6,11 @@ local S = player_api.S
 -- with a custom hand, because yay! Engine!!!
 local hand_groups = {not_in_creative_inventory = 1, nobones = 1, hand = 1}
 local hand_def = core.registered_items[""]
-hand_groups = minimal.merge_tables(hand_groups, table.copy(hand_def.groups))
+hand_groups = EXILE.merge_tables(hand_groups, table.copy(hand_def.groups))
 
 -- callback for hand items to open a crafting formspec for simple crafting
 -- task doable with pure hands
-local function on_secondary_use_hand(itemstack, user, pointed_thing)
+local function on_secondary_use_hand(_itemstack, user, pointed_thing)
     -- must be a player not pointing at an object)
     if not core.is_player(user) or not pointed_thing
         or (pointed_thing.type ~= "nothing") then
@@ -28,7 +28,7 @@ end
 -- override properties of empty hand
 core.override_item("", {
                        tool_capabilities =
-                           {damage_groups = {fleshy=minimal.hand_dmg}},
+                           {damage_groups = {fleshy=EXILE.hand_dmg}},
                        liquids_pointable = true,
                        groups = table.copy(hand_groups),
                        on_secondary_use = on_secondary_use_hand,
@@ -45,23 +45,23 @@ minetest.register_item(
         wield_image = "player_hand.png",
         wield_scale = {x=0.667,y=0.667,z=1.667},
         tool_capabilities = {
-            full_punch_interval = minimal.hand_punch_int,
-            max_drop_level = minimal.hand_max_lvl,
+            full_punch_interval = EXILE.hand_punch_int,
+            max_drop_level = EXILE.hand_max_lvl,
             groupcaps = {
-                choppy = {times={[3]=minimal.hand_chop}, uses=0,
-                          maxlevel=minimal.hand_max_lvl},
-                crumbly = {times={[3]=minimal.hand_crum}, uses=0,
-                           maxlevel=minimal.hand_max_lvl},
-                snappy = {times={[3]=minimal.hand_snap}, uses=0,
-                          maxlevel=minimal.hand_max_lvl},
+                choppy = {times={[3]=EXILE.hand_chop}, uses=0,
+                          maxlevel=EXILE.hand_max_lvl},
+                crumbly = {times={[3]=EXILE.hand_crum}, uses=0,
+                           maxlevel=EXILE.hand_max_lvl},
+                snappy = {times={[3]=EXILE.hand_snap}, uses=0,
+                          maxlevel=EXILE.hand_max_lvl},
                 oddly_breakable_by_hand = {
                     times={
-                        [1]=minimal.hand_crum*minimal.t_scale1,
-                        [2]=minimal.hand_crum*minimal.t_scale2,
-                        [3]=minimal.hand_crum}, uses=0
+                        [1]=EXILE.hand_crum*EXILE.t_scale1,
+                        [2]=EXILE.hand_crum*EXILE.t_scale2,
+                        [3]=EXILE.hand_crum}, uses=0
                 },
             },
-            damage_groups = {fleshy=minimal.hand_dmg}
+            damage_groups = {fleshy=EXILE.hand_dmg}
         },
         liquids_pointable = true,
         groups = hand_groups,
@@ -72,7 +72,7 @@ minetest.register_item(
         -- despite allow_player_inventory_action Luanti 5.10 would let the hand
         -- disappear and show up later without an explicit on_drop()
         -- (fixed in 5.11, -> #TODO: remove if 5.11 becomes minimum req.)
-        on_drop = function(itemstack, dropper, pos)
+        on_drop = function(itemstack, _dropper, _pos)
             return itemstack
         end
 })
@@ -111,7 +111,7 @@ function player_api.add_player_hand(player)
                     inv:set_stack("new_hand_backup", 1, leftover)
                     core.chat_send_player(player_name,
                                     S("Check your inventory!"))
-                    minimal.warn_inv_full(player)
+                    EXILE.warn_inv_full(player)
                     -- make sure the clothing FS is the current sfinv page and
                     -- that it is up to date
                     sfinv.set_page(player, "clothing:clothing")
@@ -138,7 +138,7 @@ end
 -- NOTE: "take" includes cases where the player tries to drop the hand or to throw it
 -- out of a formspec window
 core.register_allow_player_inventory_action(
-function(player, action, inventory, inventory_info)
+function(player, action, _inventory, inventory_info)
     if action == "take" then
         if inventory_info.index == 1 then
             -- prevent taking the hand out of "main"

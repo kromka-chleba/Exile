@@ -3,12 +3,7 @@
 --exotic building materials
 ------------------------------------
 
-minimal = minimal
-artifacts = artifacts
-nodes_nature = nodes_nature
-tech = tech
-
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 local S = artifacts.S
 
@@ -20,14 +15,14 @@ local moon_glass = {
     description = S("Moon Glass"),
     drawtype = "glasslike",
     tiles = {"artifacts_moon_glass.png"},
-    stack_max = minimal.stack_max_bulky *4,
+    stack_max = EXILE.stack_max_bulky *4,
     light_source = 5,
     paramtype = "light",
     sunlight_propagates  = true,
     use_texture_alpha = c_alpha.blend,
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 1, craft_ground = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node("artifacts:moon_glass", moon_glass)
 
@@ -66,7 +61,7 @@ local sun_stone = {
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 3, oddly_breakable_by_hand = 3,
               attached_node = 1, temp_effect = 1, temp_pass = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 
 minetest.register_node("artifacts:sun_stone", sun_stone)
@@ -117,7 +112,7 @@ local moon_stone = {
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 3, oddly_breakable_by_hand = 3,
               attached_node = 1, temp_effect = 1, temp_pass = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node("artifacts:moon_stone", moon_stone)
 
@@ -129,7 +124,7 @@ minetest.register_node("artifacts:moon_stone", moon_stone)
 local star_stone = {
     description = S("Star Stone"),
     tiles = {"artifacts_moon_glass.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -148,7 +143,7 @@ local star_stone = {
     sunlight_propagates = true,
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 
 }
 
@@ -161,10 +156,10 @@ minetest.register_node("artifacts:star_stone", star_stone)
 local antiq = {
     description = S("Antiquorium"),
     tiles = {"artifacts_antiquorium.png"},
-    stack_max = minimal.stack_max_bulky *4,
+    stack_max = EXILE.stack_max_bulky *4,
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 1, craft_ground = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node("artifacts:antiquorium", antiq)
 
@@ -175,7 +170,7 @@ minetest.register_node("artifacts:antiquorium", antiq)
 local ladder = {
     description = S("@1 Ladder",S("Antiquorium")),
     drawtype = "nodebox",
-    stack_max = minimal.stack_max_medium,
+    stack_max = EXILE.stack_max_medium,
     tiles = {
         "artifacts_antiquorium_ladder.png",
         "artifacts_antiquorium_ladder.png^[colorize:#505050",
@@ -208,7 +203,7 @@ local ladder = {
                                               param1 = node.param1,
                                               param2 = node.param2
                 })
-                if not (minimal.player_in_creative(clicker)) then
+                if not (EXILE.player_in_creative(clicker)) then
                     itemstack:take_item()
                 end
             else
@@ -219,7 +214,7 @@ local ladder = {
                                                  param1 = node.param1,
                                                  param2 = node.param2
                     })
-                    if not (minimal.player_in_creative(clicker)) then
+                    if not (EXILE.player_in_creative(clicker)) then
                         itemstack:take_item()
                     end
                 end
@@ -265,7 +260,7 @@ doors.register_trapdoor("artifacts:trapdoor_antiquorium", trapdoor)
 local trampoline = {
     description = S('Trampoline'),
     tiles = {'artifacts_antiquorium_chest_top.png'},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
     paramtype = "light",
     paramtype2 = "wallmounted",
@@ -285,7 +280,7 @@ local trampoline = {
               oddly_breakable_by_hand = 3, temp_pass = 1},
     sounds = nodes_nature.node_sound_defaults(
         {footstep = {name="artifacts_bouncy", gain=0.8}}),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node('artifacts:trampoline', trampoline)
 
@@ -295,7 +290,7 @@ minetest.register_node('artifacts:trampoline', trampoline)
 local conveyor = {
     description = S('Conveyor'),
     tiles = {'artifacts_antiquorium_chest_top.png'},
-    stack_max = minimal.stack_max_medium *2,
+    stack_max = EXILE.stack_max_medium *2,
     drawtype = "nodebox",
     light_source = 2,
     paramtype = "light",
@@ -308,6 +303,6 @@ local conveyor = {
     groups = {slippery = 1000, oddly_breakable_by_hand = 3, temp_pass = 1},
     sounds = nodes_nature.node_sound_defaults(
         {footstep = {name="artifacts_transport_fail", gain=0.5}}),
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node('artifacts:conveyor', conveyor)

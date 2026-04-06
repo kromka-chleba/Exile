@@ -141,7 +141,7 @@ local function NewRollTable(color)
     local NewTable = {}
     local i = 1
     for nm, tab in pairs(dye_candidates) do
-        for j = 1, tab.weight do -- put the names in the hat
+        for _ = 1, tab.weight do -- put the names in the hat
             NewTable[i] = nm
             i = i + 1
             if is_neighbor(color, tab.dcolor) then
@@ -244,12 +244,12 @@ bundledef = {
     inventory_image = "tech_retted_cana_bundle.png", -- #TODO: proper texture
     tiles = { {name="tech_retted_cana_bundle.png"} },
     drawtype = "normal",
-    stack_max = minimal.stack_max_bulky*2,
+    stack_max = EXILE.stack_max_bulky*2,
     paramtype = "light",
     paramtype2 = "none",
     groups = { dig_immediate = 3, heatable = 50, _ncrafting_bundle = 1,
                falling_node = 1, timer = 15, compostable = 1 },
-    after_place_node = function(pos, placer, itemstack, pointed_thing)
+    after_place_node = function(pos, _placer, itemstack, _pointed_thing)
         local meta = minetest.get_meta(pos)
         local imeta = itemstack:get_meta()
         local plant = imeta:get_string("ncrafting:bundled_plant")
@@ -260,7 +260,7 @@ bundledef = {
         meta:get_string("ncrafting:bundle_failed",failed)
         meta:set_string("infotext", bundlename(imeta, plant, treatment))
     end,
-    preserve_metadata = function(pos, oldnode, oldmeta, drops)
+    preserve_metadata = function(_pos, _oldnode, oldmeta, drops)
         local bundled_plant = oldmeta["ncrafting:bundled_plant"] or "none"
         local treatment = oldmeta["ncrafting:bundle_treatment"]
         local failed = oldmeta["ncrafting:bundle_failed"]
@@ -394,7 +394,7 @@ minetest.register_node(
         tiles = { {name="tech_stick.png"}
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky*2,
+        stack_max = EXILE.stack_max_bulky*2,
         paramtype = "light",
         paramtype2 = "facedir",
         node_box = {
@@ -422,7 +422,7 @@ minetest.register_node(
                 return true
             end
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, _itemstack, _pointed_thing)
             local meta = minetest.get_meta(pos)
             meta:set_string("formspec", table_formspec[0])
             local inv = meta:get_inventory()
@@ -430,7 +430,7 @@ minetest.register_node(
             inv:set_size("craftresult", 1)
         end,
         allow_metadata_inventory_put = function(
-                pos, listname, index, stack, player)
+                pos, listname, index, stack, _player)
             if listname == "craftresult" then -- can only add to input slot
                 return 0
             end
@@ -451,15 +451,14 @@ minetest.register_node(
             end
             return 0
         end,
-        on_metadata_inventory_put = function(pos, listname, index,
-                                             stack, player)
+        on_metadata_inventory_put = function(pos, _listname, _index,
+                                             _stack, _player)
             adjust_button(pos)
         end,
-        on_metadata_inventory_take = function(pos, listname, index,
-                                              stack, player)
+        on_metadata_inventory_take = function(pos)
             adjust_button(pos)
         end,
-        on_receive_fields = function(pos, formname, fields, sender)
+        on_receive_fields = function(pos, _formname, fields, _sender)
             local meta = minetest.get_meta(pos)
             local inv = meta:get_inventory()
             if fields.dyebundle then -- bundle 4 plants together
@@ -489,7 +488,7 @@ minetest.register_node(
                 end
                 local plants = bmeta:get_string("ncrafting:bundled_plant")
                 local treatment = bmeta:get_string("ncrafting:bundle_treatment")
-                local result = ""
+                local result
                 if ( dye_source[plants] and
                      dye_source[plants].method == treatment ) then
                     result = "ncrafting:dye_"..dye_source[plants].color.." 2"
@@ -504,7 +503,7 @@ minetest.register_node(
                     result = bundle
                     inv:set_stack("craft", 1, ItemStack(""))
                 end
-                inv:set_stack("craftresult", 1, ItemStack(result))
+                inv:set_stack("craftresult", 1, ItemStack(result or ""))
             end
             adjust_button(pos)
         end,
@@ -535,7 +534,7 @@ local function clear_pot(pos) -- Initial set up for new pot
     inv:set_size("main", 1)
 end
 
-local function potdump(clicked_yes, data_table, player, playername)
+local function potdump(clicked_yes, data_table, player, _playername)
     -- Dump out a pot's contents, clearing it for new dye
     if clicked_yes then
         local pos = data_table.potpos
@@ -598,7 +597,7 @@ local function dyepot_stir(pos, puncher)
         meta:set_int("dye_soak", soak + 1)
     end
     node.param2 = color*8 + spin_table[rotation]
-    minimal.switch_node(pos, node)
+    EXILE.switch_node(pos, node)
     return false
 end
 
@@ -625,7 +624,7 @@ local function check_punch(pos, node, puncher, name)
     end
 end
 
-local function dyepot_punch(pos, node, puncher, pointed_thing)
+local function dyepot_punch(pos, node, puncher, _pointed_thing)
     local name = puncher:get_player_name()
     if stirringplayers[name] then -- disallow multiple punches
         return
@@ -635,7 +634,7 @@ local function dyepot_punch(pos, node, puncher, pointed_thing)
                                            node, puncher, name)
 end
 
-local function add_dye(pos, stack, def)
+local function add_dye(pos, _stack, def)
     --if a dye is added, set the pot's color
     local node = minetest.get_node(pos)
     local potdye = minetest.strip_param2_color(node.param2,
@@ -670,7 +669,7 @@ minetest.register_node(
         overlay_tiles = {"", "", "", "", "dye_pot_top.png", "",
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky*2,
+        stack_max = EXILE.stack_max_bulky*2,
         paramtype = "light",
         paramtype2 = "colorwallmounted",
         place_param2 = 250,
@@ -690,7 +689,7 @@ minetest.register_node(
         groups = {pottery = 1, temp_pass = 1, falling_node = 1},
         --sounds = nodes_nature.node_sound_stone_defaults(),
         on_punch = dyepot_punch,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, itemstack, _pointed_thing)
             local node = minetest.get_node(pos)
             local color = tonumber(itemstack:get_meta():get_string(
                                        "palette_index")) or 31*8
@@ -699,7 +698,7 @@ minetest.register_node(
             clear_pot(pos)
         end,
         allow_metadata_inventory_put = function(
-                pos, listname, index, stack, player)
+                pos, _listname, _index, stack, _player)
             local def = stack:get_definition()
             local palette = def.palette
             if def._ncrafting_dye_color then
@@ -716,8 +715,8 @@ minetest.register_node(
             end
             return 2 -- it's a valid dyeable item
         end,
-        on_metadata_inventory_put = function(pos, listname, index,
-                                             stack, player)
+        on_metadata_inventory_put = function(pos, listname, _index,
+                                             stack, _player)
             local def = stack:get_definition()
             if def._ncrafting_dye_color then
                 local inv = minetest.get_inventory({type="node", pos=pos})
@@ -725,7 +724,7 @@ minetest.register_node(
             end
             minetest.get_meta(pos):set_string("dye_soak", 1)
         end,
-        on_receive_fields = function(pos, formname, fields, sender)
+        on_receive_fields = function(pos, _formname, fields, sender)
             if fields.dump then -- pushed the "dump pot" button
                 local playername = sender:get_player_name()
                 if minetest.is_protected(pos, playername) then
@@ -735,7 +734,7 @@ minetest.register_node(
                 local inv = meta:get_inventory()
                 if ( inv:is_empty("craft") and
                      inv:is_empty("craftresult") ) then
-                    minimal.yes_or_no(playername,
+                    EXILE.yes_or_no(playername,
                                       S("Dump the dye from the pot?"),
                                       potdump,
                                       { potpos = pos } )

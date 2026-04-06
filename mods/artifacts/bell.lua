@@ -154,7 +154,7 @@ local bell_def = {
     groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},
 
     sounds = tech.node_sound_metal_defaults({dig=false}),
-    on_punch = function (pos,node,puncher)
+    on_punch = function (pos,_node,_puncher)
         minetest.sound_play( 'artifacts_bell_punch',
                              { pos = pos, gain = 1.5, max_hear_distance = 300,});
         -- minetest.chat_send_all(puncher:get_player_name()..' has rung the bell!')
@@ -162,7 +162,7 @@ local bell_def = {
 
     after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta )
         -- Add protection to bell.
-        minimal.protection_after_place_node(pos,placer, itemstack, pointed_thing, nmeta, imeta )
+        EXILE.protection_after_place_node(pos,placer, itemstack, pointed_thing, nmeta, imeta )
         if( placer ~= nil ) then
             -- minetest.chat_send_all(placer:get_player_name()..
             -- ' has placed a new bell at '..tostring( minetest.pos_to_string( pos )));
@@ -172,7 +172,7 @@ local bell_def = {
         save_bell_positions( placer );
     end,
 
-    after_dig_node = function(pos, oldnode, oldmetadata, digger)
+    after_dig_node = function(pos, _oldnode, _oldmetadata, digger)
         --if( digger ~= nil ) then
         -- minetest.chat_send_all(digger:get_player_name()..
         --' has removed the bell at '..tostring( minetest.pos_to_string( pos )));

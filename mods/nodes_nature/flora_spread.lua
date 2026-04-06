@@ -5,9 +5,6 @@
 -- cane growth
 --spreading surfaces
 
-nodes_nature = nodes_nature
-mapchunk_shepherd = mapchunk_shepherd
-
 local nsl = naturalslopeslib
 local ms = mapchunk_shepherd
 local nn = nodes_nature
@@ -52,10 +49,10 @@ local function flora_spread(pos, node)
         pos0, pos1, "group:sediment")
     local num_soils = #soils
     if num_soils == 0 then return end
-    for si = 1, math.random(1, num_soils) do
+    for _ = 1, math.random(1, num_soils) do
         local soil = soils[math.random(num_soils)]
         local soil_name = minetest.get_node(soil).name
-        local above_soil = minimal.get_pos_above(soil)
+        local above_soil = EXILE.get_pos_above(soil)
         if soil_name == under_name then
             minetest.set_node(above_soil, {name = seed_name})
             ms.labels_to_position(above_soil,
@@ -143,7 +140,7 @@ local function grow_cane(pos, node)
     -- we can't grow here! kill.
     local function kill()
       -- will check for 50 tall, but will return if above node aint a cane
-      for i = 1, 50 do
+      for _ = 1, 50 do
             current_pos.y = current_pos.y + 1
             current_node = core.registered_nodes[core.get_node(current_pos).name]
             if current_node and current_node.groups and current_node.groups.cane_plant then
@@ -238,7 +235,7 @@ local function grow_cane(pos, node)
     if nr_to_grow == 0 then return end -- can't even grow yet
 
     -- catch up and growing
-    for i = 1, nr_to_grow do
+    for _ = 1, nr_to_grow do
         if height < 6 and node.name == "air" then
             -- reuse bottom's param2
             minetest.set_node(pos, {name = pdef.name,
@@ -295,7 +292,7 @@ minetest.register_abm({
             local pos_above = vector.new(pos.x, pos.y + 1, pos.z)
             local above_name = minetest.get_node(pos_above).name
             if above_name ~= "air"
-                and not minimal.pos_group(pos_above, "flora") then
+                and not EXILE.pos_group(pos_above, "flora") then
 
                 return
             end
@@ -310,7 +307,7 @@ minetest.register_abm({
                 return
             end
             local sed_nodedef = minetest.registered_nodes[node.name]
-            local light_above = minimal.get_daylight(pos_above, 0.5)
+            local light_above = EXILE.get_daylight(pos_above, 0.5)
             for i = 1, #positions do
                 local soil_pos = positions[i]
                 local soil_name = minetest.get_node(soil_pos).name
@@ -353,7 +350,7 @@ minetest.register_abm({
         action = function(pos, node)
             local pos_above = {x = pos.x, y = pos.y + 1, z = pos.z}
             local soil_nodedef = minetest.registered_nodes[node.name]
-            local light_above = minimal.get_daylight(pos_above, 0.5)
+            local light_above = EXILE.get_daylight(pos_above, 0.5)
             if not light_above or light_above < 10 then
                 minetest.set_node(pos, {name = soil_nodedef.drop})
             end
@@ -372,12 +369,12 @@ minetest.register_abm({
         action = function(pos, node)
             if node.name == "nodes_nature:ziarnoplon_flowering" then
                 if math.random() > 0.99 then
-                    minimal.force_place_keep_param2(
+                    EXILE.force_place_keep_param2(
                         pos, "nodes_nature:srebroplon_flowering")
                 end
             else
                 if math.random() > 0.70 then
-                    minimal.force_place_keep_param2(
+                    EXILE.force_place_keep_param2(
                         pos, "nodes_nature:ziarnoplon_flowering")
                 end
             end
@@ -390,7 +387,7 @@ minetest.register_abm({
         interval = 1600,
         chance = 3,
         catch_up = true,
-        action = function(pos, node)
+        action = function(pos, _node)
             if seasons.is_winter() then return end -- it's winter, let's not regrow, at all lol
             local above_pos = pos + vector.new(0,1,0)
             local above = core.get_node(above_pos)

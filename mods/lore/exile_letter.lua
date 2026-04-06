@@ -14,7 +14,6 @@
 
 
 local random = math.random
-lore = lore
 local S = lore.S
 local NS = function(s) return s end
 
@@ -480,7 +479,7 @@ local function setup_letter(player, imeta)
 end
 
 -----------------------------------------------
-local after_place = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+local after_place = function(pos, placer, itemstack, _pt, nmeta, imeta)
     nmeta = nmeta or core.get_meta(pos)
     imeta = imeta or itemstack:get_meta()
     local letter_text = setup_letter(placer, imeta)
@@ -519,7 +518,7 @@ minetest.register_node(
         sounds = nodes_nature.node_sound_leaves_defaults(),
         after_place_node = after_place,
         on_secondary_use = on_secondary_use,
-        preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+        preserve_metadata = function(_pos, _oldnode, oldmeta, drops, imeta)
             imeta = imeta or drops[1] and drops[1]:get_meta()
             imeta:from_table({
                     fields = { creator = oldmeta.creator,

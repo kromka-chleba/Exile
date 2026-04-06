@@ -1,7 +1,5 @@
 local random = math.random
 
-player_api = player_api
-artifacts = artifacts
 local S = artifacts.S
 
 local store = minetest.get_mod_storage()
@@ -118,7 +116,7 @@ function airboat.on_punch(self, puncher)
         -- Move to inventory
         self.removed = true
         local inv = puncher:get_inventory()
-        if not (minimal.player_in_creative(puncher))
+        if not (EXILE.player_in_creative(puncher))
             or not inv:contains_item("main", "artifacts:airboat") then
             local leftover = inv:add_item("main", "artifacts:airboat")
             if not leftover:is_empty() then
@@ -192,7 +190,7 @@ function airboat.on_step(self, dtime)
                     minetest.sound_play("artifacts_airboat_gear",
                                         {pos = pos, gain = 1,
                                          max_hear_distance = 6})
-                    minimal.send_message(driver_objref, self.driver,
+                    EXILE.send_message(driver_objref, self.driver,
                                          S("[airboat] Cruise on"), 3)
                 end
             elseif ctrl.down then
@@ -202,7 +200,7 @@ function airboat.on_step(self, dtime)
                     minetest.sound_play("artifacts_airboat_gear",
                                         {pos = pos, gain = 1,
                                          max_hear_distance = 6})
-                    minimal.send_message(driver_objref, self.driver,
+                    EXILE.send_message(driver_objref, self.driver,
                                          S("[airboat] Cruise off"), 3)
                 end
             elseif ctrl.up or self.auto then
@@ -295,7 +293,7 @@ local airboat_def = {
         -- if player isn't sneaking...
         if not placer:get_player_control().sneak then
             -- Run any on_rightclick function of pointed node instead
-            local on_click = minimal.on_rightclick(itemstack, placer,
+            local on_click = EXILE.on_rightclick(itemstack, placer,
                                                    pointed_thing)
             if on_click ~= false then
                 return on_click
@@ -312,7 +310,7 @@ local airboat_def = {
 
             air_boat:set_yaw(placer:get_look_horizontal())
 
-            if not (minimal.player_in_creative(placer)) then
+            if not (EXILE.player_in_creative(placer)) then
                 itemstack:take_item()
             end
         end
@@ -322,7 +320,7 @@ local airboat_def = {
 
 minetest.register_craftitem("artifacts:airboat", airboat_def)
 
-function airboat.on_activate(self, staticdata, dtime_s)
+function airboat.on_activate(self, _staticdata, _dtime_s)
     local mypos = self.object:get_pos()
     if mypos and saved_airboats then
         mypos = vector.floor(mypos)

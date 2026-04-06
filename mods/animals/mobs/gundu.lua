@@ -6,9 +6,6 @@
 ]]
 ---------------------------------------------------------------------
 
-animals = animals
-mobkit = mobkit
-
 -- Internationalization
 local S = animals.S
 
@@ -326,7 +323,7 @@ local self_data = {
     -- egg
     egg = {
         tiles = {"animals_gundu_eggs.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         groups = {egg = 3},
         drawtype = "normal",
         egg_medium = 'nodes_nature:salt_water_source',
@@ -334,7 +331,7 @@ local self_data = {
     },
     -- spawnegg or live animal
     spawnegg = {
-        stack_max = minimal.stack_max_medium/2
+        stack_max = EXILE.stack_max_medium/2
     },
 }
 animals.register_animal("animals:gundu",self_data)

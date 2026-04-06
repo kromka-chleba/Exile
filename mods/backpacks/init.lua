@@ -1,5 +1,4 @@
 backpacks = {}
-storage = storage
 -- Internationalization
 local S = minetest.get_translator("backpacks")
 
@@ -35,7 +34,7 @@ local function get_custom_name(imeta, idef, item)
             core.log("you forgot to give `idef` or `item` param to get_custom_name")
         end
         -- #TODO check if possible that I have no _orig_desc
-        -- since it should be done in minimal/tooltips.lua
+        -- since it should be done in exile_game/tooltips.lua
         if not idef._orig_desc then
             core.log("warning", "no _orig_desc for " .. item:get_name() )
         end
@@ -72,9 +71,9 @@ local function bagitem_set_description_and_inventory(item, imeta, item_inv, idef
 
     -- Adds full/partial/empty tag if needed
     local add_string -- used for additional info from bag's inventory
-    item_inv = item_inv or minimal.get_item_inventory(item, imeta)
+    item_inv = item_inv or EXILE.get_item_inventory(item, imeta)
     if item_inv then --#TODO I got it nil testing, not sure why
-        -- maybe because we do get on "" string in minimal.get_item_inventory ?
+        -- maybe because we do get on "" string in EXILE.get_item_inventory ?
         local counts = item_inv:get_full_partial_empty_count()
         counts.size = item_inv:get_size()
         -- actually empty
@@ -215,7 +214,7 @@ minetest.register_on_player_receive_fields(function(player,
         local inv = meta:get_inventory()
         if not inv then return clear() end
         -- get node inventory
-        local node_inv = minimal.convert_node_inventory(inv,"main")
+        local node_inv = EXILE.convert_node_inventory(inv,"main")
         if not node_inv then return clear()  end
         -- item metadata (only access if we can get node inventory)
         local item_meta = itemstack:get_meta()
@@ -223,7 +222,7 @@ minetest.register_on_player_receive_fields(function(player,
         if not item_meta:get("inv_main") then -- create inventory to use
             item_meta:set_string("inv_main","return {}")
         end
-        local item_inv = minimal.get_item_inventory(itemstack,
+        local item_inv = EXILE.get_item_inventory(itemstack,
                                                     item_meta, "inv_main")
         if not item_inv then return clear() end
         -- get inventory lists
@@ -239,7 +238,7 @@ minetest.register_on_player_receive_fields(function(player,
         -- dump it all into that storage!
         if fields.Dump and (#node_inv:get_full() < node_inv:get_size()
                             and #item_inv:get_empty() ~= #item_list) then
-            local def = minimal.get_nodedef(pos)
+            local def = EXILE.get_nodedef(pos)
             for index,item in pairs(item_list) do
                 local count = item:get_count()
                 count = def.storage_inventory_dump_into and
@@ -301,12 +300,12 @@ local after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, 
         node.param2 = color + ndir
         minetest.swap_node(pos, node)
     end
-    if not minimal.player_in_creative(placer) then
+    if not EXILE.player_in_creative(placer) then
         itemstack:take_item()
     end
 end
 
--- is called after minimal overrides version
+-- is called after EXILE overrides version
 -- it means that {'creator','label','short_description','description'}
 -- are already copied in drops[1] from oldnode
 local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
@@ -323,9 +322,9 @@ local preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
     -- because oldmeta doesn't seem to contain the inventory meta field
     -- but only meta:to_table().fields...
     local meta = minetest.get_meta(pos)
-    local inv = minimal.convert_node_inventory(meta)
+    local inv = EXILE.convert_node_inventory(meta)
 
-    -- local inv = minimal.convert_node_inventory(oldmeta)
+    -- local inv = EXILE.convert_node_inventory(oldmeta)
     bagitem_set_description_and_inventory(item, imeta, inv)
 end
 
@@ -415,7 +414,7 @@ function backpacks.register_backpack(name, def)
     def.can_dump = (def.can_dump ~= false)
     def.can_pack = (def.can_pack ~= false)
 
-    -- tooltips, to be added then by minimal/tooltips.lua in def._tool_tips
+    -- tooltips, to be added then by exile_game/tooltips.lua in def._tool_tips
     -- What this item/node does when used AUX1/"Use" key
     if not def._use_tip then
         if def.can_dump then
@@ -462,7 +461,7 @@ function backpacks.register_backpack(name, def)
     def._on_use_item = function(player, itemstack, pointed_thing)
         if not (pointed_thing and pointed_thing.under) then return end
         local pos = pointed_thing.under
-        local ndef = minimal.get_nodedef(pos)
+        local ndef = EXILE.get_nodedef(pos)
         if not (ndef and ndef.groups) then return end
         -- needs to be storage or bones
         if not (ndef.groups.storage or ndef.name == "bones:bones") then return end
@@ -479,12 +478,12 @@ function backpacks.register_backpack(name, def)
     -- this is so we don't display the custom full/partial/empty thing in infotext
     def.on_infotext = def.on_infotext or function(pos, nodedef, meta, params)
         -- #TODO followwing line seems useless as already done before the call of the function
-        params = minimal.infotext_update_params(meta, params)
+        params = EXILE.infotext_update_params(meta, params)
         -- Here we change the desc
         -- to not have the full/partial/empty info in infotext
         params.description = get_custom_name(meta, def, nil)
         -- this function returns params.description + owner field + label
-        return minimal.infotext_get_base_string(nil, meta, params)
+        return EXILE.infotext_get_base_string(nil, meta, params)
     end
     -- register backpack through storage.register_storage()
     storage.register_storage(":backpacks:backpack_"..name,def)

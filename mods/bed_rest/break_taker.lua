@@ -1,9 +1,6 @@
 local S = minetest.get_translator("bed_rest")
 local NS = function(s) return s end
 
---silence luacheck warnings about accessing globals:
-bed_rest = bed_rest
-
 ----------------------------------------------------
 --Break taker
 --
@@ -262,8 +259,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             local meta = player:get_meta()
             meta:set_string("breaktaker", tostring(setting))
             -- not sure it does something
-            -- copied from minimal/playersetting.lua
-            minimal.setting_changed(player, "breaktaker", setting, meta)
+            -- copied from exile_game/playersetting.lua
+            EXILE.setting_changed(player, "breaktaker", setting, meta)
         end
     end
 end)

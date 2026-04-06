@@ -9,17 +9,17 @@ local stone_list = nodes_nature.stone_list
 local rock_list  = nodes_nature.rock_list
 
 function cobble_on_place(itemstack, placer, pointed_thing, name)
-    local on_click = minimal.on_rightclick(itemstack, placer, pointed_thing)
+    local on_click = EXILE.on_rightclick(itemstack, placer, pointed_thing)
     if on_click ~= false then
         return on_click
     end
-    minimal.recognize_rapid_placing(itemstack, placer)
+    EXILE.recognize_rapid_placing(itemstack, placer)
     local cobble_nr = math.random(1,3)
     local param2 = math.random(0,3)
     local place_item = ItemStack("nodes_nature:"..name.."_cobble"..cobble_nr)
-    local stack, position =
+    local _, position =
         minetest.item_place_node(place_item, placer, pointed_thing, param2)
-    if position and not (minimal.player_in_creative(placer)) then
+    if position and not (EXILE.player_in_creative(placer)) then
         itemstack:take_item(1)
     end
     return itemstack
@@ -66,7 +66,7 @@ for i in ipairs(stone_list) do
     minetest.register_node(raw[1], {
                                description = desc,
                                tiles = {raw[2]},
-                               stack_max = minimal.stack_max_bulky,
+                               stack_max = EXILE.stack_max_bulky,
                                groups = g,
                                drop = dropped,
                                sounds = s,
@@ -79,7 +79,7 @@ for i in ipairs(stone_list) do
                                description = S("@1 Brick", desc),
                                tiles = {brick[2]},
                                paramtype2 = "facedir",
-                               stack_max = minimal.stack_max_bulky *3,
+                               stack_max = EXILE.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
                                          masonry = 1, craft_ground = 1},
@@ -90,7 +90,7 @@ for i in ipairs(stone_list) do
     minetest.register_node(block[1], {
                                description = S("@1 Block", desc),
                                tiles = {block[2]},
-                               stack_max = minimal.stack_max_bulky *2,
+                               stack_max = EXILE.stack_max_bulky *2,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
                                          masonry = 1, craft_ground = 1},
@@ -109,7 +109,7 @@ for i in ipairs(stone_list) do
         {brick[2]}, -- tiles
         S("@1 Brick Stair",desc),
         S("@1 Brick Slab",desc),
-        minimal.stack_max_bulky * 6,
+        EXILE.stack_max_bulky * 6,
         nodes_nature.node_sound_stone_defaults()
     })
 
@@ -153,7 +153,7 @@ for i in ipairs(rock_list) do
     minetest.register_node(raw[1], {
                                description = desc,
                                tiles = {raw[2]},
-                               stack_max = minimal.stack_max_bulky,
+                               stack_max = EXILE.stack_max_bulky,
                                groups = g,
                                drop = boulder,
                                sounds = s,
@@ -168,7 +168,7 @@ for i in ipairs(rock_list) do
                                drawtype = "mesh",
                                mesh = "nodes_nature_boulder.obj",
                                tiles = {raw[2]},
-                               stack_max = minimal.stack_max_bulky,
+                               stack_max = EXILE.stack_max_bulky,
                                paramtype = "light",
                                paramtype2 = "facedir",
                                groups = {cracky = hardness, falling_node = 1,
@@ -195,7 +195,7 @@ for i in ipairs(rock_list) do
                                description = S("@1 Brick", desc),
                                tiles = {brick[2]},
                                paramtype2 = "facedir",
-                               stack_max = minimal.stack_max_bulky *3,
+                               stack_max = EXILE.stack_max_bulky *3,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
                                          masonry = 1, craft_ground = 1},
@@ -223,7 +223,7 @@ for i in ipairs(rock_list) do
                                    {-0.5, -0.375, 0.375, -0.375, 0.375, 0.5},
                                    }
                                    },]]
-                               stack_max = minimal.stack_max_bulky *2,
+                               stack_max = EXILE.stack_max_bulky *2,
                                groups = {cracky = hardness, falling_node = 1,
                                          oddly_breakable_by_hand = 1,
                                          masonry = 1, craft_ground = 1},
@@ -286,7 +286,7 @@ for i in ipairs(rock_list) do
         {brick[2]},
         S("@1 Brick Stair", desc),
         S("@1 Brick Slab", desc),
-        minimal.stack_max_bulky * 6,
+        EXILE.stack_max_bulky * 6,
         nodes_nature.node_sound_stone_defaults()
     })
 
@@ -302,7 +302,7 @@ for i in ipairs(rock_list) do
         {block[2]},
         S("@1 Block Stair", desc),
         S("@1 Block Slab", desc),
-        minimal.stack_max_bulky * 4,
+        EXILE.stack_max_bulky * 4,
         nodes_nature.node_sound_stone_defaults()
     })
 
@@ -324,7 +324,7 @@ for i in ipairs(rock_list) do
                 drawtype = "mesh",
                 mesh = "nodes_nature_cobble"..cobble_nr..".obj",
                 tiles = {raw[2]},
-                stack_max = minimal.stack_max_bulky * 8,
+                stack_max = EXILE.stack_max_bulky * 8,
                 paramtype = "light",
                 paramtype2 = "facedir",
                 groups = cobble_groups,

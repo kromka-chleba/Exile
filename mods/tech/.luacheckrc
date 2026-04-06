@@ -1,22 +1,24 @@
-unused_args = false
 allow_defined_top = true
+ignore = {"581"}
 
-globals = {
-    "tech"
-}
-
--- Read only, writing to them generates a warning
-read_globals = {
-    -- for all game as in main .luacheckrc"
-	"core",
+read_globals = { -- Read only, writing to them generates a warning
+	"DIR_DELIM",
+	"minetest", "core",
 	"dump", "dump2", "table",
 	"vector", "nodeupdate",
 	"VoxelManip", "VoxelArea",
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
-    -- mods, mandatory dependencies for this mod
-    "minimal", "nodes_nature", "stairs", "crafting", "climate", "liquid_store",
-    "backpacks", "doors", "ncrafting", "HEALTH", "sfinv", "bed_rest"
+	"math.round", "PcgRandom",
+        -- mods, mandatory dependencies for this mod
+        "EXILE", "nodes_nature", "stairs", "crafting", "climate",
+        "liquid_store", "backpacks", "doors", "ncrafting", "HEALTH",
+        "sfinv", "bed_rest", "player_api", "tgcr", "grafitti",
+        -- optional dependencies
+        "ucsigns"
 }
 
-exclude_files = {".luacheckrc"}
+
+globals = {
+    "tech", "lightsource", "lightsource_description",
+}

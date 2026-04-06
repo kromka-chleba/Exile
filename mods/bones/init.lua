@@ -6,12 +6,6 @@
 -- Load support for MT game translation.
 local S = minetest.get_translator("bones")
 
--- Declare globals
-minimal = minimal
-creative = creative
-player_api = player_api
-nodes_nature = nodes_nature
-
 bones = {}
 
 local function is_owner(pos, name)
@@ -47,9 +41,9 @@ local bonedef = {
     inventory_image = "bones_inv.png",
     wield_image = "bones_inv.png",
     tiles = {"bones_bone.png"},
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     drawtype = "nodebox",
-    node_box = minimal.nodebox["bones"],
+    node_box = EXILE.nodebox["bones"],
     paramtype = "light",
     paramtype2 = "facedir",
     sunlight_propagates = true,
@@ -67,7 +61,7 @@ local bonedef = {
         return is_owner(pos, name) and inv:is_empty("main")
     end,
 
-    after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    after_place_node = function(pos, _placer, itemstack, _pointed_thing, nmeta, imeta)
         imeta = imeta or itemstack:get_meta()
         imeta = imeta:to_table()
         nmeta = nmeta or core.get_meta(pos)
@@ -75,7 +69,7 @@ local bonedef = {
         nmeta:from_table(imeta)
     end,
 
-    preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+    preserve_metadata = function(_pos, _oldnode, oldmeta, drops, imeta)
         if not oldmeta or next(oldmeta) then return end
         if not (oldmeta.char_name and oldmeta.ex_origin) then return end -- needs origin and name
         imeta = imeta or drops[1]:get_meta()
@@ -88,26 +82,26 @@ local bonedef = {
                            infotext = info } })
     end,
 
-    allow_metadata_inventory_move = function(pos, from_list, from_index,
-                                             to_list, to_index, count, player)
+    allow_metadata_inventory_move = function(pos, _from_list, _from_index,
+                                             _to_list, _to_index, count, player)
         if is_owner(pos, player:get_player_name()) then
             return count
         end
         return 0
     end,
 
-    allow_metadata_inventory_put = function(pos, listname, index, stack, player)
+    allow_metadata_inventory_put = function(_pos, _listname, _index, _stack, _player)
         return 0
     end,
 
-    allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+    allow_metadata_inventory_take = function(pos, _listname, _index, stack, player)
         if is_owner(pos, player:get_player_name()) then
             return stack:get_count()
         end
         return 0
     end,
 
-    on_metadata_inventory_take = function(pos, listname, index, stack, player)
+    on_metadata_inventory_take = function(pos, _listname, _index, _stack, player)
         local meta = minetest.get_meta(pos)
         if meta:get_inventory():is_empty("main") then
             local inv = player:get_inventory()
@@ -155,18 +149,18 @@ local bonedef = {
         local time = meta:get_int("time") + elapsed
         if time >= share_bones_time then
             meta:set_int("time", time) -- used for infotext update
-            minimal.infotext_set_new(pos, meta)
+            EXILE.infotext_set_new(pos, meta)
             meta:set_string("owner", "")
             -- set owner after for proper infotext update
         else
             meta:set_int("time", time)
-            minimal.infotext_set_new(pos, meta)
+            EXILE.infotext_set_new(pos, meta)
             return true
         end
     end,
-    on_blast = function(pos)
+    on_blast = function(_pos)
     end,
-    on_infotext = function(pos, nodedef, meta, params)
+    on_infotext = function(_pos, _nodedef, meta, params)
         local nailed = meta:get_string("nailed")
         local owner = meta:get_string("owner")
         -- not claimed and has a owner
@@ -191,8 +185,8 @@ local bonedef = {
             end
             -- nailed with no true owner, these'be claimed by someone else
         else
-            return minimal.infotext_get_base_string(
-                nil, meta, minimal.infotext_update_params(meta, params))
+            return EXILE.infotext_get_base_string(
+                nil, meta, EXILE.infotext_update_params(meta, params))
         end
     end
 }
@@ -269,7 +263,7 @@ minetest.register_on_dieplayer(function(player)
         local pos_string = minetest.pos_to_string(pos)
 
         -- return if keep inventory set or in creative mode
-        if bones_mode == "keep" or minimal.player_in_creative(player) then
+        if bones_mode == "keep" or EXILE.player_in_creative(player) then
             minetest.log("action", player_name .. " dies at " .. pos_string ..
                          ". No bones placed")
             if bones_position_message then
@@ -391,5 +385,5 @@ minetest.register_on_dieplayer(function(player)
 
             minetest.get_node_timer(pos):start(10)
         end
-        minimal.infotext_set_new(pos, meta)
+        EXILE.infotext_set_new(pos, meta)
 end)

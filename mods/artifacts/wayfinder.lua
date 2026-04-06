@@ -178,7 +178,7 @@ minetest.register_globalstep(function(dtime)
             return
         end
         steplimit = 0
-        for i,player in ipairs(minetest.get_connected_players()) do
+        for _,player in ipairs(minetest.get_connected_players()) do
             if player:get_inventory() then
                 for j,stack in ipairs(player:get_inventory():get_list("main")) do
                     if string.sub(stack:get_name(), 0, 19) == "artifacts:wayfinder" then
@@ -240,6 +240,6 @@ local waystone_def = {
     },
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {cracky = 2, temp_pass = 1},
-    after_place_node = minimal.protection_after_place_node,
+    after_place_node = EXILE.protection_after_place_node,
 }
 minetest.register_node("artifacts:waystone", waystone_def)

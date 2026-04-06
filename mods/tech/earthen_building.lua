@@ -2,13 +2,10 @@
 --EARTHEN BUILDING
 -- construction from loose stones, mud etc
 
-tech = tech
-nodes_nature = nodes_nature
-
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 ---------------------------------
 --DRYSTACK
@@ -19,7 +16,7 @@ minetest.register_node(
     "tech:drystack", {
         description = S("Drystack"),
         tiles = {"tech_drystack.png"},
-        stack_max = minimal.stack_max_bulky *1.5,
+        stack_max = EXILE.stack_max_bulky *1.5,
         groups = {cracky = 3, crumbly = 1, falling_node = 1,
                   oddly_breakable_by_hand = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
@@ -39,7 +36,7 @@ stairs.register_stair_and_slab({
     {"tech_drystack.png"},
     S("Drystack Stair"),
     S("Drystack Slab"),
-    minimal.stack_max_bulky *3,
+    EXILE.stack_max_bulky *3,
     nodes_nature.node_sound_stone_defaults()
 })
 
@@ -52,7 +49,7 @@ minetest.register_node(
         description = S('Mudbrick'),
         tiles = {"tech_mudbrick.png"},
         drop = "nodes_nature:clay",
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 2, cracky = 3,
                   oddly_breakable_by_hand = 1, craft_ground = 1},
         sounds = nodes_nature.node_sound_dirt_defaults(),
@@ -68,7 +65,7 @@ stairs.register_stair_and_slab({
     {"tech_mudbrick.png"},
     S("Mudbrick Stair"),
     S("Mudbrick Slab"),
-    minimal.stack_max_bulky *4,
+    EXILE.stack_max_bulky *4,
     nodes_nature.node_sound_dirt_defaults(),
     nil,
     "nodes_nature:clay"
@@ -87,7 +84,7 @@ minetest.register_node('tech:rammed_earth', {
                                "tech_rammed_earth_side.png",
                                "tech_rammed_earth_side.png"
                            },
-                           stack_max = minimal.stack_max_bulky *1.5,
+                           stack_max = EXILE.stack_max_bulky *1.5,
                            groups = {crumbly = 1, cracky = 3,
                                      falling_node = 1, craft_ground = 1},
                            sounds = nodes_nature.node_sound_dirt_defaults(),
@@ -112,7 +109,7 @@ stairs.register_stair_and_slab({
     },
     S("Rammed Earth Stair"),
     S("Rammed Earth Slab"),
-    minimal.stack_max_bulky *3,
+    EXILE.stack_max_bulky *3,
     nodes_nature.node_sound_dirt_defaults()
 })
 
@@ -130,7 +127,7 @@ local wickdef =  {
     use_texture_alpha = c_alpha.clip,
     --inventory_image = "tech_wattle.png",
     --wield_image = "tech_wattle.png",
-    stack_max = minimal.stack_max_bulky * 3,
+    stack_max = EXILE.stack_max_bulky * 3,
     groups = {choppy = 3, oddly_breakable_by_hand = 1,
     },
     sounds = nodes_nature.node_sound_wood_defaults(),
@@ -206,7 +203,7 @@ local function wellmaker(user,itemstack, pointed_thing)
     local look = minetest.yaw_to_dir(user:get_look_horizontal())
     local p2 = minetest.dir_to_wallmounted(look)
     minetest.set_node(pointed_thing.under, {name = bn..soil, param2 = p2})
-    if minimal.player_in_creative(user) then return end
+    if EXILE.player_in_creative(user) then return end
     itemstack:take_item()
     return itemstack
 end
@@ -253,7 +250,7 @@ minetest.register_node(
                  "tech_wattle.png" },
         inventory_image = "tech_wattle.png",
         wield_image = "tech_wattle.png",
-        stack_max = minimal.stack_max_bulky * 3,
+        stack_max = EXILE.stack_max_bulky * 3,
         groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 2},
         sounds = nodes_nature.node_sound_wood_defaults(),
         _use_tip = S("Reinforce a well wall"),
@@ -300,7 +297,7 @@ minetest.register_node(
                  "tech_wattle_loose.png" },
         inventory_image = "tech_wattle_loose.png",
         wield_image = "tech_wattle_loose.png",
-        stack_max = minimal.stack_max_bulky * 3,
+        stack_max = EXILE.stack_max_bulky * 3,
         groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 2, temp_pass = 1},
         sounds = nodes_nature.node_sound_wood_defaults(),
 })
@@ -349,7 +346,7 @@ minetest.register_node(
                  "tech_wattle_and_daub.png" },
         inventory_image = "tech_wattle_and_daub.png",
         wield_image = "tech_wattle_and_daub.png",
-        stack_max = minimal.stack_max_bulky * 2,
+        stack_max = EXILE.stack_max_bulky * 2,
         groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 10},
         sounds = nodes_nature.node_sound_wood_defaults(),
 })
@@ -417,7 +414,7 @@ minetest.register_node(
         },
         inventory_image = "tech_wattle_door_frame.png",
         wield_image = "tech_wattle_door_frame.png",
-        stack_max = minimal.stack_max_bulky * 3,
+        stack_max = EXILE.stack_max_bulky * 3,
         groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 2},
         sounds = nodes_nature.node_sound_wood_defaults(),
         on_construct = wdf_connect_to_door,
@@ -431,18 +428,18 @@ minetest.register_node(
     'tech:thatch', {
         description = S('Thatch'),
         tiles = {"tech_thatch.png"},
-        stack_max = minimal.stack_max_bulky * 4,
+        stack_max = EXILE.stack_max_bulky * 4,
         groups = {snappy=3, flammable=1, fall_damage_add_percent = -30,
                   support = 2 },
         sounds = nodes_nature.node_sound_leaves_defaults(),
         _splits_by_hand = "stairs:slab_thatch",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
         _attach_side = { "tech:thatch", "stairs:slab_thatch" },
         _attach_top = { "tech:thatch", "stairs:slab_thatch" },
         _attach_bottom = { "all" },
         on_burn = function(pos)
             if math.random()<0.5 then
-                minimal.switch_node(pos, "tech:small_wood_fire")
+                EXILE.switch_node(pos, "tech:small_wood_fire")
                 minetest.check_for_falling(pos)
             else
                 minetest.remove_node(pos)
@@ -460,7 +457,7 @@ stairs.register_stair_and_slab({
     {"tech_thatch.png"},
     S("Thatch Stair"),
     S("Thatch Slab"),
-    minimal.stack_max_bulky * 8,
+    EXILE.stack_max_bulky * 8,
     nodes_nature.node_sound_leaves_defaults()
 })
 
@@ -472,8 +469,8 @@ minetest.override_item(
         _attach_top = { "tech:thatch", "stairs:slab_thatch" },
         _attach_bottom = { "all" },
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-              minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+              EXILE.get_usable_position(pointed_thing))
         end,
 })
 

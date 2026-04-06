@@ -1,5 +1,3 @@
-climate = climate
-minimal = minimal
 local random = math.random
 local pi = math.pi
 local time = os.time
@@ -14,15 +12,12 @@ local min = math.min
 -- local pow = math.pow
 
 local function math_clamp(...) -- num, min, max
-    return minimal.math_clamp(...)
+    return EXILE.math_clamp(...)
 end
 
 local dsp_time = 3 -- despawn time
 local max_objects = 30 -- how many registered animals can be in a certain radius
 local mo_check_radius = 40 -- maxobject check radius
-
-animals = animals
-mobkit = mobkit
 
 local S = animals.S
 
@@ -778,8 +773,8 @@ function animals.core_hp(self)
 end
 
 
-
-local function get_mean_temp(pos) -- this could be put somewhere else like in climate or minimal
+ -- this could be put somewhere else like in climate or exile_game
+local function get_mean_temp(pos)
     local temps = {}
 
     for x = -1, 1, 1 do -- create matrix of possible positions
@@ -1117,7 +1112,7 @@ function animals.hatch_egg(pos, egg_data, medium, replace, spawn)
     --  medium (to spawn entities in - can be nil (will only check for air), string, or table),
     --  replace (replace with - can be nil),
     --  spawn (optional, but required if no egg_hatching in egg_data), can be string or a list of names
-    egg_data = egg_data or minimal.get_nodedef(pos)
+    egg_data = egg_data or EXILE.get_nodedef(pos)
     -- destroy node if we can't get egg_data
     if type(egg_data) ~= "table" then
         minetest.set_node(pos, {name = "air"})
@@ -2112,7 +2107,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
     prty = type(prty) == "number" and prty or 55
     if self.class ~= 2 then
         -- wait! check if we're in water!
-        local nodeat = minimal.get_nodedef(mobkit.get_stand_pos(self))
+        local nodeat = EXILE.get_nodedef(mobkit.get_stand_pos(self))
         if nodeat and nodeat.drawtype == "liquid" then
             -- GOTTA GET OUT
             animals.hq_liquid_recovery(self, 70)
@@ -2158,7 +2153,7 @@ function animals.fight_or_flight(self, threat, prty, chance)
     -- run away from players in creative or attached to something
     if random()<chance and
         not (minetest.is_player(threat) and threat:get_attach()
-             or minimal.player_in_creative(threat)) then
+             or EXILE.player_in_creative(threat)) then
         -- fight!
         if self.class == 2 then
             self.threat = threat.object or threat
@@ -3449,7 +3444,7 @@ function animals.get_nearby_player(self,forceplyr)
     if plyr then
         if forceplyr then return plyr end
         -- if player, then check if player is NOT in creative...
-        if (not minimal.player_in_creative(plyr)) then
+        if (not EXILE.player_in_creative(plyr)) then
             if get_dist(self,plyr) >= (self.player_warn_distance
                                        or self.warn_distance) then
                 return
@@ -3554,7 +3549,7 @@ function animals.size_dif_mechanics(self)
     -- fix animals growing and falling underground (hopefully?)
     if data.initial_properties then
         local pos = self.object:get_pos()
-        local nodeat = minimal.get_nodedef(pos)
+        local nodeat = EXILE.get_nodedef(pos)
         -- stuck in a node that we can walk on
         if nodeat and nodeat.walkable then
             pos.y = pos.y + 1 + (abs(data.initial_properties.collisionbox[2]) +
@@ -3736,7 +3731,6 @@ function animals.hq_liquid_recovery(self,prty)
                 and (radius/self.view_range) * .8) or nil
             -- random chance
             if m_c and m_c > random() then
-                --pos2 = minimal.pos_shift(pos2,{y=-1})
                 local _, my_liquidflag = mobkit.get_terrain_height(pos2)
                 -- isn't water, let's wing it!
                 if not my_liquidflag then
@@ -3795,7 +3789,7 @@ function animals.register_egg(def, animal)
 
     def.description = def.description or (animal and animal._desc and S("@1 Eggs",animal._desc)) or name
     def.tiles = def.tiles or {"animals_gundu_eggs.png"}
-    def.stack_max = def.stack_max or minimal.stack_max_medium
+    def.stack_max = def.stack_max or EXILE.stack_max_medium
     def.drawtype = def.drawtype or "nodebox"
     if def.drawtype == "nodebox" then
         def.node_box = def.node_box or
@@ -3899,7 +3893,7 @@ function animals.register_egg(def, animal)
 
     -- egg functions
     def.on_construct = def.on_construct or function(pos)
-        local data = minimal.get_nodedef(pos)
+        local data = EXILE.get_nodedef(pos)
         local egg_time = data and data.egg_time
         assert(egg_time,"animal egg couldn't get egg_time: "..(data and data.name
                                                                or "unknown egg"))
@@ -3910,7 +3904,7 @@ function animals.register_egg(def, animal)
     -- node is (I think) not present before Luanti 5.14
     def.on_timer = def.on_timer or function(pos, elapsed, node)
         -- data is nodes's definition
-        local data = node and core.registered_nodes[node.name] or minimal.get_nodedef(pos)
+        local data = node and core.registered_nodes[node.name] or EXILE.get_nodedef(pos)
         assert(data,"animal egg couldn't get data of self at "..
                minetest.pos_to_string(pos))
         local egg_time = data.egg_time
@@ -3948,7 +3942,7 @@ function animals.register_egg(def, animal)
     -- egg_conditions_correct(pos, data)
     -- create a custom function that checks whether or not an egg should hatch
     -- should be provided with a table of some data to be used, but
-    -- do not depend on it, run minimal.get_nodedef(pos) if nil
+    -- do not depend on it, run EXILE.get_nodedef(pos) if nil
 
     -- should return true for if it can hatch (return true)
     -- return decimal for percentage chance (return 0-1)
@@ -4358,7 +4352,7 @@ function animals.register_animal(name,def)
             --  unless in creative or with tool_capabilities.harm_fish
             local all_items_stun
             if def.class == 2 and node_drawtype(puncher:get_pos()) == "liquid"
-                and not minimal.player_in_creative(puncher) then
+                and not EXILE.player_in_creative(puncher) then
                 -- Check for exception 'tool_capabilities.harm_fish':
                 -- Unfortunately Luanti does not transfer custom tool
                 -- capabilities like 'harm_fish' to on_punch() for players.
@@ -4382,7 +4376,7 @@ function animals.register_animal(name,def)
             --- and animal is already captured or dead? -> capture
             if self.stunned
                 and (dmg <= 1 or all_items_stun
-                              or minimal.player_in_creative(puncher))
+                              or EXILE.player_in_creative(puncher))
                 and not self.about_to_go then
 
                 animals.capture(self, puncher)
@@ -4417,7 +4411,7 @@ function animals.register_animal(name,def)
         end
 
         -- not a player in creative? -> apply fpi
-        if not minimal.player_in_creative(puncher) then
+        if not EXILE.player_in_creative(puncher) then
             local fpi = tool_caps.full_punch_interval or 0.1
             local fraction = math_clamp(time_from_last_punch / fpi, 0, 1)
             dmg = math.floor(dmg * fraction)

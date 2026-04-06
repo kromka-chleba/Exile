@@ -1,21 +1,19 @@
-unused_args = false
 allow_defined_top = true
+ignore = {"581"}
 
-globals = {
-    "ncrafting"
-}
-
--- Read only, writing to them generates a warning
-read_globals = {
-    -- for all game as in main .luacheckrc"
-	"core",
+read_globals = { -- Read only, writing to them generates a warning
+	"DIR_DELIM",
+	"minetest", "core",
 	"dump", "dump2", "table",
 	"vector", "nodeupdate",
 	"VoxelManip", "VoxelArea",
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
-    -- mods, mandatory dependencies for this mod
-    "minimal", "climate", "sfinv"
+	"math.round", "PcgRandom",
+        -- dependencies in mod.conf
+        "EXILE", "climate", "sfinv",
+        -- runtime dependencies
+        "HEALTH", "liquid_store"
 }
 
-exclude_files = {".luacheckrc"}
+globals = { "ncrafting" }

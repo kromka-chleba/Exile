@@ -3,10 +3,6 @@
 -- Globals
 deco = deco or {}
 
--- Import
-local path = minetest.get_modpath("mapgen")
-local sna = dofile(path.."/soils_and_altitudes.lua")
-
 local sea_weeds = {
     {--[[Oceans:kelp]]
         name = "nodes_nature:kelp",

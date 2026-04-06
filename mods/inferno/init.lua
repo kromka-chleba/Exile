@@ -34,7 +34,7 @@ fire_enabled = check_enabled()
 
 -- Flood flame function
 
-local function flood_flame(pos, oldnode, newnode)
+local function flood_flame(pos, _oldnode, newnode)
     -- Play flame extinguish sound if liquid is not an 'igniter'
     if minetest.get_item_group(newnode.name, "flames") > 0 then
         minetest.sound_play("inferno_extinguish_flame",
@@ -393,7 +393,7 @@ minetest.register_abm({
 --
 
 local function add_wear(player_name, itemstack, sound_pos)
-    if not (minimal.player_in_creative(player_name)) then
+    if not (EXILE.player_in_creative(player_name)) then
         -- Wear tool
         local wdef = itemstack:get_definition()
         itemstack:add_wear(2000)
@@ -424,7 +424,7 @@ function inferno.ignite(pos, nodename)
     end
     for unl, l in pairs(lit) do
         if nodename == unl then
-            minimal.switch_node(pos, {name = l})
+            EXILE.switch_node(pos, {name = l})
             return true
         end
     end

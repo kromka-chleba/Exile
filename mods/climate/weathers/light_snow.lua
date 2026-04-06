@@ -95,7 +95,6 @@ light_snow.particle_function = function(player)
     local ext = 7
     local size = 2
     local tex = random_texture()
-    local sound = ""
 
     climate.add_blizzard_particle(velxz, vely, accxz, accy, ext, size,
                                   tex, player)

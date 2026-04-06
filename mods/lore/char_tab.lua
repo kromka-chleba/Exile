@@ -7,9 +7,6 @@
 
 ]]
 
-lore = lore
-sfinv = sfinv
-
 local S = lore.S
 
 ------------------------------------
@@ -115,7 +112,7 @@ local function effects_fs(player)
 end
 
 --get data and create form
-local function sfinv_get(self, player, context)
+local function sfinv_get(_self, player, _context)
     local meta = player:get_meta()
     local name = meta:get_string("char_name")
     update_playtime(player, meta)

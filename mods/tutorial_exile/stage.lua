@@ -4,9 +4,6 @@
 --  Allows players to die and go back to the start of a stage, or exit/enter
 
 local stage = {} -- namespace
-HEALTH = HEALTH
-player_api = player_api
-
 local modpath = minetest.get_modpath("tutorial_exile")
 
 stage.handlers = {} -- functions to handle a stage when server is restarted
@@ -82,7 +79,7 @@ end
 local function loadschem(anchor, file)
     local filename = modpath.."/schematics/"..file..".ex_schm"
     --minetest.log("action", "Loading schematic: "..filename)
-    minimal.load_region(anchor,
+    EXILE.load_region(anchor,
                         io.open(filename, "rb"))
 end
 
@@ -373,7 +370,7 @@ tutorial = tutorial
 triggers = triggers
 local used_before = {}
 
-local function stage_trigger(player, pname, pos, nmeta, metastring)
+local function stage_trigger(player, pname, _pos, _nmeta, _metastring)
     -- Called when a player reaches the stage exit
     if used_before[pname] then
         return -- prevent player_api calling this again before we're done
@@ -406,7 +403,7 @@ end
 minetest.register_chatcommand(
     "tutr_next",{
         privs = "server",
-        func = function(name,param)
+        func = function(name,_param)
             if core.check_player_privs(name, "server") == false then return end
             climate.set_weather_override(name, nil, "")
             stage_change(core.get_player_by_name(name), name)
@@ -416,7 +413,7 @@ minetest.register_chatcommand(
 minetest.register_chatcommand(
     "tutr_dumpstage",{
         privs = "server",
-        func = function(name,param)
+        func = function(name,_param)
             if core.check_player_privs(name, "server") == false then return end
             dump_tutorial_state()
         end

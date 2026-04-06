@@ -2,8 +2,6 @@
 
 local mod_name = core.get_current_modname()
 
-nodes_nature = nodes_nature
-tgcr = tgcr
 local nn = nodes_nature
 local sediment = nn.sediment
 local c = nn.replacement_types
@@ -65,7 +63,7 @@ local function restore_from_inventory(pos, itemstack, nmeta, imeta)
 end
 
 local function decompose_compost(pos, elapsed, dc_name)
-    local compdef = minimal.get_nodedef(pos)
+    local compdef = EXILE.get_nodedef(pos)
     if not compdef then return false end
     local decomposed_name = dc_name or compdef.name:gsub("_undecomposed","")
     -- if wet, do wet speed otherwise do dry speed
@@ -107,7 +105,7 @@ local base_undecomposed_compost = {
     },
     tiles = {"nodes_nature_compost_undecomposed.png"},
     sounds = sediment.sounds.dirt,
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     _place_tip = S("Set to decompose"),
     on_timer = function(pos, elapsed)
         return decompose_compost(pos, elapsed)
@@ -118,7 +116,7 @@ local base_undecomposed_compost = {
     on_dig = function(pos, node, digger)
         save_to_inventory(pos, node, digger)
     end,
-    after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+    after_place_node = function(pos, _placer, itemstack, _pt, nmeta, imeta)
         restore_from_inventory(pos, itemstack, nmeta, imeta)
     end
 }
@@ -134,13 +132,13 @@ local base_compost = {
     },
     tiles = {"nodes_nature_compost.png"},
     sounds = sediment.sounds.dirt,
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     _fertilize_replace_with = "stairs:slab_compost",
     on_use = function(itemstack, user, pointed_thing)
         if pointed_thing.type == "node" then
             return ncrafting.fertilize(pointed_thing.under, user, itemstack)
         else
-            minimal.item_pickup(user, pointed_thing)
+            EXILE.item_pickup(user, pointed_thing)
         end
     end,
     _dig_tip = S("Fertilize soil"),
@@ -172,7 +170,7 @@ for i = 1, 4 do
                 -- only wets soil if successfully fertilized
                 return ncrafting.fertilize(pointed_thing.under,user, itemstack, true)
             else
-                minimal.item_pickup(user, pointed_thing)
+                EXILE.item_pickup(user, pointed_thing)
             end
         end
 
@@ -196,7 +194,7 @@ for i = 1, 4 do
             reg_compost.tiles,
             S("@1 Stair",reg_compost.description),
             S("@1 Slab",reg_compost.description),
-            minimal.stack_max_bulky * 2,
+            EXILE.stack_max_bulky * 2,
             reg_compost.sounds
         })
         minetest.override_item("stairs:slab_"..name,{
@@ -235,7 +233,7 @@ for i = 1, 4 do
             reg_compost.tiles,
             S("@1 Stair",reg_compost.description),
             S("@1 Slab",reg_compost.description),
-            minimal.stack_max_bulky * 2,
+            EXILE.stack_max_bulky * 2,
             reg_compost.sounds
         })
         minetest.override_item(
@@ -273,7 +271,7 @@ minetest.register_lbm({
             "nodes_nature:slope_outer_compost",
             "nodes_nature:slope_pike_compost",
             "nodes_nature:compost_roots"},
-        action = function(pos, node, dtime_s)
+        action = function(pos, _node, _dtime_s)
             minetest.set_node(pos,{name = "nodes_nature:compost"})
         end
 })
@@ -291,7 +289,7 @@ minetest.register_lbm({
             "nodes_nature:slope_inner_compost_wet_salty",
             "nodes_nature:slope_outer_compost_wet_salty",
             "nodes_nature:slope_pike_compost_wet_salty"},
-        action = function(pos, node, dtime_s)
+        action = function(pos, _node, _dtime_s)
             minetest.set_node(pos,{name = "nodes_nature:compost_wet"})
         end
 })
@@ -305,7 +303,7 @@ minetest.register_lbm({
             "nodes_nature:slope_outer_compost_undecomposed",
             "nodes_nature:slope_pike_compost_undecomposed",
             "nodes_nature:compost_undecomposed_roots"},
-        action = function(pos, node, dtime_s)
+        action = function(pos, _node, _dtime_s)
             minetest.set_node(pos,{name = "nodes_nature:compost_undecomposed"})
         end
 })
@@ -323,7 +321,7 @@ minetest.register_lbm({
             "nodes_nature:slope_inner_compost_undecomposed_wet_salty",
             "nodes_nature:slope_outer_compost_undecomposed_wet_salty",
             "nodes_nature:slope_pike_compost_undecomposed_wet_salty"},
-        action = function(pos, node, dtime_s)
+        action = function(pos, _node, _dtime_s)
             minetest.set_node(pos,
                               {name = "nodes_nature:compost_undecomposed_wet"})
         end

@@ -4,8 +4,6 @@
 -- running their _on_frob() callback
 -- #TODO: add a passthrough node that sends the signal on ahead
 
-ncrafting = ncrafting
-
 local base_def = {
     description = "A switch", -- Default description, should be replaced
     tiles = {"nodes_nature_basalt.png"},
@@ -18,12 +16,12 @@ local base_def = {
     _switch_sound = "success",
     groups = {temp_pass = 1, switch = 1, crumbly = 1, cracky = 3 },
     use_texture_alpha = "blend",
-    _on_use_node = function(player, pointed_node,
-                            pointed_thing, wielded_item)
+    _on_use_node = function(player, _pointed_node,
+                            pointed_thing, _wielded_item)
         local pos = pointed_thing.under
         local this = minetest.registered_nodes[minetest.get_node(pos).name]
         if this then
-            local params = minimal.merge_tables(
+            local params = EXILE.merge_tables(
                 { -- User can't set pos, but we can let them override sounds
                     pos=pos, gain = 0.1,
                     max_hear_distance = 6
@@ -48,5 +46,5 @@ local base_def = {
 
 function ncrafting.register_switch(name, def_overrides)
     minetest.register_node(name,
-                           minimal.merge_tables(base_def, def_overrides))
+                           EXILE.merge_tables(base_def, def_overrides))
 end

@@ -5,11 +5,10 @@
 --spreads out higher value finds, adds to the tomb-robbing treasure feel
 ------------------------------------
 
-artifacts = artifacts
 local S = artifacts.S
 local NS = function(s) return s end
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 
 ------------------------------------
@@ -352,7 +351,7 @@ for i in ipairs(list) do
     minetest.register_node("artifacts:sculpture_"..name, {
                 description = S("@1 Sculpture",S(material)),
                 tiles = {texture},
-                stack_max = minimal.stack_max_bulky *2,
+                stack_max = EXILE.stack_max_bulky *2,
                 light_source = light,
                 drawtype = "nodebox",
                 paramtype = "light",
@@ -365,7 +364,7 @@ for i in ipairs(list) do
                 sunlight_propagates = true,
                 sounds = sound,
                 groups = {oddly_breakable_by_hand = hardness, attached_node = 1, temp_pass = 1},
-                after_place_node = minimal.protection_after_place_node,
+                after_place_node = EXILE.protection_after_place_node,
     })
 end
 
@@ -396,7 +395,7 @@ local gp_a_black = {
             {-0.25, -0.5, -0.25, 0.25, -0.375, 0.25}, -- foot
         }
     },
-    stack_max = minimal.stack_max_medium/2,
+    stack_max = EXILE.stack_max_medium/2,
     groups = {dig_immediate = 3, falling_node = 1, temp_pass = 1},
     sounds = nodes_nature.node_sound_stone_defaults(),
 }
@@ -432,7 +431,7 @@ local gp_b_black = {
             {0.125, 0, 0.125, 0.25, 0.125, 0.25}, -- NodeBox14
         }
     },
-    stack_max = minimal.stack_max_medium/2,
+    stack_max = EXILE.stack_max_medium/2,
     groups = {dig_immediate = 3, falling_node = 1, temp_pass = 1},
     sounds = nodes_nature.node_sound_stone_defaults(),
 }
@@ -469,7 +468,7 @@ local gp_c_black = {
             {-0.0625, 0.25, -0.0625, 0.0625, 0.3125, 0.0625}, -- NodeBox15
         }
     },
-    stack_max = minimal.stack_max_medium/2,
+    stack_max = EXILE.stack_max_medium/2,
     groups = {dig_immediate = 3, falling_node = 1, temp_pass = 1},
     sounds = nodes_nature.node_sound_stone_defaults(),
 }
@@ -489,7 +488,7 @@ minetest.register_node("artifacts:gamepiece_c_white", gp_c_white)
 local singing_stone = {
     description = S("Singing Stone"),
     tiles = {"artifacts_antiquorium.png^artifacts_moon_glass.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -503,10 +502,10 @@ local singing_stone = {
     sounds = nodes_nature.node_sound_glass_defaults(),
     groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1},
 
-    on_punch = function(pos, node, player)
+    on_punch = function(pos, _node, _player)
         --hit to start "life"
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos,
+        EXILE.switch_node(pos,
                             {name = "artifacts:singing_stone_b", param2 = p2})
     end,
 
@@ -514,15 +513,15 @@ local singing_stone = {
         minetest.get_node_timer(pos):start(1)
     end,
 
-    after_place_node = minimal.protection_after_place_node,
-    on_timer =function(pos, elapsed)
+    after_place_node = EXILE.protection_after_place_node,
+    on_timer =function(pos, _elapsed)
         --look on node nearby, turn on if neighbor is on
         local lnode = minetest.find_nodes_in_area(
             {x=pos.x-1, y=pos.y-1, z=pos.z-1},
             {x=pos.x+1, y=pos.y+1, z=pos.z+1}, {"artifacts:singing_stone_b"})
         if #lnode > 1 then
             local p2 = minetest.get_node(pos).param2
-            minimal.switch_node(pos, {name = "artifacts:singing_stone_b",
+            EXILE.switch_node(pos, {name = "artifacts:singing_stone_b",
                                       param2 = p2})
         else
             --no life, remains off
@@ -546,7 +545,7 @@ local singing_pitches = {
 local singing_stone_b = {
     description = S("Singing Stone"),
     tiles = {"artifacts_sun_stone.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -562,27 +561,27 @@ local singing_stone_b = {
     groups = {oddly_breakable_by_hand = 3, attached_node = 1, temp_pass = 1,
               not_in_creative_inventory = 1},
 
-    on_punch = function(pos, node, player)
+    on_punch = function(pos, _node, _player)
         --turn off
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos, {name = "artifacts:singing_stone", param2 = p2})
+        EXILE.switch_node(pos, {name = "artifacts:singing_stone", param2 = p2})
     end,
 
     on_construct = function(pos)
         --sing, and start timer to turn off
         minetest.get_node_timer(pos):start(1)
-        minimal.sound_play({name="artifacts_singing_stone",
+        EXILE.sound_play({name="artifacts_singing_stone",
                             pos = pos, gain = {0.1,0.3},
                             pitch = singing_pitches[
                                 math.random(#singing_pitches)],
                             max_hear_distance = 8})
     end,
 
-    on_timer =function(pos, elapsed)
+    on_timer =function(pos, _elapsed)
 
         --go to resting state
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos,{name = "artifacts:singing_stone_c", param2 = p2})
+        EXILE.switch_node(pos,{name = "artifacts:singing_stone_c", param2 = p2})
     end,
 }
 
@@ -590,7 +589,7 @@ local singing_stone_b = {
 local singing_stone_c = {
     description = S("Singing Stone"),
     tiles = {"artifacts_moon_glass.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -611,10 +610,10 @@ local singing_stone_c = {
         minetest.get_node_timer(pos):start(0.5)
     end,
 
-    on_timer =function(pos, elapsed)
+    on_timer =function(pos, _elapsed)
         --return to off
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos,{name = "artifacts:singing_stone", param2 = p2})
+        EXILE.switch_node(pos,{name = "artifacts:singing_stone", param2 = p2})
     end,
 }
 
@@ -633,7 +632,7 @@ minetest.register_node("artifacts:singing_stone_c", singing_stone_c)
 local drumming_stone_a = {
     description = S("Drumming Stone"),
     tiles = {"artifacts_antiquorium.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -652,8 +651,8 @@ local drumming_stone_a = {
         minetest.get_node_timer(pos):start(math.floor(math.random(1,2)))
     end,
 
-    after_place_node = minimal.protection_after_place_node,
-    on_timer =function(pos, elapsed)
+    after_place_node = EXILE.protection_after_place_node,
+    on_timer =function(pos, _elapsed)
 
         --look nearby for a friend
         local r = 1
@@ -668,7 +667,7 @@ local drumming_stone_a = {
         end
 
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos, {name = "artifacts:drumming_stone_b",
+        EXILE.switch_node(pos, {name = "artifacts:drumming_stone_b",
                                   param2 = p2})
 
     end,
@@ -677,7 +676,7 @@ local drumming_stone_a = {
 local drumming_stone_b = {
     description = S("Drumming Stone"),
     tiles = {"artifacts_antiquorium.png^artifacts_moon_glass.png"},
-    stack_max = minimal.stack_max_medium * 2,
+    stack_max = EXILE.stack_max_medium * 2,
     drawtype = "nodebox",
     node_box = {
         type = "fixed",
@@ -699,7 +698,7 @@ local drumming_stone_b = {
             {pos = pos, gain = 0.4, max_hear_distance = 60})
     end,
 
-    on_timer =function(pos, elapsed)
+    on_timer =function(pos, _elapsed)
 
         --look nearby for a friend
         local r = 1
@@ -714,7 +713,7 @@ local drumming_stone_b = {
         end
 
         local p2 = minetest.get_node(pos).param2
-        minimal.switch_node(pos, {name = "artifacts:drumming_stone",
+        EXILE.switch_node(pos, {name = "artifacts:drumming_stone",
                                   param2 = p2})
     end,
 }

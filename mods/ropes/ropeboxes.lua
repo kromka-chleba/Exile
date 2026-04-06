@@ -1,15 +1,25 @@
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 local S = minetest.get_translator("ropes")
 
 local function rope_box_tiles(count, tint)
     return {
-        string.format("ropes_ropebox_front_%i.png^[colorize:%s^ropes_ropebox_front_%i.png^ropes_%i.png", count, tint, count, count),
-        string.format("ropes_ropebox_front_%i.png^[colorize:%s^ropes_ropebox_front_%i.png^ropes_%i.png", count, tint, count, count),
-        string.format("ropes_ropebox_side.png^[colorize:%s^ropes_ropebox_side.png", tint),
-        string.format("ropes_ropebox_side.png^[colorize:%s^ropes_ropebox_side.png", tint),
-        string.format("ropes_ropebox_front_%i.png^[colorize:%s^ropes_ropebox_front_%i.png^ropes_%i.png", count, tint, count, count),
-        string.format("ropes_ropebox_front_%i.png^[colorize:%s^ropes_ropebox_front_%i.png^ropes_%i.png", count, tint, count, count),
+        string.format("ropes_ropebox_front_%i.png^[colorize:%s"..
+                      "^ropes_ropebox_front_%i.png^ropes_%i.png",
+                      count, tint, count, count),
+        string.format("ropes_ropebox_front_%i.png^[colorize:%s"..
+                      "^ropes_ropebox_front_%i.png^ropes_%i.png",
+                      count, tint, count, count),
+        string.format("ropes_ropebox_side.png^[colorize:%s"..
+                      "^ropes_ropebox_side.png", tint),
+        string.format("ropes_ropebox_side.png^[colorize:%s"..
+                      "^ropes_ropebox_side.png", tint),
+        string.format("ropes_ropebox_front_%i.png^[colorize:%s"..
+                      "^ropes_ropebox_front_%i.png^ropes_%i.png",
+                      count, tint, count, count),
+        string.format("ropes_ropebox_front_%i.png^[colorize:%s"..
+                      "^ropes_ropebox_front_%i.png^ropes_%i.png",
+                      count, tint, count, count),
     }
 end
 
@@ -193,7 +203,7 @@ local function register_rope_block(multiple, max_multiple, name_prefix,
             for i = 1, multiple-1 do
                 local rec = {string.format("ropes:%s%irope_block",
                                            node_prefix, i)}
-                for n = 1, multiple-i do
+                for _ = 1, multiple-i do
                     table.insert(rec, "ropes:ropesegment")
                 end
                 --[[
@@ -221,12 +231,11 @@ local rope_def = {
     tiles = { "ropes_3.png", "ropes_3.png", "ropes_3.png",
               "ropes_3.png", "ropes_5.png", "ropes_5.png" },
     groups = {choppy=2, flammable=2, not_in_creative_inventory=1},
-    sounds =  nodes_nature.node_sound_leaves_defaults(),
-    sounds = {
-        footstep = {name = "ropes_creak", gain = 0.5},
-        dig = "__group",
-        dug = "__group",
-    },
+    sounds =  nodes_nature.node_sound_leaves_defaults({
+            footstep = {name = "ropes_creak", gain = 0.5},
+            dig = "__group",
+            dug = "__group",
+    }),
     drawtype = "nodebox",
     node_box = {
         type = "connected",

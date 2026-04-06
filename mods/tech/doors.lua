@@ -6,7 +6,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 --Wattle
 
@@ -41,7 +41,7 @@ doors.register(
     "door_wooden", {
         tiles = {{ name = "tech_wooden_door.png", backface_culling = true }},
         description = S("Wooden Door"),
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         inventory_image = "tech_wooden_door_item.png",
         groups = {choppy = 3, oddly_breakable_by_hand = 1, flammable = 1},
         sounds = nodes_nature.node_sound_wood_defaults(),
@@ -51,7 +51,7 @@ doors.register(
 doors.register_trapdoor(
     "tech:trapdoor_wooden", {
         description = S("Wooden Trapdoor"),
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         inventory_image = "tech_wooden_trapdoor.png",
         wield_image = "tech_wooden_trapdoor.png",
         tile_front = "tech_wooden_trapdoor.png",
@@ -69,7 +69,7 @@ doors.register(
         tiles = {{ name = "tech_iron_door.png", backface_culling = true }},
         description = S("Iron Door"),
         protected = true,
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         inventory_image = "tech_iron_door_item.png",
         groups = {cracky = 3, oddly_breakable_by_hand = 1},
         sounds = tech.node_sound_metal_hollow_defaults(),
@@ -78,7 +78,7 @@ doors.register(
 doors.register_trapdoor("tech:trapdoor_iron", {
                             description = S("Iron Trapdoor"),
                             protected = true,
-                            stack_max = minimal.stack_max_bulky *2,
+                            stack_max = EXILE.stack_max_bulky *2,
                             inventory_image = "tech_trapdoor_iron.png",
                             wield_image = "tech_trapdoor_iron.png",
                             tile_front = "tech_trapdoor_iron.png",
@@ -95,13 +95,13 @@ doors.register("door_glass_green", {
                    tiles = {"tech_door_glass_green.png"},
                    description = S("Glass Door"),
                    protected = true,
-                   stack_max = minimal.stack_max_bulky *2,
+                   stack_max = EXILE.stack_max_bulky *2,
                    inventory_image = "tech_door_glass_green_item.png",
                    use_texture_alpha = c_alpha.blend,
                    groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                    sounds = tech.node_sound_glass_defaults(),
                    on_burn = function(pos)
-                        minetest.add_item(pos, ItemStack("tech:pane_green 2"))    
+                        minetest.add_item(pos, ItemStack("tech:pane_green 2"))
                         minetest.set_node(pos, {name = 'air'})
                         minetest.check_for_falling(pos)
                    end,
@@ -110,7 +110,7 @@ doors.register("door_glass_green", {
 doors.register_trapdoor("tech:trapdoor_glass_green", {
                             description = S("Glass Trapdoor"),
                             protected = true,
-                            stack_max = minimal.stack_max_bulky *2,
+                            stack_max = EXILE.stack_max_bulky *2,
                             inventory_image = "tech_trapdoor_glass_green.png",
                             wield_image = "tech_trapdoor_glass_green.png",
                             tile_front = "tech_trapdoor_glass_green.png",
@@ -119,7 +119,7 @@ doors.register_trapdoor("tech:trapdoor_glass_green", {
                             groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                             sounds = tech.node_sound_glass_defaults(),
                             on_burn = function(pos)
-                                minetest.add_item(pos, ItemStack("tech:pane_green"))    
+                                minetest.add_item(pos, ItemStack("tech:pane_green"))
                                 minetest.set_node(pos, {name = 'air'})
                                 minetest.check_for_falling(pos)
                             end,
@@ -129,13 +129,13 @@ doors.register("door_glass_clear", {
                    tiles = {"tech_door_glass_clear.png"},
                    description = S("Clear Glass Door"),
                    protected = true,
-                   stack_max = minimal.stack_max_bulky *2,
+                   stack_max = EXILE.stack_max_bulky *2,
                    inventory_image = "tech_door_glass_clear_item.png",
                    use_texture_alpha = c_alpha.blend,
                    groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                    sounds = tech.node_sound_glass_defaults(),
                    on_burn = function(pos)
-                        minetest.add_item(pos, ItemStack("tech:pane_clear 2"))    
+                        minetest.add_item(pos, ItemStack("tech:pane_clear 2"))
                         minetest.set_node(pos, {name = 'air'})
                         minetest.check_for_falling(pos)
                    end,
@@ -144,7 +144,7 @@ doors.register("door_glass_clear", {
 doors.register_trapdoor("tech:trapdoor_glass_clear", {
                             description = S("Clear Glass Trapdoor"),
                             protected = true,
-                            stack_max = minimal.stack_max_bulky *2,
+                            stack_max = EXILE.stack_max_bulky *2,
                             inventory_image = "tech_trapdoor_glass_clear.png",
                             wield_image = "tech_trapdoor_glass_clear.png",
                             tile_front = "tech_trapdoor_glass_clear.png",
@@ -153,7 +153,7 @@ doors.register_trapdoor("tech:trapdoor_glass_clear", {
                             groups = {cracky = 3, oddly_breakable_by_hand = 1, flammable = 15},
                             sounds = tech.node_sound_glass_defaults(),
                             on_burn = function(pos)
-                                minetest.add_item(pos, ItemStack("tech:pane_clear"))    
+                                minetest.add_item(pos, ItemStack("tech:pane_clear"))
                                 minetest.set_node(pos, {name = 'air'})
                                 minetest.check_for_falling(pos)
                             end,

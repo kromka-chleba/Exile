@@ -3,8 +3,6 @@
 
 --Local table to store pending confirmations.
 local timestamp = {}
-region = region
-lore = lore
 local S = lore.S
 
 local __stash_timeout = 60*60*24*14 -- keep for 2 weeks
@@ -34,7 +32,7 @@ local function dump_stash(player)
     local pmeta = player:get_meta()
     if not pmeta:contains("restart_list") then return false end
     local stash_table=minetest.deserialize(pmeta:get_string("restart_list"))
-    for i, entry in ipairs(stash_table) do
+    for _, entry in ipairs(stash_table) do
         local object = ItemStack(entry.stack)
         object:get_meta():from_table(minetest.deserialize(entry.meta))
         minetest.add_item(pos, object)
@@ -49,7 +47,7 @@ local function killplayer(name)
     end
     player:set_hp(1) -- for players who hit the death formspec bug
     -- See Minetest issues, #11523
-    if not minimal.player_in_creative(player) then
+    if not EXILE.player_in_creative(player) then
         -- Don't remove inventory from creative mode players, just kill 'em
         player:set_hp(0)
         return
@@ -92,10 +90,10 @@ local function restart_confirm (confirmed, _, player, name)
         local function loop()
             if not minetest.is_player(player) then return end
             if remaining <= 0 then
-                minimal.send_message(player, name, S("POP!"))
+                EXILE.send_message(player, name, S("POP!"))
                 killplayer(name)
             else
-                minimal.send_message(player, name, S("Restart in: @1 seconds.",
+                EXILE.send_message(player, name, S("Restart in: @1 seconds.",
                                                   remaining))
                 remaining = remaining - 5
                 minetest.after(5, loop)
@@ -115,7 +113,7 @@ local function killthemagain(player)
 end
 
 
-local function restart (name, param)
+local function restart (name)
     local nowtime = minetest.get_gametime()
     if timestamp[name] and  ( timestamp[name] +3 ) > nowtime then
         return -- 3 second ratelimit: Don't run killthemagain() until it finishes
@@ -132,7 +130,7 @@ local function restart (name, param)
         return
     else
         timestamp[name] = nil
-        minimal.yes_or_no(name, S("Restarting does not leave bones!")
+        EXILE.yes_or_no(name, S("Restarting does not leave bones!")
                           .."\n "..
                           S("Your inventory will be deleted.").."\n"..
                           S("Are you sure?"), restart_confirm)
@@ -171,7 +169,7 @@ minetest.register_chatcommand(
         description = "This command allows admins to recover a player's "..
             "inventory after they have restarted.\n"..
             "Items will be dropped at their feet.",
-        func = function(name, param)
+        func = function(_, param)
             local ply = minetest.get_player_by_name(param)
             if not ply then return "Could not find player "..tostring(param) end
             if dump_stash(ply) then

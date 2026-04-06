@@ -6,7 +6,6 @@ local S = nodes_nature.S
 
 ---------------------------------------------------------
 
-nodes_nature = nodes_nature
 local nn = nodes_nature
 
 nn.plant = {}
@@ -151,10 +150,10 @@ soil_preferences.plant_basic_prefs = soil_preferences.new()
 -- a progress of -5 or less will return no progress (0)
 -- permits carrying of plant + soil definition
 function nn.plant.soil_response(pos, pdef, sdef)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not pdef then return 0 end
 
-    sdef = sdef or minimal.get_nodedef(minimal.get_pos_under(pos))
+    sdef = sdef or EXILE.get_nodedef(EXILE.get_pos_under(pos))
     local sgroups = sdef and sdef.groups or {}
     -- not a sediment, 0!!! (could be a nil node or have no groups either)
     if not sgroups.sediment then return 0 end
@@ -195,8 +194,8 @@ function nn.plant.soil_response(pos, pdef, sdef)
 end
 
 local function is_on_sediment(pos)
-    local pos_under = minimal.get_pos_under(pos)
-    return minimal.pos_group(pos_under, "sediment")
+    local pos_under = EXILE.get_pos_under(pos)
+    return EXILE.pos_group(pos_under, "sediment")
 end
 
 local function is_mushroom(pos, mdef)
@@ -207,8 +206,8 @@ end
 -- get light above plant
 -- tod is timeofday used for natural light
 function nn.plant.get_light(pos, tod)
-    local pos_above = minimal.get_pos_above(pos)
-    local natural = minimal.get_daylight(pos_above, tod) or default_light
+    local pos_above = EXILE.get_pos_above(pos)
+    local natural = EXILE.get_daylight(pos_above, tod) or default_light
     local artificial = minetest.get_node_light(pos_above) or default_light
     -- first is priority (return either artificial light leve or natural whichever is greatest)
     -- return natural 2nd, artificial third
@@ -221,16 +220,16 @@ local function is_light_good(pos, pdef, light)
 end
 
 local function is_light_good_when_day(pos, pdef, light)
-    local pos_above = minimal.get_pos_above(pos)
-    light = light or minimal.get_daylight(pos_above, 0.5) or default_light
+    local pos_above = EXILE.get_pos_above(pos)
+    light = light or EXILE.get_daylight(pos_above, 0.5) or default_light
     return is_light_good(pos, pdef, light)
 end
 
 local function calculate_average_light(pos)
-    local pos_above = minimal.get_pos_above(pos)
+    local pos_above = EXILE.get_pos_above(pos)
     local sum = 0
     for i = 0, 20 do
-        local light = minimal.get_daylight(pos_above, i / 20)
+        local light = EXILE.get_daylight(pos_above, i / 20)
         -- Light is nil if the node above isn't loaded yet, assume it's not dark
         if not light then light = default_light end
         sum = sum + light
@@ -249,7 +248,7 @@ local function get_light_cofactor(pos)
 end
 
 local function is_temperature_extreme(pos, pdef, temp)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not pdef then return false end
     temp = temp or climate.get_point_temp(pos)
     -- -30C to 60C
@@ -262,7 +261,7 @@ local function is_temperature_good(pos, pdef, temp)
 end
 
 local function is_soil_and_temp_good(pos, pdef, temp)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not pdef then return true end
 
     --if not on sediment abort
@@ -277,7 +276,7 @@ local function is_soil_and_temp_good(pos, pdef, temp)
 end
 
 local function are_conditions_good(pos, pdef, temp)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not is_soil_and_temp_good(pos, pdef, temp) then
         return false
     end
@@ -289,7 +288,7 @@ end
 
 -- pos and meta should be the soil pos and meta
 local function set_roots(pos, meta, pdef, nr)
-    local sdef = minimal.get_nodedef(pos) -- soil def
+    local sdef = EXILE.get_nodedef(pos) -- soil def
     if not (sdef and sdef.groups) then return end -- can't even check groups!
     -- salty wet sediment or not a sediment at all
     if sdef.groups.wet_sediment == 2 or not sdef.groups.sediment then return end
@@ -310,7 +309,7 @@ end
 -- pos is plant's pos, spos is soil position
 -- pdef is optional but helpful to provide
 local function grow_roots(pos, spos, progress, pdef)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if type(pdef._root_name) ~= "string" then return end -- shouldn't even be running this function
     local max_root_nr = pdef and pdef.groups and pdef.groups.plant_with_roots
     if not max_root_nr then return end
@@ -327,7 +326,7 @@ local function grow_roots(pos, spos, progress, pdef)
 end
 
 local function deplete_soil(pos)
-    local sdef = minimal.get_nodedef(pos)
+    local sdef = EXILE.get_nodedef(pos)
     if sdef and sdef._depleted_name then
         minetest.swap_node(pos, {name = sdef._depleted_name})
     end
@@ -377,7 +376,7 @@ function nn.plant.kill(pos, natural_death, pdef, meta)
         seedling and pdef.name or flowering_plant and pdef._dead_fruitless_name or
         pdef._dead_name or "air"
     -- reuse same node stats that we got, save meta
-    minimal.switch_node(pos, pnode)
+    EXILE.switch_node(pos, pnode)
     clear_meta(meta) -- clear out plant-specific meta upon death
 end
 
@@ -449,7 +448,7 @@ local function step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
     pnode.name = pdef.name -- update node name here
     -- turn semi-wild spread to wild
     pnode.param2 = finished and (pnode.param2 > 127 and (pdef.place_param2 or 0)) or pnode.param2
-    minimal.switch_node(pos, pnode) -- save meta (incase custom meta is set)
+    EXILE.switch_node(pos, pnode) -- save meta (incase custom meta is set)
     -- as mentioned above, clear meta of plants without nodetimer functionality
     if finished then return clear_meta(meta, data) end
     -- if not fruiting, set growing_left (round growing_left)
@@ -468,7 +467,7 @@ local function step_through_life_stage(pos, growing_left, elapsed, pdef, meta)
 end
 
 local function growing_side_effects(pos, progress, pdef)
-    local pos_under = minimal.get_pos_under(pos)
+    local pos_under = EXILE.get_pos_under(pos)
     --chance to deplete soil
     if math.random() <= 0.0001 then
         deplete_soil(pos_under)
@@ -549,7 +548,7 @@ end
 
 -- optional pdef argument
 local function add_to_param2(pos, nr, pdef)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not pdef then return end
     -- get place_param2
     local place_param2 = pdef.place_param2
@@ -602,14 +601,14 @@ function nn.plant.grow_seed(pos, elapsed, pdef, meta)
     end
     pnode.name = pdef.name -- becoming seedling, reuse same node data
     pnode.param2 = pnode.param2 + (pdef.place_param2 or 0) -- ensure we set the proper param2
-    minimal.switch_node(pos, pnode) -- switch to seedling and save meta
+    EXILE.switch_node(pos, pnode) -- switch to seedling and save meta
     return false -- the seed becomes a seedling (stops the timer)
 end
 
 -- optional plant def argument (node definition)
 function nn.plant.death_chance_on_replant(pos, pdef)
     nn.plant.set_to_domesticated(pos)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
      -- do not run for seedlings to prevent autogrowth
     if not pdef
         or (pdef.groups and pdef.groups.seedling) then return end
@@ -623,7 +622,7 @@ function nn.plant.death_chance_on_replant(pos, pdef)
 end
 
 function nn.plant.start_growing_plant(pos, pdef, meta)
-    pdef = pdef or minimal.get_nodedef(pos)
+    pdef = pdef or EXILE.get_nodedef(pos)
     if not pdef then return end -- how!
     local growingtime = pdef.plant_growing_time
     local nodetime = math.ceil(nn.plant_base_timer * math.random(90,110)/100)

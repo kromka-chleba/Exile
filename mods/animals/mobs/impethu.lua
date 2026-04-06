@@ -6,9 +6,6 @@
 ]]
 ---------------------------------------------------------------------
 
-animals = animals
-mobkit = mobkit
-
 -- Internationalization
 local S = animals.S
 
@@ -86,7 +83,7 @@ local function brain(self)
                     end
                     local u_node = minetest.get_node(pos+vector.new(0,-1,0))
                     -- why use several get_item_group calls?
-                    u_node = minimal.merge_tables(u_node,
+                    u_node = EXILE.merge_tables(u_node,
                                                   minetest.registered_nodes[
                                                       u_node.name] or {})
                     if u_node.groups then
@@ -241,7 +238,7 @@ self_data = {
     egg = {
         tiles = {"animals_sneachan_eggs.png^[multiply:#c49a82"},
         egg_conditions_correct = function(pos,data)
-            data = data or minimal.get_nodedef(pos)
+            data = data or EXILE.get_nodedef(pos)
             if not data then return false,true end -- break egg
             local egg_time = data.egg_time
             local temp = climate.get_point_temp(pos)

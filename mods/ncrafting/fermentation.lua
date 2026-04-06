@@ -6,8 +6,6 @@
 local S = ncrafting.S
 -- misc functions + globals
 local random = math.random
-climate = climate
-ncrafting = ncrafting
 
 -- BASIC FUNCTIONALITIES
 
@@ -43,7 +41,7 @@ function ncrafting.get_or_create_ferment(name,meta)
     -- prefer getting our info from a table, ideally fields
     -- if not, get_int from a meta
     local ferment = type(meta) == "table" and (type(meta.fields) == "table" and meta.fields.ferment or meta.ferment) or
-      minimal.is_meta(meta) and meta:get_int("ferment")
+      EXILE.is_meta(meta) and meta:get_int("ferment")
     -- tonumber what we got, otherwise do 0 (call tonumber if ferment was something)
     ferment = ferment and tonumber(ferment) or 0 -- sometimes they can be string
     if ferment == 0 then
@@ -63,11 +61,11 @@ end
 
 -- transfer meta from stack to node
 -- permit stack data (to_table of stack meta or is stack meta) and node meta arguments (nmeta, sdata)
-function ncrafting.ferment_after_place(pos, placer, itemstack, pointed_thing, nmeta, sdata)
+function ncrafting.ferment_after_place(pos, _, itemstack, _, nmeta, sdata)
     nmeta = nmeta or core.get_meta(pos)
     -- not an adequate stack data table
     if type(sdata) ~= "table" or not sdata.fields then
-        sdata = minimal.is_meta(sdata) and sdata or itemstack:get_meta()
+        sdata = EXILE.is_meta(sdata) and sdata or itemstack:get_meta()
         sdata = sdata:to_table() or {}
     end
     sdata = sdata.fields or sdata -- prefer fields
@@ -90,12 +88,12 @@ end
 
 -- luanti engine confusingly has meta fields be 'oldmeta'
 -- which I didn't realize until way after making this function - TPH
-function ncrafting.ferment_preserve_metadata(pos, oldnode, oldmeta,
+function ncrafting.ferment_preserve_metadata(_pos, _oldnode, oldmeta,
                                              transferred_stack, imeta)
     imeta = imeta or transferred_stack:get_meta()
     -- oldmeta will be fields, if not, it's probably an actual meta (as per old usage)
     if type(oldmeta) ~= "table" then
-        oldmeta = minimal.is_meta(oldmeta) and oldmeta -- if meta
+        oldmeta = EXILE.is_meta(oldmeta) and oldmeta -- if meta
         oldmeta = oldmeta and oldmeta:to_table() -- to_table() can return nil sometimes
         oldmeta = oldmeta or {} -- create an empty table on failure
     end
@@ -220,7 +218,7 @@ function ncrafting.dough_get_on_timer(chance)
             local nodedef = minetest.registered_nodes[node.name]
             local temp_range = nodedef._ferment_temp_range
             if temp_range then
-                local temp = temp or climate.get_point_temp(pos)
+                temp = temp or climate.get_point_temp(pos)
                 if temp <= temp_range.min or temp >= temp_range.max then
                     -- loop again if conditions not right
                     return true
@@ -236,7 +234,7 @@ function ncrafting.dough_get_on_timer(chance)
     end
 end
 
-function ncrafting.dough_infection(player, pos, nodedef, itemstack, idef)
+function ncrafting.dough_infection(_player, pos, _nodedef, itemstack, idef)
     idef = idef or itemstack and itemstack:get_definition()
     if not (idef and idef.groups and idef.groups.infect_dough) then return end
     local meta = core.get_meta(pos)
@@ -267,7 +265,7 @@ end
 
 -- fermented dough functionality
 
-function ncrafting.dough_fermented_preserve_metadata(pos, oldnode, oldmeta, drops)
+function ncrafting.dough_fermented_preserve_metadata(pos, oldnode, _, drops)
     -- can't get yeast from this, not a fresh batch
     if not oldnode then return end
     if oldnode.param2 ~= 1 then return end

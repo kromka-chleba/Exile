@@ -17,9 +17,6 @@
 
 -- Dependencies
 __DEBUG__ = __DEBUG__
-volcano = volcano
-minimal = minimal
-mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
 local function pirnt(...) -- lol print
@@ -172,7 +169,7 @@ minetest.register_entity(
             end
             addportal(self.object)
         end,
-        on_step = function(self, dtime, moveresult)
+        on_step = function(self, dtime, _moveresult)
             if not self.init then
                 self.init = true
                 self.size = 0
@@ -464,7 +461,7 @@ local function walkable_and_open(pos)
 
         return false
     end
-    local light = minimal.get_daylight(pos, 0.5)
+    local light = EXILE.get_daylight(pos, 0.5)
     if light < 6 then -- light > 5 indicates we're probably not underground
         return false
     end
@@ -787,7 +784,7 @@ minetest.register_chatcommand(
     "hexneighbors",{
         description = "List neighboring regions",
         --privs = "server",
-        func = function(name,param)
+        func = function(name,_param)
             local ppos = minetest.get_player_by_name(name):get_pos():round()
             local nearest = map2hex(ppos)
             local wontyoube = get_neighbors(nearest)
@@ -808,7 +805,7 @@ minetest.register_chatcommand(
     "hexlook",{
         --privs = "server",
         description = "Name the neighboring region that you're looking towards",
-        func = function(name,param)
+        func = function(name,_param)
             local player = minetest.get_player_by_name(name)
             local look = player:get_look_horizontal()
             local ppos = player:get_pos()
@@ -825,7 +822,7 @@ minetest.register_chatcommand(
         privs = "server",
         description = "Teleport player to the specified region's hex",
         params = "<player> <Hx:Hz>",
-        func = function(name,param)
+        func = function(_name,param)
             local pname, tgtstr = unpack(param:split(" ", false, 1))
             local player = minetest.get_player_by_name(pname:gsub(",",""))
             local tgt = string2hex(tgtstr)
@@ -864,7 +861,7 @@ minetest.register_chatcommand(
     "spawnlevel",{
         description = "Get results of get_spawn_level() at your position",
         --privs = "server",
-        func = function(name,param)
+        func = function(name,_param)
             pirnt("Checking SL")
             local player = minetest.get_player_by_name(name)
             local ppos = player:get_pos()
@@ -880,7 +877,7 @@ minetest.register_chatcommand(
         --privs = "server",
         description = "Name the biome you're standing in",
         params = "",
-        func = function(name,param)
+        func = function(name,_param)
             local player = minetest.get_player_by_name(name)
             local ppos = player:get_pos()
             local dat = minetest.get_biome_data(ppos)
@@ -922,7 +919,7 @@ minetest.register_chatcommand(
     "myhex",{
         description = "List the region you will spawn in next",
         --privs = "server",
-        func = function(name,param)
+        func = function(name,_param)
             local player = minetest.get_player_by_name(name)
             local meta = player:get_meta()
             return true, "Your hex home is :"..
@@ -939,7 +936,7 @@ minetest.register_chatcommand(
         privs = "server",
         description = "Create a new gate in the specified region",
         params = "<Hx:Hz>",
-        func = function(name,param)
+        func = function(_name,param)
             local hex = string2hex(param)
             if not hex then
                 return false, "Invalid parameters, must be <hex #, x> <hex #, z>"
@@ -1003,7 +1000,7 @@ minetest.register_chatcommand(
         description = "Dumps all data concerning spawnex to log",
         params = "storage",
         privs = "server",
-        func = function(name,param)
+        func = function(_name,param)
             if param ~= "storage" then
                 pirnt("--- Regions (rgns) ---")
                 pirnt(dump(rgns))

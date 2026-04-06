@@ -1,9 +1,7 @@
 ----------------------------------------------------------------
 -- Complex domain-specific workers using the mapchunk shepherd
 
-mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
-nodes_nature = nodes_nature
 local nn = nodes_nature
 local climate = climate
 
@@ -36,7 +34,7 @@ function nn.create_evaporator(args_in)
         local id = minetest.get_content_id(water)
         water_ids[id] = true
     end
-    return function(pos_min, pos_max, vm_data, chance_in)
+    return function(_pos_min, _pos_max, vm_data, chance_in)
         local chance = chance_in or 1/35
         --local t1 = minetest.get_us_time()
         local found = false
@@ -153,7 +151,7 @@ function nn.create_soak_out_move_down(args_in)
     end
 
     -- The actual worker function
-    return function(pos_min, pos_max, vm_data, chance)
+    return function(pos_min, _pos_max, vm_data, _chance)
         --local t1 = minetest.get_us_time()
         local hash = ms.mapchunk_hash(pos_min)
         nn.moisture_orphans[hash] = {}
@@ -394,7 +392,7 @@ function nn.create_gravity_soak_in(args_in)
         local seawater_id = minetest.get_content_id(seawater)
         seawater_ids[seawater_id] = true
     end
-    return function(pos_min, pos_max, vm_data, chance)
+    return function(pos_min, _pos_max, vm_data, _chance)
         --local t1 = minetest.get_us_time()
         local found = false
         local data = vm_data.nodes

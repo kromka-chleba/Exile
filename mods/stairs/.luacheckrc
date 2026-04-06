@@ -1,4 +1,3 @@
-unused_args = false
 allow_defined_top = true
 
 globals = {
@@ -16,8 +15,7 @@ read_globals = {
 	"VoxelManip", "VoxelArea",
 	"PseudoRandom", "ItemStack",
 	"intllib", "string.split",
-    -- mods, mandatory dependencies for this mod
-    "minimal", "crafting"
+	"math.round", "PcgRandom",
+        -- mods, mandatory dependencies for this mod
+        "minimal", "crafting"
 }
-
-exclude_files = {".luacheckrc"}

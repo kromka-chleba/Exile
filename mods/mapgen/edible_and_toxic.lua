@@ -1,7 +1,6 @@
 -- Edible and toxic plants for deco.lua
 
 -- Globals
-minimal = minimal
 deco = deco or {}
 
 -- Import

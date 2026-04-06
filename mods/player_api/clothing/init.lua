@@ -6,6 +6,7 @@
 ------------------------------------------------------------
 -- unused except in test_clothing file as archive
 -- registered cllabacks are all empty
+--[[
 clothing = {
 	registered_callbacks = {
 		on_update = {},
@@ -13,10 +14,9 @@ clothing = {
 		on_unequip = {},
 	},
 }
+]]--
 
 local modpath = minetest.get_modpath("player_api")
-
-player_api = player_api
 
 -- where cloths inventory and registration function are defined
 dofile(modpath .. "/clothing/cloth_definitions.lua")

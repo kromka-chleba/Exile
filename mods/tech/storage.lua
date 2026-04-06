@@ -5,7 +5,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 storage = storage
 
 ----------------------------------------------------

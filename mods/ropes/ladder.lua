@@ -32,7 +32,7 @@ local rope_ladder_top_def = {
     is_ground_content = false,
     inventory_image = "ropes_ropeladder_top.png",
     wield_image = "ropes_ropeladder_top.png",
-    stack_max = minimal.stack_max_medium,
+    stack_max = EXILE.stack_max_medium,
     paramtype = "light",
     paramtype2 = "wallmounted",
     walkable = false,
@@ -165,7 +165,7 @@ minetest.register_node(
             local timer = minetest.get_node_timer( pos )
             timer:start( 1 )
         end,
-        on_timer = function( pos, elapsed )
+        on_timer = function( pos, _elapsed )
             local pos_below = {x=pos.x, y=pos.y-1, z=pos.z}
             local node_below = minetest.get_node(pos_below)
 

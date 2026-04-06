@@ -1,7 +1,6 @@
 ---------------------------------------------
 -- Only shepherd labels go here
 
-mapchunk_shepherd = mapchunk_shepherd
 local ms = mapchunk_shepherd
 
 -- Soil

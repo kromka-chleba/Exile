@@ -7,7 +7,7 @@ deco = deco or {}
 local path = minetest.get_modpath("mapgen")
 local sna = dofile(path.."/soils_and_altitudes.lua")
 
--- this needs investigation later
+-- #TODO: this needs investigation later
 local function trash_encapsulation()
     --Cane schematics
     local canes_list   = { --- Schematics

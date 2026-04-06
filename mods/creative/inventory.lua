@@ -1,8 +1,5 @@
 -- creative/inventory.lua
 
-creative = creative
-sfinv = sfinv
-
 -- support for MT game translation.
 local S = creative.get_translator
 
@@ -33,25 +30,25 @@ function creative.init_creative_inventory(player)
 
     minetest.create_detached_inventory(
         "creative_" .. player_name, {
-            allow_move = function(inv, from_list, from_index, to_list,
-                                  to_index, count, player2)
-                if not minimal.player_in_creative(player2) or
+            allow_move = function(_inv, _from_list, _from_index, to_list,
+                                  _to_index, count, player2)
+                if not EXILE.player_in_creative(player2) or
                     to_list == "main" then
                     return 0
                 end
                 return count
             end,
-            allow_put = function(inv, listname, index, stack, player2)
+            allow_put = function(_inv, _listname, _index, _stack, _player2)
                 return 0
             end,
-            allow_take = function(inv, listname, index, stack, player2)
-                if not minimal.player_in_creative(player2) then return end
+            allow_take = function(_inv, _listname, _index, _stack, player2)
+                if not EXILE.player_in_creative(player2) then return end
                 return -1
             end,
-            on_move = function(inv, from_list, from_index, to_list,
-                               to_index, count, player2)
+            on_move = function(_inv, _from_list, _from_index, _to_list,
+                               _to_index, _count, _player2)
             end,
-            on_take = function(inv, listname, index, stack, player2)
+            on_take = function(_inv, _listname, _index, stack, _player2)
                 if stack and stack:get_count() > 0 then
                     minetest.log("action", player_name ..
                                  " takes " .. stack:get_name()..
@@ -82,7 +79,7 @@ function creative.update_creative_inventory(player_name, tab_content)
         -- get the description in correct language
         local desc =  minetest.get_translated_string(lang_code, def.description)
         -- remove accent + lowercap
-        desc = minimal.make_search_string(desc)
+        desc = EXILE.make_search_string(desc)
         -- if name (in English as in code) or description matches filter, do
         if def.name:find(inv.filter, 1, true) or
             desc:find(inv.filter, 1, true) then
@@ -102,7 +99,7 @@ local trash = minetest.create_detached_inventory(
     "creative_trash", {
         -- Allow the stack to be placed and remove it in on_put()
         -- This allows the creative inventory to restore the stack
-        allow_put = function(inv, listname, index, stack, player)
+        allow_put = function(_inv, _listname, _index, stack, _player)
             return stack:get_count()
         end,
         on_put = function(inv, listname)
@@ -119,10 +116,10 @@ function creative.register_tab(name, title, items)
     sfinv.register_page(
         "creative:" .. name, {
             title = title,
-            is_in_nav = function(self, player, context)
-                return minimal.player_in_creative(player)
+            is_in_nav = function(_self, player, _context)
+                return EXILE.player_in_creative(player)
             end,
-            get = function(self, player, context)
+            get = function(_self, player, context)
                 local player_name = player:get_player_name()
                 creative.update_creative_inventory(player_name, items)
                 local inv = player_inventory[player_name]
@@ -157,14 +154,14 @@ function creative.register_tab(name, title, items)
                 .. ";main;0.35,0.5;8,3;" .. tostring(start_i) .. "]" ..
                 creative.formspec_add, true)
             end,
-            on_enter = function(self, player, context)
+            on_enter = function(_self, player, _context)
                 local player_name = player:get_player_name()
                 local inv = player_inventory[player_name]
                 if inv then
                     inv.start_i = 0
                 end
             end,
-            on_player_receive_fields = function(self, player, context, fields)
+            on_player_receive_fields = function(_self, player, context, fields)
                 local player_name = player:get_player_name()
                 local inv = player_inventory[player_name]
                 assert(inv)
@@ -177,7 +174,7 @@ function creative.register_tab(name, title, items)
                 elseif fields.creative_search or
                     fields.key_enter_field == "creative_filter" then
                     inv.start_i = 0
-                    inv.filter = minimal.make_search_string(fields.creative_filter)
+                    inv.filter = EXILE.make_search_string(fields.creative_filter)
                     creative.update_creative_inventory(player_name, items)
                     sfinv.set_player_inventory_formspec(player, context)
                 elseif not fields.quit then
@@ -214,7 +211,7 @@ creative.register_tab("craftitems", S("Items"), minetest.registered_craftitems)
 creative.tab_list = {"all", "nodes", "tools", "craftitems"}
 
 local function homepage_override(player)
-    if minimal.player_in_creative(player) then
+    if EXILE.player_in_creative(player) then
         return "creative:all"
     end
 end

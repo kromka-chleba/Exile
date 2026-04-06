@@ -1,14 +1,12 @@
-ncrafting = ncrafting
-
 -- figure out if a soil - gets soil underneath plants
 local function get_soil_pos(pos, ndef)
-    ndef = ndef or minimal.get_nodedef(pos)
+    ndef = ndef or EXILE.get_nodedef(pos)
     local groups = ndef and ndef.groups
     if not groups then return end
     -- if plant or seed, check underneath
     if groups.flora or groups.seed then
         pos.y = pos.y - 1
-        ndef = minimal.get_nodedef(pos)
+        ndef = EXILE.get_nodedef(pos)
         groups = ndef and ndef.groups
         if not groups then return end
     end
@@ -72,7 +70,7 @@ local function wet_soil(player, pos, suffix)
             -- #TODO translate
             message = "You can't water that node with this liquid"
         end
-        minimal.send_message(player, nil, message)
+        EXILE.send_message(player, nil, message)
     else
         -- replace with watered version
         -- keeping the node orientation
@@ -106,7 +104,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
         if pos and wet_soil(user, pos, node_suffix) then
             -- if position is good and can wet the soil
             -- check if player is in creative
-            if minimal.player_in_creative(user) then
+            if EXILE.player_in_creative(user) then
                 return
             end
             -- if not in creative, empty the can out
@@ -118,7 +116,7 @@ function ncrafting.water_soil(itemstack, user, pointed_thing, node_suffix, empty
                 if inv:room_for_item("main", empty_container) then
                     inv:add_item("main", empty_container)
                 else
-                    minimal.warn_inv_full(user)
+                    EXILE.warn_inv_full(user)
                     core.add_item(user:get_pos(), empty_container)
                 end
             -- not more than 1, replace
@@ -152,7 +150,7 @@ function ncrafting.fertilize(pos, puncher, itemstack, wet)
 
     pos = get_soil_pos(pos)
     if not pos then return end
-    local ndef = minimal.get_nodedef(pos)
+    local ndef = EXILE.get_nodedef(pos)
     local itemdef = itemstack:get_definition()
     -- no definition!
     if not (ndef and itemdef) then return end
@@ -194,7 +192,7 @@ function ncrafting.fertilize(pos, puncher, itemstack, wet)
             if inv:room_for_item("main",replace_with) then
                 inv:add_item("main",replace_with)
             else
-                minimal.warn_inv_full(puncher)
+                EXILE.warn_inv_full(puncher)
                 minetest.item_drop(replace_with, puncher, pos)
             end
         else

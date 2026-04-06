@@ -28,8 +28,6 @@
 
 -- Internationalization
 local S = tech.S
-local FS = tech.FS
-
 
 local random = math.random
 
@@ -43,14 +41,14 @@ minetest.register_node(
     "tech:crushed_lime", {
         description = S("Crushed Lime"),
         tiles = {"tech_crushed_lime.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1, heatable =10},
         sounds = nodes_nature.node_sound_gravel_defaults(),
         on_construct = function(pos)
             --length(i.e. difficulty of firing), interval for checks (speed)
             ncrafting.set_roast(pos, 3, 10)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length, heat
             return ncrafting.roast(pos, "tech:crushed_lime", "tech:quicklime",
                                    3, 900)
@@ -65,14 +63,14 @@ minetest.register_node(
     "tech:quicklime", {
         description = S("Quicklime"),
         tiles = {"tech_quicklime.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_sand_defaults(),
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(10)
         end,
 
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
 
             --slake
             --XXX This is a bug; should look harder for the water source.
@@ -82,7 +80,7 @@ minetest.register_node(
                 --check water type. Salt would ruin it.
                 local water_type = minetest.get_item_group(p_name, "water")
                 if water_type == 1 then
-                    minimal.switch_node(pos, "tech:slaked_lime")
+                    EXILE.switch_node(pos, "tech:slaked_lime")
                     minetest.set_node(p_water, {name = "air"})
                     minetest.sound_play("tech_boil",
                                         {pos = pos, max_hear_distance = 8, gain = 1})
@@ -98,7 +96,7 @@ minetest.register_node(
             --slowly revert to lime by reacting with the air, or slake by rain
             if minetest.find_node_near(pos, 1, {"air"}) then
                 if random() > 0.99 and climate.get_rain(pos) then
-                    minimal.switch_node(pos, "tech:slaked_lime")
+                    EXILE.switch_node(pos, "tech:slaked_lime")
                     minetest.sound_play("tech_boil",
                                         {pos = pos, max_hear_distance = 8, gain = 1})
                 end
@@ -107,7 +105,7 @@ minetest.register_node(
                 node.param2 = node.param2 + random(2,6)
 
                 if node.param2 > 99 then
-                    minimal.switch_node(pos, "tech:crushed_lime")
+                    EXILE.switch_node(pos, "tech:crushed_lime")
                     return false
                 else
                     minetest.swap_node(pos, node)
@@ -126,7 +124,7 @@ minetest.register_node(
     "tech:slaked_lime", {
         description = S("Slaked Lime"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_sand_defaults({
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
@@ -135,7 +133,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(60)
         end,
 
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             local node = minetest.get_node(pos)
             local wet = bit.rshift(bit.band(node.param2,240), 4) -- left 4 bits
             local dry = bit.band(node.param2,15) -- right 4 bits
@@ -152,7 +150,7 @@ minetest.register_node(
                 -- or slowly revert to lime by reacting with the air
                 dry = dry + 1
                 if dry == 15 then
-                    minimal.switch_node(pos, "tech:crushed_lime")
+                    EXILE.switch_node(pos, "tech:crushed_lime")
                     return false
                 end
             end
@@ -173,7 +171,7 @@ minetest.register_node(
     "tech:slaked_lime_ruined", {
         description = S("Slaked Lime (ruined)"),
         tiles = {"tech_flour.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_sand_defaults({
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
@@ -182,7 +180,7 @@ minetest.register_node(
             minetest.get_node_timer(pos):start(60)
         end,
 
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --wash it away
             if minetest.find_node_near(pos, 1, {"group:water"}) or climate.get_rain(pos) then
                 minetest.set_node(pos, {name = "air"})
@@ -192,7 +190,7 @@ minetest.register_node(
             --slowly revert to lime by reacting with the air
             if minetest.find_node_near(pos, 1, {"air"}) then
                 if random() > 0.9 then
-                    minimal.switch_node(pos, "tech:crushed_lime")
+                    EXILE.switch_node(pos, "tech:crushed_lime")
                     return false
                 end
             end
@@ -216,7 +214,7 @@ minetest.register_node(
             type = "fixed",
             fixed = {-0.5, -0.5, -0.5, 0.5, 0, 0.5},
         },
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_sand_defaults({
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
@@ -224,8 +222,8 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:lime_mortar",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-              minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+              EXILE.get_usable_position(pointed_thing))
         end,
 })
 
@@ -234,14 +232,14 @@ minetest.register_node(
     "tech:lime_mortar", {
         description = S("Lime Mortar"),
         tiles = {"tech_lime_mortar.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         groups = {crumbly = 3, falling_node = 1},
         sounds = nodes_nature.node_sound_sand_defaults({
                 footstep = {name = "nodes_nature_mud", gain = 0.4},
                 dug = {name = "nodes_nature_mud", gain = 0.4}
         }),
         _splits_by_hand = "tech:lime_mortar_slab",
-        _on_use_node = minimal.slabs_split_hand,
+        _on_use_node = EXILE.slabs_split_hand,
 })
 
 crafting.register_recipe({
@@ -306,7 +304,7 @@ minetest.register_node(
     'tech:loose_brick_unfired', {
         description = S('Loose Bricks (unfired)'),
         tiles = {"tech_roof_tiles_unfired.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         drawtype = "nodebox",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -347,7 +345,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, 40)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             return ncrafting.fire_pottery(pos, 'tech:loose_brick_unfired',
                                           'tech:loose_brick', 40, 850)
         end,
@@ -358,7 +356,7 @@ minetest.register_node(
     'tech:loose_brick', {
         description = S('Loose Bricks'),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_bulky *4,
+        stack_max = EXILE.stack_max_bulky *4,
         drawtype = "nodebox",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -402,7 +400,7 @@ minetest.register_node(
 minetest.register_node("tech:bricks_and_mortar", {
                            description = S("Brick and Mortar"),
                            tiles = {"tech_bricks_and_mortar.png"},
-                           stack_max = minimal.stack_max_bulky * 4,
+                           stack_max = EXILE.stack_max_bulky * 4,
                            paramtype2 = "facedir",
                            drop = "tech:loose_brick",
                            groups = {cracky = 2, masonry = 1, craft_ground = 1},
@@ -420,7 +418,7 @@ stairs.register_stair_and_slab({
     {"tech_bricks_and_mortar.png"},
     S("Brick and Mortar Stair"),
     S("Brick and Mortar Slab"),
-    minimal.stack_max_medium,
+    EXILE.stack_max_medium,
     nodes_nature.node_sound_stone_defaults(),
     nil,
     "tech:loose_brick"
@@ -459,7 +457,7 @@ minetest.register_node(
     "tech:roof_tile_loose_unfired", {
         description = S("Loose Roof Tile (unfired)"),
         tiles = {"tech_roof_tiles_unfired.png"},
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         drawtype = "nodebox",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -525,7 +523,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, 40)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             return ncrafting.fire_pottery(pos, 'tech:roof_tile_loose_unfired',
                                           'tech:roof_tile_loose', 40, 850)
         end,
@@ -535,7 +533,7 @@ minetest.register_node(
     "tech:roof_tile_loose", {
         description = S("Loose Roof Tile"),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         drawtype = "nodebox",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -601,7 +599,7 @@ minetest.register_node(
     "tech:roof_tile", {
         description = S("Roof Tile"),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         drawtype = "nodebox",
         paramtype2 = "facedir",
         node_box = {
@@ -634,7 +632,7 @@ minetest.register_node(
     "tech:roof_tile_oc", {
         description = S("Roof Tile (outer corner)"),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         drawtype = "nodebox",
         paramtype2 = "facedir",
         node_box = {
@@ -668,7 +666,7 @@ minetest.register_node(
     "tech:roof_tile_ic", {
         description = S("Roof Tile (inner corner)"),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         drawtype = "nodebox",
         paramtype2 = "facedir",
         node_box = {
@@ -763,7 +761,7 @@ minetest.register_node(
     "tech:tile_block_unfired", {
         description = S("Tile Block (unfired)"),
         tiles = {"tech_roof_tiles_unfired.png"},
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         drawtype = "normal",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -776,7 +774,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, 40)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             return ncrafting.fire_pottery(pos, 'tech:tile_block_unfired',
                                           'tech:tile_block_loose', 40, 850)
 	end,
@@ -785,7 +783,7 @@ minetest.register_node(
 
 -- callback to start timer for turning loose tile into non-loose after being placed by a player
 local loose_tile_texture = "tech_roof_tiles.png^[colorize:#AAA:40"
-local loose_tile_after_place_node = function(pos, placer, itemstack, pointed_thing)
+local loose_tile_after_place_node = function(pos, placer, _itemstack, _pt)
     -- placed by player? -> start timer
     if core.is_player(placer) then
         minetest.get_node_timer(pos):start(30)
@@ -797,14 +795,14 @@ minetest.register_node(
     "tech:tile_block_loose", {
         description = S("Tile Block (Loose)"),
         tiles = {loose_tile_texture},
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         drawtype = "normal",
         paramtype = "light",
         paramtype2 = "facedir",
         groups = {cracky = 3, oddly_breakable_by_hand = 3, craft_ground = 1},
         sounds = nodes_nature.node_sound_stone_defaults(),
         after_place_node = loose_tile_after_place_node,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             local p2 = minetest.get_node(pos).param2
             minetest.set_node(pos, { name = "tech:tile_block", param2 = p2 })
         end
@@ -814,7 +812,7 @@ minetest.register_node(
     "tech:tile_block", {
         description = S("Tile Block"),
         tiles = {"tech_roof_tiles.png"},
-        stack_max = minimal.stack_max_medium/2,
+        stack_max = EXILE.stack_max_medium/2,
         drawtype = "normal",
         paramtype = "light",
         paramtype2 = "facedir",
@@ -844,7 +842,7 @@ stairs.register_stair_and_slab({
     {loose_tile_texture},
     S("Tile Stair (Loose)"),
     S("Tile Slab (Loose)"),
-    minimal.stack_max_medium,
+    EXILE.stack_max_medium,
     nodes_nature.node_sound_stone_defaults()
 })
 
@@ -856,7 +854,7 @@ for _, type in pairs(stairs_type) do
         "stairs:"..type.."_tile_loose",
         {
             after_place_node = loose_tile_after_place_node,
-            on_timer = function(pos, elapsed)
+            on_timer = function(pos, _elapsed)
                 --core.log(type.."_tile_loose to "..type.."_tile")
                 local p2 = minetest.get_node(pos).param2
                 minetest.set_node(pos, { name = "stairs:"..type.."_tile", param2 = p2 })
@@ -880,7 +878,7 @@ stairs.register_stair_and_slab({
     {"tech_roof_tiles.png"},
     S("Tile Stair"),
     S("Tile Slab"),
-    minimal.stack_max_medium,
+    EXILE.stack_max_medium,
     nodes_nature.node_sound_stone_defaults(),
     nil,
     "tech:tile_loose"
@@ -894,7 +892,7 @@ stairs.register_stair_and_slab({
 --added mortar binds them so not diggable by hand or falling.
 --drop unmortared stone.
 
-function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mortar_type,
+function register_mortar_nodes (list, _mortar_type, brick_mortar_type, block_mortar_type,
                                 brick_mortar_recycle_type, block_mortar_recycle_type, sediment)
     brick_mortar_recycle_type = brick_mortar_recycle_type or brick_mortar_type
     block_mortar_recycle_type = block_mortar_recycle_type or block_mortar_type
@@ -915,7 +913,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 tiles = {brick.tiles[1].."^tech_mortar_brick.png"},
                 drop = brick.name,
                 paramtype2 = "facedir",
-                stack_max = minimal.stack_max_bulky *3,
+                stack_max = EXILE.stack_max_bulky *3,
                 groups = {cracky = hardness, masonry = 1, craft_ground = 1},
                 sounds = nodes_nature.node_sound_stone_defaults(),
         })
@@ -927,7 +925,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 tiles = {block.tiles[1].."^tech_mortar_block.png"},
                 paramtype2 = "facedir",
                 drop = block.name,
-                stack_max = minimal.stack_max_bulky *2,
+                stack_max = EXILE.stack_max_bulky *2,
                 groups = {cracky = hardness, masonry = 1, craft_ground = 1},
                 sounds = nodes_nature.node_sound_stone_defaults(),
         })
@@ -962,7 +960,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
             {brick.tiles[1].."^tech_mortar_brick.png"},
             S("@1 Brick with Mortar Stair", desc),
             S("@1 Brick with Mortar Slab", desc),
-            minimal.stack_max_bulky * 6,
+            EXILE.stack_max_bulky * 6,
             nodes_nature.node_sound_stone_defaults()
         })
 
@@ -980,7 +978,7 @@ function register_mortar_nodes (list, mortar_type, brick_mortar_type, block_mort
                 {block.tiles[1].."^tech_mortar_block.png"},
                 S("@1 Block with Mortar Stair", desc),
                 S("@1 Block with Mortar Slab", desc),
-                minimal.stack_max_bulky * 4,
+                EXILE.stack_max_bulky * 4,
                 nodes_nature.node_sound_stone_defaults()
             })
         end
@@ -1011,10 +1009,10 @@ local bmb_bricks = 'brick_makers_bench_bricks'
 local bmb_mixing = 'brick_makers_bench_mixing'
 local mb = 'masonry_bench'
 local mb_bricks = 'masonry_bench_bricks'
-local mb_bricks_m = 'masonry_bench_bricks_mortar'
+--local mb_bricks_m = 'masonry_bench_bricks_mortar'
 
 local mb_blocks = 'masonry_bench_blocks'
-local mb_blocks_m = 'masonry_bench_blocks_mortar'
+--local mb_blocks_m = 'masonry_bench_blocks_mortar'
 local mb_mixing = 'masonry_bench_mixing'
 --register_mortar_nodes (list, mortar_type,brick_mortar_type, block_mortar_type,
 --              brick_mortar_recycle_type, block_mortar_recycle_type, sediment)

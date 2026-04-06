@@ -165,6 +165,6 @@ function crafting.crafting_item_on_rightclick(pos, item, clicker,
     return itemstack
 end
 
--- set minimal's function to open crafting formspec on right click with empty
+-- set exile_game's function to open crafting formspec on right click with empty
 -- hand on a proper crafting ground
-minimal.set_craft_station_on_rightclick(crafting.crafting_item_on_rightclick)
+EXILE.set_craft_station_on_rightclick(crafting.crafting_item_on_rightclick)

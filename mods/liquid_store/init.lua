@@ -285,7 +285,7 @@ local function handle_newstack(itemstack, adding, user, inv)
         and user.get_inventory and user:get_inventory()
     if not inv then return end
     -- inventory functionality
-    local plr_creative = minimal.player_in_creative(user)
+    local plr_creative = EXILE.player_in_creative(user)
     local deplete_stack = false -- depleting instead of replacing
     --[[if we had a stack in hand, or player is in creative,
     original item will not be replaced,
@@ -299,7 +299,7 @@ local function handle_newstack(itemstack, adding, user, inv)
             deplete_stack = not plr_creative and true -- deplete anyways but one day fix this
             -- also drop at feet
             core.add_item(user:get_pos(), adding)
-            minimal.warn_inv_full(user)
+            EXILE.warn_inv_full(user)
         end
     --else, lets just replace theone we had in hand
     else
@@ -374,7 +374,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
     if liquiddef then
         --[[ only remove liquid if in creative, fill stack otherwise
         --   however both only if a valid source is found]]
-        local plr_creative = minimal.player_in_creative(user)
+        local plr_creative = EXILE.player_in_creative(user)
         -- get stored liquid version with that source
         local new_wield = find_stored(itemstack, name)
         -- if none, do nothing and stop
@@ -409,7 +409,7 @@ function liquid_store.on_use_empty_bucket(itemstack, user, pointed_thing)
         new_wield = ItemStack(new_wield) -- need to convert before
         liquid_metadata(pointed_thing.under,node,new_wield)
         -- clear out pot at pos
-        minimal.switch_node(pointed_thing.under,  storeddef.nodename_empty)
+        EXILE.switch_node(pointed_thing.under,  storeddef.nodename_empty)
         -- deal with the fact that we maybe had a stack when we tried to fill, to generate proper replacement
         return handle_newstack(itemstack, new_wield, user)
     -- neither liquid nor a stored liquid
@@ -473,8 +473,8 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
             -- Call on_rightclick if the pointed node defines it
             --   (do not on_rightclick for liquids or liquid_storage)
             if not (ndef.drawtype == "liquid"
-                    or minimal.is_group(node.name,"liquid_storage")) then
-                local on_click = minimal.on_rightclick(itemstack, user,
+                    or EXILE.is_group(node.name,"liquid_storage")) then
+                local on_click = EXILE.on_rightclick(itemstack, user,
                                                        pointed_thing)
                 if on_click ~= false then
                     -- can be returned nil, so default to itemstack
@@ -501,7 +501,7 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
         pointed_thing.under = pointed_thing.above -- fixes on_rightclick
 
         ppos = pointed_thing.under
-        ndef = minimal.get_nodedef(ppos)
+        ndef = EXILE.get_nodedef(ppos)
         -- prioritize liquid_store_pourin function
         if ndef and ndef.ls_pourin then
             local new_wield = ndef.ls_pourin(itemstack, user, ppos, source, ndef)
@@ -531,10 +531,10 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
         end
         local def = itemstack:get_definition()
         if def.sounds and def.sounds.pour then
-            minimal.sound_play(ppos, def.sounds.pour)
+            EXILE.sound_play(ppos, def.sounds.pour)
         end
         -- #TODO could be improved to transfer liquid meta but not pot
-        minimal.switch_node(ppos, stored, {user, itemstack, pointed_thing})
+        EXILE.switch_node(ppos, stored, {user, itemstack, pointed_thing})
 
         return handle_newstack(itemstack, nodename_empty, user)
 
@@ -549,12 +549,12 @@ function liquid_store.on_use_filled_bucket(itemstack, user, pointed_thing, dump,
 
             local place_sound = sourcedef.sounds.place
             minetest.sound_play(place_sound.name,
-                                minimal.merge_tables(place_sound,{pos = ppos}))
+                                EXILE.merge_tables(place_sound,{pos = ppos}))
         end
-        minimal.switch_node(ppos, source, {user, itemstack, pointed_thing})
+        EXILE.switch_node(ppos, source, {user, itemstack, pointed_thing})
         minetest.check_for_falling(ppos)
 
-        if (minimal.player_in_creative(user)) then
+        if (EXILE.player_in_creative(user)) then
             return itemstack
         end
 
@@ -595,7 +595,7 @@ function liquid_store.on_place(itemstack, placer, pointed_thing)
         end
     end
     -- top_node definition - check if can be placed
-    local tndef = minimal.get_nodedef(pos_top)
+    local tndef = EXILE.get_nodedef(pos_top)
     if not tndef then return end -- do not place if can't find node def
 
     if stored and not protected then
@@ -611,11 +611,11 @@ function liquid_store.on_place(itemstack, placer, pointed_thing)
             if not pos then return end -- Can't place bucket on either top or bottom node, give up
         end
 
-        if not minimal.player_in_creative(placer) then
+        if not EXILE.player_in_creative(placer) then
             itemstack:take_item()
         end
         -- place the bucket
-        minimal.switch_node(pos, place_name, {placer, itemstack, pointed_thing})
+        EXILE.switch_node(pos, place_name, {placer, itemstack, pointed_thing})
         minetest.check_for_falling(pos)
     end
 
@@ -797,7 +797,7 @@ function liquid_store.register_stored_liquid(name,def)
     -- erase "0" groups entry (allowed to cancel inheritance,
     -- e.g is container is falling, but filled one isn't)
     -- even if not used yet..
-    for g_name, g_value in pairs(def.groups) do
+    for g_name, _ in pairs(def.groups) do
         if def.groups[g_name] == 0 then def.groups[g_name] = nil end
     end
 

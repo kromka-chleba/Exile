@@ -1,7 +1,6 @@
 -- Internationalization
 local S = nodes_nature.S
 
-nodes_nature = nodes_nature
 local nn = nodes_nature
 
 local function register_leaf_marker(name)
@@ -25,7 +24,7 @@ nn.leaves_to_mark = {}
 nn.mark_to_leaves = {}
 nn.tree_neighbors = {}
 
-for name, nodedef in pairs(minetest.registered_nodes) do
+for name, def in pairs(minetest.registered_nodes) do
     if minetest.get_item_group(name, "drops_leaves") > 0 then
         local b = string.find(name, ":")
         local without_modname = string.sub(name, b + 1, #name)

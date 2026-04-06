@@ -6,7 +6,7 @@ local S = tech.S
 
 -- fill pot_name with freshwater (called in on_timer functions)
 local function water_pot(pos, pot_name, elapsed)
-    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    local light = EXILE.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
     --collect rain
     if light == 15 then
         if climate.get_rain(pos, light) or
@@ -153,7 +153,7 @@ for _, container in pairs ({"water_pot", "watering_can"}) do
             node_box = nodeboxes[container],
             paramtype = "light",
             -- max stack
-            stack_max = minimal.stack_max_bulky,
+            stack_max = EXILE.stack_max_bulky,
             -- behaviors
             sounds = mats_def[mat].sound,
 
@@ -221,9 +221,9 @@ crafting.register_recipe({
 --source, nodename, nodename_empty, tiles, node_box, desc, groups
 
 --make freshwater Pot drinkable on click
-local function drink(pos, node, clicker, itemstack, pointed_thing)
+local function drink(pos, node, clicker, _itemstack, _pointed_thing)
     if drink_water(clicker) then
-        minimal.switch_node(pos, liquid_store.get_empty(node.name))
+        EXILE.switch_node(pos, liquid_store.get_empty(node.name))
         minetest.sound_play("nodes_nature_slurp",
                             {pos = pos, max_hear_distance = 3,
                              gain = 0.25})
@@ -284,13 +284,13 @@ for mat, _ in pairs (mats_def) do
             -- roast of 5, checking every 10 seconds
             return ncrafting.set_roast(pos, 5, 10)
         end
-        def.on_timer = function(pos, elapsed)
+        def.on_timer = function(pos, _elapsed)
             local name = minetest.get_node(pos).name
             -- temp of 102C
             -- change name from clay_water_salt_water to clay_water_pot_dry_salt
             if not ncrafting.roast(pos, name, name:sub(1,#name-10).."pot_dry_salt", nil, 102) then
                 -- complete, play boil sound
-                minimal.sound_play(pos, {
+                EXILE.sound_play(pos, {
                     name = "tech_boil", max_hear_distance = 10, gain = 0.8, pitch = {0.95, 1.2}
                 })
                 return false
@@ -326,7 +326,7 @@ minetest.register_node("tech:clay_water_pot_dry_salt",{
     },
     drawtype = "nodebox",
     node_box = nodeboxes["water_pot"],
-    stack_max = minimal.stack_max_bulky,
+    stack_max = EXILE.stack_max_bulky,
     paramtype = "light",
 })
 
@@ -349,7 +349,7 @@ for mat, _ in pairs (mats_def) do
 end
 
 -- GLASS VESSELS ---------------------------------------------------------------
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 -- More portable liquid storage than clay pots
 -- Need inventory images, otherwise clear glass ones will be invisible
 
@@ -363,7 +363,7 @@ local bottle_base_properties = {
     },
     sunlight_propagates = true,
 
-    stack_max = minimal.stack_max_bulky * 2,
+    stack_max = EXILE.stack_max_bulky * 2,
 }
 -- glass_type = clear or green
 -- TODO add green/clear translation and maybe functions to make them easier

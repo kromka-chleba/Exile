@@ -19,7 +19,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 --]]
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 -- This is very risky bc. nothing indicates to artifacts, that their locale is used here
 -- In case more translation strings are added, this mod should get it's own textdomain
@@ -31,7 +31,7 @@ noise_handler = noise_handler
 minetest.register_node("rings:antiquorium", {
                            description = artifacts_S("Antiquorium"),
                            tiles = {"artifacts_antiquorium.png"},
-                           stack_max = minimal.stack_max_bulky *4,
+                           stack_max = EXILE.stack_max_bulky *4,
                            sounds = nodes_nature.node_sound_glass_defaults(),
                            paramtype = "light",
                            groups = {cracky = 1, not_in_creative_inventory = 1},
@@ -41,7 +41,7 @@ minetest.register_node("rings:moon_glass", {
                            description = artifacts_S("Moon Glass"),
                            drawtype = "glasslike",
                            tiles = {"artifacts_moon_glass.png"},
-                           stack_max = minimal.stack_max_bulky *4,
+                           stack_max = EXILE.stack_max_bulky *4,
                            light_source = 5,
                            paramtype = "light",
                            sunlight_propagates  = true,

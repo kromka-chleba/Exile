@@ -1,8 +1,5 @@
-ropes = ropes
-wielded_light = wielded_light
-
 ropes.make_rope_on_timer = function(rope_node_name)
-    return function(pos, elapsed)
+    return function(pos, _elapsed)
         local currentend = minetest.get_node(pos)
         local currentmeta = minetest.get_meta(pos)
         local currentlength = currentmeta:get_int("length_remaining")

@@ -72,7 +72,7 @@ function ncrafting.set_roast(pos, length, interval)
     minetest.get_node_timer(pos):start(interval)
 end
 
-function ncrafting.roast(pos, selfname, name, length, heat, wet_result)
+function ncrafting.roast(pos, selfname, name, _length, heat, wet_result)
     local meta = minetest.get_meta(pos)
     local roast = meta:get_int("roast")
 
@@ -157,7 +157,7 @@ function ncrafting.fire_pottery(pos, selfname, name, length, firing_temp)
 
     if firing <= 0 then
         --finished firing
-        minimal.switch_node(pos, name)
+        EXILE.switch_node(pos, name)
         return false
     elseif temp < fire_temp then
         if firing < length and temp < fire_temp/2 then
@@ -187,7 +187,7 @@ function ncrafting.start_bake(pos, result)
     minetest.get_node_timer(pos):start(ncrafting.cook_rate)
 end
 
-function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
+function ncrafting.do_bake(pos, _elapsed, heat, length, cookname, burnname)
     local selfname = minetest.get_node(pos).name
     selfname = selfname:gsub("_cooked","") -- ensure we have the base name
     local name_cooked = cookname or selfname.."_cooked"
@@ -212,7 +212,7 @@ function ncrafting.do_bake(pos, elapsed, heat, length, cookname, burnname)
         return true
     elseif baking == 0 then
         --finished firing
-        minimal.switch_node(pos, name_cooked)
+        EXILE.switch_node(pos, name_cooked)
         ncrafting.set_treatment(meta, "cook")
         minetest.check_for_falling(pos)
         local cook_def = minetest.registered_nodes[name_cooked]
@@ -281,7 +281,7 @@ function ncrafting.do_soak(pos, name, interval, catchup, detectfunc)
         meta:set_int("soaking",soaking)
         if soaking <= 0 then
             -- finished
-            minimal.switch_node(pos, name)
+            EXILE.switch_node(pos, name)
             ncrafting.set_treatment(meta, "soak")
             return false
         end
@@ -296,8 +296,8 @@ minetest.register_abm({
         nodenames = "group:timer",
         interval = 23,
         chance = 10,
-        action = function(pos, node, active_object_count,
-                          active_object_count_wider)
+        action = function(pos, node, _active_object_count,
+                          _active_object_count_wider)
             local timer = minetest.get_node_timer(pos)
             if not timer:is_started() then
                 timer:start(minetest.registered_nodes[node.name].groups.timer)

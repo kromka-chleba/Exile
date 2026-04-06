@@ -212,7 +212,7 @@ local function get_moon_texture(texture,spctype)
         -- if a spctype is specified, then seek other specified moon textures
         frame = -(bounds.y * phscount) -- set frame to maximum
     elseif (spctype == "number") then -- manually setting the frame, hmm?
-        spctype = minimal.math_clamp(spctype,0,phscount)
+        spctype = EXILE.math_clamp(spctype,0,phscount)
         frame = -(bounds.y * math.ceil(spctype))
     end
     -- yields an invisible texture (as the position beyond the 12th frame
@@ -456,7 +456,7 @@ local function fair_select_weather()
     local category = temp_category()
     local n = math.random() * #chain -- each chain entry runs 0-100%, add them
     local total = 0
-    for i, nextw in pairs(chain) do
+    for _, nextw in pairs(chain) do
         local val = nextw[category]
         total = total + val
         if n < total then
@@ -629,7 +629,7 @@ minetest.register_chatcommand("set_temp", cmd_set_t)
 local cmd_lock_t = {
     description = "Disable automatic temperature changes",
     privs = {set_temp=true},
-    func = function(name, param)
+    func = function(_name, _param)
         climate.lock_temp = true
         store:set_string("lock_temp", "true")
         return true, "Temperature is now locked."
@@ -641,7 +641,7 @@ minetest.register_chatcommand("lock_temp", cmd_lock_t)
 local cmd_unlock_t = {
     description = "Re-enable automatic temperature changes",
     privs = {set_temp=true},
-    func = function(name, param)
+    func = function(_name, _param)
         climate.lock_temp = false
         store:set_string("lock_temp", "false")
         return true, "Temperature is now unlocked."
@@ -704,7 +704,7 @@ minetest.register_chatcommand("set_weather", cmd_set_w)
 local cmd_lock_w = {
     description = "Disable automatic weather changes",
     privs = {set_weather=true},
-    func = function(name, param)
+    func = function(_name, _param)
         climate.lock_weather = true
         store:set_string("lock_weather", "true")
         return true, "Weather is now locked."
@@ -716,7 +716,7 @@ minetest.register_chatcommand("lock_weather", cmd_lock_w)
 local cmd_unlock_w = {
     description = "Re-enable automatic weather changes",
     privs = {set_weather=true},
-    func = function(name, param)
+    func = function(_name, _param)
         climate.lock_weather = false
         store:set_string("lock_weather", "false")
         return true, "Weather is now unlocked."
@@ -755,7 +755,7 @@ if minetest.get_modpath('beerchat') then -- we have beerchat installed
     beerchat = beerchat
     minetest.register_on_mods_loaded(function()
             beerchat.register_relaycommand(
-                "date", function(uname, text, protocol)
+                "date", function(_uname, _text, _protocol)
                     local date = climate.datestring()
                     return minetest.get_translated_string(lang, date)
             end)

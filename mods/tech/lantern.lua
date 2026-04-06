@@ -6,25 +6,23 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
-lightsource = lightsource
-lightsource_description = lightsource_description
+local c_alpha = EXILE.compat_alpha
 
 local lantern_desc = lightsource_description.new(
     {lit_name = "tech:lantern_lit", unlit_name = "tech:lantern_unlit",
      fuel_name = "tech:vegetable_oil", max_fuel = 3000,
      burn_rate = 5, refill_ratio = 1/8, put_out_by_moisture = false})
 
--- to minimal?
+-- #TODO: Move to ncrafting
 -- right click on a node with an item to craft another node
-local function take_item_replace_node(pos, node, clicker, itemstack,
-                                      pointed_thing, item_name, node_name)
+local function take_item_replace_node(pos, _node, clicker, itemstack,
+                                      _pointed_thing, item_name, node_name)
     local stack_name = itemstack:get_name()
     if not clicker:is_player() then return end
     local name = clicker:get_player_name()
     if minetest.is_protected(pos, name) then return end
     if stack_name == item_name then
-        if not minimal.player_in_creative(name) then
+        if not EXILE.player_in_creative(name) then
             itemstack:take_item()
         end
         minetest.swap_node(pos, {name = node_name})
@@ -45,7 +43,7 @@ minetest.register_node(
         },
         drawtype = "mesh",
         mesh = "lantern.obj",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         sunlight_propagates = true,
         --use_texture_alpha = c_alpha.clip,
         paramtype = "light",
@@ -70,8 +68,8 @@ minetest.register_node(
                 S("Status: needs a @1 and a wick (@2)!",
                   minetest.registered_nodes["tech:pane_clear"].description,
                   minetest.registered_items["tech:coarse_fibre"].description))
-            minimal.infotext_set_new(pos, meta)
-            --minimal.infotext_merge(pos, ("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
+            EXILE.infotext_set_new(pos, meta)
+            --EXILE.infotext_merge(pos, ("Status: needs a clear glass pane and a wick (coarse fibre)!"), meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
             take_item_replace_node(pos, node, clicker, itemstack, pointed_thing,
@@ -94,7 +92,7 @@ minetest.register_node(
         },
         drawtype = "mesh",
         mesh = "lantern.obj",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         Sunlight_propagates = true,
         --use_texture_alpha = c_alpha.blend,
         paramtype = "light",
@@ -116,8 +114,8 @@ minetest.register_node(
                 "status",S("Status: needs a @1!",
                            minetest.registered_nodes[
                                "tech:pane_clear"].description))
-            minimal.infotext_set_new(pos, meta)
-            --minimal.infotext_merge(pos, ("Status: needs a clear glass pane!"),
+            EXILE.infotext_set_new(pos, meta)
+            --EXILE.infotext_merge(pos, ("Status: needs a clear glass pane!"),
             --meta)
         end,
         on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
@@ -136,7 +134,7 @@ minetest.register_node(
         },
         drawtype = "mesh",
         mesh = "lantern.obj",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         sunlight_propagates = true,
         use_texture_alpha = c_alpha.blend,
         paramtype = "light",
@@ -157,8 +155,8 @@ minetest.register_node(
                 "status",S(
                     "Status: needs a wick (@1)!",
                     minetest.registered_items["tech:coarse_fibre"].description))
-            minimal.infotext_set_new(pos, meta)
-            --minimal.infotext_merge(pos,
+            EXILE.infotext_set_new(pos, meta)
+            --EXILE.infotext_merge(pos,
             --("Status: needs a wick (coarse fibre)!"),
             --meta)
         end,
@@ -181,7 +179,7 @@ minetest.register_node(
         },
         drawtype = "mesh",
         mesh = "lantern.obj",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         sunlight_propagates = true,
         use_texture_alpha = c_alpha.blend,
         paramtype = "light",
@@ -200,18 +198,18 @@ minetest.register_node(
             -- lightsource.restore_from_inventory(pos, itemstack)
             lightsource.update_fuel_infotext(lantern_desc, pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+        after_place_node = function(pos, _placer, itemstack, _pt, nmeta, imeta)
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack, nmeta, imeta)
             lightsource.update_fuel_infotext(lantern_desc, pos, nmeta)
         end,
         on_dig = function(pos, node, digger)
-            minimal.protection_on_dig(pos,node,digger)
+            EXILE.protection_on_dig(pos,node,digger)
             lightsource.save_to_inventory(lantern_desc, pos, digger, false)
         end,
-        on_ignite = function(pos, user)
+        on_ignite = function(pos, _user)
             lightsource.ignite(lantern_desc, pos)
         end,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(pos, _node, clicker, itemstack, _pointed_thing)
             lightsource.refill(lantern_desc, pos, clicker, itemstack)
         end,
         on_infotext = lightsource.infotext_get
@@ -233,7 +231,7 @@ minetest.register_node(
         },
         drawtype = "mesh",
         mesh = "lantern.obj",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         sunlight_propagates = true,
         light_source = 11,
         use_texture_alpha = c_alpha.blend, -- flame vanishes on MT 5.3.0
@@ -252,17 +250,17 @@ minetest.register_node(
         on_construct = function(pos)
             lightsource.start_burning(lantern_desc, pos)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             return lightsource.burn_fuel(lantern_desc, pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing, nmeta, imeta)
+        after_place_node = function(pos, _placer, itemstack, _pt, nmeta, imeta)
             lightsource.restore_from_inventory(lantern_desc, pos, itemstack, nmeta, imeta)
         end,
         on_dig = function(pos, node, digger)
-            minimal.protection_on_dig(pos,node,digger)
+            EXILE.protection_on_dig(pos,node,digger)
             lightsource.save_to_inventory(lantern_desc, pos, digger, true)
         end,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(pos, _node, clicker, itemstack, _pointed_thing)
             local rt = lightsource.refill(lantern_desc, pos, clicker, itemstack)
             if rt == false then
                 lightsource.extinguish(lantern_desc, pos)

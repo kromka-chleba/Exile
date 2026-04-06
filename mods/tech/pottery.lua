@@ -7,7 +7,7 @@
 -- Internationalization
 local S = tech.S
 
-local c_alpha = minimal.compat_alpha
+local c_alpha = EXILE.compat_alpha
 
 --firing difficulty
 local base_firing = ncrafting.base_firing
@@ -25,7 +25,7 @@ minetest.register_node(
     "tech:ruined_pottery_slab", {
         description = S("Broken Pottery Slab"),
         tiles = {"tech_ruined_pottery.png"},
-        stack_max = minimal.stack_max_bulky *2,
+        stack_max = EXILE.stack_max_bulky *2,
         paramtype = "light",
         drawtype = "nodebox",
         node_box = {
@@ -37,13 +37,13 @@ minetest.register_node(
         _use_tip = S("Combine with another slab"),
         _combines_by_hand = "tech:ruined_pottery",
         _on_use_item = function(player, wielded_item, pointed_thing)
-            return minimal.slabs_combine(player, wielded_item,
-              minimal.get_usable_position(pointed_thing))
+            return EXILE.slabs_combine(player, wielded_item,
+              EXILE.get_usable_position(pointed_thing))
         end,
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ruined_pottery_timer/2)
         end,
-        on_timer = function(pos,elapsed)
+        on_timer = function(pos,_elapsed)
             minetest.set_node(pos,{name = "stairs:slab_clay"})
         end,
 })
@@ -55,11 +55,11 @@ minetest.register_node(
         groups = {falling_node = 1, crumbly = sediment.hardness.soft},
         sounds =  nodes_nature.node_sound_gravel_defaults(),
         tiles = {"tech_ruined_pottery.png"},
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         on_construct = function(pos)
             minetest.get_node_timer(pos):start(ruined_pottery_timer)
         end,
-        on_timer = function(pos,elapsed)
+        on_timer = function(pos,_elapsed)
             minetest.set_node(pos,{name = "nodes_nature:clay"})
         end,
 })
@@ -84,7 +84,7 @@ minetest.register_lbm({
             "tech:slope_outer_ruined_pottery_wet_salty",
             "tech:slope_pike_ruined_pottery_wet_salty"
         },
-        action = function(pos, node, dtime_s)
+        action = function(pos, _node, _dtime_s)
             minetest.set_node(pos,{name = "tech:ruined_pottery"})
         end
 })
@@ -92,7 +92,7 @@ minetest.register_lbm({
 -------------------------------------------------------------------
 --#TODO: THIS SHOULD BE MOVED somewhere GENERALIZED to handle non-pottery pots
 function water_pot(pos, pot_name, elapsed)
-    local light = minimal.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
+    local light = EXILE.get_daylight({x=pos.x, y=pos.y + 1, z=pos.z}, 0.5)
     --collect rain
     if light == 15 then
         if climate.get_rain(pos, light) or
@@ -154,7 +154,7 @@ minetest.register_node(
             "nodes_nature_clay.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         node_box = {
             type = "fixed",
@@ -176,7 +176,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length
             return ncrafting.fire_pottery(pos,
                                           "tech:clay_water_pot_unfired",
@@ -199,7 +199,7 @@ minetest.register_node(
             "nodes_nature_clay.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         node_box = {
             type = "fixed",
@@ -221,7 +221,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, base_firing*5)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length
             return ncrafting.fire_pottery(pos,
                                           "tech:clay_storage_pot_unfired",
@@ -245,7 +245,7 @@ minetest.register_node(
             "nodes_nature_clay.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         paramtype2 = "facedir",
         use_texture_alpha = c_alpha.clip,
@@ -307,7 +307,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length
             return ncrafting.fire_pottery(pos, "tech:clay_oil_lamp_unfired", "tech:clay_oil_lamps", base_firing)
         end,
@@ -361,7 +361,7 @@ minetest.register_node(
         },
         groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
         sounds = tech.node_sound_earthenware_defaults(),
-        on_flood = function(pos, oldnode, newnode)
+        on_flood = function(pos, _oldnode, _newnode)
             minetest.add_item(pos, ItemStack("tech:clay_oil_lamps 1"))
             return false
         end,
@@ -377,7 +377,7 @@ minetest.register_entity(
                               textures = { "empty.png" },
                               physical = true
                              },
-        on_step = function(self, dtime, moveresult)
+        on_step = function(self, dtime, _moveresult)
             if not spilltimer[self] then spilltimer[self] = 0 end
             spilltimer[self] = spilltimer[self] + dtime
             self.object:add_velocity(vector.new(0,-9 * dtime, 0))
@@ -419,7 +419,7 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
             "tech_oil_lamp_front.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_medium,
+        stack_max = EXILE.stack_max_medium,
         paramtype = "light",
         sunlight_propagates = true,
         paramtype2 = "facedir",
@@ -439,7 +439,7 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
         groups = {dig_immediate=3, pottery = 1, temp_pass = 1, falling_node = 1},
         sounds = tech.node_sound_earthenware_defaults(),
         floodable = true,
-        on_flood = function(pos, oldnode, newnode)
+        on_flood = function(pos, _oldnode, _newnode)
             local fuel = minetest.get_meta(pos):get_int("fuel")
             fuel = (fuel/3100)*100 - math.random(2,4)
             if fuel >= 50 then
@@ -451,17 +451,17 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
         on_construct = function(pos)
             lightsource.update_fuel_infotext(oil_lamp_data, pos)
         end,
-        after_place_node = function(pos, placer, itemstack, pointed_thing)
+        after_place_node = function(pos, _placer, itemstack, _pointed_thing)
             lightsource.restore_from_inventory(oil_lamp_data, pos, itemstack)
             lightsource.update_fuel_infotext(oil_lamp_data, pos)
         end,
-        on_dig = function(pos, node, digger)
+        on_dig = function(pos, _node, digger)
             lightsource.save_to_inventory(oil_lamp_data, pos, digger, false)
         end,
-        on_ignite = function(pos, user)
+        on_ignite = function(pos, _user)
             lightsource.ignite(oil_lamp_data, pos)
         end,
-        on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+        on_rightclick = function(pos, _node, clicker, itemstack, _pointed_thing)
             lightsource.refill(oil_lamp_data, pos, clicker, itemstack)
         end,
         on_infotext = lightsource.infotext_get
@@ -485,14 +485,14 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
     litdef.on_construct = function(pos)
         lightsource.start_burning(oil_lamp_data, pos)
     end
-    litdef.on_timer = function(pos, elapsed)
+    litdef.on_timer = function(pos, _elapsed)
         return lightsource.burn_fuel(oil_lamp_data, pos)
     end
-    litdef.on_ignite = function(pos, user)
+    litdef.on_ignite = function(pos, _user)
         lightsource.ignite(oil_lamp_data, pos)
     end
-    litdef.on_rightclick = function(pos, node, clicker,
-                                    itemstack, pointed_thing)
+    litdef.on_rightclick = function(pos, _node, clicker,
+                                    itemstack, _pointed_thing)
         local rt = lightsource.refill(oil_lamp_data, pos, clicker, itemstack)
         if rt == false then
             lightsource.extinguish(oil_lamp_data, pos)
@@ -505,7 +505,7 @@ local function register_lamps(desc, oil_lamp_data, alterscript)
     end
 
     minetest.register_node(oil_lamp_data.unlit_name, basedef)
-    litdef.on_dig = function(pos, node, digger)
+    litdef.on_dig = function(pos, _node, digger)
             lightsource.save_to_inventory(oil_lamp_data, pos, digger, true)
     end
     minetest.register_node(oil_lamp_data.lit_name, litdef)
@@ -536,7 +536,7 @@ register_lamps(
         lit = S("Hanging Oil Lamp (Lit)")
     },
     hanging_lamp_desc,
-    function(udef, ldef, oil_lamp_data)
+    function(udef, ldef, _oil_lamp_data)
         for _, def in pairs({udef, ldef}) do
             table.insert(def.node_box.fixed, -- add the string it hangs from
                          {-0.001, -0.125, -0.1875, 0.001, 0.5, 0.125} )
@@ -572,7 +572,7 @@ register_lamps(
                 end
                 return minetest.item_place_node(itemstack, placer, pointed_thing, 0)
             end
-            def.preserve_metadata = function(pos, oldnode, oldmeta, drops, imeta)
+            def.preserve_metadata = function(pos, _oldnode, oldmeta, drops, imeta)
                 if not (oldmeta and oldmeta.fuel) then return end
                 imeta = imeta or drops[1]:get_meta()
                 local loss =   100 + oldmeta.fuel * .05 * math.random(1,6)
@@ -600,7 +600,7 @@ minetest.register_node(
             "nodes_nature_clay.png"
         },
         drawtype = "nodebox",
-        stack_max = minimal.stack_max_bulky,
+        stack_max = EXILE.stack_max_bulky,
         paramtype = "light",
         node_box = {
             type = "fixed",
@@ -630,7 +630,7 @@ minetest.register_node(
         on_dig = function(pos, node, digger)
             return ncrafting.on_dig_pottery(pos, node, digger, base_firing)
         end,
-        on_timer = function(pos, elapsed)
+        on_timer = function(pos, _elapsed)
             --finished product, length
             return ncrafting.fire_pottery(pos,
                                           "tech:clay_watering_can_unfired",

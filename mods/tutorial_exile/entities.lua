@@ -37,7 +37,7 @@ local blocker_ent = {
         end)
 
     end,
-    on_step = function(self, dtime, moveresult)
+    on_step = function(self, dtime, _moveresult)
         if self.disabled then -- Old entity, or done existing
             self.object:remove()
             return
@@ -106,7 +106,7 @@ local pad_effects = {
             core.delete_particlespawner(self.particle_id)
         end
     end,
-    on_activate = function(self, staticdata)
+    on_activate = function(self, _staticdata)
         self.time = 0
         local pos = self.object:get_pos()
 
@@ -153,8 +153,8 @@ local loaded_ents = {}
 minetest.register_chatcommand(
     "place_blocker",{
         privs = "server",
-        func = function(name,param)
-            local pointed = minimal.get_pointed_thing(name)
+        func = function(name, _param)
+            local pointed = EXILE.get_pointed_thing(name)
             local tgt = vector.round(pointed.above)
             local ent = minetest.add_entity(tgt, "tutorial_exile:place_blocker")
             if not ent then return false, "Failed to place!" end
@@ -167,7 +167,7 @@ minetest.register_chatcommand(
 minetest.register_chatcommand(
     "clear_blockers",{
         privs = "server",
-        func = function(name,param)
+        func = function(_name, _param)
             for i = 1, #loaded_ents do
                 loaded_ents[i]:remove()
             end
