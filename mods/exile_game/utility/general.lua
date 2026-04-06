@@ -440,7 +440,7 @@ end
 -- the `group_name` group.  `min` and `max` (integer) are optional
 -- arguments that specify the minimal and maximal values (inclusive)
 -- of numerical subgroups of the group
-function minimal.get_items_from_group(group_name, min, max)
+function EXILE.get_items_from_group(group_name, min, max)
     return generic_group_finder(core.registered_items, group_name, min, max)
 end
 
@@ -448,7 +448,7 @@ end
 -- the `group_name` group.  `min` and `max` (integer) are optional
 -- arguments that specify the minimal and maximal values (inclusive)
 -- of numerical subgroups of the group
-function minimal.get_nodes_from_group(group_name, min, max)
+function EXILE.get_nodes_from_group(group_name, min, max)
     return generic_group_finder(core.registered_nodes, group_name, min, max)
 end
 
@@ -456,7 +456,7 @@ end
 -- the `group_name` group.  `min` and `max` (integer) are optional
 -- arguments that specify the minimal and maximal values (inclusive)
 -- of numerical subgroups of the group
-function minimal.get_tools_from_group(group_name, min, max)
+function EXILE.get_tools_from_group(group_name, min, max)
     return generic_group_finder(core.registered_tools, group_name, min, max)
 end
 
@@ -464,6 +464,12 @@ end
 -- belonging to the `group_name` group.  `min` and `max` (integer) are
 -- optional arguments that specify the minimal and maximal values
 -- (inclusive) of numerical subgroups of the group
-function minimal.get_craftitems_from_group(group_name, min, max)
+function EXILE.get_craftitems_from_group(group_name, min, max)
     return generic_group_finder(core.registered_craftitems, group_name, min, max)
 end
+
+-- Backward-compatible aliases
+minimal.get_items_from_group = EXILE.get_items_from_group
+minimal.get_nodes_from_group = EXILE.get_nodes_from_group
+minimal.get_tools_from_group = EXILE.get_tools_from_group
+minimal.get_craftitems_from_group = EXILE.get_craftitems_from_group
