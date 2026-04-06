@@ -172,4 +172,6 @@ minetest.register_on_generated(function(vm, minp, maxp, blockseed)
 
     vm:set_data(data)
     vm:calc_lighting()
+    vm:write_to_map()
+    minetest.fix_light(minp, maxp)
 end)
