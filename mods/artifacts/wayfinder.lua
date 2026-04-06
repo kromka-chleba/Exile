@@ -174,6 +174,7 @@ end)
 -- update inventory
 local steplimit = 0
 minetest.register_globalstep(function(dtime)
+        steplimit = steplimit + dtime
         if not minetest.is_singleplayer and steplimit < 0.4 then
             return
         end
