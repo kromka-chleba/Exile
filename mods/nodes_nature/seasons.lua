@@ -428,6 +428,15 @@ local spring_labels = {
     "seasonal_plants",
 }
 
+local function ensure_chunk_labels(hash, labels)
+    local label_store = ms.label_store.new(hash)
+    if label_store:contains_labels(labels) then
+        return
+    end
+    label_store:add_labels(labels)
+    label_store:save_to_disk()
+end
+
 minetest.register_lbm({
         name = "nodes_nature:spring_chunk_lbm",
         label = "Spring soil finder for mapchunk shepherd",
@@ -435,10 +444,7 @@ minetest.register_lbm({
         run_at_every_load = false,
         action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
-            local label_store = ms.label_store.new(hash)
-            if not label_store:contains_labels(spring_labels) then
-                ms.handle_labels(hash, spring_labels)
-            end
+            ensure_chunk_labels(hash, spring_labels)
         end,
 })
 
@@ -454,9 +460,6 @@ minetest.register_lbm({
         run_at_every_load = false,
         action = function(pos, _node)
             local hash = ms.mapchunk_hash(pos)
-            local label_store = ms.label_store.new(hash)
-            if not label_store:contains_labels(winter_labels) then
-                ms.handle_labels(hash, winter_labels)
-            end
+            ensure_chunk_labels(hash, winter_labels)
         end,
 })
